@@ -794,8 +794,8 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     words: {
       r0: "The paper's own composition formula for two speeds at an angle, in its printed form, with its refusals made explicit.",
       r1: "This is the formula of paper 3, section 5: the resulting speed is the square root of (v squared plus w squared plus twice v w cos alpha, less the square of v w sin alpha over c), all divided by (1 + v w cos alpha over c squared). Under the root the first three terms are the parallelogram law, the answer ordinary mechanics would give; the subtracted term and the denominator are what the theory adds, and both vanish as the speeds fall away from c. The angle alpha is between the two velocities, and the expression is symmetric in v and w, which the paper remarks on.",
-      r2: "The function computes cos alpha and sin alpha once, then the denominator 1 + v w cos alpha / c squared, then the radicand inner. It refuses before taking the root, in two ways that are different facts: a nonfinite input or a non-positive c is a malformed request, while |v| or |w| at or beyond c is a request outside the model, and those return different codes. It then refuses again if the radicand came out negative or the denominator vanished, rather than returning a NaN that would flow into a plot. Only then does it return the square root of inner over den. Setting alpha to zero makes sin alpha zero and cos alpha one, and the whole expression collapses to (v + w) over (1 + v w / c squared), the collinear form.",
-      r3: "The printed form is Einstein's, from section 5 of the 1905 paper, where V is the letter for the light speed and alpha is the angle between the velocities. The site keeps the structure of the printed line rather than a rearranged modern equivalent, so that a reader comparing the panel with the page sees the same shape.",
+      r2: "The implementation evaluates the printed expression through an equivalent sum of squares. With b = v/c and q = w/c, the numerator is the norm of b + q cos alpha and q sin alpha times the square root of (1-b)(1+b). Expanding those squares recovers the printed radicand; keeping them factored prevents nearly opposing velocities from producing a negative radicand through subtraction error. Normalizing by c first also avoids squaring a very large or tiny unit scale. Near light speed, den squared minus numerator squared factors as (1-b squared)(1-q squared), so the speed's complement can be computed without subtracting nearly equal squares. Near rest the direct norm preserves the small answer. The observer must remain strictly below c, while the moving point may be light: w = c returns c at every angle, exactly as the source states.",
+      r3: "The printed form is Einstein's, from section 5 of the 1905 paper, where V is the letter for the light speed and alpha is the angle between the velocities. The displayed equation keeps that printed structure. Its numerical evaluation uses algebraically equivalent factorizations so that opposing velocities and the explicit w = V case remain usable.",
     },
     equationId: "eq-model-sr-velocity-x",
     liveTerms: ["frameSpeed", "emissionAngle"],
@@ -805,6 +805,22 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       bind("composePrinted", "alpha", "emissionAngle"),
       bind("composePrinted", "c", "speedOfLight", ["eq-model-sr-velocity-x.t.light"]),
       bind("composePrinted", "c", "speedOfLight"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-06",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "transformLightDirection"),
+    words: {
+      r0: "A declared light ray changes direction between observers while its speed remains c.",
+      r1: "The input is a propagation direction, with no measured speed attached to its arbitrary length. Normalize it, apply the longitudinal aberration numerator n_x minus beta and the two transverse numerators divided by gamma, then normalize that new direction and multiply by c. The positive common Doppler denominator cancels from the direction. A ray initially along y becomes the direction (-0.6, 0.8, 0) for an observer moving at 0.6 c.",
+      r2: "Scaling by the largest input component before taking the norm admits any finite nonzero direction without overflowing its length. A zero direction and a nonfinite input refuse. Gamma still requires an observer strictly below c. Re-normalization expresses the declared null ray's fixed speed and prevents trigonometric rounding from being misread as superluminal matter; the separate transformVelocity entry retains its strict measured-speed check. Applying the inverse boost recovers the original propagation direction.",
+    },
+    equationId: "eq-model-sr-velocity-x",
+    liveTerms: ["frameSpeed", "speedOfLight"],
+    identifierBindings: [
+      bind("transformLightDirection", "beta", "frameSpeed"),
+      bind("transformLightDirection", "c", "speedOfLight"),
     ],
     independentReferences: [],
   },

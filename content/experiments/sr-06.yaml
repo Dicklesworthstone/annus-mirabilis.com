@@ -224,6 +224,10 @@ owner:
       language: ts
       module: "src/physics/reference/kinematics.ts"
       exportName: "transformVelocity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "transformLightDirection"
   identifierBindings:
     - kernelFunction: composePrinted
       identifier: "v"
@@ -261,6 +265,12 @@ owner:
     - kernelFunction: transformVelocity
       identifier: "beta"
       quantityId: frameSpeed
+    - kernelFunction: transformLightDirection
+      identifier: "beta"
+      quantityId: frameSpeed
+    - kernelFunction: transformLightDirection
+      identifier: "c"
+      quantityId: speedOfLight
   traceScenarioId: sr-06-collinear-0.6-0.6
   traceRows:
     - label: "Collinear 0.6c with 0.6c"

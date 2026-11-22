@@ -304,7 +304,7 @@ export function composedSpeedShortfall(beta1: number, beta2: number): KinematicR
   return ok(((1 - beta1) * (1 - beta2)) / (1 + beta1 * beta2));
 }
 
-/** Paper 3 §5 printed forms. V is c. alpha in radians. */
+/** Paper 3 §5 printed speed, including a light ray. V is c; alpha is in radians. */
 export function composePrinted(
   v: number,
   w: number,
@@ -317,20 +317,27 @@ export function composePrinted(
       "Printed composition needs finite speeds and a positive c.",
     );
   }
-  if (Math.abs(v) >= c || Math.abs(w) >= c) {
-    return outsideDomain("superluminal-observer", "Printed composition inputs must be subluminal.");
-  }
+  if (Math.abs(v) >= c)
+    return outsideDomain("superluminal-observer", "The frame speed must be below light speed.");
+  if (Math.abs(w) > c)
+    return outsideDomain("superluminal-particle", "The moving point's speed cannot exceed c.");
+  // §5 explicitly includes w = V. Its speed remains c at every angle; no rest frame is implied.
+  if (Math.abs(w) === c) return ok(c);
+  const b = v / c;
+  const q = w / c;
   const cosA = Math.cos(alpha);
   const sinA = Math.sin(alpha);
-  const den = 1 + (v * w * cosA) / (c * c);
-  const inner = v * v + w * w + 2 * v * w * cosA - ((v * w * sinA) / c) ** 2;
-  if (inner < 0 || den === 0) {
-    return outsideDomain(
-      "invalid-parameter",
-      "Printed composition radicand or denominator is invalid.",
-    );
-  }
-  return ok(Math.sqrt(inner) / den);
+  const den = 1 + b * q * cosA;
+  // The printed radicand is this sum of squares. Subtracting its four expanded terms can
+  // instead make an exactly opposing pair negative. Normalize first so large/small c is safe.
+  const numerator = Math.hypot(b + q * cosA, q * sinA * Math.sqrt((1 - b) * (1 + b)));
+  // Near c, use (den² - numerator²) = (1-b²)(1-q²), without that subtraction.
+  // Near rest, the direct norm keeps the small speed instead of subtracting it from one.
+  const fraction =
+    numerator <= den / 2
+      ? numerator / den
+      : 1 - ((1 - b) * (1 + b) * (1 - q) * (1 + q)) / (den * (den + numerator));
+  return ok(c * fraction);
 }
 
 /** Cancellation-free (u ⊕ w) - u. */
@@ -426,6 +433,41 @@ export function transformVelocity(
     ux: (u.ux - v) / den,
     uy: u.uy / (g.value * den),
     uz: u.uz / (g.value * den),
+  });
+}
+
+/**
+ * Transform a declared light ray, whose input is a direction rather than a measured speed.
+ * Normalization fixes that direction's arbitrary scale; it does not admit a superluminal
+ * particle or change transformVelocity's strict speed check. Re-normalizing the transformed
+ * direction keeps trig/round-trip rounding from being mistaken for a physical domain failure.
+ */
+export function transformLightDirection(
+  direction: Readonly<{ x: number; y: number; z: number }>,
+  beta: number,
+  c = speedOfLightMetresPerSecond(),
+): KinematicResult<Velocity> {
+  const g = gamma(beta);
+  if (g.status !== "value") return g;
+  if (![direction.x, direction.y, direction.z, c].every(finite) || c <= 0)
+    return outsideDomain("nonfinite-input", "A light ray needs a finite direction and positive c.");
+  const scale = Math.max(Math.abs(direction.x), Math.abs(direction.y), Math.abs(direction.z));
+  if (scale === 0)
+    return outsideDomain("invalid-direction", "A light ray needs a nonzero propagation direction.");
+  const x = direction.x / scale;
+  const y = direction.y / scale;
+  const z = direction.z / scale;
+  const length = Math.hypot(x, y, z);
+  const nx = x / length;
+  // The positive common Doppler denominator cancels when finding the new direction.
+  const tx = nx - beta;
+  const ty = y / length / g.value;
+  const tz = z / length / g.value;
+  const transformedLength = Math.hypot(tx, ty, tz);
+  return ok({
+    ux: (tx / transformedLength) * c,
+    uy: (ty / transformedLength) * c,
+    uz: (tz / transformedLength) * c,
   });
 }
 

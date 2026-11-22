@@ -71,6 +71,21 @@ test("the two-boost drawing uses the selected second boost, not saved moving-poi
   expect(host.textContent).toContain("second boost velocity, measured in the intermediate frame");
 });
 
+test("the reader can inspect the printed speed for opposing velocities without a false refusal", () => {
+  const host = lab({ ...SR06_DEFAULTS, mode: "angled", alphaDeg: 180 });
+  expect(host.querySelector('[data-output="printedSpeedOverC"]')?.textContent).toBe("0.000000");
+  expect(host.querySelector('[data-output="composedSpeedOverC"]')?.textContent).toBe("0.000000");
+  expect(host.querySelector("svg")).not.toBeNull();
+});
+
+test("an oblique light ray has a visible diagram, exact speed and zero shortfall", () => {
+  const host = lab({ ...SR06_DEFAULTS, mode: "angled", movingSpeed: 1, alphaDeg: 135 });
+  expect(host.querySelector('[data-output="printedSpeedOverC"]')?.textContent).toBe("1.000000");
+  expect(host.querySelector('[data-output="composedSpeedOverC"]')?.textContent).toBe("1.000000");
+  expect(host.querySelector('[data-output="shortfall"]')?.textContent).toBe("0.00000000");
+  expect(host.querySelector('[data-velocity-vector="U"]')).not.toBeNull();
+});
+
 test("near-light composition keeps the Galilean counterexample visible at the same scale as c", () => {
   const host = plot({ ...SR06_DEFAULTS, frameBeta: 0.99, movingSpeed: 0.99 });
   const radius = Number(host.querySelector("circle")?.getAttribute("r"));

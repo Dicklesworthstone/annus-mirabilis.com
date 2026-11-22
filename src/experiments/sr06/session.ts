@@ -4,9 +4,11 @@ import {
   composedSpeedShortfall,
   composePrinted,
   compositionIncrement,
+  gamma,
   generalBoost,
   rapidity,
   speedOfLightMetresPerSecond,
+  transformLightDirection,
   transformVelocity,
 } from "../../physics/reference/kinematics.ts";
 import { encodeResult } from "../results/codec.ts";
@@ -64,7 +66,10 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
   const alpha = (active.angleDeg * Math.PI) / 180;
   const wx = w * Math.cos(alpha);
   const wy = w * Math.sin(alpha);
-  const composed = transformVelocity({ ux: wx, uy: wy, uz: 0 }, -p.frameBeta, 1);
+  const lightRay = w === 1;
+  const composed = lightRay
+    ? transformLightDirection({ x: wx, y: wy, z: 0 }, -p.frameBeta, 1)
+    : transformVelocity({ ux: wx, uy: wy, uz: 0 }, -p.frameBeta, 1);
   const outputs: ScientificResult[] = [];
   if (composed.status !== "value") {
     const reason = composed.reason;
@@ -74,7 +79,7 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
   }
   const ux = composed.value.ux;
   const uy = composed.value.uy;
-  const U = Math.hypot(ux, uy);
+  const U = lightRay ? 1 : Math.hypot(ux, uy);
   const galilean = Math.hypot(p.frameBeta + wx, wy);
   outputs.push(
     value("movingUxOverC", wx),
@@ -86,16 +91,20 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
     value("composedSpeedOverC", U),
   );
   outputs.push(value("galileanSpeedOverC", galilean));
-  if (w < 1) {
-    const printed = composePrinted(p.frameBeta, w, alpha, 1);
-    outputs.push(
-      printed.status === "value"
-        ? value("printedSpeedOverC", printed.value)
-        : absent("printedSpeedOverC", "outside-domain", printed.reason),
-    );
-  } else {
-    outputs.push(value("printedSpeedOverC", U));
-  }
+  const printed = composePrinted(p.frameBeta, w, alpha, 1);
+  outputs.push(
+    printed.status === "value"
+      ? value("printedSpeedOverC", printed.value)
+      : absent("printedSpeedOverC", "outside-domain", printed.reason),
+  );
+  // Transform the timelike four-velocity's time component. Computing gamma from a rounded
+  // near-light speed can invent an infinite factor even though both supplied speeds are < c.
+  const frameGamma = gamma(p.frameBeta);
+  const movingGamma = lightRay ? null : gamma(w);
+  const composedGamma =
+    frameGamma.status === "value" && movingGamma?.status === "value"
+      ? frameGamma.value * movingGamma.value * (1 + p.frameBeta * wx)
+      : null;
   if (p.mode === "collinear" && w < 1) {
     // The owner returns 1 minus a signed velocity. Reflect both inputs when the resultant
     // points along -x so this readout remains the shortfall of the speed |U| from light speed.
@@ -106,10 +115,18 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
         ? value("shortfall", s.value)
         : absent("shortfall", "outside-domain", s.reason),
     );
+  } else if (lightRay) {
+    outputs.push(value("shortfall", 0));
   } else {
-    outputs.push(value("shortfall", 1 - U));
+    outputs.push(
+      composedGamma !== null
+        ? value("shortfall", 1 / composedGamma / composedGamma / (1 + U))
+        : absent("shortfall", "outside-domain", "The timelike velocity factor is unavailable."),
+    );
   }
-  const back = transformVelocity({ ux, uy, uz: 0 }, p.frameBeta, 1);
+  const back = lightRay
+    ? transformLightDirection({ x: ux, y: uy, z: 0 }, p.frameBeta, 1)
+    : transformVelocity({ ux, uy, uz: 0 }, p.frameBeta, 1);
   if (back.status === "value") {
     outputs.push(value("inverseUxOverC", back.value.ux), value("inverseUyOverC", back.value.uy));
   } else {
@@ -150,24 +167,25 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
       );
     }
   } else {
-    // THE FACTOR BELONGS TO THE SPEED BESIDE IT, WHICH IS WHY U IS THE ONLY INPUT HERE.
-    //
-    // This read the COLLINEAR composition of the two speeds whatever the angle, so at 90 degrees the
-    // table showed U = 0.768c beside gamma = 2.125, and 2.125 is the factor of 0.882c. That is the same
-    // defect the comment at the top of this function records as fixed in two-boosts mode, surviving in
-    // this branch, and nothing caught it: the gamma-against-U consistency was asserted for two-boosts
-    // mode only. In collinear mode U already equals the collinear composition, so this changes that
-    // reading by one bit and the angled reading from 2.125 to 1.5625.
-    const g = 1 / Math.sqrt(1 - U * U);
     outputs.push(
       absent(
         "rotationDeg",
         "not-applicable",
         "A single boost along one line has no Wigner rotation.",
       ),
-      Number.isFinite(g)
-        ? value("composedGamma", g)
-        : absent("composedGamma", "outside-domain", "Gamma is undefined."),
+      lightRay
+        ? absent(
+            "composedGamma",
+            "not-applicable",
+            "A light ray has no rest frame or finite Lorentz factor.",
+          )
+        : composedGamma !== null && Number.isFinite(composedGamma)
+          ? value("composedGamma", composedGamma)
+          : absent(
+              "composedGamma",
+              "outside-domain",
+              "The timelike velocity factor is unavailable.",
+            ),
       absent("productMatrix", "not-applicable", "The 4×4 product is published in two-boosts mode."),
     );
   }
