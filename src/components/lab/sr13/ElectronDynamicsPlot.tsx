@@ -32,6 +32,7 @@ export interface ElectronDynamicsPlotProps {
   datasetOverlay: "none" | "kaufmann-1902-1906" | "bucherer-1908";
   /** The kernel's path in metres, x0, y0, x1, y1, ... (trajectoryPositions); absent before it ran. */
   trajectory?: NumericView | null;
+  trajectoryReason?: string | undefined;
   integrationIntervalS?: number;
 }
 
@@ -79,6 +80,7 @@ export function ElectronDynamicsPlot({
   lorentzFactor,
   datasetOverlay,
   trajectory = null,
+  trajectoryReason,
   integrationIntervalS = 0,
 }: ElectronDynamicsPlotProps) {
   const gamma = Math.max(1, lorentzFactor || 1);
@@ -384,7 +386,7 @@ export function ElectronDynamicsPlot({
         <p className="fine sr13-chamber-legend">
           {count > 0 && integrationIntervalS > 0
             ? `The trajectory over the first ${sentenceNumber(integrationIntervalS * 1e9)} ns, computed by the model and drawn to scale as an x–y projection. Motion along z is not shown.`
-            : "The path appears once the model has run at these settings."}{" "}
+            : (trajectoryReason ?? "The path appears once the model has run at these settings.")}{" "}
           Arrows show Ex and Ey; the dot or cross shows Bz out of or into the page.
         </p>
         {/* No Kaufmann or Bucherer measurement is drawn: neither has been digitized as a cited

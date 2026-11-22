@@ -143,6 +143,6 @@
     "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:4e573122ab0d8b46da42fdba7ea7db12b130a29ce803693b308328d261580556",
     "src/physics/reference/inference.ts": "source:sha256:f0df545a6faed521f98e2bfe4e5d6ce6beb41c1d513fdbf9f38929cd36fd9dbe",
     "src/physics/reference/inference/observation.ts": "source:sha256:f0df545a6faed521f98e2bfe4e5d6ce6beb41c1d513fdbf9f38929cd36fd9dbe",
-    "src/physics/reference/electron.ts": "source:sha256:a6ba87d967243cadb675381a53dc47d760f350092c289ce003fc393805f2c50d"
+    "src/physics/reference/electron.ts": "source:sha256:4b894b40830eacea040e2abd7aab1f3ac31ee5dc33cf21584240885bbc96e777"
   }
 }

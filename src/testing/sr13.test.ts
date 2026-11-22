@@ -6,7 +6,7 @@ import {
   ELECTRON_MASS,
   electricRadius,
   evaluateSr13,
-  integrateBoris,
+  integrateBorisChecked,
   kineticEnergy,
   longitudinalMass,
   magneticRadius,
@@ -140,13 +140,17 @@ describe("SR-13 Acceptance Criteria & Numerical Rigor (am-sr-13-electron-dynamic
     expect(val(outSource.kineticEnergy)).toBe(val(outLab.kineticEnergy));
   });
 
-  test("Integrated Boris push conserves energy-work balance and observed order", () => {
+  test("Checked Boris push measures energy-work balance and convergence order", () => {
     const eField = { x: 0, y: 1e5, z: 0 };
     const bField = { x: 0, y: 0, z: 0 };
     const v0 = { x: 0.6 * C_SI, y: 0, z: 0 };
 
-    const res = integrateBoris(eField, bField, v0, 2e-9, 500);
-    expect(res.observedOrder).toBe(2);
+    const res = integrateBorisChecked(eField, bField, v0, 2e-9);
+    expect(res.status).toBe("value");
+    if (res.status !== "value") throw new Error(res.reason);
+    expect(res.observedOrder).toBeGreaterThan(1.95);
+    expect(res.observedOrder).toBeLessThan(2.05);
+    expect(res.positionErrorEstimate).toBeGreaterThan(0);
     expect(res.energyResidual).toBeDefined();
     if (res.energyResidual === undefined) throw new Error("Expected energyResidual");
     expect(res.energyResidual).toBeLessThan(1e-15);

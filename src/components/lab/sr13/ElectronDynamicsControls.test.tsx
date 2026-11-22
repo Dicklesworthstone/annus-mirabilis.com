@@ -189,9 +189,35 @@ describe("SR-13 complete particle and field controls", () => {
       expect(input.closest("fieldset")?.disabled).toBe(true);
       expect(required(`label[for="${input.id}"]`).textContent?.length).toBeGreaterThan(0);
     }
-    expect(host.textContent).toContain("fixed 120 time steps");
+    expect(host.textContent).toContain("The calculation refines its time steps");
+    expect(host.textContent).toContain("Trajectory numerical check");
+    expect(host.textContent).toContain("empirical estimate");
     expect(host.textContent).toContain("motion along z is not shown");
     expect(host.textContent).toContain("1.953125");
+  });
+
+  test("an unresolved allowed field removes the accepted path, explains why, and recovers when shortened", async () => {
+    await mount();
+    expect(path().length).toBeGreaterThan(0);
+    await change("electricFieldY", "0");
+    await change("magneticFieldZ", "10");
+    await change("integrationInterval", "0.000001");
+    await apply();
+    expect(host.querySelector('svg.sr13-chamber path[stroke-width="3"]')).toBeNull();
+    expect(required('[data-trajectory-status="outside-domain"]').textContent).toContain(
+      "Shorten the duration or reduce the fields",
+    );
+    expect(host.textContent).not.toContain("The path appears once the model has run");
+    expect(required('[data-quantity-id="kineticEnergy"]').textContent).not.toContain("unavailable");
+    expect(host.textContent).not.toMatch(/\b(?:NaN|Infinity)\b/u);
+
+    await change("integrationInterval", "1e-13");
+    await apply();
+    expect(host.querySelector('[data-trajectory-status="outside-domain"]')).toBeNull();
+    expect(required('[data-trajectory-status="value"]').textContent).toContain(
+      "Trajectory numerical check",
+    );
+    expect(path().length).toBeGreaterThan(0);
   });
 
   test("direction and duration apply together without altering the accepted path while editing", async () => {

@@ -8,6 +8,7 @@ import {
   evaluateSr13,
   integrateBoris,
   SR13_TRAJECTORY_STEPS,
+  SR13_MAX_TRAJECTORY_INTERVALS,
 } from "../physics/reference/electron.ts";
 
 /**
@@ -35,9 +36,20 @@ function path(overrides: Partial<Sr13Parameters>) {
 }
 
 describe("SR-13 trajectory output", () => {
-  test("the path starts at the origin and holds one position per step, plus the start", () => {
+  test("the path starts at the origin and publishes bounded drawing samples with numerical evidence", () => {
     const p = path({});
-    expect(p.n).toBe(SR13_TRAJECTORY_STEPS + 1);
+    expect(p.n).toBeGreaterThanOrEqual(SR13_TRAJECTORY_STEPS + 1);
+    expect(p.n).toBeLessThanOrEqual(SR13_MAX_TRAJECTORY_INTERVALS + 1);
+    const output = p.outputs.trajectoryPositions;
+    expect(output?.status).toBe("value");
+    if (output?.status !== "value") throw new Error("Expected accepted trajectory evidence");
+    expect(output.uncertainty?.kind).toBe("numerical-error-estimate");
+    if (output.uncertainty?.kind !== "numerical-error-estimate") {
+      throw new Error("Expected a numerical error estimate");
+    }
+    expect(output.uncertainty.guarantee).toBe("estimate");
+    expect(output.uncertainty.method).toContain("time steps");
+    expect(output.uncertainty.method).toContain("Drawing interpolation");
     expect(p.x(0)).toBe(0);
     expect(p.y(0)).toBe(0);
   });
@@ -56,13 +68,10 @@ describe("SR-13 trajectory output", () => {
       throw new Error("expected a magnetic radius");
     }
     const r = radius.value;
-    // q v × B for q < 0, v along +x, B along +z points along +y: the centre is at (0, +r). The
-    // integrator advances each position with the step's closing velocity, which shifts the circle's
-    // centre by about r·Δθ/2, Δθ = 0.023 rad per step at these settings: measured, the worst point
-    // sits 1.2% of r off the exact circle. The tolerance, 2% of r, is about 3 px on the chamber
-    // drawing; a path bent the wrong way, or on another radius, misses it by the order of r.
+    // The synchronized trapezoidal drift follows the correct-radius circle; refinement also
+    // checks its phase against finer velocities, which speed conservation alone cannot do.
     for (let i = 0; i < p.n; i++) {
-      expect(Math.abs(Math.hypot(p.x(i), p.y(i) - r) - r)).toBeLessThan(0.02 * r);
+      expect(Math.abs(Math.hypot(p.x(i), p.y(i) - r) - r)).toBeLessThan(1e-8 * r);
     }
     // And the arc turns over: 2 ns at 0.6c is 2.8 radians of a 12.8 cm circle, so the path rises
     // past one radius toward the top of the circle.
@@ -87,6 +96,32 @@ describe("SR-13 trajectory output", () => {
     expect(out.trajectoryPositions?.status).toBe("outside-domain");
   });
 
+  test("an admitted strong-field request publishes a numerical refusal instead of keeping the old path", () => {
+    const session = createSr13Session("test-sr13-unresolved");
+    const before = session.getSnapshot().accepted;
+    expect(session.apply({
+      ...SR13_DEFAULTS,
+      electricFieldY: 0,
+      magneticFieldZ: 10,
+      integrationInterval: 1e-6,
+    }).kind).toBe("accepted");
+    const snapshot = session.getSnapshot().accepted;
+    expect(snapshot?.runId).not.toBe(before?.runId);
+    const refused = snapshot?.outputs.find((entry) => entry.quantityId === "trajectoryPositions");
+    expect(refused?.status).toBe("outside-domain");
+    if (refused?.status !== "outside-domain") throw new Error("Expected a numerical refusal");
+    expect(refused.domainKind).toBe("numerical");
+    expect(refused.boundary).toEqual({ parameterId: "integrationInterval", value: 5e-7 });
+    expect(refused).not.toHaveProperty("value");
+    expect(snapshot?.outputs.find((entry) => entry.quantityId === "kineticEnergy")?.status).toBe(
+      "value",
+    );
+    expect(session.apply(SR13_DEFAULTS).kind).toBe("accepted");
+    expect(session.getSnapshot().accepted?.outputs.find(
+      (entry) => entry.quantityId === "trajectoryPositions",
+    )?.status).toBe("value");
+  });
+
   test("the session accepts the path under its output contract", () => {
     const session = createSr13Session("test-sr13-trajectory");
     const applied = session.apply({ ...SR13_DEFAULTS, magneticFieldZ: 0.01 });
@@ -97,7 +132,9 @@ describe("SR-13 trajectory output", () => {
     expect(out?.status).toBe("value");
     if (out?.status !== "value" || typeof out.value === "number")
       throw new Error("expected a path");
-    expect(out.value.length).toBe(2 * (SR13_TRAJECTORY_STEPS + 1));
+    expect(out.value.length).toBeGreaterThanOrEqual(2 * (SR13_TRAJECTORY_STEPS + 1));
+    expect(out.value.length).toBeLessThanOrEqual(2 * (SR13_MAX_TRAJECTORY_INTERVALS + 1));
+    expect(out.uncertainty?.kind).toBe("numerical-error-estimate");
   });
 });
 

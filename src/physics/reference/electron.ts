@@ -65,12 +65,44 @@ export type TrajectoryPoint = Readonly<{
   kineticEnergy: number;
 }>;
 
-export type TrajectoryResult = Readonly<{
+export type TrajectoryValue = Readonly<{
+  status: "value";
   points: readonly TrajectoryPoint[];
-  errorBound: number;
-  observedOrder?: number;
-  energyResidual?: number;
+  stepCount: number;
+  energyResidual: number;
+  energyScale: number;
+  maxScaledImpulse: number;
 }>;
+
+export type TrajectoryRefusal = Readonly<{
+  status: "outside-domain";
+  points: readonly TrajectoryPoint[];
+  stepCount: number;
+  energyResidual?: undefined;
+  condition: string;
+  reason: string;
+  domainKind: DomainKind;
+}>;
+
+export type TrajectoryResult = TrajectoryValue | TrajectoryRefusal;
+
+export type CheckedTrajectoryResult =
+  | (TrajectoryValue &
+      Readonly<{
+        positionErrorEstimate: number;
+        velocityErrorEstimate: number;
+        observedOrder?: number;
+        displayErrorEstimate: number;
+      }>)
+  | TrajectoryRefusal;
+
+/** The integration budget is separate from the number of points sent to the drawing. */
+export const MAX_BORIS_STEPS = 61_440;
+export const SR13_MAX_TRAJECTORY_INTERVALS = 1_920;
+const TRAJECTORY_RELATIVE_TOLERANCE = 1e-5;
+const TRAJECTORY_POSITION_ABSOLUTE_TOLERANCE = 1e-12;
+const TRAJECTORY_VELOCITY_ABSOLUTE_TOLERANCE = 1e-4;
+const MAX_SCALED_IMPULSE = 0.1;
 
 export type Sr13Input = Readonly<{
   electricFieldX: number;
@@ -645,24 +677,18 @@ export function longitudinalFieldTrajectory(
   charge: number = -ELEMENTARY_CHARGE,
   mass: number = ELECTRON_MASS,
 ): readonly TrajectoryPoint[] {
-  const qMag = Math.abs(charge);
-  const eMag = Math.abs(eField);
-  const sign = Math.sign(charge * eField);
   const mc = mass * C_SI;
-  const mc2 = mass * C_SI * C_SI;
-  const lengthScale = mc2 / (qMag * eMag);
+  const mc2 = mc * C_SI;
   const dt = duration / steps;
   const points: TrajectoryPoint[] = [];
 
   for (let i = 0; i <= steps; i++) {
-    const t = i * dt;
-    const xi = (qMag * eMag * t) / mc;
-    const g = Math.sqrt(1 + xi * xi);
-    const x = sign * lengthScale * (g - 1) || 0;
-    const vx = (sign * (C_SI * xi)) / g || 0;
-    const speedRatio = Math.abs(vx) / C_SI;
-    const ke = mc2 * (g - 1);
-
+    const t = i === steps ? duration : i * dt;
+    const xi = (charge * eField * t) / mc;
+    const g = Math.hypot(1, xi);
+    // Rationalized gamma - 1 has a regular zero-field/zero-charge limit.
+    const x = xi === 0 ? 0 : (C_SI * t * xi) / (g + 1);
+    const vx = xi === 0 ? 0 : (C_SI * xi) / g;
     points.push(
       Object.freeze({
         t,
@@ -672,18 +698,22 @@ export function longitudinalFieldTrajectory(
         vx,
         vy: 0,
         vz: 0,
-        speedRatio,
+        speedRatio: Math.abs(xi) / g,
         gamma: g,
-        kineticEnergy: ke,
+        kineticEnergy: mc2 * xi * (xi / (g + 1)),
       }),
     );
   }
   return Object.freeze(points);
 }
 
+function sinc(value: number): number {
+  return value === 0 ? 1 : Math.sin(value) / value;
+}
+
 /**
- * Exact relativistic circular motion in a uniform magnetic field (perpendicular to motion).
- * Motion in x-y plane.
+ * Exact circular motion in a uniform magnetic field, including signed initial velocity.
+ * q(v cross B) gives an electron initially along +x a +y acceleration when Bz > 0.
  */
 export function magneticFieldTrajectory(
   bFieldZ: number,
@@ -696,32 +726,26 @@ export function magneticFieldTrajectory(
   const beta = Math.abs(v0x) / C_SI;
   const gRes = gamma(beta);
   const g = gRes.status === "value" ? gRes.value : 1;
-  const qMag = Math.abs(charge);
-  const bMag = Math.abs(bFieldZ);
-  const rm = (g * mass * Math.abs(v0x)) / (qMag * bMag);
-  const omega = (qMag * bMag) / (g * mass);
-  const sign = Math.sign(charge * bFieldZ * v0x);
+  const omega = (charge * bFieldZ) / (g * mass);
   const dt = duration / steps;
-  const mc2 = mass * C_SI * C_SI;
-  const ke = mc2 * (g - 1);
+  const u0 = (g * v0x) / C_SI;
+  const ke = mass * C_SI * C_SI * u0 * (u0 / (g + 1));
   const points: TrajectoryPoint[] = [];
 
   for (let i = 0; i <= steps; i++) {
-    const t = i * dt;
+    const t = i === steps ? duration : i * dt;
     const theta = omega * t;
-    const x = rm * Math.sin(theta);
-    const y = sign * rm * (1 - Math.cos(theta));
-    const vx = Math.abs(v0x) * Math.cos(theta);
-    const vy = sign * Math.abs(v0x) * Math.sin(theta);
-
+    const x = v0x * t * sinc(theta);
+    const halfSinc = sinc(0.5 * theta);
+    const y = theta === 0 ? 0 : -0.5 * v0x * t * theta * halfSinc * halfSinc;
     points.push(
       Object.freeze({
         t,
         x,
         y,
         z: 0,
-        vx,
-        vy,
+        vx: v0x * Math.cos(theta),
+        vy: theta === 0 ? 0 : -v0x * Math.sin(theta),
         vz: 0,
         speedRatio: beta,
         gamma: g,
@@ -733,14 +757,8 @@ export function magneticFieldTrajectory(
 }
 
 /**
- * Exact analytic relativistic trajectory in a uniform transverse electric field (along y).
- * Particle enters at t = 0 with initial velocity v0 along x.
- *
- * p0 = gamma0 * m * v0
- * epsilon0 = gamma0 * m * c^2
- * x(t) = (p0 * c / (|q| * E)) * asinh(|q| * E * c * t / epsilon0)
- * |y(t)| = (sqrt(epsilon0^2 + (|q| * E * c * t)^2) - epsilon0) / (|q| * E)
- * |u| / c = sqrt(p0^2 * c^2 + (|q| * E * c * t)^2) / sqrt(epsilon0^2 + (|q| * E * c * t)^2)
+ * Exact uniform transverse-electric trajectory. Signed momentum along x is conserved;
+ * py = q Ey t. The rationalized displacement is also valid for zero field or charge.
  */
 export function transverseFieldTrajectory(
   eFieldY: number,
@@ -753,56 +771,57 @@ export function transverseFieldTrajectory(
   const beta0 = Math.abs(v0x) / C_SI;
   const g0Res = gamma(beta0);
   const g0 = g0Res.status === "value" ? g0Res.value : 1;
-  const qMag = Math.abs(charge);
-  const eMag = Math.abs(eFieldY);
-  const qE = qMag * eMag;
-  const signY = Math.sign(charge * eFieldY);
-  const p0 = g0 * mass * Math.abs(v0x);
-  const p0c = p0 * C_SI;
-  const epsilon0 = g0 * mass * C_SI * C_SI;
+  const ux = (g0 * v0x) / C_SI;
+  const mc = mass * C_SI;
+  const mc2 = mc * C_SI;
   const dt = duration / steps;
-  const mc2 = mass * C_SI * C_SI;
   const points: TrajectoryPoint[] = [];
 
   for (let i = 0; i <= steps; i++) {
-    const t = i * dt;
-    const qEct = qE * C_SI * t;
-    const asinhArg = qEct / epsilon0;
-    const x = (p0c / qE) * Math.asinh(asinhArg);
-    const hyp = Math.sqrt(epsilon0 * epsilon0 + qEct * qEct);
-    const y = signY * ((hyp - epsilon0) / qE);
-
-    // Velocities:
-    // u_x = dx/dt = (p0 c^2) / hyp
-    // u_y = dy/dt = signY * (qE c^2 t) / hyp
-    const vx = (p0c * C_SI) / hyp;
-    const vy = (signY * (qE * C_SI * C_SI * t)) / hyp;
-    const uMag = Math.hypot(vx, vy);
-    const speedRatio = uMag / C_SI;
-    const g = hyp / mc2;
-    const ke = mc2 * (g - 1);
-
+    const t = i === steps ? duration : i * dt;
+    const uy = (charge * eFieldY * t) / mc;
+    const argument = uy / g0;
+    const g = Math.hypot(g0, uy);
+    const uMag = Math.hypot(ux, uy);
     points.push(
       Object.freeze({
         t,
-        x,
-        y,
+        x: v0x * t * (argument === 0 ? 1 : Math.asinh(argument) / argument),
+        y: uy === 0 ? 0 : (C_SI * t * uy) / (g + g0),
         z: 0,
-        vx,
-        vy,
+        vx: (C_SI * ux) / g,
+        vy: uy === 0 ? 0 : (C_SI * uy) / g,
         vz: 0,
-        speedRatio,
+        speedRatio: uMag / g,
         gamma: g,
-        kineticEnergy: ke,
+        kineticEnergy: mc2 * uMag * (uMag / (g + 1)),
       }),
     );
   }
   return Object.freeze(points);
 }
 
+function trajectoryRefusal(
+  condition: string,
+  reason: string,
+  domainKind: DomainKind = "numerical",
+  stepCount = 0,
+): TrajectoryRefusal {
+  return Object.freeze({
+    status: "outside-domain",
+    points: Object.freeze([]),
+    stepCount,
+    condition,
+    reason,
+    domainKind,
+  });
+}
+
 /**
- * General numerical integrator for relativistic charged particle dynamics in arbitrary uniform E and B fields.
- * Uses the relativistic Boris push method with adaptive / step-halving error check.
+ * A fixed-resolution relativistic Boris calculation for uniform, time-independent fields.
+ * Momentum and the trapezoidal position drift are synchronized at every reported time.
+ * This routine reports its work-energy residual, but makes no convergence or error-bound claim.
+ * Use integrateBorisChecked to admit a trajectory for publication.
  */
 export function integrateBoris(
   eField: Vec3,
@@ -813,137 +832,312 @@ export function integrateBoris(
   charge: number = -ELEMENTARY_CHARGE,
   mass: number = ELECTRON_MASS,
 ): TrajectoryResult {
+  const components = [
+    eField.x, eField.y, eField.z, bField.x, bField.y, bField.z,
+    v0.x, v0.y, v0.z, duration, charge, mass,
+  ];
+  if (
+    !components.every(Number.isFinite) ||
+    duration <= 0 ||
+    mass <= 0 ||
+    Math.hypot(v0.x, v0.y, v0.z) >= C_SI
+  ) {
+    return trajectoryRefusal(
+      "invalid-trajectory-input",
+      "A trajectory requires finite fields and charge, positive mass and duration, and initial speed below c.",
+      "input",
+    );
+  }
+  if (!Number.isSafeInteger(steps) || steps < 1 || steps > MAX_BORIS_STEPS) {
+    return trajectoryRefusal(
+      "trajectory-step-budget",
+      "The requested trajectory resolution is outside the bounded integration budget.",
+      "numerical",
+    );
+  }
   const dt = duration / steps;
-  const mc = mass * C_SI;
   const mc2 = mass * C_SI * C_SI;
-  const q_m = charge / mass;
-
-  // Initial momentum
-  const v0Mag = Math.hypot(v0.x, v0.y, v0.z);
-  const beta0 = v0Mag / C_SI;
-  const g0 = beta0 < 1 ? 1 / Math.sqrt(1 - beta0 * beta0) : 1;
-  let px = g0 * mass * v0.x;
-  let py = g0 * mass * v0.y;
-  let pz = g0 * mass * v0.z;
-
+  const chargeToMass = charge / mass;
+  if (!(dt > 0) || !Number.isFinite(mc2) || !Number.isFinite(chargeToMass)) {
+    return trajectoryRefusal(
+      "trajectory-not-representable",
+      "The time step or particle scale cannot be represented for this calculation.",
+      "numerical",
+      steps,
+    );
+  }
+  const electricKick = {
+    x: (0.5 * chargeToMass * eField.x * dt) / C_SI,
+    y: (0.5 * chargeToMass * eField.y * dt) / C_SI,
+    z: (0.5 * chargeToMass * eField.z * dt) / C_SI,
+  };
+  const electricImpulse = 2 * Math.hypot(electricKick.x, electricKick.y, electricKick.z);
+  const beta0 = Math.hypot(v0.x, v0.y, v0.z) / C_SI;
+  let g = 1 / Math.sqrt((1 - beta0) * (1 + beta0));
+  // Dimensionless momentum p/(mc) avoids multiplying tiny masses into each push.
+  let ux = (g * v0.x) / C_SI;
+  let uy = (g * v0.y) / C_SI;
+  let uz = (g * v0.z) / C_SI;
+  let vx = v0.x;
+  let vy = v0.y;
+  let vz = v0.z;
   let x = 0;
   let y = 0;
   let z = 0;
-  let t = 0;
-
+  let uMag = Math.hypot(ux, uy, uz);
+  let ke = mc2 * uMag * (uMag / (g + 1));
+  const initialKE = ke;
+  let maxScaledImpulse = 0;
   const points: TrajectoryPoint[] = [
     Object.freeze({
-      t: 0,
-      x: 0,
-      y: 0,
-      z: 0,
-      vx: v0.x,
-      vy: v0.y,
-      vz: v0.z,
-      speedRatio: beta0,
-      gamma: g0,
-      kineticEnergy: mc2 * (g0 - 1),
+      t: 0, x, y, z, vx, vy, vz, speedRatio: beta0, gamma: g, kineticEnergy: ke,
     }),
   ];
 
-  const initialKE = mc2 * (g0 - 1);
-  let workDone = 0;
-
-  // One Boris momentum push over a time h: half electric kick, magnetic rotation, half kick.
-  const push = (h: number) => {
-    // 1. Half electric push
-    const pMinusX = px + 0.5 * charge * eField.x * h;
-    const pMinusY = py + 0.5 * charge * eField.y * h;
-    const pMinusZ = pz + 0.5 * charge * eField.z * h;
-
-    // Gamma from pMinus
-    const pMinusMag = Math.hypot(pMinusX, pMinusY, pMinusZ);
-    const gammaMinus = Math.sqrt(1 + (pMinusMag / mc) ** 2);
-
-    // 2. Magnetic rotation
-    // t_vec = (q * B * h) / (2 * gammaMinus * m)
-    const tx = (0.5 * q_m * h * bField.x) / gammaMinus;
-    const ty = (0.5 * q_m * h * bField.y) / gammaMinus;
-    const tz = (0.5 * q_m * h * bField.z) / gammaMinus;
-    const tMag2 = tx * tx + ty * ty + tz * tz;
-
-    // s_vec = 2 * t_vec / (1 + tMag2)
-    const sx = (2 * tx) / (1 + tMag2);
-    const sy = (2 * ty) / (1 + tMag2);
-    const sz = (2 * tz) / (1 + tMag2);
-
-    // p' = pMinus + pMinus x t_vec
-    const pPrimeX = pMinusX + (pMinusY * tz - pMinusZ * ty);
-    const pPrimeY = pMinusY + (pMinusZ * tx - pMinusX * tz);
-    const pPrimeZ = pMinusZ + (pMinusX * ty - pMinusY * tx);
-
-    // pPlus = pMinus + p' x s_vec
-    const pPlusX = pMinusX + (pPrimeY * sz - pPrimeZ * sy);
-    const pPlusY = pMinusY + (pPrimeZ * sx - pPrimeX * sz);
-    const pPlusZ = pMinusZ + (pPrimeX * sy - pPrimeY * sx);
-
-    // 3. Second half electric push
-    px = pPlusX + 0.5 * charge * eField.x * h;
-    py = pPlusY + 0.5 * charge * eField.y * h;
-    pz = pPlusZ + 0.5 * charge * eField.z * h;
-  };
-
-  // Leapfrog staggering: the momentum lives half a step behind the position. Starting both at t = 0
-  // made each position update use the end-of-step velocity, a first-order error that put the
-  // default trajectory's y 0.83% off the exact uniform-field solution after 120 steps.
-  push(-0.5 * dt);
-
   for (let i = 1; i <= steps; i++) {
-    push(dt);
-
-    // Updated gamma and velocity
-    const pMag = Math.hypot(px, py, pz);
-    const g = Math.sqrt(1 + (pMag / mc) ** 2);
-    const vx = px / (g * mass);
-    const vy = py / (g * mass);
-    const vz = pz / (g * mass);
-
-    // Update position
-    const dx = vx * dt;
-    const dy = vy * dt;
-    const dz = vz * dt;
-    x += dx;
-    y += dy;
-    z += dz;
-    t += dt;
-
-    workDone += charge * (eField.x * dx + eField.y * dy + eField.z * dz);
-    const ke = mc2 * (g - 1);
-    const speedRatio = Math.hypot(vx, vy, vz) / C_SI;
-
+    const oldGamma = g;
+    const minusX = ux + electricKick.x;
+    const minusY = uy + electricKick.y;
+    const minusZ = uz + electricKick.z;
+    const gammaMinus = Math.hypot(1, minusX, minusY, minusZ);
+    const tx = (0.5 * chargeToMass * dt * bField.x) / gammaMinus;
+    const ty = (0.5 * chargeToMass * dt * bField.y) / gammaMinus;
+    const tz = (0.5 * chargeToMass * dt * bField.z) / gammaMinus;
+    const rotationScale = 2 / (1 + tx * tx + ty * ty + tz * tz);
+    const crossX = minusY * tz - minusZ * ty;
+    const crossY = minusZ * tx - minusX * tz;
+    const crossZ = minusX * ty - minusY * tx;
+    const primeX = minusX + crossX;
+    const primeY = minusY + crossY;
+    const primeZ = minusZ + crossZ;
+    ux = minusX + rotationScale * (primeY * tz - primeZ * ty) + electricKick.x;
+    uy = minusY + rotationScale * (primeZ * tx - primeX * tz) + electricKick.y;
+    uz = minusZ + rotationScale * (primeX * ty - primeY * tx) + electricKick.z;
+    uMag = Math.hypot(ux, uy, uz);
+    g = Math.hypot(1, uMag);
+    const nextVx = C_SI * (ux / g);
+    const nextVy = C_SI * (uy / g);
+    const nextVz = C_SI * (uz / g);
+    x += 0.5 * dt * (vx + nextVx);
+    y += 0.5 * dt * (vy + nextVy);
+    z += 0.5 * dt * (vz + nextVz);
+    vx = nextVx;
+    vy = nextVy;
+    vz = nextVz;
+    ke = mc2 * uMag * (uMag / (g + 1));
+    // A force-free particle parallel to B needs no gyrophase resolution. Otherwise
+    // test the actual rotation parameter throughout the run, not just initial gamma.
+    const magneticImpulse =
+      crossX === 0 && crossY === 0 && crossZ === 0 ? 0 : 2 * Math.hypot(tx, ty, tz);
+    maxScaledImpulse = Math.max(
+      maxScaledImpulse,
+      magneticImpulse,
+      electricImpulse / Math.min(oldGamma, gammaMinus, g),
+    );
+    if (![x, y, z, vx, vy, vz, g, ke, maxScaledImpulse].every(Number.isFinite)) {
+      return trajectoryRefusal(
+        "trajectory-not-representable",
+        "The trajectory cannot be represented at this numerical resolution. Shorten the duration or reduce the fields.",
+        "numerical",
+        steps,
+      );
+    }
     points.push(
       Object.freeze({
-        t,
-        x,
-        y,
-        z,
-        vx,
-        vy,
-        vz,
-        speedRatio,
+        t: i === steps ? duration : i * dt,
+        x, y, z, vx, vy, vz,
+        speedRatio: uMag / g,
         gamma: g,
         kineticEnergy: ke,
       }),
     );
   }
-
-  const finalKE = points[points.length - 1]?.kineticEnergy ?? initialKE;
-  const energyResidual = Math.abs(finalKE - initialKE - workDone);
-
-  // Approximate error bound by comparing with exact transverse solution if pure Ey
-  const errorBound = Math.max(1e-12, dt * dt * 1e-4);
-
+  const workDone = charge * (eField.x * x + eField.y * y + eField.z * z);
+  const energyResidual = Math.abs(ke - initialKE - workDone);
+  const energyScale = Math.max(initialKE, ke, Math.abs(workDone));
+  if (!Number.isFinite(energyResidual) || !Number.isFinite(energyScale)) {
+    return trajectoryRefusal(
+      "trajectory-not-representable",
+      "The trajectory's work and energy cannot be represented. Shorten the duration or reduce the fields.",
+      "numerical",
+      steps,
+    );
+  }
   return Object.freeze({
+    status: "value",
     points: Object.freeze(points),
-    errorBound,
-    observedOrder: 2,
+    stepCount: steps,
     energyResidual,
+    energyScale,
+    maxScaledImpulse,
   });
+}
+
+function compareTrajectories(coarse: TrajectoryValue, fine: TrajectoryValue) {
+  let positionDifference = 0;
+  let velocityDifference = 0;
+  let lengthScale = 0;
+  let velocityScale = 0;
+  let projectedPositionDifference = 0;
+  let projectedVelocityDifference = 0;
+  let projectedLengthScale = 0;
+  let projectedVelocityScale = 0;
+  for (let i = 0; i < fine.points.length; i++) {
+    const point = fine.points[i];
+    if (!point) continue;
+    lengthScale = Math.max(lengthScale, Math.hypot(point.x, point.y, point.z));
+    velocityScale = Math.max(velocityScale, Math.hypot(point.vx, point.vy, point.vz));
+    projectedLengthScale = Math.max(projectedLengthScale, Math.hypot(point.x, point.y));
+    projectedVelocityScale = Math.max(projectedVelocityScale, Math.hypot(point.vx, point.vy));
+    if (i % 2 !== 0) continue;
+    const previous = coarse.points[i / 2];
+    if (!previous) continue;
+    positionDifference = Math.max(
+      positionDifference,
+      Math.hypot(point.x - previous.x, point.y - previous.y, point.z - previous.z),
+    );
+    velocityDifference = Math.max(
+      velocityDifference,
+      Math.hypot(point.vx - previous.vx, point.vy - previous.vy, point.vz - previous.vz),
+    );
+    projectedPositionDifference = Math.max(
+      projectedPositionDifference,
+      Math.hypot(point.x - previous.x, point.y - previous.y),
+    );
+    projectedVelocityDifference = Math.max(
+      projectedVelocityDifference,
+      Math.hypot(point.vx - previous.vx, point.vy - previous.vy),
+    );
+  }
+  return {
+    positionDifference, velocityDifference, lengthScale, velocityScale,
+    projectedPositionDifference, projectedVelocityDifference,
+    projectedLengthScale, projectedVelocityScale,
+  };
+}
+
+/** Downsampling checks the actual x-y projection; a large z excursion cannot hide a bad drawing. */
+function sampleTrajectory(path: TrajectoryValue, lengthScale: number) {
+  const tolerance = TRAJECTORY_POSITION_ABSOLUTE_TOLERANCE + 1e-3 * lengthScale;
+  for (
+    let intervals = SR13_TRAJECTORY_STEPS;
+    intervals <= Math.min(path.stepCount, SR13_MAX_TRAJECTORY_INTERVALS);
+    intervals *= 2
+  ) {
+    const stride = path.stepCount / intervals;
+    let displayErrorEstimate = 0;
+    for (let i = 0; i < path.stepCount; i++) {
+      const startIndex = Math.floor(i / stride) * stride;
+      const start = path.points[startIndex];
+      const end = path.points[startIndex + stride];
+      const point = path.points[i];
+      if (!start || !end || !point) continue;
+      const fraction = (i - startIndex) / stride;
+      displayErrorEstimate = Math.max(
+        displayErrorEstimate,
+        Math.hypot(
+          point.x - (start.x + fraction * (end.x - start.x)),
+          point.y - (start.y + fraction * (end.y - start.y)),
+        ),
+      );
+    }
+    if (displayErrorEstimate <= tolerance) {
+      return {
+        points: Object.freeze(path.points.filter((_, i) => i % stride === 0)),
+        displayErrorEstimate,
+      };
+    }
+  }
+  return null;
+}
+
+/**
+ * Bounded step refinement for the published path. The full change on the final halving is
+ * an empirical numerical error estimate, not a rigorous bound. Comparing velocities and
+ * resolving the electric impulse / magnetic rotation prevents a coarse circular path from
+ * passing merely because it conserves energy or happens to end near its starting point.
+ */
+export function integrateBorisChecked(
+  eField: Vec3,
+  bField: Vec3,
+  v0: Vec3,
+  duration: number,
+  charge: number = -ELEMENTARY_CHARGE,
+  mass: number = ELECTRON_MASS,
+): CheckedTrajectoryResult {
+  let coarse = integrateBoris(
+    eField, bField, v0, duration, SR13_TRAJECTORY_STEPS / 2, charge, mass,
+  );
+  if (coarse.status !== "value") return coarse;
+  let previousPositionDifference: number | undefined;
+  let previousWasResolved = false;
+  for (let steps = SR13_TRAJECTORY_STEPS; steps <= MAX_BORIS_STEPS; steps *= 2) {
+    const fine = integrateBoris(eField, bField, v0, duration, steps, charge, mass);
+    if (fine.status !== "value") return fine;
+    const comparison = compareTrajectories(coarse, fine);
+    const positionTolerance =
+      TRAJECTORY_POSITION_ABSOLUTE_TOLERANCE +
+      TRAJECTORY_RELATIVE_TOLERANCE * comparison.lengthScale;
+    const velocityTolerance =
+      TRAJECTORY_VELOCITY_ABSOLUTE_TOLERANCE +
+      TRAJECTORY_RELATIVE_TOLERANCE * comparison.velocityScale;
+    const projectedPositionTolerance =
+      TRAJECTORY_POSITION_ABSOLUTE_TOLERANCE +
+      TRAJECTORY_RELATIVE_TOLERANCE * comparison.projectedLengthScale;
+    const projectedVelocityTolerance =
+      TRAJECTORY_VELOCITY_ABSOLUTE_TOLERANCE +
+      TRAJECTORY_RELATIVE_TOLERANCE * comparison.projectedVelocityScale;
+    const energyTolerance =
+      512 * Number.EPSILON * mass * C_SI * C_SI +
+      TRAJECTORY_RELATIVE_TOLERANCE * fine.energyScale;
+    const resolved =
+      coarse.maxScaledImpulse <= MAX_SCALED_IMPULSE &&
+      fine.maxScaledImpulse <= MAX_SCALED_IMPULSE;
+    if (
+      steps >= 2 * SR13_TRAJECTORY_STEPS &&
+      resolved &&
+      comparison.positionDifference <= positionTolerance &&
+      comparison.velocityDifference <= velocityTolerance &&
+      comparison.projectedPositionDifference <= projectedPositionTolerance &&
+      comparison.projectedVelocityDifference <= projectedVelocityTolerance &&
+      fine.energyResidual <= energyTolerance
+    ) {
+      const sampled = sampleTrajectory(fine, comparison.projectedLengthScale);
+      if (!sampled) {
+        return trajectoryRefusal(
+          "trajectory-display-unresolved",
+          "The path contains more rapid turns than this drawing can resolve. Shorten the duration or reduce the fields; the initial-speed quantities remain available.",
+          "numerical",
+          steps,
+        );
+      }
+      const roundoff = 512 * Number.EPSILON * comparison.lengthScale;
+      const observedOrder =
+        previousWasResolved &&
+        previousPositionDifference !== undefined &&
+        previousPositionDifference > roundoff &&
+        comparison.positionDifference > roundoff
+          ? Math.log2(previousPositionDifference / comparison.positionDifference)
+          : undefined;
+      return Object.freeze({
+        ...fine,
+        points: sampled.points,
+        positionErrorEstimate: comparison.positionDifference,
+        velocityErrorEstimate: comparison.velocityDifference,
+        displayErrorEstimate: sampled.displayErrorEstimate,
+        ...(observedOrder === undefined ? {} : { observedOrder }),
+      });
+    }
+    previousPositionDifference = comparison.positionDifference;
+    previousWasResolved = resolved;
+    coarse = fine;
+  }
+  return trajectoryRefusal(
+    "trajectory-not-converged",
+    "The trajectory did not meet its position, velocity, and work-energy checks within the bounded calculation. Shorten the duration or reduce the fields; the initial-speed quantities remain available.",
+    "numerical",
+    MAX_BORIS_STEPS,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -1100,8 +1294,8 @@ export function evaluateSr13(input: Sr13Input): Readonly<Record<string, Scientif
   });
 }
 
-/** Points along the SR-13 path: enough for a smooth curve at the chamber's size, few enough to
- * publish in every snapshot. */
+/** Minimum drawing intervals. Integration refines independently, and a curved path may publish
+ * more points only after checking the intervening geometry. */
 export const SR13_TRAJECTORY_STEPS = 120;
 
 /**
@@ -1130,15 +1324,24 @@ function sr13Trajectory(
   }
   const direction = (input.initialDirectionDeg * Math.PI) / 180;
   const speed = Math.sign(input.initialSpeed || 1) * beta * C_SI;
-  const path = integrateBoris(
+  const path = integrateBorisChecked(
     { x: input.electricFieldX, y: input.electricFieldY, z: input.electricFieldZ },
     { x: input.magneticFieldX, y: input.magneticFieldY, z: input.magneticFieldZ },
     { x: speed * Math.cos(direction), y: speed * Math.sin(direction), z: 0 },
     duration,
-    SR13_TRAJECTORY_STEPS,
     charge,
     mass,
   );
+  if (path.status !== "value") {
+    return Object.freeze({
+      ...identity("trajectoryPositions", "m", "trajectory-xy", OWNER_ID),
+      status: "outside-domain",
+      condition: path.condition,
+      domainKind: path.domainKind,
+      reason: path.reason,
+      boundary: { parameterId: "integrationInterval", value: duration / 2 },
+    });
+  }
   const positions = new Float64Array(path.points.length * 2);
   path.points.forEach((point, i) => {
     positions[2 * i] = point.x;
@@ -1148,5 +1351,20 @@ function sr13Trajectory(
     ...identity("trajectoryPositions", "m", "trajectory-xy", OWNER_ID),
     status: "value" as const,
     value: positions,
+    uncertainty: Object.freeze({
+      kind: "numerical-error-estimate" as const,
+      magnitude: path.positionErrorEstimate,
+      guarantee: "estimate" as const,
+      method:
+        "Maximum position change between " + path.stepCount / 2 + " and " +
+        path.stepCount + " time steps. Velocity and work-energy checks also passed. " +
+        (path.observedOrder === undefined
+          ? "A convergence order was not established for these settings."
+          : "Measured position convergence order: " + path.observedOrder.toFixed(2) + ".") +
+        " Drawing interpolation: maximum deviation " +
+        path.displayErrorEstimate.toExponential(2) +
+        " m from the integrated x-y path, within 0.1% of its projected extent plus 1e-12 m." +
+        " These are empirical estimates, not error bounds.",
+    }),
   });
 }

@@ -445,8 +445,9 @@ export function ElectronDynamicsLab({
             <p className="fine">
               The initial velocity lies in the x–y plane: 0° points along +x and 90° along +y. A
               negative β reverses that direction. The chamber shows the x–y projection; motion along
-              z is not shown. Each trajectory uses the model&apos;s fixed 120 time steps; longer
-              durations and stronger fields can leave rapid turns unresolved.
+              z is not shown. The calculation refines its time steps and checks the path before
+              drawing it. If rapid turns cannot be resolved within its calculation budget, shorten
+              the duration or reduce the fields.
             </p>
             <div className="input-grid">
               {numberField("customCharge", draft.particle !== "custom")}
@@ -532,6 +533,17 @@ export function ElectronDynamicsLab({
         />
         <LabTapeLink link={withPredictions(tapeLink, gate)} />
         <div className="lab-results" {...gate.response}>
+          {path?.status === "outside-domain" ? (
+            <p className="notice" role="status" data-trajectory-status="outside-domain">
+              Trajectory unavailable: {path.reason}
+            </p>
+          ) : path?.status === "value" &&
+            path.uncertainty?.kind === "numerical-error-estimate" ? (
+            <p className="fine" data-trajectory-status="value">
+              Trajectory numerical check: {display(path.uncertainty.magnitude)} m.{" "}
+              {path.uncertainty.method}
+            </p>
+          ) : null}
           <ElectronDynamicsPlot
             initialSpeed={p.initialSpeed}
             initialDirectionDeg={p.initialDirectionDeg}
@@ -563,6 +575,7 @@ export function ElectronDynamicsLab({
             lorentzFactor={gammaVal}
             datasetOverlay={p.datasetOverlay}
             trajectory={trajectory}
+            trajectoryReason={path?.status === "outside-domain" ? path.reason : undefined}
             integrationIntervalS={p.integrationInterval}
           />
           <h3>Values at the initial speed</h3>

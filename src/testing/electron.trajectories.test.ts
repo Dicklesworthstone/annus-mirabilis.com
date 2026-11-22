@@ -63,6 +63,62 @@ describe("electron.trajectories.test.ts: Exact uniform-field trajectories and de
     });
   });
 
+  test("the magnetic analytic reference obeys q v cross B for both charges and signed entry speeds", () => {
+    const duration = 1e-13;
+    for (const charge of [-ELEMENTARY_CHARGE, ELEMENTARY_CHARGE]) {
+      for (const field of [-0.01, 0.01]) {
+        for (const velocity of [-0.6 * C_SI, 0.6 * C_SI]) {
+          const points = magneticFieldTrajectory(field, velocity, duration, 1, charge);
+          const initial = points[0];
+          const final = points[1];
+          if (!initial || !final) throw new Error("Expected analytic endpoints");
+          expect(initial.vx).toBe(velocity);
+          const expectedAcceleration = (-charge * velocity * field) / (1.25 * ELECTRON_MASS);
+          expect(
+            withinTolerance(final.vy / duration, expectedAcceleration, { relative: 1e-7 }).ok,
+          ).toBe(true);
+          expect(Math.sign(final.x)).toBe(Math.sign(velocity));
+          expect(Math.sign(final.y)).toBe(Math.sign(expectedAcceleration));
+        }
+      }
+    }
+  });
+
+  test("zero fields and neutral charge have the regular inertial limit", () => {
+    const duration = 2e-9;
+    const velocity = -0.6 * C_SI;
+    const cases = [
+      magneticFieldTrajectory(0, velocity, duration, 4),
+      magneticFieldTrajectory(0.01, velocity, duration, 4, 0),
+      transverseFieldTrajectory(0, velocity, duration, 4),
+      transverseFieldTrajectory(1e5, velocity, duration, 4, 0),
+    ];
+    for (const points of cases) {
+      for (const point of points) {
+        expect(
+          withinTolerance(point.x, velocity * point.t, { relative: 1e-14, absolute: 1e-15 }).ok,
+        ).toBe(true);
+        expect(point.y).toBe(0);
+        expect(point.vy).toBe(0);
+        expect(withinTolerance(point.vx, velocity, { relative: 1e-14 }).ok).toBe(true);
+        expect(Number.isFinite(point.kineticEnergy)).toBe(true);
+      }
+    }
+  });
+
+  test("a negative transverse-electric entry velocity retains negative x momentum", () => {
+    const points = transverseFieldTrajectory(1e5, -0.6 * C_SI, 2e-9, 4);
+    for (const point of points) {
+      expect(
+        withinTolerance(point.gamma * point.vx, -0.75 * C_SI, { relative: 1e-14 }).ok,
+      ).toBe(true);
+      if (point.t > 0) {
+        expect(point.x).toBeLessThan(0);
+        expect(point.y).toBeLessThan(0);
+      }
+    }
+  });
+
   test("transverse electric field matches fixture at 0.5, 1.0, and 2.0 ns within 1e-9 relative (AC4)", () => {
     const t0 = performance.now();
     const E = 1e5; // V/m along +y
