@@ -21,6 +21,7 @@ export function decodeMe03Settings(search: string): Me03PermalinkResult {
   const boundaryStr = params.get("boundary");
   const dispStr = params.get("disposition");
   const lStr = params.get("L");
+  const emitterMassStr = params.get("M0");
   const inStr = params.get("Ein");
   const cardStr = params.get("card");
   const modeStr = params.get("mode");
@@ -36,6 +37,7 @@ export function decodeMe03Settings(search: string): Me03PermalinkResult {
     !boundaryStr &&
     !dispStr &&
     !lStr &&
+    !emitterMassStr &&
     !inStr &&
     !cardStr &&
     !modeStr &&
@@ -55,6 +57,8 @@ export function decodeMe03Settings(search: string): Me03PermalinkResult {
     boundary: (boundaryStr as Me03Boundary) ?? ME03_DEFAULTS.boundary,
     disposition: (dispStr as Me03RadiationDisposition) ?? ME03_DEFAULTS.disposition,
     emittedEnergy: lStr !== null ? Number.parseFloat(lStr) : ME03_DEFAULTS.emittedEnergy,
+    initialEmitterMass:
+      emitterMassStr !== null ? Number(emitterMassStr) : ME03_DEFAULTS.initialEmitterMass,
     inputEnergy: inStr !== null ? Number.parseFloat(inStr) : ME03_DEFAULTS.inputEnergy,
     cardId: (cardStr as Me03CardId) ?? ME03_DEFAULTS.cardId,
     mode: (modeStr as Me03Mode) ?? ME03_DEFAULTS.mode,
@@ -101,6 +105,12 @@ export function encodeMe03Settings(p: Partial<Me03Parameters>): string {
   }
   if (p.emittedEnergy !== undefined && p.emittedEnergy !== ME03_DEFAULTS.emittedEnergy) {
     params.set("L", String(p.emittedEnergy));
+  }
+  if (
+    p.initialEmitterMass !== undefined &&
+    p.initialEmitterMass !== ME03_DEFAULTS.initialEmitterMass
+  ) {
+    params.set("M0", String(p.initialEmitterMass));
   }
   if (p.inputEnergy !== undefined && p.inputEnergy !== ME03_DEFAULTS.inputEnergy) {
     params.set("Ein", String(p.inputEnergy));

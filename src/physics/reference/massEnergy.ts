@@ -3,7 +3,7 @@
  *
  * The paper's conclusion is a coefficient of 1/2 v^2, not a slogan and not a
  * rest energy assigned in advance. This module never initializes a body's
- * energy as M times c squared or gamma times M times c squared. The kinetic-energy difference is L(gamma-1)
+ * energy as M times c squared or gamma times M times c squared on this historical route. The kinetic-energy difference is L(gamma-1)
  * from the two-ledger subtraction (ME-01); identifying the Newtonian
  * coefficient then gives a mass change L/c^2.
  *
@@ -1567,8 +1567,30 @@ export function evaluateFourMomentum(
   const c = constantValue(set ?? getConstantSet("modern-si-2019"), "speedOfLight").value;
   const cSq = c * c;
 
+  if (!Number.isFinite(totalEnergy) || totalEnergy < 0 || !Number.isFinite(cSq) || c <= 0 || cSq === 0) {
+    return {
+      ...identity("invariantMass", "kg", "invariant-mass", "massEnergy.fourMomentum"),
+      status: "outside-domain",
+      condition: "Finite non-negative radiation energy and a positive finite c² are required.",
+      domainKind: "physical",
+      reason: "The radiation four-momentum is not defined for these inputs.",
+      boundary: { alternativeModel: "Use non-negative finite radiation energy and a positive finite light-speed constant." },
+    };
+  }
+
   if (pulseSystem === "single-pulse" || pulseSystem === "two-collinear") {
     return asValue("invariantMass", "kg", "invariant-mass", "massEnergy.fourMomentum", 0);
+  }
+
+  if (pulseSystem !== "two-opposite" || !Number.isFinite(totalEnergy / cSq) || (totalEnergy > 0 && totalEnergy / cSq === 0)) {
+    return {
+      ...identity("invariantMass", "kg", "invariant-mass", "massEnergy.fourMomentum"),
+      status: "outside-domain",
+      condition: "Use a declared pulse arrangement with a representable radiation mass.",
+      domainKind: "numerical",
+      reason: "The pulse arrangement or its mass cannot be represented by this calculation.",
+      boundary: { alternativeModel: "Choose one of the three declared pulse arrangements and representable energy scales." },
+    };
   }
 
   // Two equal opposite pulses: total energy L, zero spatial momentum -> m = L/c^2
@@ -1987,6 +2009,7 @@ export type Me03Input = Readonly<{
   boundary?: Me03Boundary;
   disposition?: Me03RadiationDisposition;
   emittedEnergy?: number;
+  initialEmitterMass?: number;
   inputEnergy?: number;
   cardId?: Me03CardId;
   mode?: Me03Mode;
@@ -1998,6 +2021,7 @@ export type Me03Snapshot = Readonly<{
   boundary: Me03Boundary;
   disposition: Me03RadiationDisposition;
   emittedEnergy: number;
+  initialEmitterMass: number;
   inputEnergy: number;
   cardId: Me03CardId;
   mode: Me03Mode;
@@ -2010,6 +2034,7 @@ export type Me03Snapshot = Readonly<{
   systemEnergyChange: ScientificResult;
   systemMassChange: ScientificResult;
   invariantMass: ScientificResult;
+  modernEmission: ModernEmissionResult | null;
   card: EnergySourceCard;
   cards: Readonly<Record<Me03CardId, EnergySourceCard>>;
   boundaryFacts: EnergySourceCardBoundary;
@@ -2021,21 +2046,25 @@ export type Me03Snapshot = Readonly<{
 export function evaluateMe03(input: Me03Input = {}): Me03Snapshot {
   const boundary = input.boundary ?? "body-alone";
   const disposition = input.disposition ?? "escapes";
+  const mode = input.mode ?? "1905";
   const emittedEnergy =
-    Number.isFinite(input.emittedEnergy) && (input.emittedEnergy ?? 1) > 0
+    mode === "four-momentum" ? (input.emittedEnergy ?? 1) : Number.isFinite(input.emittedEnergy) && (input.emittedEnergy ?? 1) > 0
       ? (input.emittedEnergy ?? 1)
       : 1;
+  const initialEmitterMass = input.initialEmitterMass ?? 1;
   const inputEnergy =
     Number.isFinite(input.inputEnergy) && (input.inputEnergy ?? 0) >= 0
       ? (input.inputEnergy ?? 0)
       : 0;
   const cardId = input.cardId ?? "me-03-card-radium";
-  const mode = input.mode ?? "1905";
   const pulseSystem = input.pulseSystem ?? "two-opposite";
   const set = getConstantSet(input.constantSetId ?? "modern-si-2019");
   const c = constantValue(set, "speedOfLight").value;
 
-  const ledger = evaluateBoundaryLedger(boundary, disposition, emittedEnergy, inputEnergy, set);
+  const modernEmission = mode === "four-momentum"
+    ? evaluateModernEmission({ boundary, emittedEnergy, initialEmitterMass, pulseSystem, set })
+    : null;
+  const ledger = modernEmission?.ledger ?? evaluateBoundaryLedger(boundary, disposition, emittedEnergy, inputEnergy, set);
   const invariantMass = evaluateFourMomentum(pulseSystem, emittedEnergy, set);
 
   const card = evaluateEnergySourceCard(cardId, set);
@@ -2053,6 +2082,7 @@ export function evaluateMe03(input: Me03Input = {}): Me03Snapshot {
     boundary,
     disposition,
     emittedEnergy,
+    initialEmitterMass,
     inputEnergy,
     cardId,
     mode,
@@ -2065,6 +2095,7 @@ export function evaluateMe03(input: Me03Input = {}): Me03Snapshot {
     systemEnergyChange: ledger.systemEnergyChange,
     systemMassChange: ledger.systemMassChange,
     invariantMass,
+    modernEmission,
     card,
     cards: Object.freeze(cards),
     boundaryFacts: card.boundary,
@@ -2328,4 +2359,167 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
 
 export function photonInBox(input: PhotonInBoxInput = {}): PhotonInBoxResult {
   return evaluatePhotonBox(input);
+}
+
+// The following modern lens ASSUMES the four-momentum relation E² = m²c⁴ + p²c².
+// It is a conservation experiment after that relation is admitted, never a premise of
+// initializeMassEnergyLedger or the historical ME-01/ME-02 coefficient derivation.
+const MODERN_EMISSION_OUTPUTS = {
+  initialEmitterEnergy: ["J", "initial-emitter-energy"],
+  remainingEmitterEnergy: ["J", "remaining-emitter-energy"],
+  remainingEmitterMass: ["kg", "remaining-emitter-rest-mass"],
+  emitterMassChange: ["kg", "emitter-rest-mass-change"],
+  emitterRecoilVelocity: ["m/s", "emitter-recoil-velocity"],
+  emitterKineticEnergy: ["J", "emitter-kinetic-energy"],
+  radiationMomentum: ["kg·m/s", "radiation-net-x-momentum"],
+  emitterMomentum: ["kg·m/s", "emitter-x-momentum"],
+  emittedRestEnergyFraction: ["1", "emitted-initial-rest-energy-fraction"],
+} as const;
+
+export type ModernEmissionOutputId = keyof typeof MODERN_EMISSION_OUTPUTS;
+export type ModernEmissionResult = Readonly<{
+  status: "value" | "outside-domain";
+  reason: string;
+  condition: string;
+  ledger: ReturnType<typeof evaluateBoundaryLedger>;
+  outputs: Readonly<Record<ModernEmissionOutputId, ScientificResult>>;
+}>;
+
+/**
+ * An isolated emitter is initially at rest; the radiation is still in flight.
+ * Single/collinear pulses point along +x. Equal opposite pulses have zero net momentum.
+ * E_body = M0 c² - L, p_body = -p_light, m_body² c⁴ = E_body² - p_body² c².
+ * External heating and later absorption are different experiments and are not arguments here.
+ */
+export function evaluateModernEmission(input: Readonly<{
+  boundary: Me03Boundary;
+  pulseSystem: Me03PulseSystem;
+  emittedEnergy: number;
+  initialEmitterMass: number;
+  set?: ConstantSet;
+}>): ModernEmissionResult {
+  const { boundary, pulseSystem, emittedEnergy: L, initialEmitterMass: M0 } = input;
+  const c = constantValue(input.set ?? getConstantSet("modern-si-2019"), "speedOfLight").value;
+  const cSquared = c * c;
+  const directed = pulseSystem === "single-pulse" || pulseSystem === "two-collinear";
+  const radiationMass = evaluateFourMomentum(pulseSystem, L, input.set);
+  const radiationAdmitted = radiationMass.status === "value";
+
+  function result(
+    numbers: Readonly<Record<ModernEmissionOutputId, number | null>> | null,
+    condition: string,
+    reason: string,
+    domainKind: DomainKind = "physical",
+  ): ModernEmissionResult {
+    const outside = (id: string, unit: string, semantic: string, owner: string): ScientificResult => ({
+      ...identity(id, unit, semantic, owner),
+      status: "outside-domain",
+      condition,
+      domainKind,
+      reason,
+      boundary: {
+        alternativeModel: "Specify a larger initial rest mass or reduce the emitted energy; the radiation-only invariant mass is a separate calculation.",
+      },
+    });
+    const outputs = {} as Record<ModernEmissionOutputId, ScientificResult>;
+    for (const id of Object.keys(MODERN_EMISSION_OUTPUTS) as ModernEmissionOutputId[]) {
+      const [unit, semantic] = MODERN_EMISSION_OUTPUTS[id];
+      const value = numbers?.[id];
+      outputs[id] = numbers === null
+        ? outside(id, unit, semantic, "massEnergy.emission")
+        : value === null
+          ? asNotApplicable(id, unit, semantic, "massEnergy.emission", "No emitter remains after complete symmetric emission, so an emitter velocity is not defined.")
+          : asValue(id, unit, semantic, "massEnergy.emission", value as number);
+    }
+    const ledgerValue = (id: string, unit: string, semantic: string, value: number): ScientificResult =>
+      asValue(id, unit, semantic, "massEnergy.boundaryLedger", value);
+    const ledgerOutside = (id: string, unit: string, semantic: string): ScientificResult =>
+      outside(id, unit, semantic, "massEnergy.boundaryLedger");
+    const radMass = radiationMass.status === "value" && typeof radiationMass.value === "number"
+      ? radiationMass.value : null;
+    const activeEnergy = boundary === "radiation" && radiationAdmitted
+      ? ledgerValue("energyChange", "J", "energy-change", L)
+      : numbers
+        ? ledgerValue("energyChange", "J", "energy-change", boundary === "body-alone" ? -L : 0)
+        : ledgerOutside("energyChange", "J", "energy-change");
+    const activeMass = boundary === "radiation" && radMass !== null
+      ? ledgerValue("massChange", "kg", "mass-change", radMass)
+      : numbers
+        ? ledgerValue("massChange", "kg", "mass-change", boundary === "body-alone" ? numbers.emitterMassChange as number : 0)
+        : ledgerOutside("massChange", "kg", "mass-change");
+    return Object.freeze({
+      status: numbers ? "value" : "outside-domain",
+      condition,
+      reason,
+      outputs: Object.freeze(outputs),
+      ledger: Object.freeze({
+        energyChange: activeEnergy,
+        massChange: activeMass,
+        radiationEnergyChange: radiationAdmitted
+          ? ledgerValue("radiationEnergyChange", "J", "radiation-energy-change", L)
+          : ledgerOutside("radiationEnergyChange", "J", "radiation-energy-change"),
+        radiationMassChange: radMass !== null
+          ? ledgerValue("radiationMassChange", "kg", "radiation-mass-change", radMass)
+          : ledgerOutside("radiationMassChange", "kg", "radiation-mass-change"),
+        systemEnergyChange: numbers
+          ? ledgerValue("systemEnergyChange", "J", "system-energy-change", 0)
+          : ledgerOutside("systemEnergyChange", "J", "system-energy-change"),
+        systemMassChange: numbers
+          ? ledgerValue("systemMassChange", "kg", "system-mass-change", 0)
+          : ledgerOutside("systemMassChange", "kg", "system-mass-change"),
+      }),
+    });
+  }
+
+  if (!Number.isFinite(M0) || M0 <= 0 || !radiationAdmitted || !Number.isFinite(cSquared) || cSquared <= 0) {
+    return result(null, "M₀ > 0, L ≥ 0, and a declared pulse arrangement are required.", "Supply a positive finite initial emitter rest mass and a non-negative finite radiation energy.");
+  }
+  const initialEnergy = M0 * cSquared;
+  if (!Number.isFinite(initialEnergy) || initialEnergy === 0) {
+    return result(null, "M₀c² must be a representable positive energy.", "The initial rest energy is outside this calculation's floating-point range.", "numerical");
+  }
+  const maximumEnergy = initialEnergy / (directed ? 2 : 1);
+  if (L > maximumEnergy) {
+    return result(null, directed ? "L ≤ M₀c²/2 for radiation with net momentum L/c." : "L ≤ M₀c² for equal opposite pulses.", directed
+      ? "This emission would leave a spacelike body four-momentum. Reduce L or increase M₀; recoil requires at least as much remaining energy as momentum times c."
+      : "The emitted energy exceeds the body's initial rest energy. Reduce L or increase M₀.");
+  }
+
+  const fraction = L / initialEnergy;
+  const massEquivalent = L / cSquared;
+  const remainingEnergy = initialEnergy - L;
+  const remainingFraction = remainingEnergy / initialEnergy;
+  const massFraction = directed ? Math.sqrt((initialEnergy - 2 * L) / initialEnergy) : remainingFraction;
+  const remainingMass = M0 * massFraction;
+  // Rationalizing M0*(sqrt(1-2r)-1) retains the loss when the displayed masses round equal.
+  const massChange = L === 0 ? 0 : directed ? -massEquivalent * (2 / (1 + massFraction)) : -massEquivalent;
+  const momentum = directed ? L / c : 0;
+  const velocity = remainingEnergy === 0 ? null : L === 0 || !directed ? 0 : -c * (fraction / remainingFraction);
+  // E - mc² is another catastrophic subtraction for small emissions. Use p²c²/(E+mc²).
+  const kineticEnergy = directed && L > 0 ? L * (fraction / (remainingFraction + massFraction)) : 0;
+  const values: Record<ModernEmissionOutputId, number | null> = {
+    initialEmitterEnergy: initialEnergy,
+    remainingEmitterEnergy: remainingEnergy,
+    remainingEmitterMass: remainingMass,
+    emitterMassChange: massChange,
+    emitterRecoilVelocity: velocity,
+    emitterKineticEnergy: kineticEnergy,
+    radiationMomentum: momentum,
+    emitterMomentum: momentum === 0 ? 0 : -momentum,
+    emittedRestEnergyFraction: fraction,
+  };
+  if (
+    Object.values(values).some((value) => value !== null && !Number.isFinite(value)) ||
+    (L > 0 && (fraction === 0 || massEquivalent === 0 || (directed && (momentum === 0 || kineticEnergy === 0)))) ||
+    (massFraction > 0 && remainingMass === 0)
+  ) {
+    return result(null, "Nonzero physical outputs must remain representable.", "These scales overflow or underflow this numerical model; a zero recoil or mass change would be misleading.", "numerical");
+  }
+  const condition = directed ? "0 ≤ L ≤ M₀c²/2" : "0 ≤ L ≤ M₀c²";
+  const reason = remainingEnergy === 0
+    ? "All initial energy is in two opposite pulses; no emitter remains."
+    : remainingMass === 0
+      ? "At this endpoint the remaining four-vector is lightlike: it no longer represents a massive emitter."
+      : "Energy and momentum are conserved in the initial emitter rest frame, immediately after emission.";
+  return result(values, condition, reason);
 }

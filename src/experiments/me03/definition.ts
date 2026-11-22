@@ -19,6 +19,7 @@ export type Me03Parameters = Readonly<{
   boundary: Me03Boundary;
   disposition: Me03RadiationDisposition;
   emittedEnergy: number; // L
+  initialEmitterMass: number; // M0 in kg; used only by the modern isolated-emission lens
   inputEnergy: number; // Ein
   cardId: Me03CardId;
   mode: Me03Mode;
@@ -35,6 +36,7 @@ export const ME03_DEFAULTS: Me03Parameters = Object.freeze({
   boundary: "body-alone",
   disposition: "escapes",
   emittedEnergy: 1.0,
+  initialEmitterMass: 1.0,
   inputEnergy: 0.0,
   cardId: "me-03-card-radium",
   mode: "1905",
@@ -51,6 +53,7 @@ export const ME03_CLASSES: Readonly<Record<keyof Me03Parameters, ParameterClass>
   boundary: "measurement",
   disposition: "input",
   emittedEnergy: "input",
+  initialEmitterMass: "input",
   inputEnergy: "input",
   cardId: "input",
   mode: "input",
@@ -78,7 +81,7 @@ export const ME03_MODEL = Object.freeze({
 export const ME03_FOUR_MOMENTUM_MODEL = Object.freeze({
   id: "four-momentum-modern",
   constantSetId: "modern-si-2019",
-  label: "Modern four-momentum invariant mass (labeled later formalism)",
+  label: "Modern isolated emission: conserved four-momentum and emitter recoil",
   source: "src/physics/reference/massEnergy.ts",
 });
 
@@ -112,6 +115,7 @@ export const ME03_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "outside-domain",
   ]),
   radiationMassChange: contract("kg", "radiation-mass-change", "massEnergy.boundaryLedger", [
+    "value",
     "not-applicable",
     "outside-domain",
   ]),
@@ -127,6 +131,45 @@ export const ME03_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "value",
     "outside-domain",
   ]),
+  initialEmitterEnergy: contract("J", "initial-emitter-energy", "massEnergy.emission", [
+    "value",
+    "outside-domain",
+  ]),
+  remainingEmitterEnergy: contract("J", "remaining-emitter-energy", "massEnergy.emission", [
+    "value",
+    "outside-domain",
+  ]),
+  remainingEmitterMass: contract("kg", "remaining-emitter-rest-mass", "massEnergy.emission", [
+    "value",
+    "outside-domain",
+  ]),
+  emitterMassChange: contract("kg", "emitter-rest-mass-change", "massEnergy.emission", [
+    "value",
+    "outside-domain",
+  ]),
+  emitterRecoilVelocity: contract("m/s", "emitter-recoil-velocity", "massEnergy.emission", [
+    "value",
+    "not-applicable",
+    "outside-domain",
+  ]),
+  emitterKineticEnergy: contract("J", "emitter-kinetic-energy", "massEnergy.emission", [
+    "value",
+    "outside-domain",
+  ]),
+  radiationMomentum: contract("kg·m/s", "radiation-net-x-momentum", "massEnergy.emission", [
+    "value",
+    "outside-domain",
+  ]),
+  emitterMomentum: contract("kg·m/s", "emitter-x-momentum", "massEnergy.emission", [
+    "value",
+    "outside-domain",
+  ]),
+  emittedRestEnergyFraction: contract(
+    "1",
+    "emitted-initial-rest-energy-fraction",
+    "massEnergy.emission",
+    ["value", "outside-domain"],
+  ),
   boxDisplacement: contract("m", "box-displacement", "massEnergy.box", ["value", "outside-domain"]),
   centerOfMassShift: contract("m", "center-of-mass-shift", "massEnergy.box", [
     "value",
@@ -148,6 +191,20 @@ export const ME03_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
 });
 
 export const ME03_PRESETS = Object.freeze([
+  Object.freeze({
+    presetId: "me-03-modern-visible-recoil",
+    label: "One pulse with visible recoil",
+    description:
+      "An isolated 1 kg body emits 10 quadrillion joules in one direction; its rest-mass loss includes the recoil kinetic energy.",
+    parameterValues: Object.freeze({
+      mode: "four-momentum" as const,
+      initialEmitterMass: 1,
+      emittedEnergy: 1e16,
+      pulseSystem: "single-pulse" as const,
+      boundary: "body-alone" as const,
+      notation: "modern" as const,
+    }),
+  }),
   Object.freeze({
     presetId: "me-03-sealed-lamp-and-mirror",
     label: "Sealed lamp and mirror (Internal transfer)",

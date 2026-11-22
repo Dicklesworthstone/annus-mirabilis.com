@@ -12,6 +12,7 @@ export type Me03Draft = {
   boundary: Me03Boundary;
   disposition: Me03RadiationDisposition;
   emittedEnergy: string;
+  initialEmitterMass: string;
   inputEnergy: string;
   cardId: Me03CardId;
   mode: Me03Mode;
@@ -29,6 +30,7 @@ export function toMe03Draft(p: Me03Parameters): Me03Draft {
     boundary: p.boundary,
     disposition: p.disposition,
     emittedEnergy: String(p.emittedEnergy),
+    initialEmitterMass: String(p.initialEmitterMass ?? 1),
     inputEnergy: String(p.inputEnergy),
     cardId: p.cardId,
     mode: p.mode,
@@ -44,6 +46,7 @@ export function toMe03Draft(p: Me03Parameters): Me03Draft {
 
 export function fromMe03Draft(d: Me03Draft): Me03Parameters {
   const L = Number.parseFloat(d.emittedEnergy);
+  const initialEmitterMass = Number.parseFloat(d.initialEmitterMass);
   const inputE = Number.parseFloat(d.inputEnergy);
   const M = Number.parseFloat(d.boxMass);
   const ell = Number.parseFloat(d.boxLength);
@@ -53,6 +56,7 @@ export function fromMe03Draft(d: Me03Draft): Me03Parameters {
     boundary: d.boundary,
     disposition: d.disposition,
     emittedEnergy: Number.isFinite(L) ? L : Number.NaN,
+    initialEmitterMass: Number.isFinite(initialEmitterMass) ? initialEmitterMass : Number.NaN,
     inputEnergy: Number.isFinite(inputE) ? inputE : Number.NaN,
     cardId: d.cardId,
     mode: d.mode,

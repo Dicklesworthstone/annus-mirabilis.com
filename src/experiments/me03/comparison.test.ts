@@ -171,7 +171,7 @@ test("an independent pinned owner survives edits to the apparatus and another co
   expect(numeric(first.getSnapshot().baseline.outputs.energyChange)).toBe(-1);
 });
 
-test("boundary-comparison-evidence: malformed pins refuse; a complete isolated emission is accepted (comparison.ts:94)", () => {
+test("boundary-comparison-evidence: malformed pins refuse; a complete isolated emission is accepted (comparison.ts:95)", () => {
   for (const input of [
     {},
     { ...ME03_DEFAULTS, boundary: "unknown" },

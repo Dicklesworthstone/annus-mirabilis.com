@@ -71,6 +71,9 @@ const ME03_SEALED_PROMPTS = (PREDICT_PROMPTS["me-03"] ?? []).filter(
 const ME03_BOX_PROMPTS = (PREDICT_PROMPTS["me-03"] ?? []).filter(
   (p) => p.promptId === "me-03-predict-box-light-mass",
 );
+const ME03_MODERN_PROMPTS = (PREDICT_PROMPTS["me-03"] ?? []).filter(
+  (p) => p.promptId === "me-03-predict-modern-recoil",
+);
 
 export function BoundaryLedgerLab({
   instanceId,
@@ -142,9 +145,13 @@ export function BoundaryLedgerLab({
   const [linkPending, setLinkPending] = useState(false);
 
   const isBox = p.mode === "box-1906";
+  const isFourMomentum = p.mode === "four-momentum";
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer. The prompt
   // follows the mode, as the lab's own block did: the sealed box in 1905, the light's mass in the box.
-  const gate = usePredictGate("me-03", isBox ? ME03_BOX_PROMPTS : ME03_SEALED_PROMPTS);
+  const gate = usePredictGate(
+    "me-03",
+    isBox ? ME03_BOX_PROMPTS : isFourMomentum ? ME03_MODERN_PROMPTS : ME03_SEALED_PROMPTS,
+  );
   const evaluation = evaluateMe03(p);
   const card = evaluation.card;
   const facts = card.boundary;
@@ -175,7 +182,9 @@ export function BoundaryLedgerLab({
     ? boxEvaluation.status === "value"
       ? `a ${sentenceNumber(p.pulseEnergy)} J pulse crosses a ${sentenceNumber(p.boxMass)} kg box ${sentenceNumber(p.boxLength)} m long in ${sentenceNumber(boxEvaluation.flightTimeValue)} s, and the box moves back ${sentenceNumber(Math.abs(boxEvaluation.displacement))} m.`
       : (boxEvaluation.reason ?? "the photon box is outside the model's domain at these settings.")
-    : `${card.label}, with the boundary around ${boundaryWords}: the radiation ${facts.radiation.disposition === "partly-retained" ? "is partly retained" : facts.radiation.disposition === "retained" ? "is retained" : "escapes"}, and the energy figure is ${numberText(facts.energyFigure.value)} ${facts.energyFigure.unit}.`;
+    : evaluation.modernEmission
+      ? `with ${sentenceNumber(p.initialEmitterMass)} kg initially at rest and ${sentenceNumber(p.emittedEnergy)} J emitted: ${evaluation.modernEmission.reason}`
+      : `${card.label}, with the boundary around ${boundaryWords}: the radiation ${facts.radiation.disposition === "partly-retained" ? "is partly retained" : facts.radiation.disposition === "retained" ? "is retained" : "escapes"}, and the energy figure is ${numberText(facts.energyFigure.value)} ${facts.energyFigure.unit}.`;
 
   useEffect(() => {
     const shared = decodeMe03Settings(restoreFromLocation ? window.location.search : "");
@@ -354,6 +363,26 @@ export function BoundaryLedgerLab({
             <form onSubmit={submit} aria-label="Energy ledger parameters" noValidate>
               <fieldset className="lab-choice">
                 <legend>Emission settings</legend>
+                {isFourMomentum ? (
+                  <div className="control-row">
+                    <label htmlFor={`${id}-emitter-mass`}>Initial emitter rest mass M₀ (kg)</label>
+                    <input
+                      id={`${id}-emitter-mass`}
+                      name="initialEmitterMass"
+                      type="number"
+                      step="any"
+                      min="0"
+                      max="1e15"
+                      className="input-number"
+                      value={draft.initialEmitterMass}
+                      aria-invalid={Boolean(error)}
+                      aria-describedby={error ? `${id}-ledger-refusal` : `${id}-modern-scope`}
+                      onChange={(event) =>
+                        setDraft({ ...draft, initialEmitterMass: event.target.value })
+                      }
+                    />
+                  </div>
+                ) : null}
                 <div className="control-row">
                   <label htmlFor={`${id}-emitted-energy`}>Energy emitted L (J)</label>
                   <input
@@ -370,30 +399,45 @@ export function BoundaryLedgerLab({
                     onChange={(event) => setDraft({ ...draft, emittedEnergy: event.target.value })}
                   />
                 </div>
-                <div className="control-row">
-                  <label htmlFor={`${id}-input-energy`}>External energy input (J)</label>
-                  <input
-                    id={`${id}-input-energy`}
-                    name="inputEnergy"
-                    type="number"
-                    step="any"
-                    min="0"
-                    max="1e28"
-                    className="input-number"
-                    value={draft.inputEnergy}
-                    aria-invalid={Boolean(error)}
-                    aria-describedby={error ? `${id}-ledger-refusal` : undefined}
-                    onChange={(event) => setDraft({ ...draft, inputEnergy: event.target.value })}
-                  />
-                </div>
-                <p className="fine">
-                  Calculate to apply these energies; the accepted result stays visible until then.
-                  Use zero external input for an isolated emission. Positive external input belongs
-                  to the retained-radiation, heated-enclosure model. The cited context cards keep
-                  their own energy figures; these settings control the ideal ledger.
-                </p>
+                {!isFourMomentum && (
+                  <div className="control-row">
+                    <label htmlFor={`${id}-input-energy`}>External energy input (J)</label>
+                    <input
+                      id={`${id}-input-energy`}
+                      name="inputEnergy"
+                      type="number"
+                      step="any"
+                      min="0"
+                      max="1e28"
+                      className="input-number"
+                      value={draft.inputEnergy}
+                      aria-invalid={Boolean(error)}
+                      aria-describedby={error ? `${id}-ledger-refusal` : undefined}
+                      onChange={(event) => setDraft({ ...draft, inputEnergy: event.target.value })}
+                    />
+                  </div>
+                )}
+                {isFourMomentum ? (
+                  <p className="fine" id={`${id}-modern-scope`}>
+                    The isolated body starts at rest. Results describe the instant after emission,
+                    before the light is absorbed. This modern lens assumes the four-momentum
+                    relation; M₀ is an added input, not a result of the 1905 derivation. Older links
+                    that omit M₀ use the visible 1 kg default. External heating and radiation
+                    retention are saved settings for the historical ledger and do not enter this
+                    emission model.
+                  </p>
+                ) : (
+                  <p className="fine">
+                    Calculate to apply these energies; the accepted result stays visible until then.
+                    Use zero external input for an isolated emission. Positive external input
+                    belongs to the retained-radiation, heated-enclosure model. The cited context
+                    cards keep their own energy figures; these settings control the ideal ledger.
+                  </p>
+                )}
                 <button type="submit" className="secondary">
-                  Calculate with these energies
+                  {isFourMomentum
+                    ? "Calculate emission and recoil"
+                    : "Calculate with these energies"}
                 </button>
               </fieldset>
             </form>
@@ -444,27 +488,29 @@ export function BoundaryLedgerLab({
                   </button>
                 </div>
               </fieldset>
-              <fieldset className="lab-choice">
-                <legend>The radiation</legend>
-                <div className="actions">
-                  <button
-                    type="button"
-                    className={`button-toggle ${p.disposition === "escapes" ? "active" : ""}`}
-                    onClick={() => setDisposition("escapes")}
-                    aria-pressed={p.disposition === "escapes"}
-                  >
-                    Escapes
-                  </button>
-                  <button
-                    type="button"
-                    className={`button-toggle ${p.disposition === "retained" ? "active" : ""}`}
-                    onClick={() => setDisposition("retained")}
-                    aria-pressed={p.disposition === "retained"}
-                  >
-                    Is absorbed inside an enclosure
-                  </button>
-                </div>
-              </fieldset>
+              {!isFourMomentum && (
+                <fieldset className="lab-choice">
+                  <legend>The radiation</legend>
+                  <div className="actions">
+                    <button
+                      type="button"
+                      className={`button-toggle ${p.disposition === "escapes" ? "active" : ""}`}
+                      onClick={() => setDisposition("escapes")}
+                      aria-pressed={p.disposition === "escapes"}
+                    >
+                      Escapes
+                    </button>
+                    <button
+                      type="button"
+                      className={`button-toggle ${p.disposition === "retained" ? "active" : ""}`}
+                      onClick={() => setDisposition("retained")}
+                      aria-pressed={p.disposition === "retained"}
+                    >
+                      Is absorbed inside an enclosure
+                    </button>
+                  </div>
+                </fieldset>
+              )}
               {p.mode === "four-momentum" && (
                 <fieldset className="lab-choice">
                   <legend>Pulses</legend>
@@ -851,25 +897,35 @@ export function BoundaryLedgerLab({
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
-      <p data-detail="0">
-        <noscript>
-          <b className="reading-label">In one breath</b>
-        </noscript>
-        {withScripts(ME03_CAPTION.r0)}
-      </p>
-      <p data-detail="1">
-        <noscript>
-          <b className="reading-label">Full explanation</b>
-        </noscript>
-        {withScripts(ME03_CAPTION.r1)}
-      </p>
-      <p data-detail="2" hidden>
-        <noscript>
-          <b className="reading-label">Every step</b>
-        </noscript>
-        {withScripts(ME03_CAPTION.r2)}
-      </p>
-      <LabMargin>{withScripts(ME03_CAPTION.r3)}</LabMargin>
+      {isFourMomentum ? (
+        <p data-detail="0">
+          A body emitting light in one direction recoils. Its rest-mass loss supplies both the
+          emitted energy and the remaining body's recoil energy. Equal opposite pulses cancel the
+          momentum and recover the symmetric loss L/c².
+        </p>
+      ) : (
+        <>
+          <p data-detail="0">
+            <noscript>
+              <b className="reading-label">In one breath</b>
+            </noscript>
+            {withScripts(ME03_CAPTION.r0)}
+          </p>
+          <p data-detail="1">
+            <noscript>
+              <b className="reading-label">Full explanation</b>
+            </noscript>
+            {withScripts(ME03_CAPTION.r1)}
+          </p>
+          <p data-detail="2" hidden>
+            <noscript>
+              <b className="reading-label">Every step</b>
+            </noscript>
+            {withScripts(ME03_CAPTION.r2)}
+          </p>
+          <LabMargin>{withScripts(ME03_CAPTION.r3)}</LabMargin>
+        </>
+      )}
     </section>
   );
 }

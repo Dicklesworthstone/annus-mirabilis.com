@@ -1,6 +1,6 @@
 import type { Me03Parameters } from "../../../experiments/me03/definition.ts";
 import type { Me03Snapshot } from "../../../experiments/me03/session.ts";
-import { numberText } from "../presentation.ts";
+import type { ScientificResult } from "../../../experiments/results/types.ts";
 import { Sci } from "../Sci.tsx";
 
 export interface BoundaryLedgerPlotProps {
@@ -9,12 +9,20 @@ export interface BoundaryLedgerPlotProps {
   clipId: string;
 }
 
-function toScalar(
-  res: { status: string; value?: number | Float64Array } | undefined,
-  fallback: number,
-): number {
-  if (res && res.status === "value" && typeof res.value === "number") return res.value;
-  return fallback;
+function ResultNumber({ result, unit }: { result: ScientificResult; unit: string }) {
+  if (result.status === "value" && typeof result.value === "number") {
+    return (
+      <>
+        <Sci value={result.value} digits={5} />
+        {unit ? ` ${unit}` : ""}
+      </>
+    );
+  }
+  return (
+    <span className="fine">
+      {"reason" in result ? result.reason : "No numeric value is assigned."}
+    </span>
+  );
 }
 
 const SUPERSCRIPT: Readonly<Record<string, string>> = {
@@ -63,17 +71,16 @@ const DISPOSITION_WORDS: Readonly<Record<Me03Parameters["disposition"], string>>
 const label = { fontSize: "12px", fontFamily: "var(--font-sans)" } as const;
 
 export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryLedgerPlotProps) {
-  const { boundary, disposition, emittedEnergy, mode, pulseSystem, notation } = parameters;
+  const { boundary, disposition, mode, pulseSystem, notation } = parameters;
   const isModern = notation === "modern";
   const lightSpeed = isModern ? "c" : "V";
   const isFourMomentum = mode === "four-momentum";
   const card = evaluation.card;
   const massChange = splitFigure(card.massChangeFormatted);
 
-  const energyDelta = toScalar(evaluation.energyChange, -emittedEnergy);
-  const massDelta =
-    evaluation.massChange.status === "value" ? (evaluation.massChange.value as number) : null;
-  const invMass = toScalar(evaluation.invariantMass, 0);
+  const invMass =
+    evaluation.invariantMass.status === "value" ? evaluation.invariantMass.value : null;
+  const emission = evaluation.modernEmission;
 
   const isolated = boundary === "combined-isolated-system";
   const pulseWords =
@@ -324,7 +331,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
                   </g>
                 )}
                 <text x="150" y="180" textAnchor="middle" fill="var(--ink)" style={label}>
-                  m = {invMass === 0 ? "0" : `L/${lightSpeed}²`}
+                  m = {invMass === null ? "unavailable" : invMass === 0 ? "0" : `L/${lightSpeed}²`}
                 </text>
               </g>
             )}
@@ -343,33 +350,127 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
             <div>
               <dt>Energy change ΔE</dt>
               <dd>
-                {energyDelta > 0
-                  ? `+${numberText(energyDelta)}`
-                  : numberText(energyDelta).replace(/^-/, "−")}{" "}
-                J
+                <ResultNumber result={evaluation.energyChange} unit="J" />
               </dd>
             </div>
             <div>
-              <dt>Mass change Δm</dt>
+              <dt>{isFourMomentum ? "Invariant-mass change Δm" : "Mass change Δm"}</dt>
               <dd className="me03-ledger-accent">
-                {massDelta === null ? (
-                  "not assigned in the 1905 reading"
-                ) : massDelta === 0 ? (
-                  "0 (unchanged)"
-                ) : (
-                  <>
-                    <Sci value={massDelta} digits={4} /> kg
-                  </>
-                )}
+                <ResultNumber result={evaluation.massChange} unit="kg" />
               </dd>
             </div>
           </dl>
+          {isFourMomentum && emission && (
+            <section
+              aria-label="Conserved emission and emitter recoil"
+              data-modern-emission-status={emission.status}
+            >
+              <p className={emission.status === "outside-domain" ? "notice error" : "fine"}>
+                {emission.reason} {emission.condition}.
+              </p>
+              {emission.status === "outside-domain" && (
+                <p className="fine">
+                  The radiation-only mass below describes the chosen pulses. It does not establish
+                  that this initial body can emit them.
+                </p>
+              )}
+              {emission.status === "value" ? (
+                <dl className="me03-ledger">
+                  <div>
+                    <dt>Initial body energy M₀c²</dt>
+                    <dd>
+                      <ResultNumber result={emission.outputs.initialEmitterEnergy} unit="J" />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Remaining body energy</dt>
+                    <dd>
+                      <ResultNumber result={emission.outputs.remainingEmitterEnergy} unit="J" />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Remaining invariant mass</dt>
+                    <dd>
+                      <ResultNumber result={emission.outputs.remainingEmitterMass} unit="kg" />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Body rest-mass change</dt>
+                    <dd>
+                      <ResultNumber result={emission.outputs.emitterMassChange} unit="kg" />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Body x velocity c²p/E</dt>
+                    <dd>
+                      <ResultNumber result={emission.outputs.emitterRecoilVelocity} unit="m/s" />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Recoil energy E − mc²</dt>
+                    <dd>
+                      <ResultNumber result={emission.outputs.emitterKineticEnergy} unit="J" />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Radiation invariant mass</dt>
+                    <dd>
+                      <ResultNumber result={evaluation.invariantMass} unit="kg" />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Radiation x momentum</dt>
+                    <dd>
+                      <ResultNumber result={emission.outputs.radiationMomentum} unit="kg·m/s" />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Body x momentum</dt>
+                    <dd>
+                      <ResultNumber result={emission.outputs.emitterMomentum} unit="kg·m/s" />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Emitted fraction L/(M₀c²)</dt>
+                    <dd>
+                      <ResultNumber result={emission.outputs.emittedRestEnergyFraction} unit="" />
+                    </dd>
+                  </div>
+                </dl>
+              ) : (
+                <dl className="me03-ledger">
+                  <div>
+                    <dt>Radiation invariant mass</dt>
+                    <dd>
+                      <ResultNumber result={evaluation.invariantMass} unit="kg" />
+                    </dd>
+                  </div>
+                </dl>
+              )}
+              <p className="fine">
+                All energies and momenta use the initial body's rest frame. The modern relation
+                gives E<sub>body</sub> = M₀c² − L, p<sub>body</sub> = −p<sub>light</sub>, and m²c⁴ =
+                E<sub>body</sub>² − p<sub>body</sub>²c². For an admitted emission, the combined
+                isolated system keeps its initial energy, zero momentum, and invariant mass M₀. Its
+                invariant mass is not the sum of the separate rest masses.
+              </p>
+              <p className="fine">
+                A nonzero directed pulse leaves recoil energy, so the body's rest-mass loss exceeds
+                L/c². Equal opposite pulses give zero recoil and recover the symmetric mass loss
+                L/c². The loss and recoil energy are evaluated without subtracting nearly equal
+                values; rounded before-and-after masses can therefore look equal while their change
+                is nonzero. At a lightlike endpoint, c²p/E describes energy transport and does not
+                define a massive emitter's rest frame.{" "}
+                <a href="/papers/mass-energy/s0/">Read the original symmetric-emission argument.</a>
+              </p>
+            </section>
+          )}
           {/* The selected case's energy figure, whether matter crosses, and "closed but not
               isolated" are facts 3, 6 and 7 in the panel under the drawing, so they are not
               repeated here. */}
           <dl className="me03-ledger me03-ledger-case">
             <div>
-              <dt>Case study</dt>
+              <dt>{isFourMomentum ? "Separate cited case" : "Case study"}</dt>
               <dd>{card.label}</dd>
             </div>
             <div>

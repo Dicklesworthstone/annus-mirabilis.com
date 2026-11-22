@@ -10,7 +10,7 @@ import { encodeResult, parseResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
 import { ME03_CLASSES, ME03_DEFAULTS, ME03_OUTPUTS, type Me03Parameters } from "./definition.ts";
-import { validateMe03Parameters } from "./parameters.ts";
+import { validateMe03Parameters, withLegacyMe03EmitterMass } from "./parameters.ts";
 
 export type { EnergySourceCard, EnergySourceCardBoundary, Me03Snapshot, PhotonInBoxResult };
 export type Me03Evaluation = Me03Snapshot | PhotonInBoxResult;
@@ -61,6 +61,7 @@ export function snapshotOutputs(p: Me03Parameters): ScientificResult[] {
     snap.systemEnergyChange,
     snap.systemMassChange,
     snap.invariantMass,
+    ...(snap.modernEmission ? Object.values(snap.modernEmission.outputs) : []),
   ];
 }
 
@@ -86,10 +87,13 @@ export function createMe03Session(
   instanceId = "me03-session",
   initialParameters: Me03Parameters = ME03_DEFAULTS,
 ) {
+  // Old prepared examples and settings predate the modern recoil mass control.
+  // Publish a fresh owner calculation with its explicit default, never a stale old result.
+  const completeParameters = withLegacyMe03EmitterMass(initialParameters) as Me03Parameters;
   const example: PreparedMe03Example = {
     sourceDigest: "src/physics/reference/massEnergy.ts",
-    parameters: initialParameters,
-    results: snapshotOutputs(initialParameters).map(encodeResult),
+    parameters: completeParameters,
+    results: snapshotOutputs(completeParameters).map(encodeResult),
     stepIndex: 0,
     simulationTime: 0,
   };
@@ -122,7 +126,7 @@ export function createMe03Session(
     const snap = store.getSnapshot();
     const previous = (snap.requested?.parameters ??
       snap.accepted?.parameters ??
-      initialParameters) as Me03Parameters;
+      completeParameters) as Me03Parameters;
     const next = checked.data;
 
     const setup: Record<string, unknown> = {};
@@ -166,7 +170,7 @@ export function createMe03Session(
     evaluate: evaluateMe03OrBox,
     acceptedParameters(): Me03Parameters {
       const accepted = store.getSnapshot().accepted;
-      return (accepted?.parameters ?? initialParameters) as Me03Parameters;
+      return (accepted?.parameters ?? completeParameters) as Me03Parameters;
     },
     apply: (input: unknown) => apply(input),
     startNewRun: (input: unknown) => apply(input, true),

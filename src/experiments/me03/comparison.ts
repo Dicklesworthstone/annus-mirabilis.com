@@ -10,12 +10,13 @@ import { ExperimentRuntimeError } from "../refusal.ts";
 import { decodeResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { ME03_CLASSES, ME03_MODEL, ME03_OUTPUTS, type Me03Parameters } from "./definition.ts";
-import { validateMe03Parameters } from "./parameters.ts";
+import { validateMe03Parameters, withLegacyMe03EmitterMass } from "./parameters.ts";
 
 const fields: Readonly<Record<keyof Me03Parameters, readonly [string, string]>> = {
   boundary: ["System boundary", ""],
   disposition: ["Radiation disposition", ""],
   emittedEnergy: ["Energy emitted by the body", "J"],
+  initialEmitterMass: ["Initial emitter mass (modern lens, held fixed)", "kg"],
   inputEnergy: ["External energy input", "J"],
   cardId: ["Context card", ""],
   mode: ["Model", ""],
@@ -110,20 +111,21 @@ export function me03ComparisonIdentity(
   });
 }
 
-/** The comparison never repairs a partial record or silently changes the accepted experiment. */
+/** Only the new, inactive modern mass field may be absent from an older complete 1905 record. */
 export function me03ComparisonParameters(input: unknown): Me03Parameters {
-  const checked = validateMe03Parameters(input);
+  const compatible = withLegacyMe03EmitterMass(input);
+  const checked = validateMe03Parameters(compatible);
   if (checked.kind !== "accepted")
     refuseMe03Comparison("Use valid, complete energy-ledger settings for a comparison.");
   if (
-    input === null ||
-    typeof input !== "object" ||
-    Object.keys(input).length !== Object.keys(fields).length ||
+    compatible === null ||
+    typeof compatible !== "object" ||
+    Object.keys(compatible).length !== Object.keys(fields).length ||
     Object.keys(fields).some(
       (key) =>
-        !Object.hasOwn(input, key) ||
+        !Object.hasOwn(compatible, key) ||
         !Object.is(
-          (input as Record<string, unknown>)[key],
+          (compatible as Record<string, unknown>)[key],
           checked.data[key as keyof Me03Parameters],
         ),
     )

@@ -216,6 +216,88 @@
   frame: not-applicable
   colorRole: material
 
+- id: initialEmitterMass
+  name: Initial emitter rest mass in the modern emission model
+  description: The independently specified rest mass M₀ of an isolated emitter before emission; used only after the modern four-momentum relation is admitted.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+- id: initialEmitterEnergy
+  name: Initial emitter energy
+  description: M₀c² in the initial emitter rest frame, an assumption of the modern model rather than a historical derivation premise.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: energy
+- id: remainingEmitterEnergy
+  name: Remaining emitter energy
+  description: The emitter energy M₀c² − L in the original rest frame after emission, including recoil kinetic energy.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: energy
+- id: remainingEmitterMass
+  name: Remaining emitter invariant mass
+  description: The invariant mass of the remaining four-momentum; a zero result explicitly identifies a null remnant or no remnant, not a massive rest frame.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+- id: emitterMassChange
+  name: Modern emitter rest-mass change
+  description: Remaining emitter invariant mass minus initial emitter mass, evaluated without subtracting nearly equal masses. Directed emission includes recoil kinetic energy in the rest-mass loss.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+- id: emitterRecoilVelocity
+  name: Remaining emitter x velocity
+  description: Signed c²p/E in the initial emitter rest frame. At a lightlike endpoint this is energy-transport velocity, not a massive inertial observer; absent when no emitter remains.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: space-geometry
+- id: emitterKineticEnergy
+  name: Emitter recoil kinetic energy
+  description: Remaining total energy minus remaining rest energy, computed by rationalizing the difference; at a null endpoint all remaining energy is non-rest energy.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: energy
+- id: radiationMomentum
+  name: Net radiation x momentum
+  description: The sum of the emitted pulses' x momenta in the initial emitter rest frame, L/c for directed pulses and zero for equal opposite pulses.
+  dimensionStatus: declared
+  dimension: [1, 1, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: space-geometry
+- id: emitterMomentum
+  name: Remaining emitter x momentum
+  description: The momentum opposite to the emitted radiation, fixed by conservation in the initial emitter rest frame.
+  dimensionStatus: declared
+  dimension: [1, 1, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: space-geometry
+- id: emittedRestEnergyFraction
+  name: Fraction of initial rest energy emitted
+  description: L/(M₀c²), the energy-budget coordinate of the modern isolated-emission model.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: energy
+
 - id: boxLength
   name: Box length
   description: The length of the box in the 1906 thought experiment, along the axis the light pulse travels.

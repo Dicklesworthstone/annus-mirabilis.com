@@ -478,14 +478,32 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
   {
     instrumentId: "me-03",
     kernel: tsRef("src/physics/reference/massEnergy.ts", "evaluateMe03"),
-    words: words(
-      "Read the chosen boundary, what happens to the radiation, and the energies, then pass them to the boundary ledger, the modern four-momentum calculation and the energy-source cards, and gather their results in one snapshot. A missing or invalid energy falls back to the default: one unit emitted, none put in.",
-    ),
+    words: {
+      r0: "Gather the boundary's energy and mass changes from the selected model, keeping the historical ledger separate from modern emitter recoil.",
+      r1: "The historical mode uses the existing radiation-disposition ledger. The modern mode instead asks an initially stationary, isolated body to emit the chosen pulses and conserves its total four-momentum. It requires an explicit initial rest mass, with a visible one-kilogram default for older settings. That distinction matters for a pulse travelling in one direction: the body recoils, so its rest-mass loss supplies the emitted light and its own recoil energy.",
+      r2: "Only the modern mode dispatches to evaluateModernEmission; its ledger replaces the recoil-free boundary ledger as one coherent result. Invalid modern emission energy is passed through for an explicit domain result instead of being replaced with a default. Historical default handling stays unchanged. Radiation invariant mass and the contextual energy-source cards remain separate quantities, and the modern body can be outside its energy budget while the chosen radiation system still has a well-defined invariant mass.",
+    },
     liveTerms: ["emittedEnergyRestFrame", "speedOfLight"],
     identifierBindings: [
       bind("evaluateMe03", "emittedEnergy", "emittedEnergyRestFrame"),
       bind("evaluateMe03", "c", "speedOfLight"),
       bind("evaluateMe03", "massChange", "massChangeSigned"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "me-03",
+    kernel: tsRef("src/physics/reference/massEnergy.ts", "evaluateModernEmission"),
+    words: {
+      r0: "Conserve energy and momentum while an isolated body emits light, including the body's recoil and remaining invariant mass.",
+      r1: "This modern lens assumes E squared equals m squared c to the fourth plus p squared c squared. Initially the body is at rest with mass M0. After emitting energy L, its energy is M0 c squared minus L and its momentum is the negative of the radiation momentum. One pulse, or two pulses in the same direction, carries momentum L/c. Equal opposite pulses carry zero net momentum. For M0 = 1 kg and L = 3 c squared / 8 joules, a directed emission leaves mass 0.5 kg, velocity minus 0.6 c, and recoil energy c squared / 8 joules.",
+      r2: "With r = L/(M0 c squared), a directed emission leaves mass M0 times sqrt(1-2r), requiring r at most one half. Opposite pulses leave M0 times (1-r), requiring r at most one. The directed mass change is rationalized as minus (L/c squared) times 2/(1+sqrt(1-2r)); recoil energy uses p squared c squared over E plus m c squared. These forms retain tiny changes when subtracting displayed masses or energies would lose them. Exceeding the energy budget yields typed outside-domain body and combined-system readings, while radiation-only quantities remain separately available. At complete symmetric emission no body remains and its velocity is not applicable; the directed endpoint is a lightlike remnant, not a massive body's rest frame. Heating and later absorption belong to other experiments.",
+    },
+    liveTerms: ["initialEmitterMass", "emittedEnergyRestFrame", "speedOfLight"],
+    identifierBindings: [
+      bind("evaluateModernEmission", "M0", "initialEmitterMass"),
+      bind("evaluateModernEmission", "L", "emittedEnergyRestFrame"),
+      bind("evaluateModernEmission", "c", "speedOfLight"),
     ],
     independentReferences: [],
   },

@@ -28,7 +28,7 @@
     "evaluateSubtraction@src/physics/reference/massEnergy.ts": "sha256:98436f159f767fc6824c6c3c79b8716f767c1e762857e1836ecef2058d24f207",
     "initializeMassEnergyLedger@src/physics/reference/massEnergy.ts": "sha256:35f202a64ce0a1738e335423433623920b3e1c01fb8fa0707355cfd4779cbd0d",
     "evaluateMe02@src/physics/reference/massEnergy.ts": "sha256:53f944320b3803166e6436ebdf1160ba135efb2df9770617dd19a3ec30d1c5fc",
-    "evaluateMe03@src/physics/reference/massEnergy.ts": "sha256:3e9ea1af4a87d89addf26618479bebd064d67ef5ce0091952a426570743deb22",
+    "evaluateMe03@src/physics/reference/massEnergy.ts": "sha256:e7f850b7f725cc4e758a95d0742ce00d259b0de653181febbd90c3f1d7932766",
     "evaluatePhotonBox@src/physics/reference/massEnergy.ts": "sha256:ec37d2f99b43271a59a00c92d228d4e8112e5bbda87ca7342c0bd29b5650ff8a",
     "galileanVelocity@src/physics/reference/kinematics.ts": "sha256:61ffd6f21cfa123929d7aaedeee5caa696acfe8d845de83c38b7d5ff94eaced7",
     "rapidity@src/physics/reference/kinematics.ts": "sha256:e65b9b89f2c7b54cbfbb9631ea63c2f3eb3c11f9408a9b93bea81701f5bee1e6",
@@ -115,7 +115,8 @@
     "evaluateSr12@src/physics/reference/fields.ts": "sha256:2456d6085eed656243ff791b623bb875b6b857f37d0460ec80a5545dc81b1e9a",
     "transformChargeCurrent@src/physics/reference/fields.ts": "sha256:4efbed0926134abf4e2db73308635313f2cfefb0971f46939053c1346f13dfad",
     "evaluateSr13@src/physics/reference/electron.ts": "sha256:bb62046b9943f0fd874f6cf4023f1baf428e741c5f1cbd01923fbbab5921bad3",
-    "transformLightDirection@src/physics/reference/kinematics.ts": "sha256:45e109910d50a5fb320c607f808811be15638af4b0f79bd5742ded519f51c6c5"
+    "transformLightDirection@src/physics/reference/kinematics.ts": "sha256:45e109910d50a5fb320c607f808811be15638af4b0f79bd5742ded519f51c6c5",
+    "evaluateModernEmission@src/physics/reference/massEnergy.ts": "sha256:0908b165e9ebb9e825581c4f55888648d103d0d954481cb5b0046f09669f6612"
   },
   "closures": {
     "src/physics/reference/diffusion/distributions.ts": "source:sha256:1eb5b457e215116537778a643fdb94b42da696cd79689396720e6c289b7aa5fa",
@@ -124,7 +125,7 @@
     "src/physics/reference/diffusion/walks.ts": "source:sha256:4fad5c398f64468b7a07a7f84a92e0f5a9fe977c4120193e4981ffff570a2a05",
     "src/physics/reference/special/erf.ts": "source:sha256:36da87a989cc4d16571414b99849aa31ea544bb30878fd80fb9c19ffa9e11f62",
     "src/physics/reference/diffusion/ftcs.ts": "source:sha256:7ce831bbb87f0c4046465f1822bdec8664dbd1da69c5ae20fa06decb56b2f163",
-    "src/physics/reference/massEnergy.ts": "source:sha256:2a929a3fe1f2465f212b5ff98af6e172c65cc537c22b80a92dd8f7328078da05",
+    "src/physics/reference/massEnergy.ts": "source:sha256:5cb49a15830678a1217efea19b0416027de1d1b9d9cf82fd63926670048b4a26",
     "src/physics/reference/kinematics.ts": "source:sha256:bab60c6a0705158de8a2f9cae59549eec3c7e661a7fd41b38d8630787ff0af07",
     "src/physics/reference/kinematics/constraints.ts": "source:sha256:a6a76fc7af65a4ba191a8b685de34896750e07af517152d3aff13e6d52d30656",
     "src/physics/reference/events.ts": "source:sha256:082854b9f420bdf4925ae481201fdeab6ff64c9ccf6d51327d137e426e3c5733",

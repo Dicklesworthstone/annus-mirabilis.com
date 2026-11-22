@@ -45,7 +45,8 @@ const VALID_PULSE_SYSTEMS: readonly Me03PulseSystem[] = [
 ];
 
 function validateMe03Fields(input: unknown): Me03ParameterCheck {
-  if (input === null || typeof input !== "object") {
+  const compatible = withLegacyMe03EmitterMass(input);
+  if (compatible === null || typeof compatible !== "object") {
     return {
       kind: "refused",
       refusal: makeRefusal(
@@ -56,10 +57,13 @@ function validateMe03Fields(input: unknown): Me03ParameterCheck {
     };
   }
 
-  const o = input as Partial<Record<keyof Me03Parameters, unknown>>;
+  const o = compatible as Partial<Record<keyof Me03Parameters, unknown>>;
+
+  const mode: Me03Mode =
+    o.mode === "box-1906" ? "box-1906" : o.mode === "four-momentum" ? "four-momentum" : "1905";
 
   const L = optionalNumber(o, "emittedEnergy", ME03_DEFAULTS.emittedEnergy);
-  if (!Number.isFinite(L) || L <= 0) {
+  if (!Number.isFinite(L) || L < 0 || (L === 0 && mode !== "four-momentum")) {
     return {
       kind: "refused",
       refusal: makeRefusal(
@@ -68,7 +72,34 @@ function validateMe03Fields(input: unknown): Me03ParameterCheck {
         {
           details: {
             code: "nonfinite-input",
-            requirements: "Enter the energy L given off as a number greater than zero, in joules.",
+            requirements:
+              mode === "four-momentum"
+                ? "Enter the emitted energy L as zero or more, in joules."
+                : "Enter the energy L given off as a number greater than zero, in joules.",
+          },
+        },
+      ),
+    };
+  }
+
+  // Links and tapes authored before the recoil lens did not specify an emitter mass.
+  // Their settings acquire the visible 1 kg default; the owner checks the resulting energy
+  // budget instead of silently increasing this mass to fit an old radiation-only example.
+  const initialEmitterMass = optionalNumber(
+    o,
+    "initialEmitterMass",
+    ME03_DEFAULTS.initialEmitterMass,
+  );
+  if (!Number.isFinite(initialEmitterMass) || initialEmitterMass <= 0) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["initialEmitterMass"] },
+        {
+          details: {
+            requirements:
+              "Enter the initial emitter rest mass M₀ as a number greater than zero, in kilograms.",
           },
         },
       ),
@@ -105,9 +136,6 @@ function validateMe03Fields(input: unknown): Me03ParameterCheck {
   const cardId: Me03CardId = VALID_CARDS.includes(o.cardId as Me03CardId)
     ? (o.cardId as Me03CardId)
     : ME03_DEFAULTS.cardId;
-
-  const mode: Me03Mode =
-    o.mode === "box-1906" ? "box-1906" : o.mode === "four-momentum" ? "four-momentum" : "1905";
 
   const pulseSystem: Me03PulseSystem = VALID_PULSE_SYSTEMS.includes(
     o.pulseSystem as Me03PulseSystem,
@@ -212,6 +240,7 @@ function validateMe03Fields(input: unknown): Me03ParameterCheck {
       boundary,
       disposition,
       emittedEnergy: L,
+      initialEmitterMass,
       inputEnergy: inputE,
       cardId,
       mode,
@@ -227,6 +256,30 @@ function validateMe03Fields(input: unknown): Me03ParameterCheck {
 }
 
 export { ME03_DEFAULTS };
+
+/** Add only the new field to a complete older settings record; never repair supplied bad values. */
+export function withLegacyMe03EmitterMass(input: unknown): unknown {
+  if (input === null || typeof input !== "object" || Array.isArray(input)) return null;
+  const prototype = Object.getPrototypeOf(input);
+  if (prototype !== Object.prototype && prototype !== null) return null;
+  const descriptors = Object.getOwnPropertyDescriptors(input);
+  // Inspect descriptors before reading a value: replay settings are own-data records, not
+  // class instances or an opportunity to invoke a getter while migrating an older schema.
+  if (
+    Reflect.ownKeys(descriptors).some((key) => {
+      if (typeof key !== "string") return true;
+      const descriptor = descriptors[key];
+      return !descriptor || !Object.hasOwn(descriptor, "value");
+    })
+  )
+    return null;
+  const data = Object.fromEntries(
+    Object.entries(descriptors).map(([key, descriptor]) => [key, descriptor.value]),
+  );
+  return Object.hasOwn(data, "initialEmitterMass")
+    ? data
+    : { ...data, initialEmitterMass: ME03_DEFAULTS.initialEmitterMass };
+}
 
 /** The form names the box length ℓ; the manifest's label spells it "ell". */
 const ME03_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {

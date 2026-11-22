@@ -54,15 +54,37 @@ parameters:
   - id: emittedEnergy
     label: "Emitted radiation energy L"
     accessibleName: "Total energy emitted as radiation"
-    accessibleDescription: "Positive energy radiated by the source body."
+    accessibleDescription: "Energy radiated in the initial emitter rest frame; zero is admitted as a modern no-emission limit."
     quantityId: emittedEnergyRestFrame
     displayUnit: "J"
     modelDomain:
       min: 0
       max: 1.0e28
+      minInclusive: true
+      maxInclusive: true
+      reason: "Emitted energy is non-negative; historical and box modes require positive emission."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1.0
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+
+  - id: initialEmitterMass
+    label: "Initial emitter rest mass M₀"
+    accessibleName: "Initial emitter rest mass for the modern isolated-emission model"
+    accessibleDescription: "The modern emitter starts at rest with this mass. Older settings use a visible 1 kg default. This input is inactive in the historical and photon-box lenses."
+    quantityId: initialEmitterMass
+    displayUnit: "kg"
+    modelDomain:
+      min: 0
+      max: 1.0e15
       minInclusive: false
       maxInclusive: true
-      reason: "Emitted energy L must be positive."
+      reason: "A finite positive initial rest mass is required. The modern owner separately checks the emission energy and momentum budget."
     visualRange:
       min: 0.1
       max: 10
@@ -313,6 +335,7 @@ outputs:
   - id: radiationMassChange
     quantityId: radiationMassChange
     allowedStatuses:
+      - value
       - not-applicable
       - outside-domain
     primary: false
@@ -336,6 +359,43 @@ outputs:
     allowedStatuses:
       - value
       - outside-domain
+    primary: false
+
+  - id: initialEmitterEnergy
+    quantityId: initialEmitterEnergy
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: remainingEmitterEnergy
+    quantityId: remainingEmitterEnergy
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: remainingEmitterMass
+    quantityId: remainingEmitterMass
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: emitterMassChange
+    quantityId: emitterMassChange
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: emitterRecoilVelocity
+    quantityId: emitterRecoilVelocity
+    allowedStatuses: [value, not-applicable, outside-domain]
+    primary: false
+  - id: emitterKineticEnergy
+    quantityId: emitterKineticEnergy
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: radiationMomentum
+    quantityId: radiationMomentum
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: emitterMomentum
+    quantityId: emitterMomentum
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: emittedRestEnergyFraction
+    quantityId: emittedRestEnergyFraction
+    allowedStatuses: [value, outside-domain]
     primary: false
 
   - id: boxDisplacement
@@ -381,12 +441,14 @@ outputs:
     primary: false
 
 assumptions:
+  - "The modern emission lens assumes E² = m²c⁴ + p²c² and conservation of four-momentum for an emitter initially at rest. It does not derive that relation from the 1905 argument."
+  - "Modern emission is evaluated before absorption, with no external energy or momentum input. Equal opposite pulses have equal energies in the initial emitter rest frame."
   - "Conservation of center-of-mass immobility for an isolated physical system."
   - "The 1905 mass-energy relation applied to closed and isolated boundaries."
   - "Nonrelativistic recoil approximation and flight time ell/c valid when E/(Mc^2) <= 10^-3."
   - "Radiation pressure delivers impulse E/c upon emission and absorption."
 
-admittedDomain: "Closed thermodynamic systems with non-negative cited energy transfers and 1906 box systems with E/(Mc^2) <= 10^-3."
+admittedDomain: "Historical boundary ledgers; modern isolated emission with 0 <= L <= M0*c^2/2 for directed pulses or 0 <= L <= M0*c^2 for equal opposite pulses, including explicitly identified null/no-remnant endpoints; 1906 box systems with E/(Mc^2) <= 10^-3."
 
 notModeled:
   - "gravitational weighing"
@@ -411,11 +473,25 @@ owner:
     - displayRole: reference-implementation
       language: ts
       module: "src/physics/reference/massEnergy.ts"
+      exportName: "evaluateModernEmission"
+      independentReferences: []
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/massEnergy.ts"
       exportName: "evaluatePhotonBox"
       independentReferences:
         - experimentId: me-03
           quantityId: centerOfMassShift
   identifierBindings:
+    - kernelFunction: evaluateModernEmission
+      identifier: M0
+      quantityId: initialEmitterMass
+    - kernelFunction: evaluateModernEmission
+      identifier: L
+      quantityId: emittedEnergyRestFrame
+    - kernelFunction: evaluateModernEmission
+      identifier: c
+      quantityId: speedOfLight
     - kernelFunction: evaluatePhotonBox
       identifier: M
       quantityId: boxMass
@@ -636,6 +712,25 @@ predictMode:
           separatingAssumption: "Energy generation adds new mass from outside."
       settledCandidateId: stays-the-same
       explanation: "The energy only moves inside the boundary. Light emitted by the lamp is absorbed by the mirror and walls inside the sealed enclosure, so no energy crosses the outer boundary and the box's total mass is unchanged."
+    - promptId: me-03-predict-modern-recoil
+      supportedCandidateId: directed-more
+      controlId: pulseSystem
+      question: "The same initially stationary body emits a positive energy L, small enough for either arrangement. Which causes the larger loss of body rest mass: one directed pulse or two equal opposite pulses?"
+      candidates:
+        - id: directed-more
+          label: "The directed pulse, because the remaining body also recoils."
+          description: "The rest-mass loss supplies emitted energy and recoil kinetic energy."
+          separatingAssumption: "The modern energy and momentum balances both hold."
+        - id: same-loss
+          label: "The loss is always L/c², whatever the pulse directions."
+          description: "Applies the recoil-free relation to a body that retains kinetic energy."
+          separatingAssumption: "The remaining body has no recoil energy."
+        - id: opposite-more
+          label: "The opposite pulses, because their combined radiation mass is nonzero."
+          description: "Treats subsystem invariant masses as additive despite relative motion."
+          separatingAssumption: "The total invariant mass equals the sum of the separate invariant masses."
+      settledCandidateId: directed-more
+      explanation: "For a directed pulse, momentum conservation makes the remaining body recoil. Its lost rest energy supplies L plus that recoil kinetic energy. Equal opposite pulses carry zero net momentum, so no recoil remains and the loss is L/c². This comparison assumes the modern four-momentum relation."
     - promptId: me-03-predict-box-light-mass
       supportedCandidateId: com-stationary
       controlId: assignLightMass
