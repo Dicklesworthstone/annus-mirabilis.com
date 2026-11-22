@@ -7,11 +7,16 @@ import {
   type Bm08ComparisonInput,
 } from "../../experiments/bm08/comparison.ts";
 import { createBm08ComparisonSession } from "../../experiments/bm08/comparisonSession.ts";
-import { fromCameraDraft, toCameraDraft } from "../../experiments/bm08/controls.ts";
+import { toCameraDraft } from "../../experiments/bm08/controls.ts";
 import type { Bm08Parameters } from "../../experiments/bm08/definition.ts";
 import { encodeBm08Settings } from "../../experiments/bm08/permalink.ts";
 import type { PreparedBm08Example } from "../../experiments/bm08/session.ts";
+import type { ComparisonParameters } from "../../experiments/compare/Baseline.ts";
 import { ComparisonPanel } from "../../experiments/compare/ComparisonPanel.tsx";
+import {
+  ComparisonRecovery,
+  comparisonCurrency,
+} from "../../experiments/compare/ComparisonRecovery.tsx";
 import {
   comparisonDisplay,
   comparisonStatement,
@@ -25,6 +30,7 @@ import {
 } from "../../reader/notebook/predictionIntent.ts";
 import type { ReplayPassage, ReplayPrediction } from "../../reader/notebook/replayEntry.ts";
 import { SaveComparisonReplay } from "../../reader/notebook/SaveComparisonReplay.tsx";
+import { parseScaledDecimal } from "../../units/decimalScale.ts";
 import { CameraComparisonReadouts } from "./CameraComparisonReadouts.tsx";
 
 const help: Readonly<Record<Bm08ComparisonInput, string>> = {
@@ -83,11 +89,15 @@ export function CameraControlledComparison({
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    if (!enabled || !input) return;
     try {
-      const form = toCameraDraft(state.variant.parameters as Bm08Parameters);
-      form[selected] = draft;
-      // The existing form parser owns decimal scaling, finite checks and model admission.
-      const requested = fromCameraDraft(form);
+      // Keep exact decimal scaling, then let the session admit the complete request. A form
+      // validator throwing here used to discard the rejected settings before recovery saw them.
+      const value =
+        typeof state.variant.parameters[selected] === "number"
+          ? parseScaledDecimal(draft, Math.log10(input.displayFactor))
+          : draft;
+      const requested = { ...state.variant.parameters, [selected]: value };
       const intent = predictionIntent(nextPrediction, state, requested);
       if (controller.apply(requested)) setIssuedPrediction(intent);
     } catch (failure) {
@@ -97,6 +107,11 @@ export function CameraControlledComparison({
           : "Check this camera setting. The completed comparison is unchanged.",
       );
     }
+  }
+  function recover(parameters: ComparisonParameters | null, apply: () => boolean) {
+    const intent = parameters ? predictionIntent(nextPrediction, state, parameters) : null;
+    setError("");
+    if (apply()) setIssuedPrediction(intent);
   }
   const statement = comparisonStatement(
     state.baseline,
@@ -112,6 +127,7 @@ export function CameraControlledComparison({
       data-controlled-camera-comparison
       data-comparison-phase={state.phase}
       data-pending={String(state.pending)}
+      data-currency-state={comparisonCurrency(state, error)}
     >
       <header className="lab-heading">
         <div>
@@ -226,7 +242,10 @@ export function CameraControlledComparison({
                   id={`${uid}-value`}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  aria-describedby={`${uid}-help`}
+                  aria-invalid={Boolean(error || state.error)}
+                  aria-describedby={
+                    error || state.error ? `${uid}-help ${uid}-error` : `${uid}-help`
+                  }
                 >
                   <option value="known">Known noise variance</option>
                   <option value="stationary">Estimate from stationary clicks</option>
@@ -236,7 +255,10 @@ export function CameraControlledComparison({
                   id={`${uid}-value`}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  aria-describedby={`${uid}-help`}
+                  aria-invalid={Boolean(error || state.error)}
+                  aria-describedby={
+                    error || state.error ? `${uid}-help ${uid}-error` : `${uid}-help`
+                  }
                 >
                   {(selected === "d" ? [1, 2] : [1, 2, 3, 4]).map((value) => (
                     <option key={value} value={String(value)}>
@@ -251,7 +273,10 @@ export function CameraControlledComparison({
                   inputMode="decimal"
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  aria-describedby={`${uid}-help`}
+                  aria-invalid={Boolean(error || state.error)}
+                  aria-describedby={
+                    error || state.error ? `${uid}-help ${uid}-error` : `${uid}-help`
+                  }
                 />
               )}
             </div>
@@ -265,11 +290,20 @@ export function CameraControlledComparison({
           </p>
         </fieldset>
       </form>
-      {(error || state.error) && (
-        <p className="notice" role="alert">
-          {error || state.error}
-        </p>
-      )}
+      <ComparisonRecovery
+        id={`${uid}-error`}
+        state={state}
+        contract={BM08_COMPARISON}
+        localError={error}
+        ready={ready}
+        onRepair={(choice) => recover(choice.parameters, () => controller.repair(choice))}
+        onRetry={() => recover(state.rejectedParameters, () => controller.retry(state.failure))}
+        onRebuild={() => {
+          setError("");
+          setIssuedPrediction(null);
+          controller.start();
+        }}
+      />
       <p className="camera-comparison-statement" data-comparison-statement>
         {statement}
       </p>

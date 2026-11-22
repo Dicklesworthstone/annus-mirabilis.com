@@ -1,3 +1,6 @@
+import { type ApplyFailure, applyFailure, failureFromThrown } from "../results/applyFailure.ts";
+import type { ExecutionOutcome } from "../results/outcomes.ts";
+import type { RequestRefusal } from "../results/refusals.ts";
 import {
   type Baseline,
   type ComparisonIdentity,
@@ -9,26 +12,32 @@ import { comparisonStatement } from "./comparisonStatement.ts";
 import { type ComparisonResult, compareBaselines } from "./compatibility.ts";
 import { type ComparisonContract, singleVariationLock } from "./singleVariationLock.ts";
 
-type Refusal = Readonly<{ message: string; details?: Readonly<Record<string, unknown>> }>;
 export type ComparisonPort = Readonly<{
   getSnapshot(): Readonly<{
     pending: boolean;
     status: string;
     accepted: ComparisonSnapshot | null;
     requested: Readonly<{ actionIndex: number }> | null;
-    refusal: Refusal | null;
-    outcome: Readonly<{ message: string }> | null;
+    refusal: RequestRefusal | null;
+    outcome: ExecutionOutcome | null;
   }>;
   subscribe(listener: () => void): () => void;
   apply(
     parameters: ComparisonParameters,
   ): Readonly<
     | { kind: "accepted"; data: Readonly<{ actionIndex: number }> }
-    | { kind: "refused"; refusal: Refusal }
-    | { kind: "outcome"; outcome: Readonly<{ message: string }> }
+    | { kind: "refused"; refusal: RequestRefusal }
+    | { kind: "outcome"; outcome: ExecutionOutcome }
   >;
   stop(): void;
   disconnect(): void;
+}>;
+export type ComparisonRepair = Readonly<{
+  index: number;
+  label: string;
+  /** Null when this advice has no action or would violate the comparison's input lock. */
+  parameters: ComparisonParameters | null;
+  blockedReason: string | null;
 }>;
 export type ControlledComparisonState = Readonly<{
   phase: "example" | "live";
@@ -39,9 +48,18 @@ export type ControlledComparisonState = Readonly<{
   variantSnapshot: ComparisonSnapshot;
   result: ComparisonResult;
   requestedParameters: ComparisonParameters | null;
+  rejectedParameters: ComparisonParameters | null;
+  failure: ApplyFailure | null;
+  repairs: readonly ComparisonRepair[];
   message: string;
   error: string;
 }>;
+
+const noRecovery = Object.freeze({
+  rejectedParameters: null,
+  failure: null,
+  repairs: Object.freeze([]) as readonly ComparisonRepair[],
+});
 
 /**
  * Owns comparison intent, not numerical work. The port is the existing instrument session.
@@ -79,6 +97,7 @@ export function createControlledComparison(
     variantSnapshot: options.variant,
     result: initialResult,
     requestedParameters: null,
+    ...noRecovery,
     message:
       options.initialMessage ?? "Static worked comparison, calculated when this site was built.",
     error: "",
@@ -92,19 +111,55 @@ export function createControlledComparison(
     outcome: "pending" | "accepted" | "failed" | "cancelled";
   };
   let flight: Flight | null = null;
+  let rejectedRequest: Pick<Flight, "purpose" | "parameters"> | null = null;
   const listeners = new Set<() => void>();
   const emit = (patch: Partial<ControlledComparisonState>) => {
     state = Object.freeze({ ...state, ...patch });
     for (const listener of listeners) listener();
   };
-  const failure = (message: string, active: Flight) => {
+  function repairChoice(
+    request: Pick<Flight, "purpose" | "parameters">,
+    refusal: RequestRefusal,
+    index: number,
+  ): ComparisonRepair {
+    const repair = refusal.rankedRepairs[index];
+    const label = repair?.label ?? "This recovery action is no longer available.";
+    const blocked = (blockedReason: string | null): ComparisonRepair =>
+      Object.freeze({ index, label, parameters: null, blockedReason });
+    const action = repair?.action;
+    if (!action) return blocked(null);
+    const input = options.contract.inputs[action.parameterId];
+    if (!input?.comparable)
+      return blocked("This action would change an input held fixed by this comparison.");
+    const parameters = Object.freeze({
+      ...request.parameters,
+      [action.parameterId]: action.value,
+    });
+    const decision = singleVariationLock(state.baseline.parameters, parameters, options.contract);
+    if (decision.kind !== "accepted") return blocked(decision.message);
+    if (request.purpose === "baseline" && decision.changedInput !== null)
+      return blocked("Reconstructing the pinned baseline must keep its original settings.");
+    return Object.freeze({ index, label, parameters, blockedReason: null });
+  }
+  const failure = (reason: string | ApplyFailure, active: Flight) => {
     if (flight !== active) return;
     active.outcome = "failed";
     flight = null;
+    const ownedFailure = typeof reason === "string" ? null : reason;
+    rejectedRequest = Object.freeze({ purpose: active.purpose, parameters: active.parameters });
     emit({
       pending: false,
       requestedParameters: null,
-      error: message,
+      rejectedParameters: active.parameters,
+      failure: ownedFailure,
+      repairs: Object.freeze(
+        ownedFailure?.kind === "refused"
+          ? ownedFailure.refusal.rankedRepairs.map((_, index) =>
+              repairChoice(active, ownedFailure.refusal, index),
+            )
+          : [],
+      ),
+      error: typeof reason === "string" ? reason : reason.text,
       message: "The previous completed comparison is unchanged.",
     });
   };
@@ -126,9 +181,11 @@ export function createControlledComparison(
     ) {
       if (["refused", "paused", "unavailable"].includes(view.status))
         failure(
-          view.refusal?.message ??
-            view.outcome?.message ??
-            "Calculation stopped before a completed result.",
+          (view.refusal
+            ? applyFailure({ kind: "refused", refusal: view.refusal })
+            : view.outcome
+              ? applyFailure({ kind: "outcome", outcome: view.outcome })
+              : null) ?? "Calculation stopped before a completed result.",
           active,
         );
       return;
@@ -163,6 +220,7 @@ export function createControlledComparison(
           variantSnapshot: snapshot,
           result: baselineResult,
           requestedParameters: null,
+          ...noRecovery,
           error: "",
           message: "Live baseline ready. Choose one input to vary; every other input stays fixed.",
         });
@@ -183,6 +241,7 @@ export function createControlledComparison(
         variantSnapshot: snapshot,
         result,
         requestedParameters: null,
+        ...noRecovery,
         error: "",
         message: comparisonStatement(state.baseline, current, options.contract, result),
       });
@@ -195,6 +254,26 @@ export function createControlledComparison(
   }
   function send(parameters: ComparisonParameters, purpose: "baseline" | "variant") {
     if (!unsubscribe || state.pending) return false;
+    const decision = singleVariationLock(state.baseline.parameters, parameters, options.contract);
+    if (
+      decision.kind !== "accepted" ||
+      (purpose === "baseline" && decision.changedInput !== null)
+    ) {
+      rejectedRequest = null;
+      emit({
+        ...noRecovery,
+        rejectedParameters:
+          decision.kind === "refused" && decision.code === "invalid-input"
+            ? null
+            : Object.freeze({ ...parameters }),
+        error:
+          decision.kind === "refused"
+            ? decision.message
+            : "Reconstructing the pinned baseline must keep its original settings.",
+        message: "The previous completed comparison is unchanged.",
+      });
+      return false;
+    }
     const active: Flight = {
       purpose,
       action: null,
@@ -202,9 +281,11 @@ export function createControlledComparison(
       outcome: "pending",
     };
     flight = active;
+    rejectedRequest = null;
     emit({
       pending: true,
       requestedParameters: active.parameters,
+      ...noRecovery,
       error: "",
       message:
         purpose === "baseline"
@@ -218,11 +299,7 @@ export function createControlledComparison(
       if (flight !== active) return false;
       if (request.kind !== "accepted") {
         failure(
-          request.kind === "refused"
-            ? typeof request.refusal.details?.requirements === "string"
-              ? request.refusal.details.requirements
-              : request.refusal.message
-            : request.outcome.message,
+          applyFailure(request) ?? "The calculation did not accept the requested settings.",
           active,
         );
         return false;
@@ -234,9 +311,15 @@ export function createControlledComparison(
       active.action = request.data.actionIndex;
       refresh();
       return active.outcome === "pending" || active.outcome === "accepted";
-    } catch {
-      failure(
+    } catch (error) {
+      const problem = failureFromThrown(
+        error,
         "The calculation could not start. The previous completed results remain available.",
+      );
+      failure(
+        problem.kind === "unexplained"
+          ? "The calculation could not start. The previous completed results remain available."
+          : problem,
         active,
       );
       return false;
@@ -259,25 +342,51 @@ export function createControlledComparison(
     },
     apply(parameters: ComparisonParameters) {
       if (state.phase !== "live" || state.pending) return false;
-      const decision = singleVariationLock(state.baseline.parameters, parameters, options.contract);
-      if (decision.kind === "refused") {
-        emit({ error: decision.message });
-        return false;
-      }
       return send(parameters, "variant");
+    },
+    repair(choice: ComparisonRepair) {
+      const request = rejectedRequest;
+      if (
+        !request ||
+        state.pending ||
+        state.failure?.kind !== "refused" ||
+        !state.repairs.includes(choice) ||
+        !choice.parameters ||
+        (request.purpose === "variant" && state.phase !== "live")
+      )
+        return false;
+      // Recheck the current baseline; a stale button can never authorize a new comparison.
+      const current = repairChoice(request, state.failure.refusal, choice.index);
+      return current.parameters ? send(current.parameters, request.purpose) : false;
+    },
+    retry(expectedFailure: ApplyFailure | null) {
+      const request = rejectedRequest;
+      if (
+        !request ||
+        state.pending ||
+        state.failure !== expectedFailure ||
+        expectedFailure?.kind !== "unavailable" ||
+        expectedFailure.outcome.retry !== "retry-same-request" ||
+        (request.purpose === "variant" && state.phase !== "live")
+      )
+        return false;
+      return send(request.parameters, request.purpose);
     },
     pinCurrent() {
       if (state.phase !== "live" || state.pending) return false;
       const result = compareBaselines(state.variant, state.variant, options.contract);
       if (result.kind !== "accepted") {
-        emit({ error: result.message });
+        rejectedRequest = null;
+        emit({ ...noRecovery, error: result.message });
         return false;
       }
+      rejectedRequest = null;
       emit({
         baseline: state.variant,
         baselineSnapshot: state.variantSnapshot,
         result,
         requestedParameters: null,
+        ...noRecovery,
         error: "",
         message:
           "Current completed result pinned as the new baseline. You may now vary a different input.",
@@ -288,6 +397,7 @@ export function createControlledComparison(
       if (!state.pending || !flight) return;
       flight.outcome = "cancelled";
       flight = null;
+      rejectedRequest = null;
       let error = "";
       try {
         port.stop();
@@ -298,6 +408,7 @@ export function createControlledComparison(
       emit({
         pending: false,
         requestedParameters: null,
+        ...noRecovery,
         message: "Comparison cancelled. The previous completed comparison is unchanged.",
         error,
       });
@@ -305,6 +416,7 @@ export function createControlledComparison(
     disconnect() {
       if (flight) flight.outcome = "cancelled";
       flight = null;
+      rejectedRequest = null;
       unsubscribe?.();
       unsubscribe = null;
       port.disconnect();
@@ -313,6 +425,8 @@ export function createControlledComparison(
         phase: "example",
         pending: false,
         requestedParameters: null,
+        ...noRecovery,
+        error: "",
         message:
           "The completed comparison is retained. Start a live comparison to reconstruct its recording.",
       });

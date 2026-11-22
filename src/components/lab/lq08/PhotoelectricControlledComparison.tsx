@@ -1,7 +1,12 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import type { ComparisonParameters } from "../../../experiments/compare/Baseline.ts";
 import { ComparisonPanel } from "../../../experiments/compare/ComparisonPanel.tsx";
+import {
+  ComparisonRecovery,
+  comparisonCurrency,
+} from "../../../experiments/compare/ComparisonRecovery.tsx";
 import { comparisonStatement } from "../../../experiments/compare/comparisonStatement.ts";
 import { LQ08_COMPARISON, lq08ComparisonParameters } from "../../../experiments/lq08/comparison.ts";
 import { createLq08ComparisonSession } from "../../../experiments/lq08/comparisonSession.ts";
@@ -72,6 +77,11 @@ function Comparison({ controller, onClose }: { controller: Controller; onClose()
     setError("");
     if (controller.apply(requested)) setIssuedPrediction(intent);
   }
+  function recover(parameters: ComparisonParameters | null, apply: () => boolean) {
+    const intent = parameters ? predictionIntent(nextPrediction, state, parameters) : null;
+    setError("");
+    if (apply()) setIssuedPrediction(intent);
+  }
 
   return (
     <section
@@ -80,6 +90,7 @@ function Comparison({ controller, onClose }: { controller: Controller; onClose()
       data-photoelectric-comparison
       data-comparison-phase={state.phase}
       data-comparison-pending={state.pending}
+      data-currency-state={comparisonCurrency(state, error)}
     >
       <header className="lab-heading">
         <div>
@@ -94,7 +105,7 @@ function Comparison({ controller, onClose }: { controller: Controller; onClose()
         column.
       </p>
       <p role="status" aria-live="polite" aria-atomic="true">
-        {state.pending
+        {state.pending || state.error
           ? state.message
           : changedInput === null
             ? "No input has changed. Both columns show the pinned setup."
@@ -102,11 +113,20 @@ function Comparison({ controller, onClose }: { controller: Controller; onClose()
               (LQ08_COMPARISON.inputs[changedInput]?.label.toLowerCase() ?? changedInput) +
               " changed. Every other independent input stayed fixed."}
       </p>
-      {(error || state.error) && (
-        <p id={uid + "-error"} role="alert" className="notice error">
-          {error || state.error}
-        </p>
-      )}
+      <ComparisonRecovery
+        id={uid + "-error"}
+        state={state}
+        contract={LQ08_COMPARISON}
+        localError={error}
+        ready={ready}
+        onRepair={(choice) => recover(choice.parameters, () => controller.repair(choice))}
+        onRetry={() => recover(state.rejectedParameters, () => controller.retry(state.failure))}
+        onRebuild={() => {
+          setError("");
+          setIssuedPrediction(null);
+          controller.start();
+        }}
+      />
       <form onSubmit={submit} aria-label="Controlled photoelectric settings">
         <fieldset disabled={!enabled}>
           <legend>Choose one change</legend>

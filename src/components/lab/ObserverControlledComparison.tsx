@@ -1,8 +1,12 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
-import type { Baseline } from "../../experiments/compare/Baseline.ts";
+import type { Baseline, ComparisonParameters } from "../../experiments/compare/Baseline.ts";
 import { ComparisonPanel } from "../../experiments/compare/ComparisonPanel.tsx";
+import {
+  ComparisonRecovery,
+  comparisonCurrency,
+} from "../../experiments/compare/ComparisonRecovery.tsx";
 import {
   comparisonDisplay,
   comparisonStatement,
@@ -185,6 +189,10 @@ function Comparison({
     const intent = predictionIntent(nextPrediction, state, requested);
     if (controller.apply(requested)) setIssuedPrediction(intent);
   }
+  function recover(parameters: ComparisonParameters | null, apply: () => boolean) {
+    const intent = parameters ? predictionIntent(nextPrediction, state, parameters) : null;
+    if (apply()) setIssuedPrediction(intent);
+  }
   return (
     <section
       ref={region}
@@ -193,6 +201,7 @@ function Comparison({
       data-observer-comparison
       data-comparison-phase={state.phase}
       data-comparison-pending={state.pending}
+      data-currency-state={comparisonCurrency(state)}
     >
       <header className="lab-heading">
         <div>
@@ -211,17 +220,24 @@ function Comparison({
         </p>
       </noscript>
       <p role="status" aria-live="polite" aria-atomic="true" className="comparison-status">
-        {state.pending
+        {state.pending || state.error
           ? state.message
           : state.phase === "example"
             ? "Static worked comparison, calculated with the same scientific owner as the live laboratory."
             : `Completed comparison: baseline observer ${baselineFrame}, variant observer ${variantFrame}. The physical setup and selected events are held fixed.`}
       </p>
-      {state.error && (
-        <p role="alert" className="notice">
-          {state.error}
-        </p>
-      )}
+      <ComparisonRecovery
+        id={`${uid}-error`}
+        state={state}
+        contract={SR03_COMPARISON}
+        ready={ready}
+        onRepair={(choice) => recover(choice.parameters, () => controller.repair(choice))}
+        onRetry={() => recover(state.rejectedParameters, () => controller.retry(state.failure))}
+        onRebuild={() => {
+          setIssuedPrediction(null);
+          controller.start();
+        }}
+      />
       <div className="actions">
         <button
           type="button"

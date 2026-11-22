@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { ExecutionOutcomeError, ParameterRefusalError } from "../results/applyFailure.ts";
+import { executionOutcomeRegistry } from "../results/outcomes.ts";
+import { makeRefusal } from "../results/refusals.ts";
 import { createControlledComparison } from "./controlledComparison.ts";
 
 const identity = {
@@ -59,6 +62,14 @@ function setup(verifyAccepted) {
     action = 1,
     version = 1,
     run = 1;
+  let refusal = makeRefusal(
+    "off-replay-grid",
+    { parameterIds: ["interval"] },
+    {
+      details: { requirements: "Off grid" },
+    },
+  );
+  let outcome = { outcome: "worker-timeout", ...executionOutcomeRegistry["worker-timeout"] };
   const notify = () => {
     for (const listener of listeners) listener();
   };
@@ -71,7 +82,10 @@ function setup(verifyAccepted) {
     apply(parameters) {
       calls++;
       if (behavior === "throw") throw new Error("transport failed");
-      if (behavior === "refuse") return { kind: "refused", refusal: { message: "Off grid" } };
+      if (behavior === "throw-refusal") throw new ParameterRefusalError(refusal);
+      if (behavior === "throw-outcome") throw new ExecutionOutcomeError(outcome);
+      if (behavior === "refuse") return { kind: "refused", refusal };
+      if (behavior === "outcome") return { kind: "outcome", outcome };
       action++;
       if (
         parameters.a !== view.accepted.parameters.a ||
@@ -131,9 +145,23 @@ function setup(verifyAccepted) {
     controller,
     finish,
     port,
-    fail() {
-      view = { ...view, status: "refused", pending: false, refusal: { message: "Worker refusal" } };
+    fail(
+      reason = makeRefusal(
+        "invalid-parameter",
+        {},
+        {
+          details: { requirements: "Worker refusal" },
+        },
+      ),
+    ) {
+      view = { ...view, status: "refused", pending: false, refusal: reason };
       notify();
+    },
+    refuseWith(value) {
+      refusal = value;
+    },
+    outcomeWith(value) {
+      outcome = value;
     },
     behavior(value) {
       behavior = value;
@@ -517,3 +545,203 @@ test("a superseding session request clears old intent without stopping the new r
   assert.equal(c.getSnapshot().variant, previous);
   c.disconnect();
 });
+
+const gridRefusal = () =>
+  makeRefusal(
+    "off-replay-grid",
+    { parameterIds: ["interval"] },
+    {
+      details: { requirements: "Use a recorded interval, preserving the pinned trial." },
+      rankedRepairs: [
+        { label: "Use interval two", action: { parameterId: "interval", value: 2 } },
+        { label: "Change viscosity too", action: { parameterId: "eta", value: 2 } },
+        { label: "Change the seed", action: { parameterId: "seed", value: "7" } },
+        { label: "Inspect the recording grid" },
+      ],
+    },
+  );
+
+test("rejection does not read or retain parameters that failed the data-only contract", () => {
+  const { controller: c, finish, counts } = setup();
+  c.connect();
+  c.start();
+  finish();
+  const before = c.getSnapshot();
+  let reads = 0;
+  const requested = { eta: 1, interval: 1 };
+  Object.defineProperty(requested, "a", {
+    enumerable: true,
+    get() {
+      reads++;
+      return 2;
+    },
+  });
+  assert.equal(c.apply(requested), false);
+  assert.equal(reads, 0);
+  assert.equal(counts().calls, 1);
+  assert.equal(c.getSnapshot().rejectedParameters, null);
+  assert.equal(c.getSnapshot().baselineSnapshot, before.baselineSnapshot);
+  assert.equal(c.getSnapshot().variantSnapshot, before.variantSnapshot);
+  c.disconnect();
+});
+
+for (const path of ["refuse", "throw-refusal", "worker"]) {
+  test(`${path}: typed refusal and original settings survive until an explicit admissible repair`, () => {
+    const { controller: c, finish, fail, refuseWith, behavior, counts } = setup();
+    c.connect();
+    c.start();
+    finish();
+    const before = c.getSnapshot();
+    const refusal = gridRefusal();
+    const requested = { a: 1, eta: 1, interval: 0.3 };
+    refuseWith(refusal);
+    if (path !== "worker") behavior(path);
+    c.apply(requested);
+    if (path === "worker") fail(refusal);
+    requested.interval = 99;
+    const rejected = c.getSnapshot();
+    assert.equal(rejected.failure.kind, "refused");
+    assert.equal(rejected.failure.refusal, refusal);
+    assert.equal(rejected.error, refusal.details.requirements);
+    assert.equal(rejected.rejectedParameters.interval, 0.3);
+    assert.ok(Object.isFrozen(rejected.rejectedParameters));
+    assert.equal(rejected.requestedParameters, null);
+    assert.equal(rejected.baselineSnapshot, before.baselineSnapshot);
+    assert.equal(rejected.variantSnapshot, before.variantSnapshot);
+    assert.equal(rejected.result, before.result);
+
+    const valid = rejected.repairs.find((choice) => choice.index === 0);
+    assert.ok(valid?.parameters);
+    assert.deepEqual(valid.parameters, { a: 1, eta: 1, interval: 2 });
+    const calls = counts().calls;
+    for (const blocked of rejected.repairs.filter((choice) => !choice.parameters)) {
+      assert.equal(c.repair(blocked), false);
+    }
+    assert.equal(counts().calls, calls);
+    assert.match(rejected.repairs[1].blockedReason, /one input|pin a new baseline/);
+    assert.match(rejected.repairs[2].blockedReason, /held fixed/);
+
+    behavior("async");
+    assert.equal(c.repair(valid), true);
+    const pending = c.getSnapshot();
+    assert.equal(pending.pending, true);
+    assert.equal(pending.failure, null);
+    assert.equal(pending.rejectedParameters, null);
+    assert.deepEqual(pending.requestedParameters, valid.parameters);
+    assert.equal(pending.baselineSnapshot, before.baselineSnapshot);
+    assert.equal(pending.variantSnapshot, before.variantSnapshot);
+    assert.equal(c.repair(valid), false);
+    finish();
+    const accepted = c.getSnapshot();
+    assert.equal(accepted.baselineSnapshot, before.baselineSnapshot);
+    assert.equal(accepted.variant.parameters.interval, 2);
+    assert.equal(accepted.failure, null);
+    assert.equal(accepted.rejectedParameters, null);
+    assert.equal(accepted.error, "");
+    assert.equal(c.repair(valid), false);
+    c.disconnect();
+  });
+}
+
+test("a repair is proposed to the owner again, and a second refusal cannot replace accepted data", () => {
+  const { controller: c, finish, refuseWith, behavior, counts } = setup();
+  c.connect();
+  c.start();
+  finish();
+  const before = c.getSnapshot();
+  const refusal = gridRefusal();
+  refuseWith(refusal);
+  behavior("refuse");
+  c.apply({ a: 1, eta: 1, interval: 0.3 });
+  const choice = c.getSnapshot().repairs[0];
+  const calls = counts().calls;
+  assert.equal(c.repair(choice), false);
+  assert.equal(counts().calls, calls + 1);
+  assert.equal(c.getSnapshot().rejectedParameters.interval, 2);
+  assert.equal(c.getSnapshot().failure.refusal, refusal);
+  assert.equal(c.getSnapshot().baselineSnapshot, before.baselineSnapshot);
+  assert.equal(c.getSnapshot().variantSnapshot, before.variantSnapshot);
+  assert.equal(c.repair(choice), false);
+  assert.equal(counts().calls, calls + 1);
+  c.disconnect();
+});
+
+test("repairing a refused reconstruction cannot silently replace the pinned baseline", () => {
+  const { controller: c, refuseWith, behavior, counts } = setup();
+  c.connect();
+  const before = c.getSnapshot();
+  refuseWith(gridRefusal());
+  behavior("refuse");
+  c.start();
+  const choice = c.getSnapshot().repairs[0];
+  assert.equal(choice.parameters, null);
+  assert.match(choice.blockedReason, /pinned baseline must keep its original settings/);
+  assert.equal(c.repair(choice), false);
+  assert.equal(counts().calls, 1);
+  assert.equal(c.getSnapshot().baseline, before.baseline);
+  assert.equal(c.getSnapshot().variant, before.variant);
+  c.disconnect();
+});
+
+test("pinning an accepted result expires every action from an older rejected request", () => {
+  const { controller: c, finish, refuseWith, behavior, counts } = setup();
+  c.connect();
+  c.start();
+  finish();
+  refuseWith(gridRefusal());
+  behavior("refuse");
+  c.apply({ a: 1, eta: 1, interval: 0.3 });
+  const choice = c.getSnapshot().repairs[0];
+  assert.equal(c.pinCurrent(), true);
+  const calls = counts().calls;
+  assert.equal(c.repair(choice), false);
+  assert.equal(counts().calls, calls);
+  assert.equal(c.getSnapshot().failure, null);
+  c.disconnect();
+});
+
+for (const path of ["outcome", "throw-outcome"]) {
+  test(`${path}: retry preserves the execution outcome and dispatches the exact rejected request`, () => {
+    const { controller: c, finish, outcomeWith, behavior, counts } = setup();
+    c.connect();
+    c.start();
+    finish();
+    const before = c.getSnapshot();
+    const outcome = { outcome: "worker-timeout", ...executionOutcomeRegistry["worker-timeout"] };
+    outcomeWith(outcome);
+    behavior(path);
+    c.apply({ a: 1, eta: 1, interval: 2 });
+    const rejected = c.getSnapshot();
+    assert.equal(rejected.failure.kind, "unavailable");
+    assert.equal(rejected.failure.outcome, outcome);
+    assert.equal(rejected.baseline, before.baseline);
+    assert.equal(rejected.variant, before.variant);
+    const calls = counts().calls;
+    assert.equal(c.retry({ ...rejected.failure }), false);
+    assert.equal(counts().calls, calls);
+    behavior("async");
+    assert.equal(c.retry(rejected.failure), true);
+    assert.deepEqual(c.getSnapshot().requestedParameters, rejected.rejectedParameters);
+    finish();
+    assert.equal(c.getSnapshot().variant.parameters.interval, 2);
+    assert.equal(c.getSnapshot().failure, null);
+    assert.equal(c.retry(rejected.failure), false);
+    c.disconnect();
+  });
+}
+
+for (const outcomeId of ["worker-crashed", "protocol-mismatch", "environment-unsupported"]) {
+  test(`${outcomeId}: same-request retry cannot override the engine's recovery guidance`, () => {
+    const { controller: c, finish, outcomeWith, behavior, counts } = setup();
+    c.connect();
+    c.start();
+    finish();
+    outcomeWith({ outcome: outcomeId, ...executionOutcomeRegistry[outcomeId] });
+    behavior("outcome");
+    c.apply({ a: 1, eta: 1, interval: 2 });
+    const calls = counts().calls;
+    assert.equal(c.retry(c.getSnapshot().failure), false);
+    assert.equal(counts().calls, calls);
+    c.disconnect();
+  });
+}

@@ -10,8 +10,13 @@ import {
 import { createBm01ComparisonSession } from "../../experiments/bm01/comparisonSession.ts";
 import type { Bm01Parameters } from "../../experiments/bm01/definition.ts";
 import { encodeBm01Settings } from "../../experiments/bm01/permalink.ts";
+import type { ComparisonParameters } from "../../experiments/compare/Baseline.ts";
 import { ComparisonPanel } from "../../experiments/compare/ComparisonPanel.tsx";
 import { ComparisonPlot } from "../../experiments/compare/ComparisonPlot.tsx";
+import {
+  ComparisonRecovery,
+  comparisonCurrency,
+} from "../../experiments/compare/ComparisonRecovery.tsx";
 import {
   COMMON_RANDOM_NUMBERS_NOTE,
   comparisonDisplay,
@@ -91,6 +96,14 @@ export function BrownianComparisonLab({
     }
     applyNumber(Number(draft) / (BM01_COMPARISON.inputs[selected]?.displayFactor ?? 1));
   }
+  function recover(parameters: ComparisonParameters | null, apply: () => boolean) {
+    const intent = parameters ? predictionIntent(nextPrediction, state, parameters) : null;
+    setError("");
+    if (apply()) {
+      setIssuedPrediction(intent);
+      setDirty(false);
+    }
+  }
   const statement = comparisonStatement(
     state.baseline,
     state.variant,
@@ -105,6 +118,7 @@ export function BrownianComparisonLab({
       data-controlled-comparison
       data-comparison-phase={state.phase}
       data-pending={String(state.pending)}
+      data-currency-state={comparisonCurrency(state, error)}
     >
       <header className="lab-heading">
         <div>
@@ -272,11 +286,20 @@ export function BrownianComparisonLab({
           Unapplied request. Every displayed number still belongs to the completed comparison.
         </p>
       )}
-      {(error || state.error) && (
-        <p role="alert" className="notice">
-          {error || state.error}
-        </p>
-      )}
+      <ComparisonRecovery
+        id={`${uid}-error`}
+        state={state}
+        contract={BM01_COMPARISON}
+        localError={error}
+        ready={ready}
+        onRepair={(choice) => recover(choice.parameters, () => controller.repair(choice))}
+        onRetry={() => recover(state.rejectedParameters, () => controller.retry(state.failure))}
+        onRebuild={() => {
+          setError("");
+          setIssuedPrediction(null);
+          controller.start();
+        }}
+      />
       {state.requestedParameters && (
         <details>
           <summary>
