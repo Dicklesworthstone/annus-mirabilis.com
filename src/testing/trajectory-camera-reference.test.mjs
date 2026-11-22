@@ -2,8 +2,11 @@
  * These are separate from the dependency-injected orchestration tests. */
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { cameraTrajectoryAnalysisJson } from "../experiments/bm07/trajectoryCamera.ts";
 import { parseTrajectoryCsv } from "../experiments/bm07/trajectoryCsv.ts";
 import { analyzeImportedCameraTrajectory } from "../experiments/bm07/trajectoryHost.ts";
+import { getConstantSet } from "../physics/reference/constants.ts";
+import { invertToMolecularNumber } from "../physics/reference/inference.ts";
 import { withinTolerance } from "../units/tolerance.ts";
 
 const assumptions = {
@@ -75,4 +78,70 @@ test("micrometre import and metre-based camera parameters use the same SI owner"
   assert.equal(result.kind, "analyzed");
   near(result.camera.estimate, ((4 - 2) / 1.8) * 1e-12, 1e-24);
   assert.equal(result.camera.q, 2);
+});
+
+test("real camera data with a positive confidence set yields the owner's modern-SI inverse", () => {
+  const radius = { T: 293.15, eta: 0.001, a: 0.5e-6 };
+  const result = analyzeImportedCameraTrajectory(
+    read(single, "um"),
+    { ...assumptions, localizationStd: 1e-7, independentRadius: radius },
+    true,
+  );
+  assert.equal(result.kind, "analyzed");
+  assert.ok(result.camera.interval.lower > 0);
+  near(result.camera.estimate, ((4 - 0.02) / 1.8) * 1e-12, 1e-24);
+  const expected = invertToMolecularNumber(
+    {
+      ...radius,
+      radiusProvenance: "independently-declared",
+      dHat: result.camera.estimate,
+      interval: result.camera.interval,
+      synthetic: false,
+    },
+    getConstantSet("modern-si-2019"),
+  );
+  assert.equal(expected.kind, "accepted");
+  assert.deepEqual(result.molecular, expected.data);
+  assert.equal(result.molecular.semanticKind, "consistency-check");
+  assert.equal(result.molecular.constantSetId, "modern-si-2019");
+  assert.ok(result.molecular.interval.lower < result.molecular.estimate);
+  assert.ok(result.molecular.estimate < result.molecular.interval.upper);
+  assert.ok(result.molecular.estimatedBoltzmannConstant > 0);
+  assert.match(result.molecularMessage, /not an independent count/);
+  const exported = JSON.parse(cameraTrajectoryAnalysisJson(result));
+  assert.deepEqual(exported.molecular, result.molecular);
+  assert.deepEqual(exported.assumptions.independentRadius, radius);
+  assert.deepEqual(exported.trajectory, result.trajectory);
+});
+
+test("an independent radius cannot rescue a real camera set reaching zero or an empty set", () => {
+  for (const localizationStd of [1e-6, 10e-6]) {
+    const result = analyzeImportedCameraTrajectory(
+      read(single, "um"),
+      {
+        ...assumptions,
+        localizationStd,
+        independentRadius: { T: 293.15, eta: 0.001, a: 0.5e-6 },
+      },
+      true,
+    );
+    assert.equal(result.kind, "analyzed");
+    assert.equal(result.molecular, null);
+    assert.ok(result.camera.empty || result.camera.interval.lower === 0);
+    assert.match(result.molecularMessage, /no nonempty|no finite upper bound/);
+    assert.equal(JSON.parse(cameraTrajectoryAnalysisJson(result)).molecular, null);
+  }
+});
+
+test("a real positive camera estimate does not fill in missing independent physical inputs", () => {
+  for (const independentRadius of [null, { T: 293.15, a: 0.5e-6 }]) {
+    const result = analyzeImportedCameraTrajectory(
+      read(single, "um"),
+      { ...assumptions, localizationStd: 1e-7, independentRadius },
+      true,
+    );
+    assert.ok(result.camera.interval.lower > 0);
+    assert.equal(result.molecular, null);
+    assert.match(result.molecularMessage, /independent|requirements/);
+  }
 });

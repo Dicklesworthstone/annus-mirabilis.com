@@ -334,6 +334,139 @@ test("a boundary-reaching set retains an unclipped negative point estimate", () 
   assert.equal(result.camera.estimate, -1);
   assert.match(result.message, /point estimate is not clipped/);
 });
+test("camera inversion delegates the corrected estimate and confidence set with explicit physical inputs", () => {
+  const { owner } = reference();
+  const radius = { T: 293.15, eta: 0.001, a: 0.5e-6 };
+  const constants = { id: "modern-si-2019" };
+  const returned = {
+    estimate: 6e23,
+    interval: { lower: 5e23, upper: 7e23 },
+    constantSetId: constants.id,
+    semanticKind: "consistency-check",
+    consistencyRatio: 1,
+    estimatedBoltzmannConstant: 1.38e-23,
+    consistencyRatioInterval: { lower: 0.8, upper: 1.2 },
+    estimatedBoltzmannConstantInterval: { lower: 1e-23, upper: 2e-23 },
+  };
+  const calls = [];
+  owner.invertToMolecularNumber = (input, set) => {
+    calls.push({ input, set });
+    return { kind: "accepted", data: returned };
+  };
+  const result = analyzeCameraTrajectory(
+    trajectory(),
+    assumptions({ independentRadius: radius }),
+    true,
+    owner,
+    () => constants,
+  );
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0].input, {
+    ...radius,
+    radiusProvenance: "independently-declared",
+    dHat: result.camera.estimate,
+    interval: result.camera.interval,
+    synthetic: false,
+  });
+  assert.equal(calls[0].set, constants);
+  assert.equal(result.molecular, returned);
+  assert.match(result.molecularMessage, /not an independent count/);
+  assert.match(result.molecularMessage, /endpoints exchanged/);
+  assert.equal(result.estimate, null, "camera data must not become an ideal-increment estimate");
+  radius.a = 1;
+  assert.equal(result.assumptions.independentRadius.a, 0.5e-6);
+  const exported = JSON.parse(cameraTrajectoryAnalysisJson(result));
+  assert.deepEqual(exported.molecular, returned);
+  assert.equal(exported.outputUnits.molecular, "1/mol");
+  assert.equal(exported.outputUnits.boltzmannConstant, "J/K");
+});
+test("missing radius and unresolved camera sets never read constants or call the inversion owner", () => {
+  const radius = { T: 293.15, eta: 0.001, a: 0.5e-6 };
+  for (const { patch, declaredRadius, message } of [
+    { patch: {}, declaredRadius: null, message: /does not separate/ },
+    { patch: { empty: true, interval: null }, declaredRadius: radius, message: /no nonempty/ },
+    {
+      patch: { interval: { lower: 0, upper: 3.5 } },
+      declaredRadius: radius,
+      message: /no finite upper bound/,
+    },
+    { patch: { estimate: 0 }, declaredRadius: radius, message: /No positive/ },
+    { patch: { estimate: -1 }, declaredRadius: radius, message: /not clipped/ },
+  ]) {
+    const { owner } = reference(patch);
+    owner.invertToMolecularNumber = () => assert.fail("an unresolved set cannot be inverted");
+    const result = analyzeCameraTrajectory(
+      trajectory(),
+      assumptions({ independentRadius: declaredRadius }),
+      true,
+      owner,
+      () => assert.fail("unresolved data cannot request a molecular constant"),
+    );
+    assert.equal(result.kind, "analyzed");
+    assert.equal(result.molecular, null);
+    assert.match(result.molecularMessage, message);
+    assert.ok(result.camera);
+  }
+});
+test("a refused inverse or changed constant meaning leaves the accepted camera analysis readable", () => {
+  for (const { response, message } of [
+    {
+      response: { kind: "refused", refusal: { message: "Radius must be positive" } },
+      message: /Radius/,
+    },
+    {
+      response: { kind: "no-value", reason: "Inverse exceeds the numerical range" },
+      message: /numerical range/,
+    },
+    {
+      response: { kind: "accepted", data: { semanticKind: "synthetic-recovery" } },
+      message: /no molecular result/,
+    },
+  ]) {
+    const { owner } = reference();
+    owner.invertToMolecularNumber = () => response;
+    const result = analyzeCameraTrajectory(
+      trajectory(),
+      assumptions({ independentRadius: { T: 293.15, eta: 0.001, a: 0.5e-6 } }),
+      true,
+      owner,
+      () => ({ id: "modern-si-2019" }),
+    );
+    assert.equal(result.kind, "analyzed");
+    assert.equal(result.camera.estimate, 1.25);
+    assert.deepEqual(result.interval, result.camera.interval);
+    assert.equal(result.molecular, null);
+    assert.match(result.molecularMessage, message);
+  }
+});
+test("an inverse execution outcome preserves the camera result and the exported diagnostic", () => {
+  const outcome = {
+    outcome: "invariant-violation",
+    message: "The inverse calculation did not satisfy its consistency checks.",
+    retry: "new-run",
+    details: { stage: "molecular-number-inversion" },
+  };
+  const { owner } = reference();
+  owner.invertToMolecularNumber = () => ({ kind: "outcome", outcome });
+  const result = analyzeCameraTrajectory(
+    trajectory(),
+    assumptions({ independentRadius: { T: 293.15, eta: 0.001, a: 0.5e-6 } }),
+    true,
+    owner,
+    () => ({ id: "modern-si-2019" }),
+  );
+  assert.equal(result.kind, "analyzed");
+  assert.equal(result.camera.estimate, 1.25);
+  assert.deepEqual(result.interval, result.camera.interval);
+  assert.equal(result.molecular, null);
+  assert.match(result.molecularMessage, /execution outcome/);
+  assert.ok(result.molecularMessage.includes(outcome.message));
+  assert.deepEqual(result.ownerOutcome, outcome);
+  const exported = JSON.parse(cameraTrajectoryAnalysisJson(result));
+  assert.deepEqual(exported.ownerOutcome, outcome);
+  assert.deepEqual(exported.camera, result.camera);
+  assert.equal(exported.trajectory.points.length, 6);
+});
 test("export records all observations, the applied model and the exact included/omitted rows", () => {
   const input = trajectory();
   const draft = assumptions();

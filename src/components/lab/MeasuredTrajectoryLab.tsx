@@ -447,34 +447,39 @@ export function MeasuredTrajectoryLab() {
             {numberField("coveragePercent", "Conditional interval coverage (50–99.9%)")}
           </div>
         </fieldset>
-        {analysisModel === "ideal-increments" && (
-          <fieldset disabled={!ready}>
-            <legend>3 · Optional modern-SI consistency comparison</legend>
-            <label className="check" htmlFor={`${id}-radius`}>
-              <input
-                id={`${id}-radius`}
-                type="checkbox"
-                checked={draft.radiusIndependent}
-                onChange={(event) => edit("radiusIndependent", event.target.checked)}
-              />
-              I have an independently measured particle radius, not one inferred from these
-              displacements.
-            </label>
-            {draft.radiusIndependent && (
-              <div className="input-grid">
-                {numberField("temperatureKelvin", "Temperature (K)")}
-                {numberField("viscosityMillipascalSeconds", "Dynamic viscosity (mPa s)")}
-                {numberField("radiusMicrometres", "Independent particle radius (μm)")}
-              </div>
-            )}
+        <fieldset disabled={!ready}>
+          <legend>3 · Optional modern-SI consistency comparison</legend>
+          <label className="check" htmlFor={`${id}-radius`}>
+            <input
+              id={`${id}-radius`}
+              type="checkbox"
+              checked={draft.radiusIndependent}
+              onChange={(event) => edit("radiusIndependent", event.target.checked)}
+            />
+            I have an independently measured particle radius, not one inferred from these
+            displacements.
+          </label>
+          {draft.radiusIndependent && (
+            <div className="input-grid">
+              {numberField("temperatureKelvin", "Temperature (K)")}
+              {numberField("viscosityMillipascalSeconds", "Dynamic viscosity (mPa s)")}
+              {numberField("radiusMicrometres", "Independent particle radius (μm)")}
+            </div>
+          )}
+          <p className="fine">
+            Diffusion alone cannot determine molecular number independently of particle radius. With
+            modern SI constants, the optional inverse result is a consistency check, not an
+            independent count of molecules. It uses the dilute-sphere Stokes–Einstein model and
+            holds all declared physical inputs and calibration exact.
+          </p>
+          {analysisModel === "camera-disjoint-pairs" && (
             <p className="fine">
-              Diffusion alone cannot determine molecular number independently of particle radius.
-              With modern SI constants, the optional inverse result is a consistency check, not an
-              independent count of molecules. Its interval holds all declared physical inputs and
-              the calibration exact.
+              The comparison uses the noise-corrected diffusion estimate and disjoint-pair interval.
+              An empty confidence set or one reaching zero cannot yield a finite molecular-number
+              interval. Localization noise and exposure are held exact too.
             </p>
-          </fieldset>
-        )}
+          )}
+        </fieldset>
         <div className="actions">
           <button type="submit" disabled={!ready || pending}>
             {pending ? "Reading or calculating…" : "Apply observations and assumptions"}

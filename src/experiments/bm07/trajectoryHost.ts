@@ -30,7 +30,11 @@ export function analyzeImportedCameraTrajectory(
   assumptions: TrajectoryAssumptions,
   cameraModelDeclared: boolean,
 ) {
-  return analyzeCameraTrajectory(trajectory, assumptions, cameraModelDeclared, {
-    disjointPairsKnownNoiseInterval,
-  });
+  return analyzeCameraTrajectory(
+    trajectory,
+    assumptions,
+    cameraModelDeclared,
+    { disjointPairsKnownNoiseInterval, invertToMolecularNumber },
+    () => getConstantSet("modern-si-2019"),
+  );
 }

@@ -3,12 +3,21 @@
  * This module admits declarations, selects disjoint pairs within tracks,
  * and preserves the same accepted observations in the display and export.
  */
+import type { ConstantSet } from "../../physics/reference/constants.ts";
 import type * as Observation from "../../physics/reference/inference/observation.ts";
-import type { TrajectoryAnalysis, TrajectoryAssumptions } from "./trajectoryAnalysis.ts";
+import type {
+  TrajectoryAnalysis,
+  TrajectoryAssumptions,
+  TrajectoryReference,
+} from "./trajectoryAnalysis.ts";
 import type { ImportedTrajectory } from "./trajectoryCsv.ts";
 import { selectTrajectoryFramePairs, type TrajectoryPairReport } from "./trajectoryPairs.ts";
 
-export type CameraTrajectoryReference = Pick<typeof Observation, "disjointPairsKnownNoiseInterval">;
+export type CameraTrajectoryReference = Pick<
+  typeof Observation,
+  "disjointPairsKnownNoiseInterval"
+> &
+  Pick<TrajectoryReference, "invertToMolecularNumber">;
 type CameraExecutionOutcome = Extract<
   ReturnType<CameraTrajectoryReference["disjointPairsKnownNoiseInterval"]>,
   { kind: "outcome" }
@@ -19,6 +28,7 @@ export type CameraTrajectoryAnalysis = TrajectoryAnalysis &
     cameraModelDeclared: boolean;
     pairing: TrajectoryPairReport | null;
     camera: Observation.PairInterval | null;
+    /** Diagnostic from either the observation owner or the molecular inference owner. */
     ownerOutcome: CameraExecutionOutcome | null;
   }>;
 
@@ -28,11 +38,71 @@ export function isCameraTrajectoryAnalysis(
   return "model" in analysis && analysis.model === "camera-disjoint-pairs";
 }
 
+/** The camera owner supplies the confidence set; the inference owner owns its inverse. */
+function molecularComparison(
+  camera: Observation.PairInterval,
+  assumptions: TrajectoryAssumptions,
+  reference: CameraTrajectoryReference,
+  modernConstants: () => ConstantSet,
+): Pick<CameraTrajectoryAnalysis, "molecular" | "molecularMessage" | "ownerOutcome"> {
+  const unavailable = (molecularMessage: string) => ({
+    molecular: null,
+    molecularMessage,
+    ownerOutcome: null,
+  });
+  if (camera.empty || !camera.interval)
+    return unavailable(
+      "The camera model supplies no nonempty physical diffusion confidence set. No molecular-number interval is reported; review the observation model and its calibration.",
+    );
+  if (camera.interval.lower <= 0)
+    return unavailable(
+      "The camera confidence set reaches D = 0, so its inverse has no finite upper bound. No finite molecular-number interval is reported. More informative observations or an improved independent calibration are needed.",
+    );
+  if (!Number.isFinite(camera.estimate) || camera.estimate <= 0)
+    return unavailable(
+      "No positive camera-corrected diffusion estimate is resolved. The estimate is not clipped, and no molecular number is invented by inverting it.",
+    );
+  if (!assumptions.independentRadius)
+    return unavailable(
+      "Diffusion alone does not separate particle radius from molecular number. Declare an independently measured radius, temperature and viscosity for a modern-SI consistency comparison.",
+    );
+  const inverted = reference.invertToMolecularNumber(
+    {
+      ...assumptions.independentRadius,
+      radiusProvenance: "independently-declared",
+      dHat: camera.estimate,
+      interval: camera.interval,
+      synthetic: false,
+    },
+    modernConstants(),
+  );
+  if (inverted.kind === "outcome")
+    return {
+      ...unavailable(
+        `The molecular-number reference owner reported an execution outcome: ${inverted.outcome.message} No molecular comparison is supplied; the camera estimate and interval remain available.`,
+      ),
+      ownerOutcome: Object.freeze({ ...inverted.outcome }),
+    };
+  if (inverted.kind !== "accepted")
+    return unavailable(inverted.kind === "refused" ? inverted.refusal.message : inverted.reason);
+  if (inverted.data.semanticKind !== "consistency-check")
+    return unavailable(
+      "The constant owner did not return a modern-SI consistency comparison; no molecular result is displayed.",
+    );
+  return {
+    molecular: inverted.data,
+    ownerOutcome: null,
+    molecularMessage:
+      "Modern SI defines the Avogadro constant. This is a consistency comparison, equivalently an estimate of Boltzmann's constant; it is not an independent count of molecules. The inverse interval comes from the noise-corrected disjoint-pair confidence set, with its endpoints exchanged. Radius, temperature, viscosity, localization noise, exposure, timing and spatial calibration are held exact.",
+  };
+}
+
 export function analyzeCameraTrajectory(
   trajectory: ImportedTrajectory,
   input: TrajectoryAssumptions,
   cameraModelDeclared: boolean,
   reference: CameraTrajectoryReference,
+  modernConstants: () => ConstantSet,
 ): CameraTrajectoryAnalysis {
   const assumptions = Object.freeze({
     ...input,
@@ -47,13 +117,12 @@ export function analyzeCameraTrajectory(
     cameraModelDeclared: cameraModelDeclared === true,
     calculation: "reference-host" as const,
     sourceKind: "user-supplied-not-independently-verified" as const,
-    // These are not independent-increment estimates. Do not fabricate an
-    // Estimate or route a possibly zero-crossing interval through 1 / D.
+    // These are not independent-increment estimates. Keep the camera owner's result separate.
     estimate: null,
     molecular: null,
     ownerOutcome: null,
     molecularMessage:
-      "No molecular-number inversion is performed for camera data. A physical confidence set may reach zero or be empty; neither warrants an infinite molecular number.",
+      "A molecular-number comparison requires an admitted positive camera-corrected estimate and a strictly positive diffusion interval.",
   };
   const unavailable = (
     message: string,
@@ -150,6 +219,7 @@ export function analyzeCameraTrajectory(
     interval: camera.interval,
     pairing: selected.report,
     camera,
+    ...molecularComparison(camera, assumptions, reference, modernConstants),
     message: `${explanation} The localization noise scale, exposure, timing and spatial calibration are held exact. Their uncertainty, confinement, non-Gaussian errors and model mismatch are not included.`,
   });
 }
@@ -169,6 +239,8 @@ export function cameraTrajectoryAnalysisJson(analysis: CameraTrajectoryAnalysis)
         position: "m",
         diffusion: "m^2/s",
         localizationVariance: "m^2",
+        molecular: "1/mol",
+        boltzmannConstant: "J/K",
       },
       observationNotice:
         "User-supplied observations, not independently verified. Pair row numbers refer to the original CSV; all imported positions are retained.",
