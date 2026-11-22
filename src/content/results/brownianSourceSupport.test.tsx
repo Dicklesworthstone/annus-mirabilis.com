@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { brownianKernelRecords } from "../../equations/derivations/brownianKernel.ts";
+import { brownianPredictionRecords } from "../../equations/derivations/brownianPrediction.ts";
 import { type EquationRecord, parseEquationRecord } from "../../equations/record.ts";
 import { toCard } from "../../reader/faces/results/fromRecords.ts";
 import { ResultCard } from "../../reader/faces/results/ResultCard.tsx";
@@ -18,6 +19,13 @@ const fixtures = [
     conclusion: "eq-model-bm-diffusion-equation",
     href: "/papers/brownian-motion/s4/#bm-kernel-checked-calculus",
     records: brownianKernelRecords.map((record) => parseEquationRecord(record, record.id)),
+  },
+  {
+    id: "bm-predicted-displacement",
+    proofId: "bm-historical-displacement",
+    conclusion: "eq-model-bm-predicted-displacement",
+    href: "/papers/brownian-motion/s5/#bm-prediction-derivation",
+    records: brownianPredictionRecords.map((record) => parseEquationRecord(record, record.id)),
   },
 ] as const;
 
@@ -101,8 +109,16 @@ test("result-support-kernel-not-checked rejects absent, duplicate and changed pr
   rejectChangedPremises(fixtures[0]);
 });
 
-test("Brownian Results support retains the admitted convergence and finite-step qualifications", () => {
+test("result-support-prediction-not-checked rejects absent, duplicate and changed premises", () => {
+  rejectChangedPremises(fixtures[1]);
+});
+
+test("Brownian Results support retains the admitted limit and historical-input qualifications", () => {
   const kernel = checkedSupportFor(card("bm-diffusion-equation"), fixtures[0].records);
   expect(kernel?.scope).toContain("convergence");
   expect(kernel?.scope).toContain("finite-step");
+  const prediction = checkedSupportFor(card("bm-predicted-displacement"), fixtures[1].records);
+  expect(prediction?.scope).toContain("historical");
+  expect(prediction?.scope).toContain("rounding");
+  expect(prediction?.scope).toContain("measurement");
 });

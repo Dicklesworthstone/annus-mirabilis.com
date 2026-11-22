@@ -6,15 +6,18 @@ import { loadParagraphBindings } from "../content/bindings/paragraphBindings.ts"
 import { printedUnits } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
+import { enrichBrownianPrediction } from "../content/results/predictionReconstruction.ts";
 import { loadPaper } from "../content/server";
 import { InvestigationLabLink } from "../discovery/investigation/context.tsx";
 import { INVESTIGATIONS } from "../discovery/investigation/specs.ts";
 import { verifyBrownianGaussian } from "../equations/derivations/brownianGaussianProof.ts";
 import { verifyBrownianKernel } from "../equations/derivations/brownianKernelProof.ts";
+import { verifyBrownianPrediction } from "../equations/derivations/brownianPredictionProof.ts";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { ReadingBlocks } from "./Blocks";
+import { BrownianPredictionDerivation } from "./BrownianPredictionDerivation.tsx";
 import {
   BrownianChapterPractice,
   BrownianReaderInvestigation,
@@ -101,6 +104,8 @@ export async function PaperReader({
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
   const gaussianReport = section === "s4" ? verifyBrownianGaussian() : undefined;
   const kernelReport = section === "s4" ? verifyBrownianKernel() : undefined;
+  const predictionReport =
+    section === "s5" ? enrichBrownianPrediction(verifyBrownianPrediction()) : undefined;
   // The parts of the paper no passage explains yet, from its frozen manifest (unexplainedParts.ts),
   // each linked to Einstein's text: the German face at that part, else the facsimile.
   // A part whose paragraphs are all bound to passages filed under another part is explained there
@@ -509,14 +514,24 @@ export async function PaperReader({
                       )}
                       {a.id === "arg-bm-inference" &&
                         (section ? (
-                          <LazyBrownianInferenceDerivation />
+                          <>
+                            <BrownianPredictionDerivation report={predictionReport} />
+                            <LazyBrownianInferenceDerivation />
+                          </>
                         ) : (
-                          <p className="fine">
-                            <a href="/papers/brownian-motion/s5/#bm-molecular-number-derivation">
-                              Follow the conditional steps from observed spread to a
-                              molecular-number estimate
-                            </a>
-                          </p>
+                          <>
+                            <p className="fine">
+                              <a href="/papers/brownian-motion/s5/#bm-prediction-derivation">
+                                Join diffusivity to the paper’s predicted particle displacement
+                              </a>
+                            </p>
+                            <p className="fine">
+                              <a href="/papers/brownian-motion/s5/#bm-molecular-number-derivation">
+                                Follow the conditional steps from observed spread to a
+                                molecular-number estimate
+                              </a>
+                            </p>
+                          </>
                         ))}
                       {/* R3, THE HISTORIAN'S MARGIN, IS A DISCLOSURE (am-read-shell-routes-3ua). It was
                           an aside marked hidden that only the modern lens showed, and the lens is set

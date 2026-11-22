@@ -213,8 +213,10 @@ cards:
 
   - id: bm-predicted-displacement
     support:
-      kind: "no-checked-proof"
-      reason: "This card reproduces the historical numerical calculation. The Gaussian-to-RMS argument is checked separately; no checked record joins it to the viscosity-radius substitution and the stated historical inputs here."
+      kind: "checked-proof"
+      proofId: "bm-historical-displacement"
+      conclusion: "eq-model-bm-predicted-displacement"
+      scope: "Admits the one-coordinate RMS law and the equilibrium diffusivity as premises, checks their exact substitution and the nonnegative square-root factorization, and makes the historical units and radius inputs explicit. This does not prove the physical model, certify the paper's numerical rounding, or turn its historical inputs into a measurement."
     title: "How far a particle moves in a second"
     section: s5
     arguments: [arg-bm-diffusivity, arg-bm-inference]
@@ -223,7 +225,7 @@ cards:
         sentences: [1]
       - anchor: s5-p2
         sentences: [1]
-    equations: [eq-model-bm-rms, eq-model-bm-diffusivity-molar]
+    equations: [eq-model-bm-rms, eq-model-bm-diffusivity-molar, eq-model-bm-predicted-displacement]
     oneSentence: "Putting §3's diffusion coefficient into §4's law gives \\(\\lambda_x = \\sqrt{t}\\sqrt{\\frac{RT}{N}\\frac{1}{3\\pi kP}}\\), and with \\(N = 6\\cdot10^{23}\\), water at 17 °C and particles 0.001 mm across, the paper finds 0.8 micron in one second and about 6 microns in one minute."
     decoder:
       - symbol: "\\(3\\pi kP\\)"

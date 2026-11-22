@@ -228,8 +228,7 @@ displays:
   - unit: eq-s5-d2
     equations: [eq-model-bm-rms]
   - unit: eq-s5-d3
-    status: no-record
-    reason: "λx = √t · √(RT/N · 1/(3πkP)) follows by eliminating D between the two records above, as arg-bm-diffusivity and arg-bm-inference do in prose; no equation record draws it."
+    equations: [eq-model-bm-predicted-displacement]
   - unit: eq-s5-d4
     status: printed-value
     reason: "Einstein's worked number, λx = 8 · 10⁻⁵ cm = 0.8 micron for one second, is a printed value; the §5 passages recompute it in their worked steps, and it is not an equation record."

@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-predicted-displacement",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-inference",
+  "title": "The predicted one-coordinate displacement",
+  "spoken": "The root mean square displacement along x equals the square root of the observation interval times the square root of R T divided by three pi eta a N. R is the molar gas constant, T is absolute temperature, eta is viscosity, a is particle radius, and N is the molecular number supplied as an input.",
+  "explanation": "Substitute the molar diffusion coefficient into the one-coordinate RMS law. The factor two in the displacement law reduces the six in Stokes drag to three. With positive physical parameters and nonnegative elapsed time, the positive square root separates the time dependence.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The molar Stokes-Einstein diffusivity and one-coordinate RMS displacement law are admitted earlier results of the same model.",
+    "R, T, N, viscosity and particle radius are positive; the observation interval is nonnegative and all quantities use one consistent unit system.",
+    "N is supplied as the input avogadroConstant, not an estimate inferred from these displacements; a is the radius, half the diameter.",
+    "The Gaussian density applies for positive time; zero RMS at zero time is its continuous limit.",
+    "This modern SI teaching equation reconstructs the algebra of the printed equation eq-s5-d3; it does not certify the rounding of the historical numerical example."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-predicted-displacement.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-predicted-displacement.t.rms",
+      "quantityId": "rmsDisplacement1d"
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-bm-predicted-displacement.op.separated",
+      "args": [
+        {
+          "kind": "root",
+          "opId": "eq-model-bm-predicted-displacement.op.timeRoot",
+          "degree": 2,
+          "radicand": {
+            "kind": "symbol",
+            "termId": "eq-model-bm-predicted-displacement.t.time",
+            "quantityId": "observationInterval"
+          }
+        },
+        {
+          "kind": "root",
+          "opId": "eq-model-bm-predicted-displacement.op.coefficientRoot",
+          "degree": 2,
+          "radicand": {
+            "kind": "quotient",
+            "opId": "eq-model-bm-predicted-displacement.op.coefficient",
+            "numerator": {
+              "kind": "product",
+              "opId": "eq-model-bm-predicted-displacement.op.thermal",
+              "args": [
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-predicted-displacement.t.gasConstant",
+                  "quantityId": "molarGasConstant"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-predicted-displacement.t.temperature",
+                  "quantityId": "temperature"
+                }
+              ]
+            },
+            "denominator": {
+              "kind": "product",
+              "opId": "eq-model-bm-predicted-displacement.op.drag",
+              "args": [
+                {
+                  "kind": "number",
+                  "value": "3"
+                },
+                {
+                  "kind": "constant",
+                  "name": "pi"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-predicted-displacement.t.viscosity",
+                  "quantityId": "viscosity"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-predicted-displacement.t.radius",
+                  "quantityId": "particleRadius"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-predicted-displacement.t.molecularNumber",
+                  "quantityId": "avogadroConstant"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.op.relation",
+      "title": "The prediction",
+      "explanation": "The two admitted model laws give the same RMS displacement after replacing D by its molar expression.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.t.rms",
+      "title": "One-coordinate RMS displacement",
+      "explanation": "The nonnegative root of the mean square of a signed displacement along x. It is a length, not a velocity or path length.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.op.separated",
+      "title": "Time times the material factor",
+      "explanation": "Both factors are nonnegative, so their product is the nonnegative square root of their combined squared quantity.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.op.timeRoot",
+      "title": "Square-root time dependence",
+      "explanation": "Holding the other inputs fixed, four times the observation interval gives twice the RMS displacement.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.t.time",
+      "title": "The fixed observation interval",
+      "explanation": "Elapsed time since the common point start, measured in seconds here. The Gaussian density itself requires positive time.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.op.coefficientRoot",
+      "title": "The nonnegative branch",
+      "explanation": "The material factor is positive under the stated physical assumptions. The RMS chooses the nonnegative root.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.op.coefficient",
+      "title": "The material factor",
+      "explanation": "The ratio has dimensions of length squared per time. Its square root times the root of time is a length.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.op.thermal",
+      "title": "Molar thermal energy",
+      "explanation": "R times absolute temperature is energy per mole. Dividing by the input molecular number converts it to energy per particle.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.t.gasConstant",
+      "title": "The molar gas constant",
+      "explanation": "R is molarGasConstant. The historical numerical reconstruction supplies its value explicitly; the paper does not print a number for R here.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.t.temperature",
+      "title": "Absolute temperature",
+      "explanation": "T is absolute temperature. The printed water temperature of 17 degrees Celsius is converted to kelvin before it enters an SI calculation.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.op.drag",
+      "title": "Why three replaces six",
+      "explanation": "The factor two in the one-coordinate moment law combines with the six in Stokes drag: two divided by six is one third.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.t.viscosity",
+      "title": "The liquid's viscosity",
+      "explanation": "Modern eta is Einstein's printed k. It is dynamic viscosity, not Boltzmann's constant; poise and pascal seconds must be converted consistently.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.t.radius",
+      "title": "Radius, not diameter",
+      "explanation": "Modern a is Einstein's P. The printed particle diameter of 0.001 millimetre corresponds to a radius of 0.5 micrometre.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-bm-predicted-displacement.t.molecularNumber",
+      "title": "An input to the prediction",
+      "explanation": "N is avogadroConstant in this forward calculation. The inverse calculation uses the distinct quantity avogadroNumberEstimate.",
+      "foundation": "bridge-fractions-ratios"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The predicted "
+    },
+    {
+      "text": "RMS displacement",
+      "nodeId": "eq-model-bm-predicted-displacement.t.rms"
+    },
+    {
+      "text": " is the square root of the "
+    },
+    {
+      "text": "observation interval",
+      "nodeId": "eq-model-bm-predicted-displacement.t.time"
+    },
+    {
+      "text": " times the square root of "
+    },
+    {
+      "text": "R",
+      "nodeId": "eq-model-bm-predicted-displacement.t.gasConstant"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "T",
+      "nodeId": "eq-model-bm-predicted-displacement.t.temperature"
+    },
+    {
+      "text": " over three pi times the "
+    },
+    {
+      "text": "viscosity",
+      "nodeId": "eq-model-bm-predicted-displacement.t.viscosity"
+    },
+    {
+      "text": ", the particle "
+    },
+    {
+      "text": "radius",
+      "nodeId": "eq-model-bm-predicted-displacement.t.radius"
+    },
+    {
+      "text": " and the input "
+    },
+    {
+      "text": "molecular number",
+      "nodeId": "eq-model-bm-predicted-displacement.t.molecularNumber"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

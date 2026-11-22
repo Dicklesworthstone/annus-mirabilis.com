@@ -88,13 +88,13 @@ test("result-support-gaussian-not-checked evaluates each supplied conclusion tre
   }
 });
 
-test("Gaussian support cannot substitute for the conditional jump-law calculation", () => {
+test("Gaussian support cannot substitute for the jump-law or historical prediction calculation", () => {
   const diffusion = loaded?.cards.find((record) => record.id === "bm-diffusion-equation");
   if (!diffusion) throw new Error("The separate diffusion result card is absent.");
   expect(diffusion.support.kind).toBe("checked-proof");
   expect(() => checkedSupportFor(diffusion, equations)).toThrow(ResultCardsError);
   const historical = loaded?.cards.find((record) => record.id === "bm-predicted-displacement");
   if (!historical) throw new Error("The historical displacement result card is absent.");
-  expect(historical.support.kind).toBe("no-checked-proof");
-  expect(checkedSupportFor(historical, equations)).toBeUndefined();
+  expect(historical.support.kind).toBe("checked-proof");
+  expect(() => checkedSupportFor(historical, equations)).toThrow(ResultCardsError);
 });
