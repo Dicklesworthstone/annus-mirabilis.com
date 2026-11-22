@@ -330,6 +330,7 @@ probes:
   - lq-05-scaling-probe
 weavePredicates:
   - lq05-s5-independent-probability
+  - lq05-s5-locked-counterexample
   - lq05-s5-entropy-volume-relation
   - lq05-s5-motion-assumption-independence
 realRate:

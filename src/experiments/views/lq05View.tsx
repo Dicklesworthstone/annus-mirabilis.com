@@ -23,6 +23,7 @@ export default function Lq05ClarificationView({ instanceId }: ExperimentViewProp
       example={example}
       instanceId={instanceId}
       restoreFromLocation={false}
+      highlightPaper
     />
   );
 }

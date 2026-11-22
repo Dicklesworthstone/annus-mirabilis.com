@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -17,9 +17,7 @@ import {
 } from "../../../experiments/lq05/definition.ts";
 import { decodeLq05Settings } from "../../../experiments/lq05/permalink.ts";
 import {
-  buildLq05Snapshot,
   createLq05Session,
-  evaluateLq05,
   type PreparedLq05Example,
 } from "../../../experiments/lq05/session.ts";
 import { LQ05_TAPE } from "../../../experiments/lq05/tape.ts";
@@ -38,6 +36,7 @@ import { PowerOfTen, Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
+import { LQ05LiveWeave } from "./LQ05LiveWeave.tsx";
 import "./independentConfigurationsLab.css";
 
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
@@ -52,11 +51,13 @@ export function IndependentConfigurationsLab({
   restoreFromLocation = true,
   example,
   title = "Independent configurations and Boltzmann entropy",
+  highlightPaper = false,
 }: {
   example?: PreparedLq05Example | undefined;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
   title?: string | undefined;
+  highlightPaper?: boolean | undefined;
 }) {
   const id = useId();
   const session = useRetainedSession(
@@ -78,10 +79,7 @@ export function IndependentConfigurationsLab({
     (restored) => setDraft(toLq05Draft(restored)),
   );
 
-  const fallback =
-    session.getServerSnapshot().accepted ??
-    buildLq05Snapshot(instanceId ?? `lq05-${id}`, "lq05-init", null, LQ05_DEFAULTS, 0, 0);
-  const snapshot = view.accepted ?? fallback;
+  const snapshot = view.accepted;
   const p = snapshot.parameters as Lq05Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation; no example, no earned label.
@@ -100,7 +98,7 @@ export function IndependentConfigurationsLab({
   // The drawing and the controls come first; W, the chart and the outputs wait for a prediction.
   const gate = usePredictGate("lq-05", LQ05_PROMPTS);
 
-  const evaluation = evaluateLq05(p);
+  const evaluation = view.evaluation;
   // One sentence for the status line: the chance that every point sits in the chosen fraction.
   const chance = p.locked
     ? sentenceNumber(evaluation.locked.value)
@@ -569,6 +567,15 @@ export function IndependentConfigurationsLab({
           </table>
         </section>
       </section>
+
+      <div {...gate.response}>
+        <LQ05LiveWeave
+          session={session}
+          suspended={error !== ""}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
 
       {/* Assumptions & Not Modeled */}
       <footer

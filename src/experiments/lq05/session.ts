@@ -27,6 +27,10 @@ export type Lq05Evaluation = Readonly<{
   outputs: readonly PublishedResult[];
 }>;
 
+/** The plot and the published readings belong to the same accepted calculation. */
+export type Lq05ExperimentView = ExperimentView &
+  Readonly<{ accepted: AcceptedSnapshot; evaluation: Lq05Evaluation }>;
+
 export type PreparedLq05Example = Readonly<{
   sourceDigest: string;
   parameters: Lq05Parameters;
@@ -159,7 +163,26 @@ export function buildLq05Snapshot(
   inputRevision: number,
   actionIndex: number,
 ): AcceptedSnapshot {
-  const evalResult = evaluateLq05(parameters);
+  return snapshotFromEvaluation(
+    instanceId,
+    runId,
+    parentRunId,
+    parameters,
+    inputRevision,
+    actionIndex,
+    evaluateLq05(parameters),
+  );
+}
+
+function snapshotFromEvaluation(
+  instanceId: string,
+  runId: string,
+  parentRunId: string | null,
+  parameters: Lq05Parameters,
+  inputRevision: number,
+  actionIndex: number,
+  evaluation: Lq05Evaluation,
+): AcceptedSnapshot {
   return Object.freeze({
     experimentId: "lq-05",
     instanceId,
@@ -177,7 +200,7 @@ export function buildLq05Snapshot(
     simulationTime: 1.0,
     final: true,
     snapshotVersion: actionIndex + 1,
-    outputs: evalResult.outputs,
+    outputs: evaluation.outputs,
   });
 }
 
@@ -190,13 +213,15 @@ export function createLq05Session(
   let parentRunId: string | null = null;
   let inputRevision = 1;
   let actionIndex = 0;
-  let acceptedSnapshot = buildLq05Snapshot(
+  let evaluation = evaluateLq05(currentParams);
+  let acceptedSnapshot = snapshotFromEvaluation(
     instanceId,
     currentRunId,
     parentRunId,
     currentParams,
     inputRevision,
     actionIndex,
+    evaluation,
   );
 
   const listeners = new Set<() => void>();
@@ -205,7 +230,7 @@ export function createLq05Session(
     for (const listener of listeners) listener();
   }
 
-  let view: ExperimentView = {
+  let view: Lq05ExperimentView = {
     status: "accepted",
     pending: false,
     requested: {
@@ -218,6 +243,7 @@ export function createLq05Session(
       parameters: currentParams,
     },
     accepted: acceptedSnapshot,
+    evaluation,
     refusal: null,
     outcome: null,
   };
@@ -247,6 +273,12 @@ export function createLq05Session(
       validated.seed !== currentParams.seed ||
       validated.trials !== currentParams.trials;
 
+    // A change of display does not redraw the random placements. In particular, opening
+    // a disclosure or editing a draft must never run this potentially large sample in React.
+    // Compute before publishing either the summary or the plot, so they cannot disagree.
+    const nextEvaluation =
+      isSetup || validated.f !== currentParams.f ? evaluateLq05(validated) : evaluation;
+
     if (newRun || isSetup) {
       parentRunId = currentRunId;
       inputRevision++;
@@ -254,13 +286,15 @@ export function createLq05Session(
     }
 
     currentParams = { ...validated };
-    acceptedSnapshot = buildLq05Snapshot(
+    evaluation = nextEvaluation;
+    acceptedSnapshot = snapshotFromEvaluation(
       instanceId,
       currentRunId,
       parentRunId,
       currentParams,
       inputRevision,
       actionIndex,
+      evaluation,
     );
 
     view = {
@@ -276,6 +310,7 @@ export function createLq05Session(
         parameters: currentParams,
       },
       accepted: acceptedSnapshot,
+      evaluation,
       refusal: null,
       outcome: null,
     };
@@ -290,14 +325,14 @@ export function createLq05Session(
       listeners.add(callback);
       return () => listeners.delete(callback);
     },
-    getSnapshot(): ExperimentView {
+    getSnapshot(): Lq05ExperimentView {
       return view;
     },
     // The view the page was built with, frozen, as React's server snapshot must be. It returned
     // the live view, so the lab's "is this still the build's example" identity test held for every
     // accepted run and the label stayed "Static worked example" over the reader's own results
     // (BM-03's session had the same fault, measured on live).
-    getServerSnapshot(): ExperimentView {
+    getServerSnapshot(): Lq05ExperimentView {
       return serverView;
     },
     acceptedParameters(): Lq05Parameters {
