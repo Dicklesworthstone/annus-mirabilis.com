@@ -112,8 +112,10 @@ cards:
 
   - id: bm-diffusion-equation
     support:
-      kind: "no-checked-proof"
-      reason: "The paper's step-distribution argument has no checked source-order chain. The variance-of-a-sum bridge establishes a separate pedagogical result."
+      kind: "checked-proof"
+      proofId: "bm-kernel-diffusion"
+      conclusion: "eq-model-bm-diffusion-equation"
+      scope: "Checks the source-order recurrence, retained Taylor coefficients, normalization and symmetry cancellations, D = M2/(2τ), and the finite-step residual. The diffusion equation is a conditional continuum conclusion: control of the time and fourth-moment remainders and convergence of the density and its derivatives are explicit premises. This does not make a finite-step jump law exactly diffusive or establish physical validity, existence or uniqueness."
     title: "The diffusion equation, and its solution from a point"
     section: s4
     arguments: [arg-bm-diffusion-equation, arg-bm-gaussian]
@@ -134,7 +136,7 @@ cards:
       - anchor: s4-p10
         sentences: [7]
     equations: [eq-model-bm-jump-moment, eq-model-bm-diffusion-equation]
-    oneSentence: "If each particle's jumps in successive short intervals \\(\\tau\\) are independent and symmetric, the number of particles per unit length \\(f(x,t)\\) obeys the diffusion equation \\(\\frac{\\partial f}{\\partial t} = D\\frac{\\partial^2 f}{\\partial x^2}\\), with \\(D\\) half the mean square jump per unit time; for particles that all start from one point its solution is the curve of random errors, widening with time."
+    oneSentence: "In a controlled diffusion limit of independent, symmetric short jumps, the number of particles per unit length \\(f(x,t)\\) obeys \\(\\frac{\\partial f}{\\partial t} = D\\frac{\\partial^2 f}{\\partial x^2}\\), with \\(D\\) half the mean square jump per unit time; for particles that all start from one point its Gaussian solution widens with time."
     decoder:
       - symbol: "\\(\\tau\\)"
         meaning: "A time interval very short beside the intervals one can observe, yet long enough that a particle's motions in two successive intervals are independent."
@@ -149,6 +151,8 @@ cards:
     qualifications:
       - kind: premise
         text: "The paper takes \\(\\varphi\\) to be the same for \\(\\Delta\\) and \\(-\\Delta\\), and different from zero only for very small \\(\\Delta\\). Jumps biased in one direction would add a drift that the equation does not contain."
+      - kind: premise
+        text: "The continuum conclusion also assumes that the scaled remainder vanishes and the density and its derivatives converge. A finite second moment alone is insufficient: rare jumps of a fixed length can preserve that moment while leaving a nonzero higher-order remainder."
     probes:
       - instrument: bm-05
         question: "Add up many coin-flip steps: which feature of the step sets how fast the bell curve widens?"
@@ -159,7 +163,7 @@ cards:
     usedLater: []
     meanings:
       argumentStatus: "A derivation from stated assumptions about the jumps"
-      modelStatus: "An approximation, exact in the limit of small jumps and short intervals"
+      modelStatus: "A continuum conclusion under controlled remainders and convergence"
       evidentialRole: "A derivation, not evidence"
       historicalStatus: "The diffusion equation was known, as the paper says; deriving it from the particles' irregular jumps is introduced in this paper"
     selectionReason: "It turns the irregular motion of single particles into a law for how many of them spread, and its solution is where §5's numbers come from."

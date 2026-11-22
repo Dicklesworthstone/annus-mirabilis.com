@@ -2,6 +2,7 @@
 
 import type { Expression } from "../equations/ast.ts";
 import type { BrownianGaussianReport } from "../equations/derivations/brownianGaussianProof.ts";
+import type { BrownianKernelReport } from "../equations/derivations/brownianKernelProof.ts";
 import {
   brownianDerivationMetadata,
   brownianDisplayChain,
@@ -14,10 +15,12 @@ import {
 import { DerivationChain } from "../equations/derivations/DerivationChain.tsx";
 import { renderExpressionMarkup } from "../equations/derivations/mathRenderer.ts";
 import { BrownianGaussianDerivation } from "./BrownianGaussianDerivation.tsx";
+import { BrownianKernelCheck } from "./BrownianKernelCheck.tsx";
 
 export interface BrownianDerivationProps {
   readonly section: "s3" | "s4";
   readonly gaussianReport?: BrownianGaussianReport | undefined;
+  readonly kernelReport?: BrownianKernelReport | undefined;
   readonly activeDetail?: "0" | "1" | "2";
   readonly perspective?: "historical" | "modern";
 }
@@ -42,6 +45,7 @@ export function BrownianDerivation({
   activeDetail = "1",
   perspective = "historical",
   gaussianReport,
+  kernelReport,
 }: BrownianDerivationProps) {
   const equilibrium = section === "s3";
   const metadata = brownianDerivationMetadata;
@@ -249,6 +253,7 @@ export function BrownianDerivation({
           </>
         )}
       </ul>
+      {!equilibrium && <BrownianKernelCheck report={kernelReport} />}
       {!equilibrium && <BrownianGaussianDerivation report={gaussianReport} />}
     </section>
   );

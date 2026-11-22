@@ -103,10 +103,11 @@ describe("Brownian diffusivity support reaches the checked conditional equilibri
     }
   });
 
-  test("coefficient support leaves the jump-law calculus unverified", () => {
+  test("coefficient support keeps the jump-law limit as an explicit premise", () => {
     expect(verifyChain(brownianKernelDerivation, { isPublicationGate: true }).passed).toBe(false);
-    expect(card("bm-diffusion-equation").support.kind).toBe("no-checked-proof");
-    expect(project(card("bm-diffusion-equation")).support).toBeUndefined();
+    expect(card("bm-diffusion-equation").support.kind).toBe("checked-proof");
+    expect(project(card("bm-diffusion-equation")).support?.proofId).toBe("bm-kernel-diffusion");
+    expect(project(card("bm-diffusion-equation")).support?.scope).toContain("convergence");
     // The positive-time Gaussian and RMS law now have their own exact owner;
     // that calculation does not establish the separate microscopic closure.
     expect(card("bm-displacement-law").support.kind).toBe("checked-proof");

@@ -10,6 +10,7 @@ import { loadPaper } from "../content/server";
 import { InvestigationLabLink } from "../discovery/investigation/context.tsx";
 import { INVESTIGATIONS } from "../discovery/investigation/specs.ts";
 import { verifyBrownianGaussian } from "../equations/derivations/brownianGaussianProof.ts";
+import { verifyBrownianKernel } from "../equations/derivations/brownianKernelProof.ts";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
@@ -99,6 +100,7 @@ export async function PaperReader({
   if (!sections.length) throw new Error("Section is not in the compiled outline.");
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
   const gaussianReport = section === "s4" ? verifyBrownianGaussian() : undefined;
+  const kernelReport = section === "s4" ? verifyBrownianKernel() : undefined;
   // The parts of the paper no passage explains yet, from its frozen manifest (unexplainedParts.ts),
   // each linked to Einstein's text: the German face at that part, else the facsimile.
   // A part whose paragraphs are all bound to passages filed under another part is explained there
@@ -481,6 +483,7 @@ export async function PaperReader({
                           <LazyBrownianDerivation
                             section={a.id === "arg-bm-diffusivity" ? "s3" : "s4"}
                             gaussianReport={gaussianReport}
+                            kernelReport={kernelReport}
                           />
                         ) : (
                           <p className="fine">
