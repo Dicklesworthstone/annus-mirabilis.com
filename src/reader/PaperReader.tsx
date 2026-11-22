@@ -12,6 +12,7 @@ import { InvestigationLabLink } from "../discovery/investigation/context.tsx";
 import { INVESTIGATIONS } from "../discovery/investigation/specs.ts";
 import { verifyBrownianGaussian } from "../equations/derivations/brownianGaussianProof.ts";
 import { verifyBrownianKernel } from "../equations/derivations/brownianKernelProof.ts";
+import { verifyBrownianOsmotic } from "../equations/derivations/brownianOsmoticProof.ts";
 import { verifyBrownianPrediction } from "../equations/derivations/brownianPredictionProof.ts";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
@@ -31,6 +32,7 @@ import {
   LazyBrownianDerivation,
   LazyBrownianFirstEncounter,
   LazyBrownianInferenceDerivation,
+  LazyBrownianOsmoticDerivation,
 } from "./lazyIslands.tsx";
 import { loadPaperMargins } from "./marginRecords.ts";
 import { PaperMargins } from "./PaperMargins.tsx";
@@ -102,6 +104,7 @@ export async function PaperReader({
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   if (!sections.length) throw new Error("Section is not in the compiled outline.");
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
+  const osmoticReport = section === "s2" ? verifyBrownianOsmotic() : undefined;
   const gaussianReport = section === "s4" ? verifyBrownianGaussian() : undefined;
   const kernelReport = section === "s4" ? verifyBrownianKernel() : undefined;
   const predictionReport =
@@ -483,6 +486,16 @@ export async function PaperReader({
                         sectionHref={`/papers/${paper.id}/${a.section}/#${a.id}`}
                         title={a.title}
                       />
+                      {a.id === "arg-bm-kinetic-justification" &&
+                        (section ? (
+                          <LazyBrownianOsmoticDerivation report={osmoticReport} />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/brownian-motion/s2/#bm-osmotic-derivation">
+                              Follow the steps from independent placements to osmotic pressure
+                            </a>
+                          </p>
+                        ))}
                       {(a.id === "arg-bm-diffusivity" || a.id === "arg-bm-diffusion-equation") &&
                         (section ? (
                           <LazyBrownianDerivation

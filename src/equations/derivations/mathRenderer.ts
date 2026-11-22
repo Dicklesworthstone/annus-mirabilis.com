@@ -100,7 +100,8 @@ export function expressionToDerivationLatex(
       case "quotient":
         s = `\\frac{${render(n.numerator)}}{${render(n.denominator)}}`;
         break;
-      case "power": {
+      case "power":
+      case "symbolPower": {
         // The equation renderer's rule (latex/render.ts): an atomic base takes no brackets. The
         // missing-step panels printed <(A)^2> where the explorer beside them prints <A^2>. A sum,
         // a negative number, a scaled letter or a glyph with its own superscript keeps them.
@@ -113,7 +114,11 @@ export function expressionToDerivationLatex(
             (!n.base.scale || (n.base.scale.num === 1 && n.base.scale.den === 1)) &&
             !base.includes("^"));
         const exponent =
-          n.exponent.den === 1 ? n.exponent.num : `\\frac{${n.exponent.num}}{${n.exponent.den}}`;
+          n.kind === "symbolPower"
+            ? render(n.exponent)
+            : n.exponent.den === 1
+              ? n.exponent.num
+              : `\\frac{${n.exponent.num}}{${n.exponent.den}}`;
         s = `${atomic ? base : `\\left(${base}\\right)`}^{${exponent}}`;
         break;
       }
@@ -132,9 +137,20 @@ export function expressionToDerivationLatex(
       case "function":
         s = `\\${n.name}\\left(${render(n.argument)}\\right)`;
         break;
-      case "relation":
-        s = `${render(n.left)} ${n.operator === "approx" ? "\\approx" : n.operator === "define" ? ":=" : "="} ${render(n.right)}`;
+      case "relation": {
+        const operator =
+          n.operator === "approx"
+            ? "\\approx"
+            : n.operator === "define"
+              ? ":="
+              : n.operator === "le"
+                ? "\\leq"
+                : n.operator === "ge"
+                  ? "\\geq"
+                  : "=";
+        s = `${render(n.left)} ${operator} ${render(n.right)}`;
         break;
+      }
       case "derivative": {
         const d = n.partial ? "\\partial" : "\\mathrm{d}";
         const p = n.order === 1 ? "" : `^{${n.order}}`;

@@ -160,6 +160,16 @@ outputs:
       - value
       - outside-domain
     primary: true
+  - id: logFactorRatio
+    quantityId: dimensionlessRatio
+    allowedStatuses:
+      - value
+    primary: false
+  - id: log10FactorRatio
+    quantityId: dimensionlessRatio
+    allowedStatuses:
+      - value
+    primary: false
   - id: pressure
     quantityId: osmoticPressure
     allowedStatuses:
@@ -404,6 +414,12 @@ presets:
 probes:
   - bm-03-locked-cluster
   - bm-03-million-particles
+weavePredicates:
+  - bm03-s2-independent-volume
+  - bm03-s2-independent-pressure
+  - bm03-s2-locked-counterexample
+  - bm03-s2-unevaluated-factor
+  - bm03-s2-logarithmic-range
 historicalOverlays: []
 realRate:
   natural: false

@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { fromBm03Draft, toBm03Draft } from "../../../experiments/bm03/controls.ts";
 import {
   BM03_CAPTION,
@@ -14,12 +14,7 @@ import {
   type Bm03Step,
 } from "../../../experiments/bm03/definition.ts";
 import { decodeBm03Settings } from "../../../experiments/bm03/permalink.ts";
-import {
-  buildBm03Snapshot,
-  createBm03Session,
-  evaluateBm03,
-  type PreparedBm03Example,
-} from "../../../experiments/bm03/session.ts";
+import { createBm03Session, type PreparedBm03Example } from "../../../experiments/bm03/session.ts";
 import { BM03_TAPE } from "../../../experiments/bm03/tape.ts";
 import { executionLabelFor } from "../../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
@@ -34,6 +29,7 @@ import { useRetainedSession } from "../../../experiments/store/retainedSession.t
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { fixed, identity, numberText, readablePowers, sentenceNumber } from "../presentation.ts";
+import { BM03LiveWeave } from "./BM03LiveWeave.tsx";
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
@@ -64,6 +60,7 @@ export function ConfigurationLab({
   example,
   title = "The configuration integral laboratory",
   readings = true,
+  highlightPaper = false,
 }: {
   example?: PreparedBm03Example | undefined;
   instanceId?: string | undefined;
@@ -71,6 +68,7 @@ export function ConfigurationLab({
   title?: string | undefined;
   /** False for the optional second laboratory, so the page carries the caption readings once. */
   readings?: boolean;
+  highlightPaper?: boolean | undefined;
 }) {
   const id = useId();
   const session = useRetainedSession(
@@ -84,10 +82,7 @@ export function ConfigurationLab({
 
   const view = useInstrumentView(session);
 
-  const fallback =
-    session.getServerSnapshot().accepted ??
-    buildBm03Snapshot(instanceId ?? `bm03-${id}`, "bm03-init", BM03_DEFAULTS, 0, 0);
-  const snapshot = view.accepted ?? fallback;
+  const snapshot = view.accepted;
   // Earned per snapshot, as CameraLab's is: the build's worked example until a reader's settings
   // are accepted, a host calculation after. It was a fixed "host" and read "host calculation" on
   // first paint, about a page the build had calculated.
@@ -117,7 +112,7 @@ export function ConfigurationLab({
     { restoreFromLocation },
   );
 
-  const evaluation = evaluateBm03(p);
+  const evaluation = view.evaluation;
   // One sentence for the status line: how many more arrangements the larger volume allows, and the
   // free-energy change that follows.
   const arrangements =
@@ -592,6 +587,15 @@ export function ConfigurationLab({
             </table>
           </div>
         </div>
+      </div>
+
+      <div {...gate.response}>
+        <BM03LiveWeave
+          session={session}
+          suspended={failure !== null}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
       </div>
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: they

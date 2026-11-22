@@ -12,7 +12,7 @@ import type {
   PublishedResult,
   RequestToken,
 } from "../store/instanceStore.ts";
-import { BM03_DEFAULTS, type Bm03Parameters } from "./definition.ts";
+import { BM03_DEFAULTS, BM03_OUTPUTS, type Bm03Parameters } from "./definition.ts";
 import { validateBm03Parameters } from "./parameters.ts";
 
 export type Bm03Evaluation = Readonly<{
@@ -27,6 +27,13 @@ export type Bm03Evaluation = Readonly<{
   naturalLogExponent: number;
   exactDecimalString?: string;
 }>;
+
+/** The plot, table and source comparison share this one accepted evaluation. */
+export type Bm03ExperimentView = ExperimentView &
+  Readonly<{
+    accepted: AcceptedSnapshot;
+    evaluation: Bm03Evaluation;
+  }>;
 
 export function evaluateBm03(
   parameters: Bm03Parameters = BM03_DEFAULTS,
@@ -46,19 +53,14 @@ export function evaluateBm03(
 
   if (parameters.model === "locked-cluster") {
     const factorRatio = configurationFactorRatio(1, ratioStr);
-    const kT =
-      (set.id === "modern-si-2019" ? 1.380649e-23 : 8.31446261815324e7 / 6.02214076e23) * T;
-    const deltaFVal = -kT * Math.log(parameters.volumeRatio);
+    const clusterVolume = configurationVolumeTerm({ Np: 1, V: V_m3, V0: V0_m3, T }, set);
+    const clusterDifference = "deltaF" in clusterVolume ? clusterVolume.deltaF : clusterVolume;
     const deltaF: RouteAEvaluation = {
-      result: {
-        quantityId: "freeEnergy",
-        unit: "J",
-        semanticKind: "configurational-free-energy",
-        ownerId: "diffusion.configurationVolumeTerm",
-        status: "value",
-        value: parameters.volumeRatio === 1 ? 0 : deltaFVal,
-      },
-      constantSetId: set.id,
+      ...clusterDifference,
+      result:
+        parameters.volumeRatio === 1 && clusterDifference.result.status === "value"
+          ? { ...clusterDifference.result, value: 0 }
+          : clusterDifference.result,
       modelIdentity: "locked-cluster",
     };
 
@@ -195,28 +197,79 @@ export function buildBm03Snapshot(
   parentRunId: string | null = null,
 ): AcceptedSnapshot {
   const evaluation = evaluateBm03(parameters);
+  return snapshotFromEvaluation(
+    instanceId,
+    runId,
+    parameters,
+    inputRevision,
+    actionIndex,
+    parentRunId,
+    evaluation,
+  );
+}
+
+function snapshotFromEvaluation(
+  instanceId: string,
+  runId: string,
+  parameters: Bm03Parameters,
+  inputRevision: number,
+  actionIndex: number,
+  parentRunId: string | null,
+  evaluation: Bm03Evaluation,
+): AcceptedSnapshot {
+  function publish(id: keyof typeof BM03_OUTPUTS, result: PublishedResult): PublishedResult {
+    const contract = BM03_OUTPUTS[id];
+    return Object.freeze({
+      ...result,
+      quantityId: id,
+      unit: contract.unit,
+      semanticKind: contract.semanticKind,
+      ownerId: contract.ownerId,
+    });
+  }
+  const ratio = evaluation.factorRatio;
+  const factorIdentity = {
+    quantityId: "factorRatio",
+    unit: "1",
+    semanticKind: "volume-arrangement-ratio",
+    ownerId: "diffusion.configurationFactorRatio",
+  };
+  const factorResult: PublishedResult =
+    "representableDouble" in ratio
+      ? ratio.representableDouble !== null
+        ? { ...factorIdentity, status: "value", value: ratio.representableDouble }
+        : {
+            ...factorIdentity,
+            status: "outside-domain",
+            condition: "binary64-range",
+            domainKind: "numerical",
+            reason:
+              "The arrangement ratio cannot be represented as a normal finite binary64 number; its separately labelled logarithms remain available.",
+            boundary: {
+              alternativeModel:
+                "Use the logarithmic representation of the same configuration model.",
+            },
+          }
+      : ratio.result;
 
   const outputs: PublishedResult[] = [
-    {
-      quantityId: "volumeRatio",
-      unit: "1",
-      semanticKind: "volume-arrangement-ratio",
-      ownerId: "diffusion.configurationFactorRatio",
+    publish("factorRatio", factorResult),
+    publish("logFactorRatio", {
+      ...factorIdentity,
       status: "value",
-      value:
-        "representableDouble" in evaluation.factorRatio &&
-        evaluation.factorRatio.representableDouble !== null
-          ? evaluation.factorRatio.representableDouble
-          : evaluation.exactDecimalString !== undefined
-            ? Number(evaluation.exactDecimalString)
-            : evaluation.log10Exponent,
-    },
-    evaluation.deltaF.result as PublishedResult,
-    evaluation.pressure.result as PublishedResult,
-    evaluation.lockedClusterPressure.result as PublishedResult,
-    evaluation.volumeIndependentFactor,
-    evaluation.momentumIntegrals,
-    evaluation.freeEnergyOffset,
+      value: evaluation.naturalLogExponent,
+    }),
+    publish("log10FactorRatio", {
+      ...factorIdentity,
+      status: "value",
+      value: evaluation.log10Exponent,
+    }),
+    publish("deltaF", evaluation.deltaF.result),
+    publish("pressure", evaluation.pressure.result),
+    publish("lockedClusterPressure", evaluation.lockedClusterPressure.result),
+    publish("volumeIndependentFactor", evaluation.volumeIndependentFactor),
+    publish("momentumIntegrals", evaluation.momentumIntegrals),
+    publish("freeEnergyOffset", evaluation.freeEnergyOffset),
   ];
 
   return Object.freeze({
@@ -249,13 +302,15 @@ export function createBm03Session(
   let parentRunId: string | null = null;
   let inputRevision = 1;
   let actionIndex = 0;
-  let acceptedSnapshot = buildBm03Snapshot(
+  let evaluation = evaluateBm03(currentParams);
+  let acceptedSnapshot = snapshotFromEvaluation(
     instanceId,
     currentRunId,
     currentParams,
     inputRevision,
     actionIndex,
     parentRunId,
+    evaluation,
   );
 
   const listeners = new Set<() => void>();
@@ -264,7 +319,7 @@ export function createBm03Session(
     for (const listener of listeners) listener();
   }
 
-  let view: ExperimentView = {
+  let view: Bm03ExperimentView = {
     status: "accepted",
     pending: false,
     requested: {
@@ -277,6 +332,7 @@ export function createBm03Session(
       parameters: currentParams,
     },
     accepted: acceptedSnapshot,
+    evaluation,
     refusal: null,
     outcome: null,
   };
@@ -311,14 +367,17 @@ export function createBm03Session(
       currentRunId = `${instanceId}/run/${inputRevision}`;
     }
 
+    // Presentation changes reuse the accepted calculation; editing a draft never evaluates it.
+    if (isSetupChange) evaluation = evaluateBm03(parameters);
     currentParams = { ...parameters };
-    acceptedSnapshot = buildBm03Snapshot(
+    acceptedSnapshot = snapshotFromEvaluation(
       instanceId,
       currentRunId,
       currentParams,
       inputRevision,
       actionIndex,
       parentRunId,
+      evaluation,
     );
 
     const requestedToken: RequestToken = {
@@ -336,6 +395,7 @@ export function createBm03Session(
       pending: false,
       requested: requestedToken,
       accepted: acceptedSnapshot,
+      evaluation,
       refusal: null,
       outcome: null,
     };
@@ -349,14 +409,14 @@ export function createBm03Session(
       listeners.add(callback);
       return () => listeners.delete(callback);
     },
-    getSnapshot(): ExperimentView {
+    getSnapshot(): Bm03ExperimentView {
       return view;
     },
     // The view the page was built with, frozen, as React's server snapshot must be and as BM-08's
     // is. It returned the live view, so ConfigurationLab's "is this still the build's example"
     // identity test held for every accepted run, and the badge read "Static worked example" over
     // results computed from the reader's own settings (measured on live after 0ed262bc).
-    getServerSnapshot(): ExperimentView {
+    getServerSnapshot(): Bm03ExperimentView {
       return serverView;
     },
     acceptedParameters(): Bm03Parameters {

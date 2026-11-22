@@ -47,6 +47,7 @@ import type { LinearProofExplorer } from "../equations/derivations/LinearProofEx
 import type { LowSpeedExplorer } from "../equations/derivations/LowSpeedExplorer.tsx";
 import type { BrownianDerivation } from "./BrownianDerivation.tsx";
 import type { BrownianInferenceDerivation } from "./BrownianInferenceDerivation.tsx";
+import type { BrownianOsmoticDerivation } from "./BrownianOsmoticDerivation.tsx";
 import type { BrownianFirstEncounter } from "./entrances/BrownianFirstEncounter.tsx";
 import type { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
 import type { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
@@ -99,6 +100,11 @@ const LinearProof = lazy(() =>
 );
 const BrownianSteps = lazy(() =>
   import("./BrownianDerivation.tsx").then((m) => ({ default: m.BrownianDerivation })),
+);
+const BrownianOsmoticSteps = lazy(() =>
+  import("./BrownianOsmoticDerivation.tsx").then((m) => ({
+    default: m.BrownianOsmoticDerivation,
+  })),
 );
 const LightQuantaSteps = lazy(() =>
   import("./LightQuantaDerivation.tsx").then((m) => ({ default: m.LightQuantaDerivation })),
@@ -158,6 +164,12 @@ export function LazySRLightComplexDerivation(
 
 export function LazyBrownianDerivation(props: ComponentProps<typeof BrownianDerivation>) {
   return <BrownianSteps {...props} />;
+}
+
+export function LazyBrownianOsmoticDerivation(
+  props: ComponentProps<typeof BrownianOsmoticDerivation>,
+) {
+  return <BrownianOsmoticSteps {...props} />;
 }
 
 const SRElectronSteps = lazy(() =>

@@ -12,5 +12,12 @@ const example = {
 };
 
 export default function Bm03ClarificationView({ instanceId }: ExperimentViewProps) {
-  return <ConfigurationLab example={example} instanceId={instanceId} restoreFromLocation={false} />;
+  return (
+    <ConfigurationLab
+      example={example}
+      instanceId={instanceId}
+      restoreFromLocation={false}
+      highlightPaper
+    />
+  );
 }

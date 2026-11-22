@@ -72,11 +72,21 @@ function contract(
   return Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
 }
 
-export const BM03_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
+export const BM03_OUTPUTS = Object.freeze({
   factorRatio: contract("1", "volume-arrangement-ratio", "diffusion.configurationFactorRatio", [
     "value",
     "outside-domain",
   ]),
+  logFactorRatio: contract(
+    "1",
+    "natural-log-volume-arrangement-ratio",
+    "diffusion.configurationFactorRatio",
+  ),
+  log10FactorRatio: contract(
+    "1",
+    "base-ten-log-volume-arrangement-ratio",
+    "diffusion.configurationFactorRatio",
+  ),
   deltaF: contract(
     "J",
     "configurational-free-energy-difference",
@@ -111,7 +121,7 @@ export const BM03_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "diffusion.configurationVolumeTerm",
     ["symbolic"],
   ),
-});
+}) satisfies Readonly<Record<string, OutputContract>>;
 
 export const BM03_PRESETS = Object.freeze({
   "bm-03-two-particles-double": Object.freeze({
