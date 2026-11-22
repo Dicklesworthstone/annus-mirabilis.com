@@ -132,9 +132,8 @@ test("the SI bridge rejects wrong signs, units, frames and component identities"
     ];
     for (const tree of corruptions)
       expect(
-        verifySRFieldSIComponents(
-          rows.map((item, at) => (at === index ? { ...item, tree } : item)),
-        ).passed,
+        verifySRFieldSIComponents(rows.map((item, at) => (at === index ? { ...item, tree } : item)))
+          .passed,
       ).toBe(false);
   }
   expect(verifySRFieldSIComponents(rows.slice(1)).passed).toBe(false);

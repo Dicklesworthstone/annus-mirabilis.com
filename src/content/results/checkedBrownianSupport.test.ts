@@ -2,9 +2,9 @@ import { describe, expect, test } from "bun:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { verifyBrownianEquilibrium } from "../../equations/derivations/brownianEquilibriumProof.ts";
 import { brownianInferenceChain } from "../../equations/derivations/brownianInference.ts";
 import { verifyBrownianInference } from "../../equations/derivations/brownianInferenceProof.ts";
-import { verifyBrownianEquilibrium } from "../../equations/derivations/brownianEquilibriumProof.ts";
 import {
   brownianEquilibriumDerivation,
   brownianKernelDerivation,
@@ -103,12 +103,14 @@ describe("Brownian diffusivity support reaches the checked conditional equilibri
     }
   });
 
-  test("coefficient support leaves the jump-law calculus and displacement law unverified", () => {
+  test("coefficient support leaves the jump-law calculus unverified", () => {
     expect(verifyChain(brownianKernelDerivation, { isPublicationGate: true }).passed).toBe(false);
-    for (const id of ["bm-diffusion-equation", "bm-displacement-law"]) {
-      expect(card(id).support.kind).toBe("no-checked-proof");
-      expect(project(card(id)).support).toBeUndefined();
-    }
+    expect(card("bm-diffusion-equation").support.kind).toBe("no-checked-proof");
+    expect(project(card("bm-diffusion-equation")).support).toBeUndefined();
+    // The positive-time Gaussian and RMS law now have their own exact owner;
+    // that calculation does not establish the separate microscopic closure.
+    expect(card("bm-displacement-law").support.kind).toBe("checked-proof");
+    expect(project(card("bm-displacement-law")).support?.proofId).toBe("bm-gaussian-displacement");
   });
 
   test("a changed canonical coefficient is rejected by the real result projection", () => {
@@ -172,7 +174,9 @@ describe("molecular-number support reaches the conditional observed-moment inver
     expect(ids).toContain("bm-inference-observed-moment-fit");
     expect(ids).toContain("bm-inference-independent-inputs");
     expect(ids).toContain("bm-inference-positive-domain");
-    expect(support?.assumptions.map((premise) => premise.explanation).join(" ")).toContain("only aN");
+    expect(support?.assumptions.map((premise) => premise.explanation).join(" ")).toContain(
+      "only aN",
+    );
   });
 
   test("altered, missing or duplicated canonical premises cannot claim checked inference", () => {
@@ -192,7 +196,10 @@ describe("molecular-number support reaches the conditional observed-moment inver
     }
     expect(
       refusal(() =>
-        project(control, equations.filter((record) => record.id !== "eq-model-bm-mean-square-growth")),
+        project(
+          control,
+          equations.filter((record) => record.id !== "eq-model-bm-mean-square-growth"),
+        ),
       ),
     ).toBe("result-support-derivation-record-mismatch");
     const original = conclusion();

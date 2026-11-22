@@ -91,13 +91,14 @@ import {
 } from "../../equations/derivations/verifyChain.ts";
 import type { EquationRecord } from "../../equations/record.ts";
 import { checkedFieldCovarianceSupport } from "./fieldCovarianceSupport.ts";
+import { checkedGaussianSupport } from "./gaussianSupport.ts";
 import { ResultCardsError } from "./printedChecks.ts";
 import type { ResultCardRecord } from "./resultCards.ts";
 import type { CheckedResultSupport, ResultProofId } from "./supportDeclarations.ts";
 
 type DerivationProofId = Exclude<
   Extract<ResultProofId, `sr-${string}` | `bm-${string}` | `lq-${string}`>,
-  "sr-field-covariance"
+  "sr-field-covariance" | "bm-gaussian-displacement"
 >;
 type ProofRecord = Readonly<{
   id: string;
@@ -604,6 +605,9 @@ export function checkedSupportFor(
 
   if (declaration.proofId === "sr-field-covariance")
     return checkedFieldCovarianceSupport(card.id, declaration, conclusion, equations);
+
+  if (declaration.proofId === "bm-gaussian-displacement")
+    return checkedGaussianSupport(card.id, declaration, conclusion, equations);
 
   if (Object.hasOwn(DERIVATION_PROOFS, declaration.proofId))
     return checkedDerivationSupport(

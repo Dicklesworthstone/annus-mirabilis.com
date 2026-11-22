@@ -166,8 +166,10 @@ cards:
 
   - id: bm-displacement-law
     support:
-      kind: "no-checked-proof"
-      reason: "The Gaussian solution and its mean-square integral are explained in the linked passages; no checked derivation record joins those steps."
+      kind: "checked-proof"
+      proofId: "bm-gaussian-displacement"
+      conclusion: "eq-model-bm-rms-from-mean-square"
+      scope: "For one coordinate with constant D > 0 and t > 0 on the full line, the calculation verifies the normalized Gaussian candidate against the diffusion equation, finds zero signed mean by symmetry, and obtains the second moment and the nonnegative RMS root. The Gaussian area and vanishing-tail identities are explicit mathematical premises. This does not derive the diffusion approximation from microscopic motion, establish uniqueness or the point-start limit, prove the three-dimensional extension, or test the model against observations."
     title: "The displacement grows as the square root of the time"
     section: s4
     arguments: [arg-bm-gaussian, arg-bm-observable]
@@ -208,7 +210,7 @@ cards:
   - id: bm-predicted-displacement
     support:
       kind: "no-checked-proof"
-      reason: "This card provides a historical numerical reproduction. No checked proof record derives the displacement law it uses."
+      reason: "This card reproduces the historical numerical calculation. The Gaussian-to-RMS argument is checked separately; no checked record joins it to the viscosity-radius substitution and the stated historical inputs here."
     title: "How far a particle moves in a second"
     section: s5
     arguments: [arg-bm-diffusivity, arg-bm-inference]

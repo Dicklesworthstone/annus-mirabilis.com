@@ -9,6 +9,7 @@ import { loadConcordanceForPaper } from "../content/notation/loader.ts";
 import { loadPaper } from "../content/server";
 import { InvestigationLabLink } from "../discovery/investigation/context.tsx";
 import { INVESTIGATIONS } from "../discovery/investigation/specs.ts";
+import { verifyBrownianGaussian } from "../equations/derivations/brownianGaussianProof.ts";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
@@ -97,6 +98,7 @@ export async function PaperReader({
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   if (!sections.length) throw new Error("Section is not in the compiled outline.");
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
+  const gaussianReport = section === "s4" ? verifyBrownianGaussian() : undefined;
   // The parts of the paper no passage explains yet, from its frozen manifest (unexplainedParts.ts),
   // each linked to Einstein's text: the German face at that part, else the facsimile.
   // A part whose paragraphs are all bound to passages filed under another part is explained there
@@ -478,6 +480,7 @@ export async function PaperReader({
                         (section ? (
                           <LazyBrownianDerivation
                             section={a.id === "arg-bm-diffusivity" ? "s3" : "s4"}
+                            gaussianReport={gaussianReport}
                           />
                         ) : (
                           <p className="fine">
@@ -494,13 +497,21 @@ export async function PaperReader({
                             </a>
                           </p>
                         ))}
+                      {a.id === "arg-bm-gaussian" && !section && (
+                        <p className="fine">
+                          <a href="/papers/brownian-motion/s4/#bm-gaussian-derivation">
+                            Follow the Gaussian density through normalization to mean square and RMS
+                          </a>
+                        </p>
+                      )}
                       {a.id === "arg-bm-inference" &&
                         (section ? (
                           <LazyBrownianInferenceDerivation />
                         ) : (
                           <p className="fine">
                             <a href="/papers/brownian-motion/s5/#bm-molecular-number-derivation">
-                              Follow the conditional steps from observed spread to a molecular-number estimate
+                              Follow the conditional steps from observed spread to a
+                              molecular-number estimate
                             </a>
                           </p>
                         ))}
