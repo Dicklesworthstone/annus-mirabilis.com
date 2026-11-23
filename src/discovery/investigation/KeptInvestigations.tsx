@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { INVESTIGATION_KEYS } from "../../platform/storage/keys.ts";
+import { CHAPTER_INVESTIGATION_KEYS, INVESTIGATION_KEYS } from "../../platform/storage/keys.ts";
 import { createStorageContext } from "../../platform/storage/store.ts";
+import { CHAPTER_INVESTIGATIONS } from "./chapterTasks.ts";
 import {
   exportInvestigationHtml,
   exportInvestigationJson,
   type InvestigationReport,
+  type InvestigationSpec,
 } from "./core.ts";
 import { type InvestigationReadStatus, readStoredInvestigation } from "./persistence.ts";
 import { INVESTIGATIONS } from "./specs.ts";
@@ -20,14 +22,43 @@ const PAPER_NAMES: Readonly<Record<Paper, string>> = {
   "special-relativity": "Special relativity",
   "mass-energy": "Mass and energy",
 };
-type KeptInvestigation = Readonly<{
+type PublishedInvestigation = Readonly<{
+  id: string;
   paper: Paper;
-  status: InvestigationReadStatus;
-  report?: InvestigationReport;
+  title: string;
+  spec: InvestigationSpec;
+  href: string;
+  revisitHref?: string;
 }>;
+const PUBLISHED: readonly PublishedInvestigation[] = [
+  ...PAPERS.map((paper) => ({
+    id: paper,
+    paper,
+    title: PAPER_NAMES[paper],
+    spec: INVESTIGATIONS[paper],
+    href: `/discover/${paper}/#${INVESTIGATIONS[paper].promptId}`,
+  })),
+  ...CHAPTER_INVESTIGATIONS.map((chapter) => ({
+    id: chapter.id,
+    paper: chapter.paper,
+    title: `${PAPER_NAMES[chapter.paper]}: ${chapter.title}`,
+    spec: chapter.spec,
+    href: `/papers/${chapter.paper}/${chapter.section}/#${chapter.id}`,
+    revisitHref: `/papers/${chapter.paper}/${chapter.section}/#${chapter.id}-revisit`,
+  })),
+];
+const STORAGE_KEYS = new Set<string>([
+  ...Object.values(INVESTIGATION_KEYS),
+  ...Object.values(CHAPTER_INVESTIGATION_KEYS),
+]);
+type KeptInvestigation = PublishedInvestigation &
+  Readonly<{
+    status: InvestigationReadStatus;
+    report?: InvestigationReport;
+  }>;
 
 /**
- * A view of the discovery pages' existing records, not another notebook or a migration.
+ * A view of the discovery and chapter records, not another notebook or a migration.
  * Only the browser reads them. Parsed reader text is rendered as text; return links come
  * from the published specifications rather than a location inside a stored report.
  */
@@ -41,28 +72,28 @@ export function KeptInvestigations() {
     const urls = downloads.current;
     function read() {
       setEntries(
-        PAPERS.map((paper): KeptInvestigation => {
-          const kept = readStoredInvestigation(paper, ctx);
+        PUBLISHED.map((published): KeptInvestigation => {
+          const kept = readStoredInvestigation(published.id, ctx);
           const report = kept.report;
-          const spec = INVESTIGATIONS[paper];
+          const { spec } = published;
           // Match the provider's restore boundary. An otherwise valid record placed under the
           // wrong key must not appear as this paper's work or get a misleading return link.
           if (
             kept.status === "ok" &&
             (!report ||
-              report.paper !== paper ||
+              report.paper !== spec.paper ||
               report.experimentId !== spec.experimentId ||
               report.promptId !== spec.promptId)
           ) {
-            return { paper, status: "unreadable" };
+            return { ...published, status: "unreadable" };
           }
-          return { paper, ...kept };
+          return { ...published, ...kept };
         }),
       );
     }
     read();
     function changed(event: StorageEvent) {
-      if (event.key === null || PAPERS.some((paper) => INVESTIGATION_KEYS[paper] === event.key)) {
+      if (event.key === null || STORAGE_KEYS.has(event.key)) {
         read();
       }
     }
@@ -77,7 +108,7 @@ export function KeptInvestigations() {
     };
   }, []);
 
-  function download(paper: Paper, report: InvestigationReport, printable: boolean) {
+  function download(id: string, report: InvestigationReport, printable: boolean) {
     let url: string | undefined;
     try {
       const text = printable ? exportInvestigationHtml(report) : exportInvestigationJson(report);
@@ -88,7 +119,7 @@ export function KeptInvestigations() {
       );
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${paper}-investigation.${printable ? "html" : "json"}`;
+      link.download = `${id}-investigation.${printable ? "html" : "json"}`;
       link.hidden = true;
       document.body.append(link);
       try {
@@ -125,22 +156,20 @@ export function KeptInvestigations() {
     >
       <h2 id="kept-investigations-title">Your discovery investigations</h2>
       <p>
-        Return to a prediction you pinned beside a discovery laboratory, compare its saved readings,
-        and finish your explanation. These investigations stay in this browser.
+        Return to a prediction you pinned in a chapter or discovery journey, compare its saved
+        readings, and finish your explanation. These investigations stay in this browser.
       </p>
       <details data-investigation-import-help="">
         <summary>Open a downloaded investigation on this device</summary>
         <p>
-          Choose its discovery journey below, open the prediction and comparison controls, then
-          choose <strong>Open an investigation JSON file</strong>. You can review the file before
-          opening it. Existing work is kept until you explicitly choose to replace it.
+          Choose its chapter task or discovery journey below, open the prediction and comparison
+          controls, then choose <strong>Open an investigation JSON file</strong>. You can review the
+          file before opening it. Existing work is kept until you explicitly choose to replace it.
         </p>
         <ul>
-          {PAPERS.map((paper) => (
-            <li key={paper}>
-              <a href={`/discover/${paper}/#${INVESTIGATIONS[paper].promptId}`}>
-                {PAPER_NAMES[paper]}
-              </a>
+          {PUBLISHED.map(({ id, title, href }) => (
+            <li key={id}>
+              <a href={href}>{title}</a>
             </li>
           ))}
         </ul>
@@ -148,8 +177,8 @@ export function KeptInvestigations() {
       {entries?.some((entry) => entry.status === "unavailable") && (
         <p className="notice">
           Saved investigations are unavailable because browser storage is blocked or unavailable.
-          The discovery journeys still work. If a journey is keeping work only on its open page,
-          download it there before leaving.
+          The chapter tasks and discovery journeys still work. If an investigation is keeping work
+          only on its open page, download it there before leaving.
         </p>
       )}
       {entries?.some((entry) => entry.status === "unreadable") && (
@@ -165,15 +194,15 @@ export function KeptInvestigations() {
           prediction beside its laboratory to begin.
         </p>
       )}
-      {entries?.map(({ paper, report }) =>
+      {entries?.map(({ id, title, spec, href, revisitHref, report }) =>
         report ? (
           <article
             className="investigation-reading"
-            key={paper}
-            aria-labelledby={`kept-investigation-${paper}`}
-            data-kept-investigation={paper}
+            key={id}
+            aria-labelledby={`kept-investigation-${id}`}
+            data-kept-investigation={id}
           >
-            <h3 id={`kept-investigation-${paper}`}>{PAPER_NAMES[paper]}</h3>
+            <h3 id={`kept-investigation-${id}`}>{title}</h3>
             <p>{report.task.task}</p>
             <h4>Your pinned prediction</h4>
             <p className="investigation-words" data-kept-prediction="">
@@ -190,14 +219,13 @@ export function KeptInvestigations() {
               These are saved model calculations.
             </p>
             <div className="actions">
-              <a href={`/discover/${paper}/#${INVESTIGATIONS[paper].promptId}`}>
-                Reopen this investigation
-              </a>
-              <a href={INVESTIGATIONS[paper].sourceHref}>Read the source argument</a>
-              <button type="button" onClick={() => download(paper, report, false)}>
+              <a href={href}>Reopen this investigation</a>
+              {revisitHref && <a href={revisitHref}>Revisit your earlier prediction</a>}
+              <a href={spec.sourceHref}>Read the source argument</a>
+              <button type="button" onClick={() => download(id, report, false)}>
                 Download investigation JSON
               </button>
-              <button type="button" onClick={() => download(paper, report, true)}>
+              <button type="button" onClick={() => download(id, report, true)}>
                 Download printable investigation
               </button>
             </div>

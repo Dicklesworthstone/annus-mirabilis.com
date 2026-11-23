@@ -1,6 +1,7 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { useInvestigationWitness } from "../../../discovery/investigation/context.tsx";
 import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -177,6 +178,7 @@ export function ElectronDynamicsLab({
    * message still belonged to the previous settings.
    */
   const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
+  useInvestigationWitness("sr-13", session, example.sourceDigest, error.length > 0);
   function refuse(raised: RequestRefusal, sentence: string) {
     setError(sentence);
     setRefusal(raised);

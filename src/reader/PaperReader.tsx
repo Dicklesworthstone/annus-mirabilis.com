@@ -36,6 +36,7 @@ import {
 } from "./lazyIslands.tsx";
 import { loadPaperMargins } from "./marginRecords.ts";
 import { PaperMargins } from "./PaperMargins.tsx";
+import { PaperChapterInvestigation } from "./PaperChapterInvestigation.tsx";
 import "./actions/kindRegistration.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
@@ -641,6 +642,7 @@ export async function PaperReader({
                   </article>
                 ))}
               {s.id === "s5" && <BrownianChapterPractice />}
+              <PaperChapterInvestigation paper={paper.id} section={s.id} />
               {/* Where a walkthrough of this section exists, the way to it (am-2rl9). Renders
                   nothing on the sections that have none, which is most of them. */}
               <SectionTapes paperId={paper.id} sectionId={s.id} sectionTitle={s.title} />

@@ -1,6 +1,7 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
+import { useInvestigationWitness } from "../../discovery/investigation/context.tsx";
 import { readTypedNumber } from "../../experiments/controls/typedNumber.ts";
 import { CurrencyForView } from "../../experiments/labels/CurrencyForView.tsx";
 import {
@@ -174,6 +175,7 @@ export function MagnetConductorLab({
    */
   const [refusal, setRefusal] = useState<RequestRefusal | null>(null);
   const [linkNote, setLinkNote] = useState("");
+  useInvestigationWitness("sr-02", session, example.sourceDigest, error.length > 0);
   useEffect(() => {
     setReady(true);
   }, []);

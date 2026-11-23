@@ -13,7 +13,7 @@
  * writes follow `begin`, `capture` and `explain`.
  */
 
-import { INVESTIGATION_KEYS } from "../../platform/storage/keys.ts";
+import { CHAPTER_INVESTIGATION_KEYS, INVESTIGATION_KEYS } from "../../platform/storage/keys.ts";
 import {
   createMigrationChain,
   type MigrationChain,
@@ -83,8 +83,12 @@ function readDurableInvestigation(ctx: StorageContext, key: string): DurableInve
  * namespace, which is the one-owner-per-key rule the registry exists to keep.
  */
 export function investigationKey(paper: string, ctx: StorageContext): string | undefined {
-  if (!Object.hasOwn(INVESTIGATION_KEYS, paper)) return undefined;
-  const key = INVESTIGATION_KEYS[paper as keyof typeof INVESTIGATION_KEYS];
+  const key = Object.hasOwn(INVESTIGATION_KEYS, paper)
+    ? INVESTIGATION_KEYS[paper as keyof typeof INVESTIGATION_KEYS]
+    : Object.hasOwn(CHAPTER_INVESTIGATION_KEYS, paper)
+      ? CHAPTER_INVESTIGATION_KEYS[paper as keyof typeof CHAPTER_INVESTIGATION_KEYS]
+      : undefined;
+  if (!key) return undefined;
   const registration = ctx.registry.get(key);
   if (registration?.kind !== "document" || registration.ownerBeadId !== INVESTIGATION_KEY_OWNER)
     return undefined;

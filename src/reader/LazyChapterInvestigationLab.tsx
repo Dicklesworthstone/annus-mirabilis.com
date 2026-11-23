@@ -3,11 +3,18 @@
 import { type ComponentType, useEffect, useRef, useState } from "react";
 
 const LOADERS = {
-  "light-quanta": () => import("./InlinePhotoelectricInvestigation.tsx"),
-  "special-relativity": () => import("./InlineClockInvestigation.tsx"),
-  "mass-energy": () => import("./InlineMassEnergyInvestigation.tsx"),
+  "lq-08": () => import("./InlinePhotoelectricInvestigation.tsx"),
+  "sr-05": () => import("./InlineClockInvestigation.tsx"),
+  "me-03": () => import("./InlineMassEnergyInvestigation.tsx"),
+  "bm-04": () => import("./InlineDriftInvestigation.tsx"),
+  "sr-02": () => import("./InlineMagnetInvestigation.tsx"),
+  "sr-13": () => import("./InlineElectronInvestigation.tsx"),
 };
-export type ChapterInvestigationPaper = keyof typeof LOADERS;
+export type ChapterInvestigationPaper =
+  | "light-quanta"
+  | "brownian-motion"
+  | "special-relativity"
+  | "mass-energy";
 
 /**
  * A native disclosure always contains the standalone lab link. Even a direct laboratory hash
@@ -15,7 +22,6 @@ export type ChapterInvestigationPaper = keyof typeof LOADERS;
  * Once loaded, the owner stays mounted through closing, reopening and reader history changes.
  */
 export function LazyChapterInvestigationLab({
-  paper,
   laboratoryAnchor,
   promptId,
   instrumentId,
@@ -24,7 +30,7 @@ export function LazyChapterInvestigationLab({
   paper: ChapterInvestigationPaper;
   laboratoryAnchor: string;
   promptId: string;
-  instrumentId: string;
+  instrumentId: keyof typeof LOADERS;
   label: string;
 }) {
   const disclosure = useRef<HTMLDetailsElement>(null);
@@ -70,7 +76,7 @@ export function LazyChapterInvestigationLab({
     if (!requested) return;
     let active = true;
     setFailed(false);
-    void LOADERS[paper]().then(
+    void LOADERS[instrumentId]().then(
       (module) => {
         if (active) setLab(() => module.default);
       },
@@ -81,7 +87,7 @@ export function LazyChapterInvestigationLab({
     return () => {
       active = false;
     };
-  }, [paper, requested]);
+  }, [instrumentId, requested]);
 
   return (
     <details

@@ -32,9 +32,12 @@ function keepStatus(result: InvestigationKeepResult): InvestigationKeepStatus {
 /** One private teaching lifetime per route. Children remain the existing server-rendered edition. */
 export function DiscoveryInvestigationProvider({
   spec,
+  storageId = spec.paper,
   children,
 }: {
   spec: InvestigationSpec;
+  /** Original tasks keep their paper key; additional chapters use a registered prompt ID. */
+  storageId?: string;
   children: ReactNode;
 }) {
   const [core] = useState(() => createInvestigationStore(spec));
@@ -82,7 +85,7 @@ export function DiscoveryInvestigationProvider({
    * back does not immediately write it out again.
    */
   useEffect(() => {
-    if (!persistence.current) persistence.current = createInvestigationPersistence(spec.paper);
+    if (!persistence.current) persistence.current = createInvestigationPersistence(storageId);
     const saved = persistence.current;
     const read = saved.initial;
     let last = store.getSnapshot().report;
@@ -117,7 +120,7 @@ export function DiscoveryInvestigationProvider({
       unsubscribe();
       window.removeEventListener("storage", changed);
     };
-  }, [store, spec.paper]);
+  }, [store, storageId]);
   return (
     <InvestigationContext.Provider value={store}>
       <KeepStatusContext.Provider value={keep}>{children}</KeepStatusContext.Provider>
@@ -132,12 +135,21 @@ export function useInvestigationWitness(
   experimentId: string,
   session: InvestigationSource,
   sourceDigest: string,
+  validationFailed = false,
 ): void {
   const store = useDiscoveryInvestigation();
   useEffect(() => {
     if (!store || store.spec.experimentId !== experimentId) return;
-    return store.connect(session, sourceDigest);
-  }, [store, experimentId, session, sourceDigest]);
+    // A form can refuse an edit before the session sees it. Keep the lab's accepted snapshot,
+    // but never capture that old reading as evidence for the refused change.
+    const source: InvestigationSource = validationFailed
+      ? {
+          getSnapshot: () => ({ status: "refused", pending: false }),
+          subscribe: (listener) => session.subscribe(listener),
+        }
+      : session;
+    return store.connect(source, sourceDigest);
+  }, [store, experimentId, session, sourceDigest, validationFailed]);
 }
 
 /** A same-page round trip between the existing controls and the reader's private investigation. */

@@ -1,6 +1,7 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
+import { useInvestigationWitness } from "../../discovery/investigation/context.tsx";
 import { createBm04BrowserChannel } from "../../experiments/bm04/browser.ts";
 import { BM04_FIELDS, fromBm04Draft, toBm04Draft } from "../../experiments/bm04/controls.ts";
 import { bm04DataCsv } from "../../experiments/bm04/dataExport.ts";
@@ -94,6 +95,7 @@ export function DriftDiffusionLab({
   const gate = usePredictGate("bm-04", BM04_PROMPTS);
   const [comparison, setComparison] = useState<ForceComparison | null>(null);
   const [exportNote, setExportNote] = useState("");
+  useInvestigationWitness("bm-04", session, example.sourceDigest, failure !== null);
 
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
   const tapeLink = useDraftTapeLink(BM04_DRAFT_TAPE, p, restoreFromLocation, (settings) => {

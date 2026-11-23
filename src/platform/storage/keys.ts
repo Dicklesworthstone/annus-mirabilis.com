@@ -211,6 +211,19 @@ export const INVESTIGATION_KEYS = Object.freeze({
   "special-relativity": "am:investigations:v1:special-relativity",
   "mass-energy": "am:investigations:v1:mass-energy",
 });
+/** Chapter tasks have separate slots, so another task never replaces a journey's saved work. */
+export const CHAPTER_INVESTIGATION_KEYS = Object.freeze({
+  "ppe-brownian-motion-s0-s3": "am:investigations:v1:ppe-brownian-motion-s0-s3",
+  "ppe-special-relativity-s6": "am:investigations:v1:ppe-special-relativity-s6",
+  "ppe-special-relativity-s9-s10": "am:investigations:v1:ppe-special-relativity-s9-s10",
+});
+const CHAPTER_INVESTIGATION_NAMES: Readonly<
+  Record<keyof typeof CHAPTER_INVESTIGATION_KEYS, string>
+> = {
+  "ppe-brownian-motion-s0-s3": "Brownian motion: molecular kicks and a concentration gradient",
+  "ppe-special-relativity-s6": "Special relativity: magnet and conductor",
+  "ppe-special-relativity-s9-s10": "Special relativity: two transverse masses",
+};
 /** Each paper by the name the rest of the site uses, for the label /your-data/ shows. */
 const DISCOVERY_PAPER_NAMES: Readonly<Record<keyof typeof DISCOVERY_NOTE_KEYS, string>> = {
   "light-quanta": "Light quanta",
@@ -351,6 +364,17 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
       `Discovery investigation: ${DISCOVERY_PAPER_NAMES[paper]}`,
       { maxBytes: 300_000 },
     ),
+  ),
+
+  ...(Object.keys(CHAPTER_INVESTIGATION_KEYS) as (keyof typeof CHAPTER_INVESTIGATION_KEYS)[]).map(
+    (prompt) =>
+      document_(
+        CHAPTER_INVESTIGATION_KEYS[prompt],
+        "am-rc1001-bridge-plan-pcjk.27",
+        1,
+        `Chapter investigation: ${CHAPTER_INVESTIGATION_NAMES[prompt]}`,
+        { maxBytes: 300_000 },
+      ),
   ),
 
   // Documents.

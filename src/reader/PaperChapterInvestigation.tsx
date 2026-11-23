@@ -1,3 +1,4 @@
+import { chapterInvestigationAt } from "../discovery/investigation/chapterTasks.ts";
 import { DiscoveryInvestigationProvider } from "../discovery/investigation/context.tsx";
 import { INVESTIGATIONS } from "../discovery/investigation/specs.ts";
 import { PPE_EXPLANATION as LIGHT_EXPLANATION } from "../discovery/lightQuanta/journeyExercises.ts";
@@ -7,6 +8,7 @@ import { MASS_GIVEN_UP_EXERCISE } from "../discovery/massEnergy/massExercise.ts"
 import { PpeTask } from "../discovery/PpeTask.tsx";
 import { PPE_EXPLANATION as CLOCK_EXPLANATION } from "../discovery/relativity/journeyExercises.ts";
 import { PPE_TASK as CLOCK_TASK } from "../discovery/relativity/journeyIII.ts";
+import { AdditionalChapterInvestigation } from "./AdditionalChapterInvestigation.tsx";
 import { LazyChapterInvestigationLab } from "./LazyChapterInvestigationLab.tsx";
 
 const CHAPTERS = {
@@ -32,6 +34,8 @@ const CHAPTERS = {
 
 /** A placement of the journey's task and store, never another copy of either. */
 export function PaperChapterInvestigation({ paper, section }: { paper: string; section: string }) {
+  const additional = chapterInvestigationAt(paper, section);
+  if (additional) return <AdditionalChapterInvestigation chapter={additional} />;
   if (paper !== "light-quanta" && paper !== "special-relativity" && paper !== "mass-energy")
     return null;
   const chapter = CHAPTERS[paper];
