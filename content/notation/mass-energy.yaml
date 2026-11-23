@@ -281,7 +281,26 @@ entries:
             value: 1
           right:
             kind: root
-            terms: ["speedOfLight", "frameSpeed"]
+            degree: 2
+            radicand:
+              kind: subtract
+              left:
+                kind: number
+                value: 1
+              right:
+                kind: divide
+                left:
+                  kind: power
+                  base:
+                    kind: term
+                    terms: ["frameSpeed"]
+                  exponent: 2
+                right:
+                  kind: power
+                  base:
+                    kind: term
+                    terms: ["speedOfLight"]
+                  exponent: 2
         modernGlyph: "\\gamma"
     collision:
       severity: caution
@@ -700,7 +719,15 @@ entries:
     operation:
       kind: rename
       target:
-        form: symbol
+        form: group
+        pattern:
+          kind: subtract
+          left:
+            kind: term
+            terms: ["kineticEnergyBefore"]
+          right:
+            kind: term
+            terms: ["kineticEnergyAfter"]
         modernGlyph: "\\Delta K"
     sources:
       facsimilePage: 641

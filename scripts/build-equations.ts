@@ -220,6 +220,9 @@ const sourcePaths = [
   "src/equations/latex.ts",
   "src/equations/latex/render.ts",
   "src/equations/notationForms.ts",
+  "src/equations/notationGroups.ts",
+  "src/equations/latex/types.ts",
+  "src/reader/navigation/state.ts",
   "src/equations/notationNoteTarget.ts",
   // Every paper whose records are drawn in Einstein's letters reads its concordance.
   ...NOTATION_TOGGLE_PAPERS.map((paper) => `content/notation/${paper}.yaml`),
@@ -228,6 +231,7 @@ const sourcePaths = [
   "src/equations/dimensions.ts",
   "src/equations/quantities.ts",
   "src/equations/massEnergyQuantities.ts",
+  "src/equations/lightQuantaQuantities.ts",
   "src/equations/teachingProfiles.ts",
   "src/equations/quantityColours.ts",
   "src/experiments/bm01/definition.ts",

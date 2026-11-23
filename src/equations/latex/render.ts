@@ -46,6 +46,9 @@ function isAtomicSymbol(
   n: Extract<Expression, { kind: "symbol" }>,
   options: RenderLatexOptions,
 ): boolean {
+  // Compound forms are already enclosed as a whole, so a following power needs no second pair.
+  if (options.symbolExpressions?.[n.quantityId])
+    return !n.scale || (n.scale.num === 1 && n.scale.den === 1);
   const glyph = componentGlyph(n, options) ?? resolveSymbolGlyph(n, options).glyph;
   return (
     (!n.scale || (n.scale.num === 1 && n.scale.den === 1)) &&
@@ -90,7 +93,14 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
       case "symbol": {
         const resolved = resolveSymbolGlyph(n, options);
         const component = componentGlyph(n, options);
-        s = component ?? resolved.glyph;
+        const expression = options.symbolExpressions?.[n.quantityId];
+        s = expression
+          ? `\\left(${renderLatex(expression.tree, {
+              registry: expression.registry,
+              strictConcordance: false,
+              marked: false,
+            })}\\right)`
+          : component ?? resolved.glyph;
         // A component or instance label is part of the term, inside its colour: E_y, t_0. A glyph
         // that already carries a subscript is braced first, so the label never doubles one. A
         // component letter already names its component, so it takes no label.
@@ -356,7 +366,8 @@ function isRenderLatexOptions(
     "equationId" in obj ||
     "concordance" in obj ||
     "alternateForm" in obj ||
-    "componentGlyphs" in obj
+    "componentGlyphs" in obj ||
+    "symbolExpressions" in obj
   );
 }
 

@@ -3,6 +3,7 @@ import { renderToString } from "katex";
 import type { ConcordanceEntry } from "../content/schemas/concordance.ts";
 import { canonical, quantityBindings } from "./ast.ts";
 import { expressionLatex } from "./latex.ts";
+import type { SymbolExpression } from "./latex/types.ts";
 import { navigationTree } from "./navigation.ts";
 import { type PrintedForm, printedForm } from "./notationForms.ts";
 import type { NotationNoteTarget } from "./notationNoteTarget.ts";
@@ -67,11 +68,16 @@ function compile(input: EquationRecord, notation: NotationContext | undefined): 
   const printed = recordQuantities(quantities, eq.printedGlyphs);
   // An authored layout (rowLayout.ts: "rows", "break", "terms") sets the formula on aligned rows;
   // without one, one line. The parser has already refused a layout the tree cannot take.
-  const latexWith = (table: QuantityRegistry, components: Readonly<Record<string, string>>) => {
+  const latexWith = (
+    table: QuantityRegistry,
+    components: Readonly<Record<string, string>>,
+    expressions: Readonly<Record<string, SymbolExpression>> = {},
+  ) => {
     const one = (e: typeof eq.tree, marked: boolean) =>
       expressionLatex(e, {
         registry: table,
         componentGlyphs: components,
+        symbolExpressions: expressions,
         marked,
         strictConcordance: false,
       });
@@ -117,13 +123,17 @@ function compile(input: EquationRecord, notation: NotationContext | undefined): 
     if (letters.length === 0 && components.length === 0) return undefined;
     const drawn = draw(
       latexWith(
-        recordQuantities(printed, Object.fromEntries(letters.map(([q, l]) => [q, l.latex]))),
+        recordQuantities(
+          printed,
+          Object.fromEntries(letters.filter(([, l]) => !l.expression).map(([q, l]) => [q, l.latex])),
+        ),
         Object.fromEntries(components.map(([k, l]) => [k, l.latex])),
+        Object.fromEntries(letters.flatMap(([q, l]) => (l.expression ? [[q, l.expression]] : []))),
       ),
     );
     // The sentence names a letter the way the formula prints it; a phrase ("the Lorentz factor")
     // names no letter and stays.
-    const letterOf = new Map(letters.map(([q, l]) => [q, l.latex]));
+    const letterOf = new Map(letters.map(([q, l]) => [q, l]));
     const sentence = eq.sentence.map((f) => {
       const quantityId = f.nodeId
         ? bindings.find((b) => b.termId === f.nodeId)?.quantityId
@@ -131,12 +141,24 @@ function compile(input: EquationRecord, notation: NotationContext | undefined): 
       const modern = quantityId ? printed[quantityId]?.glyph : undefined;
       const einstein = quantityId ? letterOf.get(quantityId) : undefined;
       return modern !== undefined && einstein !== undefined && f.text === spoken(modern)
-        ? { ...f, text: spoken(einstein) }
+        ? { ...f, text: einstein.expression ? einstein.unicode : spoken(einstein.latex) }
         : f;
     });
     // One legend glyph per quantity: its letter, or the letters of the components Einstein
     // printed separately (Y, N).
-    const legendLetters = new Map<string, string[]>(letters.map(([q, l]) => [q, [l.latex]]));
+    const legendLetters = new Map<string, string[]>(
+      letters.map(([q, l]) => [
+        q,
+        [
+          l.expression
+            ? expressionLatex(l.expression.tree, {
+                registry: l.expression.registry,
+                strictConcordance: false,
+              })
+            : l.latex,
+        ],
+      ]),
+    );
     for (const [key, l] of components) {
       const quantityId = key.slice(0, key.indexOf("#"));
       legendLetters.set(quantityId, [...(legendLetters.get(quantityId) ?? []), l.latex]);

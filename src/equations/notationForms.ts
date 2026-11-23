@@ -14,10 +14,10 @@
  * - exactly one entry bound to its quantity (and to its component, where Einstein printed one
  *   letter per component: X, Y, Z for the electric force) applies in the section; an entry that
  *   records a printed number for the quantity is its value, not a letter, and is not counted;
- * - that entry is a rename, and its modern letter is the one the record prints;
- * - what Einstein printed is one letter. Where he wrote a factor out (1/sqrt(1 - v^2/V^2) for
- *   gamma in the mass-energy paper) or a difference (K_0 - K_1), putting it in a symbol's place
- *   can drop the brackets its meaning needs;
+ * - that entry is a rename, and its modern target or already printed letter is the record's;
+ * - what Einstein printed is one letter, or an explicit, dimensionally consistent group pattern.
+ *   A group is rendered as a parenthesized expression inside the original term, so a difference
+ *   or radical keeps its meaning in a product, a negation and a power;
  * - its quantity has no electric-current dimension. The records are SI and Einstein's
  *   electrodynamics is Gaussian (section 6 prints Y' = beta(Y - v/V N)), so an SI formula in his
  *   letters would be neither his formula nor ours.
@@ -27,9 +27,17 @@
 import { scopeMatches } from "../content/notation/resolve.ts";
 import type { ConcordanceEntry } from "../content/schemas/concordance.ts";
 import { type Expression, walk } from "./ast.ts";
+import type { SymbolExpression } from "./latex/types.ts";
+import { printedGroup } from "./notationGroups.ts";
 import type { QuantityRegistry } from "./quantities.ts";
 
-type Letter = Readonly<{ latex: string; unicode: string; entryId: string }>;
+type Letter = Readonly<{
+  latex: string;
+  unicode: string;
+  entryId: string;
+  /** A display-only expansion; the semantic term, binding and value remain the record's. */
+  expression?: SymbolExpression;
+}>;
 
 /** Quantity id to the letter Einstein printed for it here; a component label is kept (t_0). */
 export type PrintedLetters = Readonly<Record<string, Letter>>;
@@ -47,6 +55,7 @@ export type UnprintedReason =
   | "not-a-rename"
   | "target-differs"
   | "not-a-letter"
+  | "unsupported-group"
   | "electromagnetic-units";
 
 export type Unprinted = Readonly<{
@@ -82,9 +91,10 @@ function modernTarget(entry: ConcordanceEntry): string | undefined {
   return undefined;
 }
 
-/** E'_{y} and E'_y are one letter: braces around a one-token subscript carry nothing. */
-const sameLetter = (a: string, b: string): boolean =>
-  a.replace(/_\{([^{}]+)\}/g, "_$1") === b.replace(/_\{([^{}]+)\}/g, "_$1");
+/** E'_{y} and E'_y are one letter; E_{ab} and E_ab are not the same subscript. */
+const normalizeLetter = (letter: string): string =>
+  letter.replace(/_\{(\\[A-Za-z]+|[A-Za-z0-9])\}/g, "_$1");
+const sameLetter = (a: string, b: string): boolean => normalizeLetter(a) === normalizeLetter(b);
 
 /**
  * One letter: a Latin letter or a command (\beta, \mathfrak{B}), with primes and at most one
@@ -121,8 +131,19 @@ export function printedForm(
   const components: Record<string, Letter> = {};
   const unprinted: Unprinted[] = [];
   const seen = new Set<string>();
+  const nodes = walk(tree);
+  // Expanding gamma(u) would require an authored substitution for u inside the group. A group
+  // with an index or function argument therefore stays modern, including a later occurrence of
+  // a quantity already visited without that qualification.
+  const qualified = new Set(
+    nodes.flatMap((node) =>
+      node.kind === "symbol" && (node.index !== undefined || node.at || node.args?.length)
+        ? [node.quantityId]
+        : [],
+    ),
+  );
 
-  for (const node of walk(tree)) {
+  for (const node of nodes) {
     if (node.kind !== "symbol") continue;
     const { quantityId, index } = node;
     const key = index === undefined ? quantityId : componentKey(quantityId, index);
@@ -145,6 +166,9 @@ export function printedForm(
       (e) =>
         "quantityId" in e.binding &&
         e.binding.quantityId === quantityId &&
+        // A scaled printed quantity (L/2) is not another name for the whole quantity (L).
+        // A scale on the AST node is already applied by the renderer and must not be doubled.
+        (!e.binding.scale || (e.binding.scale.num === 1 && e.binding.scale.den === 1)) &&
         !printsValue(e) &&
         scopeMatches(e.scope, section, section),
     );
@@ -152,7 +176,16 @@ export function printedForm(
     // (t_0, a summation index) sits on the quantity's own letter, so the unindexed entry applies.
     const component = index === undefined ? [] : here.filter((e) => indexOf(e) === index);
     const asComponent = component.length > 0;
-    const candidates = asComponent ? component : here.filter((e) => indexOf(e) === undefined);
+    const possible = asComponent ? component : here.filter((e) => indexOf(e) === undefined);
+    const modern = asComponent ? `${quantity.glyph}_{${index}}` : quantity.glyph;
+    // E and E_0 can name the same quantity in one section. The record's exact target decides
+    // which rename is applicable, only AFTER quantity, component, scale and scope have matched.
+    // Two entries with that same target are still ambiguous; a glyph never identifies a quantity.
+    const matching = possible.filter((e) => {
+      const target = modernTarget(e);
+      return (target !== undefined && sameLetter(target, modern)) || sameLetter(e.glyph.latex, modern);
+    });
+    const candidates = possible.length > 1 && matching.length > 0 ? matching : possible;
     if (candidates.length === 0) {
       refuse("no-entry");
       continue;
@@ -167,17 +200,31 @@ export function printedForm(
       refuse("not-a-rename");
       continue;
     }
-    const modern = asComponent ? `${quantity.glyph}_{${index}}` : quantity.glyph;
-    if (!sameLetter(target, modern)) {
+    if (!sameLetter(target, modern) && !sameLetter(entry.glyph.latex, modern)) {
       refuse("target-differs");
       continue;
     }
-    if (entry.glyph.latex === modern) continue;
+    if (sameLetter(entry.glyph.latex, modern)) continue;
+    let expression: SymbolExpression | undefined;
     if (!LETTER.test(entry.glyph.latex)) {
-      refuse("not-a-letter");
-      continue;
+      if (entry.operation.kind !== "rename" || entry.operation.target.form !== "group") {
+        refuse("not-a-letter");
+        continue;
+      }
+      expression = qualified.has(quantityId)
+        ? undefined
+        : printedGroup(entry, table, entries, section, (glyph) => LETTER.test(glyph));
+      if (!expression) {
+        refuse("unsupported-group");
+        continue;
+      }
     }
-    const letter = { latex: entry.glyph.latex, unicode: entry.glyph.unicode, entryId: entry.id };
+    const letter: Letter = {
+      latex: entry.glyph.latex,
+      unicode: entry.glyph.unicode,
+      entryId: entry.id,
+      ...(expression ? { expression } : {}),
+    };
     if (asComponent) components[key] = letter;
     else letters[quantityId] = letter;
   }

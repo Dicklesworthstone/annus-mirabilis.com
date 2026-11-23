@@ -11,6 +11,9 @@ import type { QuantityRegistry } from "../quantities.ts";
 export type RenderPerspective = "source" | "modern";
 export type RenderMode = "plain" | "colorized";
 
+/** A display-only group for one bound symbol; its inner nodes never acquire selectable ids. */
+export type SymbolExpression = Readonly<{ tree: Expression; registry: QuantityRegistry }>;
+
 export interface RenderLatexOptions {
   /**
    * Perspective: 'source' (printed 1905 notation) or 'modern' (concordance renames).
@@ -33,6 +36,11 @@ export interface RenderLatexOptions {
    * (src/equations/notationForms.ts). A symbol not named here draws as before.
    */
   readonly componentGlyphs?: Readonly<Record<string, string>> | undefined;
+  /**
+   * Exact quantity id to an authored compound form. Rendered within parentheses and owned by
+   * the original term marker, never spliced into the semantic tree or used for numeric binding.
+   */
+  readonly symbolExpressions?: Readonly<Record<string, SymbolExpression>> | undefined;
 
   /**
    * Optional alternate form to render (e.g. unit-conversion or modernization).
