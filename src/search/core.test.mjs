@@ -225,3 +225,94 @@ test("documents are detached and frozen before building the index", () => {
   assert.equal(engine.search("tampered").length, 0);
   assert.ok(Object.isFrozen(engine.search("diffusion")[0].document));
 });
+
+
+// Mathematical text copied from a page and typed with ordinary keys should find the same passage.
+for (const [name, forms] of [
+  ["Latin powers", ["x²", "x^2", "x^{2}"]],
+  ["signed powers", ["v⁻²", "v^-2", "v^{−2}"]],
+  ["symbolic powers", ["xⁿ", "x^n"]],
+  ["numeric subscripts", ["x₂", "x_2", "x_{2}"]],
+  ["energy subscripts", ["E₀", "E_0"]],
+  ["letter subscripts", ["xₙ", "x_n"]],
+  ["modifier-letter subscripts", ["aᵢ", "a_i"]],
+  ["signed subscripts", ["v₋₁", "v_{-1}"]],
+  ["signed values", ["−0.6", "-0.6", "−.6", "-.6"]],
+  ["leading decimal point", [".6", "0.6"]],
+  ["leading decimal scientific notation", [".6e-2", "0.006"]],
+  ["negative scientific exponents", ["8 × 10^−5", "8e-5", "0.00008", "8·10⁻⁵"]],
+  ["negative coefficients", ["−8·10⁻⁵", "-8e-5"]],
+  ["Greek mu", ["μ", "mu", "\\mu"]],
+  ["indexed mu is a symbol", ["1μᵢ", "1\\mu_i"]],
+  ["squared mu is a symbol", ["1μ²", "1\\mu^2"]],
+]) {
+  test(name, () => {
+    for (const form of forms) {
+      assert.equal(normalizeSearchText(form), normalizeSearchText(forms[0]), form);
+    }
+  });
+}
+
+const scientificDoc = (id, text, patch = {}) => ({
+  id,
+  text,
+  title: "Scientific notation example",
+  type: "equation",
+  paper: "special-relativity",
+  section: "s4",
+  lang: "en",
+  terms: [],
+  route: "/papers/special-relativity/",
+  anchor: id,
+  face: "reading",
+  scopeLabel: "Authored test example",
+  ...patch,
+});
+
+test("copied and typed formulas reach the same unchanged source excerpt", () => {
+  for (const [query, source] of [
+    ["x^2", "The second moment is written x²."],
+    ["E_0", "The initial energy is E₀."],
+    ["x_n", "The selected position is xₙ."],
+    ["-0.6", "The observer has signed speed −0.6 c."],
+    ["8e-5", "The printed distance is 8 × 10^−5 cm."],
+  ]) {
+    const engine = createSearchEngine([scientificDoc("example", source)]);
+    for (const form of [query, '"' + query + '"']) {
+      const hits = engine.search(form);
+      assert.deepEqual(hits.map((hit) => hit.document.id), ["example"], form);
+      assert.equal(hits[0].snippet, source);
+    }
+  }
+});
+
+test("a negative value or exponent never matches its positive counterpart", () => {
+  const engine = createSearchEngine([
+    scientificDoc("negative-speed", "−0.6"),
+    scientificDoc("positive-speed", "0.6"),
+    scientificDoc("small-distance", "8 × 10^−5"),
+    scientificDoc("large-distance", "8 × 10^5"),
+  ]);
+  for (const [query, target] of [
+    ["-0.6", "negative-speed"],
+    ["−0.6", "negative-speed"],
+    ["8e-5", "small-distance"],
+    ["8 × 10^−5", "small-distance"],
+  ]) {
+    assert.deepEqual(engine.search(query).map((hit) => hit.document.id), [target]);
+  }
+});
+
+test("mu remains a symbol while the historical numeric micro mark still means micrometres", () => {
+  const engine = createSearchEngine([
+    scientificDoc("symbol", "The coefficient is μ.", { terms: ["μ"] }),
+    scientificDoc("distance", "The displacement is 0,8 Mikron."),
+  ]);
+  for (const query of ["mu", "μ", "\\mu"]) {
+    assert.deepEqual(engine.search(query).map((hit) => hit.document.id), ["symbol"]);
+  }
+  for (const query of ["0.8 µ", "0.8 μ", "0.8 µm", "0.8 μm", "0.8 um"]) {
+    assert.deepEqual(engine.search(query).map((hit) => hit.document.id), ["distance"]);
+  }
+  assert.notEqual(normalizeSearchText("μmass"), normalizeSearchText("micrometre ass"));
+});

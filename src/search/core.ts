@@ -98,8 +98,6 @@ const GREEK: Readonly<Record<string, string>> = Object.freeze({
   ψ: "psi",
   ω: "omega",
 });
-const SUPERSCRIPTS = "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻";
-const DIGITS = "0123456789+-";
 const STOP_WORDS = new Set([
   "the",
   "a",
@@ -145,13 +143,12 @@ function numberToken(source: string): string {
 /** Matching keys only; never use normalized text in a source quotation or visible excerpt. */
 export function normalizeSearchText(input: string): string {
   const text = input
-    .replace(
-      /([0-9])([⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]+)/gu,
-      (_, base: string, power: string) =>
-        `${base}^${Array.from(power, (c) => DIGITS[SUPERSCRIPTS.indexOf(c)]).join("")}`,
-    )
+    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻ⁱⁿ]+/gu, (power) => `^${power.normalize("NFKC")}`)
+    .replace(/[₀-₉₊₋ₐ-ₜᵢ-ᵪ]+/gu, (index) => `_${index.normalize("NFKC")}`)
     .normalize("NFKC")
     .toLowerCase()
+    .replace(/−/gu, "-")
+    .replace(/(?<![\p{L}\p{N}.])([+-]?)\.(?=\d)/gu, (_match, sign) => `${sign}0.`)
     .replace(/\\(?:cdot|times)(?![a-z])/gu, "×")
     .replace(/\\(?:mu|upmu)\b/gu, "μ")
     .replace(/(?<=\d),(?=\d)/gu, ".")
@@ -164,8 +161,10 @@ export function normalizeSearchText(input: string): string {
       /\b(bm|lq|sr|me)[ -]?0?(\d{1,2})\b/gu,
       (_, family: string, n: string) => `${family}${n.padStart(2, "0")}`,
     )
+    // A bare micro mark after a number is the historical length unit; elsewhere μ is a symbol.
+    .replace(/(\d)\s*μ(?![\p{L}\p{N}_^])/gu, "$1 micrometre ")
     .replace(
-      /\b(?:mikron|microns?|micromet(?:er|re)s?|um)\b|μm|μ(?![\p{L}\p{N}])/gu,
+      /\b(?:mikron|microns?|micromet(?:er|re)s?|um)\b|μm(?![\p{L}\p{N}])/gu,
       " micrometre ",
     )
     .replace(/[α-ω]/gu, (symbol) => ` ${GREEK[symbol] ?? symbol} `)
