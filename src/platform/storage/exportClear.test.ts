@@ -133,6 +133,11 @@ describe("exportNamespaces", () => {
       "quota",
     );
 
+    // Ordinary reads retain this visit's latest work; export separately preserves the saved copy.
+    expect(readRaw(ctx, NOTEBOOK.key)).toEqual({
+      status: "ok",
+      value: JSON.stringify({ notes: ["new unsaved observation"] }),
+    });
     const exported = exportNamespaces(ctx);
     expect(exported.namespaces).toEqual([
       { key: NOTEBOOK.key, label: NOTEBOOK.label, value: { notes: ["saved observation"] } },

@@ -9,7 +9,7 @@ import {
   quarantine,
 } from "./quarantine.ts";
 import { createStorageContext } from "./store.ts";
-import { InMemoryStorage } from "./testSupport.ts";
+import { InMemoryStorage, type InMemoryStorageOptions, quotaExceededError } from "./testSupport.ts";
 
 const QUARANTINE_REGISTRATION: DocumentRegistration = {
   key: QUARANTINE_KEY,
@@ -49,6 +49,36 @@ describe("quarantine", () => {
     quarantine(ctx, "a", "raw-a", "reason-a");
     quarantine(ctx, "b", "raw-b", "reason-b");
     expect(listQuarantine(ctx).map((e) => e.originalKey)).toEqual(["a", "b"]);
+  });
+
+  test("quota failures accumulate recovery entries over the saved copy and a retry keeps them all", () => {
+    const failures: InMemoryStorageOptions = {};
+    const storage = new InMemoryStorage(failures);
+    const ctx = createStorageContext({
+      registry: createKeyRegistry([QUARANTINE_REGISTRATION]),
+      getStorage: () => storage,
+    });
+    quarantine(ctx, "saved", "saved bytes", "invalid-json");
+    failures.throwOnSet = quotaExceededError();
+
+    quarantine(ctx, "first unsaved", "first bytes", "invalid-json");
+    quarantine(ctx, "second unsaved", "second bytes", "invalid-json");
+
+    expect(listQuarantine(ctx).map((entry) => entry.originalKey)).toEqual([
+      "saved",
+      "first unsaved",
+      "second unsaved",
+    ]);
+    expect(JSON.parse(storage.rawGet(QUARANTINE_KEY)!).entries).toHaveLength(1);
+
+    delete failures.throwOnSet;
+    quarantine(ctx, "after recovery", "last bytes", "invalid-json");
+    expect(ctx.fallback.has(QUARANTINE_KEY)).toBe(false);
+    expect(
+      JSON.parse(storage.rawGet(QUARANTINE_KEY)!).entries.map(
+        (entry: { originalKey: string }) => entry.originalKey,
+      ),
+    ).toEqual(["saved", "first unsaved", "second unsaved", "after recovery"]);
   });
 
   test("a full quarantine reports full and never discards or overwrites an existing entry", () => {

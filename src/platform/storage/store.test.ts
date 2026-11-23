@@ -11,11 +11,12 @@ import {
   readDocument,
   readRaw,
   readSetting,
+  removeRaw,
   writeDocument,
   writeRaw,
   writeSetting,
 } from "./store.ts";
-import { InMemoryStorage, quotaExceededError } from "./testSupport.ts";
+import { InMemoryStorage, type InMemoryStorageOptions, quotaExceededError } from "./testSupport.ts";
 
 const FIXTURE_SETTING: SettingRegistration = {
   key: `${SETTINGS_KEY_PREFIX}fixture`,
@@ -95,6 +96,59 @@ describe("failure injection: a throwing accessor, a throwing getter, and quota o
     expect(readRaw(ctx, FIXTURE_SETTING.key)).toEqual({ status: "ok", value: "over quota" });
   });
 
+  test("a quota-failed overwrite reads the latest session value instead of the older saved setting", () => {
+    const storage = new InMemoryStorage({ throwOnSet: quotaExceededError() });
+    storage.rawSet(FIXTURE_SETTING.key, "a");
+    const ctx = contextWith(storage);
+
+    expect(writeSetting(ctx, FIXTURE_SETTING.key, "b")).toEqual({ status: "quota" });
+    expect(readSetting(ctx, FIXTURE_SETTING.key)).toEqual({ status: "ok", value: "b" });
+    expect(storage.rawGet(FIXTURE_SETTING.key)).toBe("a");
+  });
+
+  test("recovering storage does not roll back an unsaved update, and a successful retry ends the fallback", () => {
+    const failures: InMemoryStorageOptions = {};
+    const storage = new InMemoryStorage(failures);
+    storage.rawSet(FIXTURE_SETTING.key, "a");
+    const ctx = contextWith(storage);
+    expect(readSetting(ctx, FIXTURE_SETTING.key).value).toBe("a");
+
+    failures.throwOnAnyAccess = new Error("Storage is temporarily blocked.");
+    expect(writeSetting(ctx, FIXTURE_SETTING.key, "b").status).toBe("unavailable");
+    delete failures.throwOnAnyAccess;
+
+    expect(readSetting(ctx, FIXTURE_SETTING.key)).toEqual({ status: "ok", value: "b" });
+    expect(storage.rawGet(FIXTURE_SETTING.key)).toBe("a");
+    expect(writeSetting(ctx, FIXTURE_SETTING.key, "b").status).toBe("ok");
+    expect(ctx.fallback.has(FIXTURE_SETTING.key)).toBe(false);
+    expect(storage.rawGet(FIXTURE_SETTING.key)).toBe("b");
+
+    storage.rawSet(FIXTURE_SETTING.key, "c");
+    expect(readSetting(ctx, FIXTURE_SETTING.key).value).toBe("c");
+  });
+
+  test("a failed empty-string write remains the latest value", () => {
+    const storage = new InMemoryStorage({ throwOnSet: quotaExceededError() });
+    storage.rawSet(FIXTURE_SETTING.key, "older");
+    const ctx = contextWith(storage);
+
+    expect(writeRaw(ctx, FIXTURE_SETTING.key, "").status).toBe("quota");
+    expect(readRaw(ctx, FIXTURE_SETTING.key)).toEqual({ status: "ok", value: "" });
+  });
+
+  test("successful removal clears both the saved value and a newer session value", () => {
+    const storage = new InMemoryStorage({ throwOnSet: quotaExceededError() });
+    storage.rawSet(FIXTURE_SETTING.key, "a");
+    const ctx = contextWith(storage);
+    writeSetting(ctx, FIXTURE_SETTING.key, "b");
+
+    removeRaw(ctx, FIXTURE_SETTING.key);
+
+    expect(storage.rawGet(FIXTURE_SETTING.key)).toBeUndefined();
+    expect(ctx.fallback.has(FIXTURE_SETTING.key)).toBe(false);
+    expect(readRaw(ctx, FIXTURE_SETTING.key)).toEqual({ status: "missing" });
+  });
+
   test("session fallback keeps a setting for the visit when storage is blocked for the whole session", () => {
     const ctx = contextWith(new InMemoryStorage({ throwOnAnyAccess: new Error("blocked") }));
     // The write itself reports "unavailable" (real storage never received it)...
@@ -168,6 +222,30 @@ describe("readDocument / writeDocument", () => {
     const doc = { schemaVersion: 1 as const, notes: ["a", "b"] };
     expect(writeDocument(ctx, FIXTURE_DOCUMENT.key, doc)).toEqual({ status: "ok" });
     expect(readDocument(ctx, FIXTURE_DOCUMENT.key, chain)).toEqual({ status: "ok", value: doc });
+  });
+
+  test("successive failed document updates preserve every new observation", () => {
+    const storage = new InMemoryStorage({ throwOnSet: quotaExceededError() });
+    const original = { schemaVersion: 1, notes: ["saved"] };
+    storage.rawSet(FIXTURE_DOCUMENT.key, JSON.stringify(original));
+    const ctx = contextWith(storage);
+
+    for (const note of ["first unsaved", "second unsaved"]) {
+      const current = readDocument<typeof original>(ctx, FIXTURE_DOCUMENT.key, chain);
+      expect(current.status).toBe("ok");
+      expect(
+        writeDocument(ctx, FIXTURE_DOCUMENT.key, {
+          ...current.value,
+          notes: [...(current.value?.notes ?? []), note],
+        }).status,
+      ).toBe("quota");
+    }
+
+    expect(readDocument(ctx, FIXTURE_DOCUMENT.key, chain)).toEqual({
+      status: "ok",
+      value: { schemaVersion: 1, notes: ["saved", "first unsaved", "second unsaved"] },
+    });
+    expect(JSON.parse(storage.rawGet(FIXTURE_DOCUMENT.key)!)).toEqual(original);
   });
 
   test("invalid JSON reads as corrupt", () => {

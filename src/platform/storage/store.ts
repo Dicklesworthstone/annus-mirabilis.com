@@ -50,7 +50,7 @@ function probe(getStorage: () => Storage): Storage | null {
 export interface StorageContext {
   readonly registry: KeyRegistry;
   readonly backend: () => Storage | null;
-  /** Session-only fallback, keyed by raw storage key, used while storage is unavailable. */
+  /** Latest session-only writes, retained until a successful save or explicit removal. */
   readonly fallback: Map<string, string>;
 }
 
@@ -68,29 +68,21 @@ export function createStorageContext(options: CreateStorageContextOptions = {}):
   };
 }
 
-function fallbackOr(
-  ctx: StorageContext,
-  key: string,
-  statusIfMissing: "missing" | "unavailable",
-): ReadResult {
-  const fallbackValue = ctx.fallback.get(key);
-  return fallbackValue !== undefined
-    ? { status: "ok", value: fallbackValue }
-    : { status: statusIfMissing };
-}
-
-/** Raw string read: the layer beneath settings and documents. */
+/**
+ * Read this session's latest value, including a write that storage could not save. A readable
+ * older saved value must not hide that work. Conflict-aware owners read the backend directly
+ * when comparing durable bytes; exports keep both copies until a successful save or clear.
+ */
 export function readRaw(ctx: StorageContext, key: string): ReadResult {
+  const pending = ctx.fallback.get(key);
+  if (pending !== undefined) return { status: "ok", value: pending };
   const storage = ctx.backend();
-  if (!storage) return fallbackOr(ctx, key, "unavailable");
+  if (!storage) return { status: "unavailable" };
   try {
     const raw = storage.getItem(key);
-    // The fallback may still hold a value written while storage was unavailable earlier this
-    // session; prefer real storage's authoritative "missing" only when the fallback agrees.
-    if (raw === null) return fallbackOr(ctx, key, "missing");
-    return { status: "ok", value: raw };
+    return raw === null ? { status: "missing" } : { status: "ok", value: raw };
   } catch {
-    return fallbackOr(ctx, key, "unavailable");
+    return { status: "unavailable" };
   }
 }
 
