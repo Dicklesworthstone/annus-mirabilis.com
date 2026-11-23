@@ -47,7 +47,7 @@
     "compositionIncrement@src/physics/reference/kinematics.ts": "sha256:85f4b6196296e162324a7317248b6a2da914aeb3e075f4990ec20bbe0c9c659c",
     "composePrinted@src/physics/reference/kinematics.ts": "sha256:ff81e9d7dd7910c439e43b101fc60b7487f951d810ed96190185e0f12ddf62d9",
     "transformVelocity@src/physics/reference/kinematics.ts": "sha256:102de489521087583df2cc489403725edccee0d8b48e5edee95a544867515685",
-    "composeBoosts@src/physics/reference/kinematics.ts": "sha256:59f82b0ca2478158af91aa019feaaa99403c1cce4814881e40a07124773f2f77",
+    "composeBoosts@src/physics/reference/kinematics.ts": "sha256:747a5d3f6a3fb823cbf0eb4aaa5efcd11d582b64459e292a91f8473814b53768",
     "synchronizationRound@src/physics/reference/events.ts": "sha256:1557f3d2d285dee31050bddc7756e77ad268c548679ea2df033a0cc82ce8329b",
     "movingRodLegs@src/physics/reference/events.ts": "sha256:869f8dd7ae1e8ef5ed98cd28e30e035ff460262b1e9283049cf6506176530b22",
     "desynchronizationObserved@src/physics/reference/events.ts": "sha256:1c9a8f695ba4e2c163566af44652e1a0b949caa26c80de55c70ab629d4c04dfb",
@@ -125,13 +125,13 @@
     "src/physics/reference/diffusion/walks.ts": "source:sha256:4fad5c398f64468b7a07a7f84a92e0f5a9fe977c4120193e4981ffff570a2a05",
     "src/physics/reference/special/erf.ts": "source:sha256:36da87a989cc4d16571414b99849aa31ea544bb30878fd80fb9c19ffa9e11f62",
     "src/physics/reference/diffusion/ftcs.ts": "source:sha256:7ce831bbb87f0c4046465f1822bdec8664dbd1da69c5ae20fa06decb56b2f163",
-    "src/physics/reference/massEnergy.ts": "source:sha256:5cb49a15830678a1217efea19b0416027de1d1b9d9cf82fd63926670048b4a26",
-    "src/physics/reference/kinematics.ts": "source:sha256:bab60c6a0705158de8a2f9cae59549eec3c7e661a7fd41b38d8630787ff0af07",
+    "src/physics/reference/massEnergy.ts": "source:sha256:64173e01c21861a6537f62f0ff9cc611deec675e2baa69a592275ecb24e19079",
+    "src/physics/reference/kinematics.ts": "source:sha256:0b3272bf5f02607fab17b2b2316e51e7b7618bc298e1ffd8a0b7b53452cdd2bd",
     "src/physics/reference/kinematics/constraints.ts": "source:sha256:a6a76fc7af65a4ba191a8b685de34896750e07af517152d3aff13e6d52d30656",
-    "src/physics/reference/events.ts": "source:sha256:082854b9f420bdf4925ae481201fdeab6ff64c9ccf6d51327d137e426e3c5733",
-    "src/experiments/sr05/worldline.ts": "source:sha256:3d673a97099c6d15cefd73b69b1f646a5675ee8e5af693a6303a657ab61efe4f",
-    "src/physics/reference/fields.ts": "source:sha256:6306897e4cb4055cc4c004855e206addfcfa55f15e056a2f4cd525f1db788676",
-    "src/physics/reference/waves.ts": "source:sha256:60c6689d580972f0fa04b2480481adf593882ae3d1d053bd8bc5b03051765f38",
+    "src/physics/reference/events.ts": "source:sha256:ae3e68332d23ecec1a3a8d120dfa5e65ecd381daa73264956b084d5c49e259f4",
+    "src/experiments/sr05/worldline.ts": "source:sha256:5b445f906227e9a5dc3c9b51312e696c6a09cc37876edee9b99dbed6c432d19e",
+    "src/physics/reference/fields.ts": "source:sha256:ce1ac8856924b9c2e30613e434e594089616152504653542fcf71347e2a96ace",
+    "src/physics/reference/waves.ts": "source:sha256:8d01c56095ca1bb8e4379344ae383be0a136ffd25117042d84949a96f4f7418b",
     "src/physics/reference/radiation/waves.ts": "source:sha256:e23539acda7f42f960c576206d22a3f85e2215d29bc6ba28bd8bc2beba2ffd20",
     "src/physics/reference/radiation/configurations.ts": "source:sha256:2302e129a19da353b60b0ff9b21a0458a52e5099d78861fc0fdd0a3e14a269e7",
     "src/physics/reference/radiation/quanta.ts": "source:sha256:403c9876a03e3d2cf3b7d36dfd9c3cf1d817f1a92d41e02cfd8a4b840a60855b",
@@ -145,6 +145,6 @@
     "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:4e573122ab0d8b46da42fdba7ea7db12b130a29ce803693b308328d261580556",
     "src/physics/reference/inference.ts": "source:sha256:f0df545a6faed521f98e2bfe4e5d6ce6beb41c1d513fdbf9f38929cd36fd9dbe",
     "src/physics/reference/inference/observation.ts": "source:sha256:f0df545a6faed521f98e2bfe4e5d6ce6beb41c1d513fdbf9f38929cd36fd9dbe",
-    "src/physics/reference/electron.ts": "source:sha256:0be6f9895a68f216e117c2eb0d6782a1585c872cffc44526472822e3d641d1a6"
+    "src/physics/reference/electron.ts": "source:sha256:92f3e373efface40a230b58442cb57ab517a7cc37f4b735311dde2d7eddf59bb"
   }
 }
