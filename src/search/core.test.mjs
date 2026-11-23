@@ -226,7 +226,6 @@ test("documents are detached and frozen before building the index", () => {
   assert.ok(Object.isFrozen(engine.search("diffusion")[0].document));
 });
 
-
 // Mathematical text copied from a page and typed with ordinary keys should find the same passage.
 for (const [name, forms] of [
   ["Latin powers", ["x²", "x^2", "x^{2}"]],
