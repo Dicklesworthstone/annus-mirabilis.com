@@ -79,6 +79,7 @@ export const CONSTRUCTIONS_WITH_CONTROLS: readonly FoundationConstructionId[] = 
   "partial-derivatives",
   "exponentials",
   "logarithms",
+  "taylor-expansion",
   "unit-system-1905",
   "ratios-scaling",
   "orders-of-magnitude",

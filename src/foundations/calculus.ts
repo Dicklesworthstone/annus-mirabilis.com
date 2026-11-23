@@ -41,7 +41,7 @@ export interface BinomialGammaSums {
 }
 
 export function binomialPartialSumsGamma(x: number): BinomialGammaSums {
-  if (x < 0 || x >= 1) {
+  if (!Number.isFinite(x) || x < 0 || x >= 1) {
     throw new RangeError("x must be in [0, 1) for binomial expansion.");
   }
   const t1 = 0.5 * x;
@@ -54,7 +54,9 @@ export function binomialPartialSumsGamma(x: number): BinomialGammaSums {
   const s3 = s2 + t3;
   const s4 = s3 + t4;
 
-  const exact = 1 / Math.sqrt(1 - x) - 1;
+  // Subtracting one loses the entire result when x is below binary64's spacing at one.
+  // Keep the same x as the partial sums and evaluate the equivalent expression without it.
+  const exact = Math.expm1(-0.5 * Math.log1p(-x));
 
   return {
     x,
@@ -70,7 +72,7 @@ export function binomialPartialSumsGamma(x: number): BinomialGammaSums {
  */
 export function gammaMinusOneCancellationFree(vOverC: number): number {
   const x = vOverC * vOverC;
-  if (x >= 1) {
+  if (!Number.isFinite(vOverC) || x >= 1) {
     throw new RangeError("v/c must be strictly less than 1.");
   }
   // (1 - x)^(-1/2) - 1 = exp(-0.5 * ln(1 - x)) - 1 = expm1(-0.5 * log1p(-x))
