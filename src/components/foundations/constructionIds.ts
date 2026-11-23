@@ -101,6 +101,7 @@ export const CONSTRUCTIONS_WITH_CONTROLS: readonly FoundationConstructionId[] = 
   "mean-variance-rms",
   "distributions",
   "integration",
+  "random-walks",
 ];
 
 /** The construction id for a foundation, with or without its `foundation:` prefix, or null. */
