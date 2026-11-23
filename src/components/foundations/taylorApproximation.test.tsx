@@ -146,6 +146,47 @@ describe("the Taylor foundation operates on an accepted speed and truncation", (
     expect(container.querySelector<HTMLSelectElement>("select")?.value).toBe("1");
   });
 
+  test("the plotted curve changes with accepted values and preserves the full expression across truncations", async () => {
+    await mount();
+    const curve = (kind: string) =>
+      container.querySelector("[data-taylor-curve='" + kind + "']")?.getAttribute("d");
+    const full = curve("full");
+    const partial = curve("partial");
+    expect(full).toBeDefined();
+    expect(partial).toBeDefined();
+    expect(full).not.toBe(partial);
+    await choose("4");
+    expect(curve("full")).toBe(full);
+    expect(curve("partial")).toBe(partial);
+    await submit();
+    expect(curve("full")).toBe(full);
+    expect(curve("partial")).not.toBe(partial);
+
+    await click("Tiny speed (10⁻¹⁰c)");
+    const plot = () => container.querySelector("[data-taylor-plot]")?.outerHTML ?? "";
+    expect(plot()).toContain("broken curve");
+    expect(plot()).not.toMatch(/NaN|Infinity/);
+    const tiny = plot();
+    await type("1");
+    await submit();
+    expect(plot()).toBe(tiny);
+
+    await type("0");
+    await submit();
+    expect(plot()).toContain("0 to 0.6c reference range");
+    const dot = container.querySelector("[data-taylor-accepted-point]");
+    expect(dot?.getAttribute("cx")).toBe("104");
+    expect(dot?.getAttribute("cy")).toBe("160");
+
+    await type(String(1 - Number.EPSILON / 2));
+    await submit();
+    expect(plot()).not.toMatch(/NaN|Infinity/);
+    // The admitted endpoint must not be rounded into the excluded light-speed boundary.
+    expect(container.querySelector("[data-taylor-plot]")?.textContent).toContain(
+      "0.9999999999999999",
+    );
+  });
+
   test("the server page retains both references, disabled controls, useful tables, and unique ids", () => {
     const html = renderToStaticMarkup(
       <>

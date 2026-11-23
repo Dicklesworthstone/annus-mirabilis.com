@@ -31,9 +31,19 @@ describe("the reach, counted on the built payload", () => {
     expect(printed).not.toContain("N_A");
   });
 
+  test("light-quanta and mass-energy publish real compound forms with their controls", () => {
+    for (const [paper, equation] of [
+      ["light-quanta", "eq-model-lq-fluorescence-bound"],
+      ["mass-energy", "eq-model-me-exact-drop"],
+    ] as const) {
+      expect(NOTATION_TOGGLE_PAPERS).toContain(paper);
+      expect(paperEquations(paper).get(equation)?.notationForm?.state).toBe("printed");
+    }
+  });
+
   test("a paper without the control has no reach, so nothing counts its formulas as his", () => {
-    expect(NOTATION_TOGGLE_PAPERS).not.toContain("mass-energy");
-    expect(notationReach("mass-energy")).toBeNull();
+    expect(NOTATION_TOGGLE_PAPERS).not.toContain("molecular-dimensions");
+    expect(notationReach("molecular-dimensions")).toBeNull();
   });
 });
 
@@ -65,9 +75,21 @@ describe("the help text", () => {
     expect(select).toContain(`aria-describedby="${help?.[1]}"`);
   });
 
-  test("a paper without the control shows neither the control nor a reach line", async () => {
-    const html = await exportMarkup(await PaperPage({ paperId: "mass-energy" } as never));
-    expect(html).toContain("data-detail-control");
+  test("the two newly supported paper pages describe the real reach of their controls", async () => {
+    for (const paperId of ["light-quanta", "mass-energy"]) {
+      const r = notationReach(paperId);
+      if (!r) throw new Error(`${paperId} has no notation reach`);
+      const html = await exportMarkup(await PaperPage({ paperId } as never));
+      expect(html).toContain("data-notation-control");
+      expect(html).toContain(notationReachLine(r).replace(/'/g, "&#x27;"));
+    }
+  });
+
+  test("the source face stays outside the notation control and its alternate drawings", async () => {
+    const html = await exportMarkup(
+      await PaperPage({ paperId: "mass-energy", face: "german" }),
+    );
+    expect(html).not.toContain("data-notation-form");
     expect(html).not.toContain("data-notation-control");
     expect(html).not.toContain("data-notation-reach");
   });

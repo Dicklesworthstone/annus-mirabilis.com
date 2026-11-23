@@ -248,20 +248,20 @@ describe("printedForm", () => {
     );
   });
 
-  test("what Einstein wrote out is not a letter: the formula keeps today's letters", () => {
-    // The mass-energy paper writes the Lorentz factor out as 1/sqrt(1 - v^2/V^2) and the kinetic
-    // energy drop as K_0 - K_1. In a symbol's place either can lose the brackets it needs.
+  test("an explicit group gives a compound term its own expression and grouping", () => {
     const meTable = teachingProfile("mass-energy")?.quantities ?? {};
     const me = loadConcordanceForPaper("mass-energy").entries;
-    const meTree = (id: string): Expression =>
-      JSON.parse(readFileSync(join(ROOT, "content/equations/mass-energy", `${id}.json`), "utf8"))
-        .tree;
-    expect(reasons(printedForm(meTree("eq-model-me-lorentz-factor"), meTable, me, "s0"))).toContain(
-      "lorentzFactor:not-a-letter",
-    );
-    expect(
-      reasons(printedForm(meTree("eq-model-me-kinetic-drop-definition"), meTable, me, "s0")),
-    ).toContain("kineticEnergyDifference:not-a-letter");
+    for (const [id, quantityId] of [
+      ["eq-model-me-lorentz-factor", "lorentzFactor"],
+      ["eq-model-me-kinetic-drop-definition", "kineticEnergyDifference"],
+    ] as const) {
+      const meTree: Expression = JSON.parse(
+        readFileSync(join(ROOT, "content/equations/mass-energy", `${id}.json`), "utf8"),
+      ).tree;
+      const f = printedForm(meTree, meTable, me, "s0");
+      expect(reasons(f)).toEqual([]);
+      expect(f.state === "printed" && f.letters[quantityId]?.expression).toBeTruthy();
+    }
   });
 
   test("every letter drawn names the entry that gives it, bound to that quantity and component", () => {

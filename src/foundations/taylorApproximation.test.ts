@@ -139,3 +139,60 @@ describe("Taylor truncation keeps the full value and the small omitted remainder
     }
   });
 });
+
+describe("Taylor curves belong to the same accepted scientific comparison", () => {
+  test("bounded samples stay below light speed and retain finite scales at rest and tiny speeds", () => {
+    for (const speed of [0, MINIMUM_TAYLOR_SPEED, 1e-10, 0.0001, 0.6, 0.99, 1 - Number.EPSILON / 2]) {
+      const comparison = accepted(speed, 4);
+      const { curve } = comparison;
+      expect(curve.points.length).toBeGreaterThan(2);
+      expect(curve.points.length).toBeLessThanOrEqual(256);
+      expect(curve.speedLimit).toBe(speed === 0 ? 0.6 : speed);
+      expect(curve.valueLimit).toBeGreaterThan(0);
+      expect(Number.isFinite(curve.valueLimit)).toBe(true);
+      expect(curve.points[0]?.speed).toBe(0);
+      expect(curve.points[0]?.exact).toBe(0);
+      let previousSpeed = 0;
+      let previousExact = 0;
+      for (const point of curve.points) {
+        expect(point.speed).toBeGreaterThanOrEqual(previousSpeed);
+        expect(point.speed).toBeLessThan(1);
+        expect(point.exact).toBeGreaterThanOrEqual(previousExact);
+        expect(Number.isFinite(point.exact / curve.valueLimit)).toBe(true);
+        expect(point.exact).toBeLessThanOrEqual(curve.valueLimit * (1 + 8 * Number.EPSILON));
+        expect(point.approximation).toBeLessThanOrEqual(point.exact * (1 + 8 * Number.EPSILON));
+        const canonical = binomialPartialSumsGamma(point.speed * point.speed);
+        expect(point.exact).toBe(canonical.exact);
+        expect(point.approximation).toBe(canonical.partialSums[3]);
+        previousSpeed = point.speed;
+        previousExact = point.exact;
+      }
+      const last = curve.points[curve.points.length - 1];
+      expect(last?.speed).toBe(curve.speedLimit);
+      expect(last?.exact).toBe(curve.valueLimit);
+      if (speed !== 0) {
+        expect(last?.exact).toBe(comparison.exact);
+        expect(last?.approximation).toBe(comparison.selected.sum);
+      } else {
+        expect(comparison.selected.sum).toBe(0);
+        expect(curve.valueLimit).toBeCloseTo(0.25, 14);
+      }
+      expect(Object.isFrozen(curve)).toBe(true);
+      expect(Object.isFrozen(curve.points)).toBe(true);
+      expect(curve.points.every(Object.isFrozen)).toBe(true);
+    }
+  });
+
+  test("changing truncation preserves sample speeds and the full curve", () => {
+    const one = accepted(0.6, 1);
+    const four = accepted(0.6, 4);
+    expect(one.curve.speedLimit).toBe(four.curve.speedLimit);
+    expect(one.curve.valueLimit).toBe(four.curve.valueLimit);
+    expect(one.curve.points.map((point) => [point.speed, point.exact])).toEqual(
+      four.curve.points.map((point) => [point.speed, point.exact]),
+    );
+    expect(four.curve.points.some((point, index) =>
+      point.approximation > (one.curve.points[index]?.approximation ?? Infinity),
+    )).toBe(true);
+  });
+});
