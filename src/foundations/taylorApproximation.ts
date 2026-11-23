@@ -21,6 +21,18 @@ export interface TaylorSample {
   readonly relativeRemainder: number | null;
 }
 
+export interface TaylorCurvePoint {
+  readonly speed: number;
+  readonly exact: number;
+  readonly approximation: number;
+}
+
+export interface TaylorCurve {
+  readonly speedLimit: number;
+  readonly valueLimit: number;
+  readonly points: readonly TaylorCurvePoint[];
+}
+
 export interface TaylorComparison {
   readonly speed: number;
   readonly x: number;
@@ -29,6 +41,7 @@ export interface TaylorComparison {
   readonly selected: TaylorTerm;
   readonly terms: readonly TaylorTerm[];
   readonly samples: readonly TaylorSample[];
+  readonly curve: TaylorCurve;
 }
 
 export type TaylorRefusal = Readonly<{
@@ -105,6 +118,26 @@ function compare(speed: number, count: TaylorTermCount): TaylorComparison {
       });
     }),
   );
+  const speedLimit = speed === 0 ? 0.6 : speed;
+  const valueLimit = speed === 0 ? atSpeed(speedLimit).exact : current.exact;
+  // Uniform spacing in log(1 - v²/c²) resolves the rapid rise near light speed without
+  // sampling the excluded endpoint. Low-speed curves still retain their nonzero scale.
+  const logComplement = Math.log1p(-(speedLimit * speedLimit));
+  const points = Object.freeze(
+    Array.from({ length: 129 }, (_, index): TaylorCurvePoint => {
+      const sampleSpeed =
+        index === 128
+          ? speedLimit
+          : Math.sqrt(-Math.expm1((logComplement * index) / 128));
+      const sample = binomialPartialSumsGamma(sampleSpeed * sampleSpeed);
+      return Object.freeze({
+        speed: sampleSpeed,
+        exact: sample.exact,
+        approximation: sample.partialSums[count - 1]!,
+      });
+    }),
+  );
+  const curve: TaylorCurve = Object.freeze({ speedLimit, valueLimit, points });
   return Object.freeze({
     speed,
     x: current.x,
@@ -113,6 +146,7 @@ function compare(speed: number, count: TaylorTermCount): TaylorComparison {
     selected: current.terms[count - 1]!,
     terms: current.terms,
     samples,
+    curve,
   });
 }
 

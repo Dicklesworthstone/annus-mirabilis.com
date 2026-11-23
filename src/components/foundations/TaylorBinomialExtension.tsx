@@ -13,6 +13,7 @@ import {
 } from "../../foundations/taylorApproximation.ts";
 import { Sci } from "../lab/Sci.tsx";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
+import { TaylorApproximationPlot } from "./TaylorApproximationPlot.tsx";
 
 const TERM_LABELS = ["½ x", "⅜ x²", "⁵/₁₆ x³", "³⁵/₁₂₈ x⁴"] as const;
 
@@ -237,6 +238,8 @@ export function TaylorBinomialExtension({
             <RemainderPercent value={comparison.selected.relativeRemainder} />
           </dd>
         </dl>
+
+        <TaylorApproximationPlot comparison={comparison} />
 
         <section
           className="construction-table-wrap"
