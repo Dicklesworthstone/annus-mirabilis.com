@@ -10,10 +10,15 @@
  * overrides live in the same document, next to the predictions they scope.
  */
 
-import { createMigrationChain } from "../../platform/storage/migrations.ts";
+import {
+  createMigrationChain,
+  migrateDocument,
+  UnmigratableVersionError,
+} from "../../platform/storage/migrations.ts";
+import { quarantine } from "../../platform/storage/quarantine.ts";
 import type { StorageContext } from "../../platform/storage/store.ts";
-import { readDocument, writeDocument } from "../../platform/storage/store.ts";
-import type { PredictEntryChoice } from "./predictEntry.ts";
+import { readRaw, writeDocument } from "../../platform/storage/store.ts";
+import { PREDICT_ENTRY_CHOICES, type PredictEntryChoice } from "./predictEntry.ts";
 import type { PredictionChoice } from "./predictState.ts";
 
 // `PredictionChoice` (predictState.ts) is `PredictionPayload` from
@@ -44,12 +49,91 @@ export function emptyPredictionsDocument(): PredictionsDocumentV1 {
 
 const MIGRATION_CHAIN = createMigrationChain(1, {});
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+/** Structural safety for stored choices; the gate separately checks their authored prompt. */
+function isStoredPredictionChoice(value: unknown): value is PredictionChoice {
+  if (!isRecord(value)) return false;
+  const id = (candidate: unknown): candidate is string =>
+    typeof candidate === "string" && candidate.trim().length > 0;
+  if (value.form === "candidate") return id(value.candidateId);
+  if (value.form === "verbal") return id(value.directionId) && id(value.shapeId);
+  if (value.form === "sketch")
+    return (
+      Array.isArray(value.points) &&
+      value.points.every(
+        (point) =>
+          Array.isArray(point) &&
+          point.length === 2 &&
+          point.every((coordinate) => typeof coordinate === "number" && Number.isFinite(coordinate)),
+      )
+    );
+  if (value.form === "values")
+    return (
+      Array.isArray(value.targets) &&
+      value.targets.every(
+        (target) =>
+          isRecord(target) &&
+          id(target.targetId) &&
+          typeof target.value === "number" &&
+          Number.isFinite(target.value),
+      )
+    );
+  return false;
+}
+
+/** Decode a durable snapshot without consulting a session fallback or guessing a missing map. */
+export function decodePredictionsDocument(raw: string): PredictionsDocumentV1 {
+  const value = migrateDocument<unknown>(MIGRATION_CHAIN, JSON.parse(raw));
+  if (
+    !isRecord(value) ||
+    !isRecord(value.visited) ||
+    !Object.values(value.visited).every(
+      (prompts) =>
+        isRecord(prompts) && Object.values(prompts).every((seen) => typeof seen === "boolean"),
+    ) ||
+    !isRecord(value.prompts) ||
+    !Object.values(value.prompts).every(
+      (prompts) =>
+        isRecord(prompts) &&
+        Object.values(prompts).every(
+          (entry) =>
+            isRecord(entry) &&
+            (entry.status === "predicted"
+              ? isStoredPredictionChoice(entry.prediction)
+              : (entry.status === "predicted-unrecorded" || entry.status === "skipped") &&
+                entry.prediction === undefined),
+        ),
+    ) ||
+    !isRecord(value.entryOverrides) ||
+    !Object.values(value.entryOverrides).every(
+      (choice) =>
+        typeof choice === "string" &&
+        (PREDICT_ENTRY_CHOICES as readonly string[]).includes(choice),
+    )
+  )
+    throw new TypeError("invalid-predictions-document");
+  return value as unknown as PredictionsDocumentV1;
+}
+
 /** A missing or unavailable document reads as empty; a corrupt one is quarantined and also reads as empty. */
 export function readPredictionsDocument(ctx: StorageContext): PredictionsDocumentV1 {
-  const result = readDocument<PredictionsDocumentV1>(ctx, PREDICTIONS_NAMESPACE, MIGRATION_CHAIN);
-  return result.status === "ok" && result.value !== undefined
-    ? result.value
-    : emptyPredictionsDocument();
+  const result = readRaw(ctx, PREDICTIONS_NAMESPACE);
+  if (result.status !== "ok" || result.value === undefined) return emptyPredictionsDocument();
+  try {
+    return decodePredictionsDocument(result.value);
+  } catch (error) {
+    const reason =
+      error instanceof SyntaxError
+        ? "invalid-json"
+        : error instanceof UnmigratableVersionError
+          ? error.message
+          : "invalid-predictions-document";
+    quarantine(ctx, PREDICTIONS_NAMESPACE, result.value, reason);
+    return emptyPredictionsDocument();
+  }
 }
 
 export function writePredictionsDocument(ctx: StorageContext, doc: PredictionsDocumentV1) {
