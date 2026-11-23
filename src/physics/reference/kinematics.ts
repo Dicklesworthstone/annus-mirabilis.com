@@ -14,7 +14,7 @@
  * verification oracle, not a 1904 premise.
  */
 
-import { classifyWithTolerance } from "../../units/tolerance.ts";
+import { classifyWithTolerance, withinTolerance } from "../../units/tolerance.ts";
 import { constantValue, getConstantSet } from "./constants.ts";
 import { RAPIDITY_GLYPH, TRANSVERSE_SCALE_GLYPH } from "./kinematics/concordance.ts";
 import { isMode1904, refuseModernSurface } from "./kinematics/mode1904.ts";
@@ -370,8 +370,60 @@ function mul4(
   return C;
 }
 
-function spatialRotationFromProduct(Binv: number[][], L: number[][]): number[][] {
-  return mul4(Binv, L);
+function isAdmittedBoost(boost: Boost): boolean {
+  const { bx, by, bz } = boost.beta;
+  if (
+    ![boost.c, boost.gamma, bx, by, bz].every(finite) ||
+    boost.c <= 0 ||
+    boost.gamma < 1 ||
+    Math.hypot(bx, by, bz) >= 1 ||
+    boost.matrix.length !== 4 ||
+    ![0, 1, 2, 3].every((i) => {
+      const row = boost.matrix[i];
+      return row?.length === 4 && [0, 1, 2, 3].every((j) => finite(row[j] ?? Number.NaN));
+    })
+  )
+    return false;
+  // Compare a future unit four-velocity without subtracting its nearly equal squared parts.
+  const norm = Math.hypot(1, boost.gamma * bx, boost.gamma * by, boost.gamma * bz);
+  const tolerance = { absolute: 16 * Number.EPSILON, relative: 16 * Number.EPSILON };
+  if (!withinTolerance(boost.gamma, norm, tolerance).ok) return false;
+  const expected = generalMatrix(boost.beta, boost.gamma);
+  return boost.matrix.every((row, i) =>
+    row.every((entry, j) => withinTolerance(entry, expected[i]?.[j] ?? 0, tolerance).ok),
+  );
+}
+
+/**
+ * The rotation in B(second) B(first) = B(result) R.
+ * Half-rapidity vectors r = gamma beta/(gamma + 1) stay inside the unit ball.
+ * The quaternion (1 + r1.r2, r1 x r2) avoids subtracting the large terms of
+ * B(result)^-1 times the product, especially for nearly cancelling boosts.
+ */
+function spatialRotationFromBoosts(first: Boost, second: Boost): number[][] {
+  const a = first.gamma / (first.gamma + 1);
+  const b = second.gamma / (second.gamma + 1);
+  const ax = a * first.beta.bx;
+  const ay = a * first.beta.by;
+  const az = a * first.beta.bz;
+  const bx = b * second.beta.bx;
+  const by = b * second.beta.by;
+  const bz = b * second.beta.bz;
+  const scalar = 1 + ax * bx + ay * by + az * bz;
+  const cx = ay * bz - az * by;
+  const cy = az * bx - ax * bz;
+  const cz = ax * by - ay * bx;
+  const norm = Math.hypot(scalar, cx, cy, cz);
+  const w = scalar / norm;
+  const x = cx / norm;
+  const y = cy / norm;
+  const z = cz / norm;
+  return [
+    [1, 0, 0, 0],
+    [0, 1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+    [0, 2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+    [0, 2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)],
+  ];
 }
 
 function wignerAngleFromRotation(R: number[][]): number {
@@ -386,26 +438,45 @@ function wignerAngleFromRotation(R: number[][]): number {
  * Sign: boost along x first, then along y; angle in the x-y plane.
  */
 export function composeBoosts(first: Boost, second: Boost): KinematicResult<CompositionReport> {
+  if (isMode1904()) refuseModernSurface("matrix");
   if (first.c !== second.c) return outsideDomain("invalid-c", "Boosts must share one c.");
+  if (!isAdmittedBoost(first) || !isAdmittedBoost(second))
+    return outsideDomain("invalid-parameter", "Composition requires two finite Lorentz boosts.");
   const product = mul4(second.matrix, first.matrix);
-  const g = product[0]?.[0] ?? 1;
-  if (g < 1 || !finite(g))
-    return outsideDomain("invalid-parameter", "Product is not a Lorentz boost block.");
-  const bx = -((product[1]?.[0] ?? 0) / g);
-  const by = -((product[2]?.[0] ?? 0) / g);
-  const bz = -((product[3]?.[0] ?? 0) / g);
-  const extracted = generalBoost({ bx, by, bz }, first.c);
-  if (extracted.status !== "value") return extracted;
-  const inv = inverseBoost(extracted.value);
-  if (inv.status !== "value") return inv;
-  const rotation = spatialRotationFromProduct(inv.value.matrix as number[][], product);
-  const speed = betaFromVector(extracted.value.beta) * first.c;
+  // The first column is a future unit four-velocity. Evaluate its spatial part as
+  // gamma1 * (I + (gamma2 - 1) n2 n2^T) * (beta1 + beta2), so inverse boosts cancel
+  // before multiplication by large Lorentz factors. Reading it from the raw product
+  // instead can leave a substantial spurious velocity near the speed of light.
+  const sx = first.beta.bx + second.beta.bx;
+  const sy = first.beta.by + second.beta.by;
+  const sz = first.beta.bz + second.beta.bz;
+  const projection = sx * second.beta.bx + sy * second.beta.by + sz * second.beta.bz;
+  const parallel = (second.gamma * second.gamma * projection) / (second.gamma + 1);
+  const px = first.gamma * (sx + parallel * second.beta.bx);
+  const py = first.gamma * (sy + parallel * second.beta.by);
+  const pz = first.gamma * (sz + parallel * second.beta.bz);
+  // Reconstruct gamma from the spatial norm without subtracting nearly equal squares.
+  // Keep the unmodified matrix product: its time entry may round below one on cancellation.
+  const g = Math.hypot(1, px, py, pz);
+  const beta = { bx: px / g, by: py / g, bz: pz / g };
+  if (!finite(g) || betaFromVector(beta) >= 1)
+    return outsideDomain(
+      "invalid-parameter",
+      "The composed boost cannot be resolved as a finite subluminal velocity at this precision.",
+    );
+  const extracted: Boost = {
+    beta,
+    c: first.c,
+    gamma: g,
+    matrix: generalMatrix(beta, g),
+  };
+  const rotation = spatialRotationFromBoosts(first, second);
   return ok({
-    boost: extracted.value,
+    boost: extracted,
     rotation,
     product,
     wignerAngle: wignerAngleFromRotation(rotation),
-    resultantSpeed: speed,
+    resultantSpeed: betaFromVector(beta) * first.c,
   });
 }
 

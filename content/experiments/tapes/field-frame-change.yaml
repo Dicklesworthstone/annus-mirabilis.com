@@ -8,7 +8,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: field-frame-change-host
   modelVersion: "1"
-  artifactDigest: "host:sha256:ff8bedff4593804f3c22936ef0b4f2cf566ca1adb542a7e8f9f0b6e745e1182d"
+  artifactDigest: "host:sha256:e3d98e10fcfaeae086a3c61959c832dbbe9683859453e40c8eff8c802561fa98"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

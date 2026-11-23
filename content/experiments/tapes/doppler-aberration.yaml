@@ -8,7 +8,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: doppler-aberration-host
   modelVersion: "1"
-  artifactDigest: "host:sha256:9b56bd5c8a62f30ef8bc74bf9edf307cb00639dec1c9acb0a6b8ffb9ddc57cd8"
+  artifactDigest: "host:sha256:c0e613b090f4387ac11afb76d1cb5798fe0ffea17ffcb9700fc8a8cc28bded23"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

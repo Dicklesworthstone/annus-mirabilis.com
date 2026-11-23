@@ -8,7 +8,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: mass-energy-coefficient-host
   modelVersion: "1"
-  artifactDigest: "host:sha256:1783f11fa84c3ef1862e915cba8c5d328df34db88beae2c5881579140937b425"
+  artifactDigest: "host:sha256:459af4e2429c84e1e1367684d8448f52c7d896f434fa0ec097ad4dc0d6f63ac9"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1

@@ -8,7 +8,7 @@ isTeachingSequence: true
 modelIdentity:
   modelId: magnet-conductor-host
   modelVersion: "1"
-  artifactDigest: "host:sha256:b0e20c07cd4cf9796ce9c75a295310abc1db35487fd0f118433cfb56181629a3"
+  artifactDigest: "host:sha256:9dbaecab397e156e63f2433fe01e08040f2e5520a680d0fe12bd3e3ec14337d0"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
