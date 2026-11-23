@@ -1,5 +1,6 @@
 import { parseAnchor } from "../../content/anchors.ts";
 import { parseFaceSwitchTransfer } from "../anchors/faceSwitchPlace.ts";
+import { mapToFace, type StructureIndex } from "../anchors/mapToFace.ts";
 import { canonicalContentId, contentIdVariants } from "../weave/contentIds.ts";
 
 /** A route-local projection, carried in HTML rather than imported into the reading bundle. */
@@ -24,6 +25,7 @@ export function glossPageForStrandedAnchor(
   anchor: string,
   currentPath: string,
   serializedSections: string,
+  structureIndex?: StructureIndex,
 ): string | null {
   const route = glossRoute(currentPath);
   if (!route || anchor.startsWith("#") || !parseAnchor(anchor).ok) return null;
@@ -34,8 +36,7 @@ export function glossPageForStrandedAnchor(
     return null;
   }
   if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
-  const variants = new Set(contentIdVariants(anchor));
-  let destination: string | undefined;
+  const sections: [string, string[]][] = [];
   for (const [section, ids] of Object.entries(value)) {
     if (
       !/^s\d+$/.test(section) ||
@@ -43,6 +44,18 @@ export function glossPageForStrandedAnchor(
       !ids.every((id) => typeof id === "string")
     )
       return null;
+    sections.push([section, ids]);
+  }
+  // A frozen inline formula need not have a separate element on this face. Its containing
+  // sentence or paragraph still declares the correct page. Preserve the original fragment
+  // through the redirect so the destination's normal resolver also restores its saved place.
+  const target = structureIndex
+    ? mapToFace(anchor, structureIndex, new Set(sections.flatMap(([, ids]) => ids)))
+    : anchor;
+  if (target === undefined) return null;
+  const variants = new Set(contentIdVariants(target));
+  let destination: string | undefined;
+  for (const [section, ids] of sections) {
     if (!ids.some((id) => variants.has(id))) continue;
     if (destination !== undefined && destination !== section) return null;
     destination = section;

@@ -3,6 +3,8 @@ import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { createContainer, installDom, uninstallDom } from "../../testing/reactDom.ts";
 import { FACE_SWITCH_PLACE_KEY } from "../anchors/faceSwitchPlace.ts";
+import type { StructureIndex } from "../anchors/mapToFace.ts";
+import { sourceStructureIndex } from "../anchors/sourceStructureIndex.ts";
 import { FaceSwitchAnchor } from "./FaceSwitchAnchor.tsx";
 
 let reactRoot: Root | null = null;
@@ -58,9 +60,9 @@ function page(path: string, anchor: string, publishedIds: readonly string[] = []
   document.body.append(reader);
 }
 
-async function mount() {
+async function mount(structureIndex?: StructureIndex) {
   reactRoot = createRoot(createContainer());
-  await act(async () => reactRoot?.render(createElement(FaceSwitchAnchor)));
+  await act(async () => reactRoot?.render(createElement(FaceSwitchAnchor, { structureIndex })));
 }
 
 describe("the source-face navigation owner consumes the declared gloss destinations", () => {
@@ -119,5 +121,61 @@ describe("the source-face navigation owner consumes the declared gloss destinati
     document.body.append(link);
     await mount();
     expect(destinations).toEqual([]);
+  });
+});
+
+describe("a manifest-only inline address survives a paginated gloss switch", () => {
+  const inline = `${SENTENCE}-m1`;
+  const structure = sourceStructureIndex(
+    [
+      { id: "s7-p1", section: "s7" },
+      { id: SENTENCE, containedIn: "s7-p1", section: "s7" },
+      { id: inline, containedIn: SENTENCE, section: "s7" },
+    ],
+    ["s7"],
+  );
+
+  test("the parent selects the section and the destination restores the original transfer", async () => {
+    const origin = `${PAPER}/view/gloss/${QUERY}`;
+    page(origin, inline);
+    sessionStorage.setItem(
+      FACE_SWITCH_PLACE_KEY,
+      JSON.stringify({ path: origin, anchorId: inline, relativeOffset: 0.2 }),
+    );
+    await mount(structure);
+    expect(destinations).toEqual([`${PAPER}/s7/view/gloss/${QUERY}#${inline}`]);
+    expect(JSON.parse(sessionStorage.getItem(FACE_SWITCH_PLACE_KEY) ?? "null")).toEqual({
+      path: `${PAPER}/s7/view/gloss/${QUERY}`,
+      anchorId: inline,
+      relativeOffset: 0.2,
+    });
+
+    await act(async () => reactRoot?.unmount());
+    reactRoot = null;
+    document.body.innerHTML = "";
+    page(`${PAPER}/s7/view/gloss/${QUERY}`, inline, [SENTENCE]);
+    await mount(structure);
+    expect(destinations).toHaveLength(1);
+    expect(window.location.hash).toBe(`#${SENTENCE}`);
+    expect(scrolled.at(-1)).toBe(SENTENCE);
+    expect(document.getElementById(SENTENCE)?.style.scrollMarginTop).toBe("180px");
+    expect(sessionStorage.getItem(FACE_SWITCH_PLACE_KEY)).toBeNull();
+  });
+
+  test("a sentence already on the whole-paper page needs no section navigation", async () => {
+    page(`${PAPER}/view/gloss/${QUERY}`, inline, [SENTENCE]);
+    await mount(structure);
+    expect(destinations).toEqual([]);
+    expect(window.location.hash).toBe(`#${SENTENCE}`);
+    expect(scrolled.at(-1)).toBe(SENTENCE);
+  });
+
+  test("an unknown formula cannot borrow a real sentence's destination", async () => {
+    const absent = `${SENTENCE}-m999`;
+    page(`${PAPER}/view/gloss/`, absent);
+    await mount(structure);
+    expect(destinations).toEqual([]);
+    expect(scrolled).toEqual([]);
+    expect(window.location.hash).toBe(`#${absent}`);
   });
 });

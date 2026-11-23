@@ -23,6 +23,7 @@ import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { loadSourceAliases } from "./anchors/sourceAliases.ts";
+import { sourceStructureIndex } from "./anchors/sourceStructureIndex.ts";
 import { ReadingBlocks } from "./Blocks.tsx";
 import { ExplanationInlineTerms } from "./ExplanationInlineTerms.tsx";
 import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.ts";
@@ -132,6 +133,12 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             ? await options.editionLoader(resolved.paperId)
             : await loadBilingualEdition(resolved.paperId);
 
+      const sourceUnits = printedUnits(process.cwd(), resolved.paperId as RouteSlug);
+      const structureIndex = sourceStructureIndex(
+        sourceUnits,
+        edition?.paper.sections.map((s) => s.id) ?? [],
+      );
+
       // One validated alias-chain projection serves every edition face. Section renderers only
       // emit aliases beside content they actually print, so an old link never names a dead target.
       const aliases = loadSourceAliases(
@@ -215,6 +222,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             });
             return (
               <GermanFace
+                structureIndex={structureIndex}
                 paper={edition.paper}
                 blocks={edition.blocks}
                 alignment={edition.alignment}
@@ -280,6 +288,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             );
             return (
               <GermanDraftFace
+                structureIndex={sourceStructureIndex(
+                  sourceUnits,
+                  paperRecord.paper.sections.map((s) => s.id),
+                )}
                 face={draft}
                 explainedBy={explainedBy}
                 notExplained={notExplained}
@@ -318,6 +330,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           const projections = await loadPassageProjections(resolved.paperId, { edition });
           return (
             <EnglishFace
+              structureIndex={structureIndex}
               aliases={aliases}
               availability={availability}
               blocks={edition.blocks}
@@ -339,6 +352,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           const projections = await loadPassageProjections(resolved.paperId, { edition });
           return (
             <ParallelFace
+              structureIndex={structureIndex}
               aliases={aliases}
               availability={availability}
               paper={edition.paper}
@@ -370,6 +384,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           const projections = await loadPassageProjections(resolved.paperId, { edition });
           return (
             <GlossFace
+              structureIndex={structureIndex}
               aliases={aliases}
               availability={availability}
               paper={edition.paper}

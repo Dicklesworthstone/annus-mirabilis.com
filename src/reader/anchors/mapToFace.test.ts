@@ -65,6 +65,40 @@ describe("mapToFace: nearest-ancestor mapping across faces", () => {
   });
 });
 
+describe("manifest-only ancestry also handles translation variants at every level", () => {
+  const index: StructureIndex = {
+    units: [
+      { id: "s3" },
+      { id: "s3-p1", parentId: "s3" },
+      { id: "s3-p1-s1", parentId: "s3-p1" },
+      { id: "s3-p1-s1-m1", parentId: "s3-p1-s1" },
+    ],
+  };
+
+  test("an inline formula reaches its split English sentence before the paragraph", () => {
+    expect(
+      mapToFace("s3-p1-s1-m1", index, new Set(["s3-p1-s1a", "s3-p1-s1b", "s3-p1", "s3"])),
+    ).toBe("s3-p1-s1a");
+  });
+
+  test("a split half missing from the source inventory still climbs from its canonical sentence", () => {
+    expect(mapToFace("s3-p1-s1b", index, new Set(["s3-p1", "s3"]))).toBe("s3-p1");
+  });
+
+  test("an exact second half wins over a published first half", () => {
+    expect(mapToFace("s3-p1-s1b", index, new Set(["s3-p1-s1a", "s3-p1-s1b"]))).toBe(
+      "s3-p1-s1b",
+    );
+  });
+
+  test("an invalid cyclic caller index terminates without claiming an absent target", () => {
+    const cyclic: StructureIndex = {
+      units: [{ id: "s3-p1", parentId: "s3-p1-s1" }, { id: "s3-p1-s1", parentId: "s3-p1" }],
+    };
+    expect(mapToFace("s3-p1-s1", cyclic, new Set(["s3"]))).toBeUndefined();
+  });
+});
+
 describe("mapToResultsFace: section to its derived results", () => {
   test("returns the declared result ids for a section", () => {
     expect(mapToResultsFace("s3", FIXTURE)).toEqual(["result-diffusion-coefficient"]);

@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { printedUnits } from "../../content/editions/germanSourceFace.ts";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import type { SourceBlock } from "../../content/schemas/source.ts";
+import { sourceStructureIndex } from "../anchors/sourceStructureIndex.ts";
 import { sortBlocksByManifest } from "./bilingualLoader.ts";
 import { glossPageForStrandedAnchor, glossRedirectTransfer } from "./glossNavigation.ts";
 import { glossAnchorSections } from "./glossSections.ts";
@@ -202,5 +204,46 @@ describe("an intermediate gloss redirect preserves the final destination's place
       { ...saved, relativeOffset: Infinity },
     ])
       expect(glossRedirectTransfer(value, path, `#${anchor}`, destination)).toBeNull();
+  });
+});
+
+describe("manifest ancestry finds a gloss page without an exact inline element", () => {
+  const structure = sourceStructureIndex(printedUnits(process.cwd(), "special-relativity"), []);
+  const inline = "s1-p7-s5-m2";
+  const withoutExactFormula = JSON.stringify(
+    Object.fromEntries(
+      Object.entries(glossAnchorSections(srBlocks)).map(([section, ids]) => [
+        section,
+        ids.filter((id) => id !== inline),
+      ]),
+    ),
+  );
+
+  test("the real manifest formula follows its source sentence and retains its own fragment", () => {
+    expect(glossPageForStrandedAnchor(inline, PATH, withoutExactFormula)).toBeNull();
+    expect(glossPageForStrandedAnchor(inline, PATH, withoutExactFormula, structure)).toBe(
+      `${PAPER}/s1/view/gloss/#${inline}`,
+    );
+  });
+
+  test("no source record means no inferred redirect, even when its apparent sentence exists", () => {
+    expect(
+      glossPageForStrandedAnchor("s1-p7-s5-m999", PATH, srSections, structure),
+    ).toBeNull();
+  });
+
+  test("the containing sentence's current page cannot redirect to itself", () => {
+    expect(
+      glossPageForStrandedAnchor(inline, `${PAPER}/s1/view/gloss/`, srSections, structure),
+    ).toBeNull();
+  });
+
+  test("an alias's declared destination still outranks source containment", () => {
+    const sections = JSON.stringify(
+      glossAnchorSections(srBlocks, { "s1-p999-s1": "s7-p1-s1" }),
+    );
+    expect(glossPageForStrandedAnchor("s1-p999-s1", PATH, sections, structure)).toBe(
+      `${PAPER}/s7/view/gloss/#s1-p999-s1`,
+    );
   });
 });

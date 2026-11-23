@@ -21,6 +21,7 @@
 
 import { Fragment } from "react";
 import type { GermanSourceFace } from "../../content/editions/germanSourceFace.ts";
+import type { StructureIndex } from "../anchors/mapToFace.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
 import { FollowingPlate } from "./FollowingPlate.tsx";
@@ -38,6 +39,7 @@ export function GermanDraftFace({
   germanTitle,
   sectionId,
   availability,
+  structureIndex,
   plate,
   explainedBy,
   notExplained,
@@ -46,6 +48,7 @@ export function GermanDraftFace({
   /** For the face chooser. Without it this page had no way to another face but Back. */
   readonly paperId: string;
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
+  readonly structureIndex?: StructureIndex | undefined;
   /**
    * The printed pages of the scan, set beside the text on wide screens and turned to the page the
    * reader has reached (FollowingPlate). `pages` holds only pages whose plates are in public/.
@@ -167,6 +170,7 @@ export function GermanDraftFace({
         section={sectionId}
         current="german"
         availability={availability}
+        structureIndex={structureIndex}
       />
 
       <div className="source-body">

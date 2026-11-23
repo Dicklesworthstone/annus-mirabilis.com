@@ -5,6 +5,7 @@ import type {
   Paper,
   SourceBlock as SourceBlockData,
 } from "../../content/schemas/source.ts";
+import type { StructureIndex } from "../anchors/mapToFace.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
 import { pageRanges } from "../ledgerGaps.ts";
@@ -61,6 +62,7 @@ export interface GermanFaceProps {
   readonly aliases?: Readonly<Record<string, string>> | undefined;
   /** The faces' availability, for the face chooser; without it, the plain list of faces. */
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
+  readonly structureIndex?: StructureIndex | undefined;
 }
 
 export function GermanFace({
@@ -77,6 +79,7 @@ export function GermanFace({
   plate,
   aliases = {},
   availability,
+  structureIndex,
   projections,
 }: GermanFaceProps) {
   const filteredBlocks = sectionId
@@ -168,6 +171,7 @@ export function GermanFace({
           section={sectionId}
           current="german"
           availability={availability}
+          structureIndex={structureIndex}
         />
       ) : (
         <nav className="reader-controls" aria-label="Reading face" lang="en">

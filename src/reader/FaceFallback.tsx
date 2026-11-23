@@ -1,7 +1,9 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
+import { loadGermanSourceFace, printedUnits } from "../content/editions/germanSourceFace.ts";
+import type { RouteSlug } from "../content/ids.ts";
 import { loadPaper } from "../content/server.ts";
+import { sourceStructureIndex } from "./anchors/sourceStructureIndex.ts";
 import { FaceChooser } from "./FaceChooser.tsx";
 import { faceAvailability } from "./faceAvailability.ts";
 import { loadBilingualEdition } from "./faces/bilingualLoader.ts";
@@ -53,6 +55,10 @@ export async function FaceFallback(
 ) {
   const payload = await loadPaper(paperId);
   const { paper } = payload;
+  const structureIndex = sourceStructureIndex(
+    printedUnits(process.cwd(), paperId as RouteSlug),
+    paper.sections.map((s) => s.id),
+  );
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
   const label = FACE_REGISTRY[face].label;
@@ -78,7 +84,7 @@ export async function FaceFallback(
       : {}),
   });
   if (face === "split") {
-    return SplitReadingView({ payload, edition, section, availability });
+    return SplitReadingView({ payload, edition, section, availability, structureIndex });
   }
   // Which printed pages the German text lacks, read from the ledger itself (ledgerGaps.ts), and
   // the facsimile that has every page: the notice alone never said which were missing.
@@ -118,7 +124,13 @@ export async function FaceFallback(
           </p>
         ) : null}
       </header>
-      <FaceChooser paperId={paperId} section={section} current={face} availability={availability} />
+      <FaceChooser
+        paperId={paperId}
+        section={section}
+        current={face}
+        availability={availability}
+        structureIndex={structureIndex}
+      />
       {facsimile?.kind === "available" && (
         <FacsimilePanel
           document={facsimile.document}

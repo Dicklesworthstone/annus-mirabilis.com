@@ -8,7 +8,7 @@ import {
   faceSwitchPlaceForHash,
   parseFaceSwitchTransfer,
 } from "../anchors/faceSwitchPlace.ts";
-import { mapToResultsFace } from "../anchors/mapToFace.ts";
+import { mapToFace, mapToResultsFace, type StructureIndex } from "../anchors/mapToFace.ts";
 import { capturePlace, type PlaceKeeperSnapshot, restoreDelta } from "../anchors/placeKeeper.ts";
 import {
   parseScrollRestoreRecord,
@@ -19,7 +19,7 @@ import {
   passageProjectionTarget,
   pendingPassageProjectionReturn,
 } from "../passageProjectionNavigation.ts";
-import { contentIdVariants, isSentenceContentId } from "../weave/contentIds.ts";
+import { contentIdVariants } from "../weave/contentIds.ts";
 import {
   GLOSS_ANCHOR_SECTIONS_ATTRIBUTE,
   glossPageForStrandedAnchor,
@@ -184,36 +184,14 @@ export function faceHrefWithFragment(href: string, hash: string): string {
 export function resolvedFaceAnchor(
   requestedId: string,
   present: (id: string) => boolean,
+  structureIndex?: StructureIndex,
 ): string | null {
   if (!requestedId) return null;
-  if (present(requestedId)) return requestedId;
-  if (isSentenceContentId(requestedId)) {
-    for (const variant of contentIdVariants(requestedId)) {
-      if (variant !== requestedId && present(variant)) return variant;
-    }
-  }
-  /*
-   * THE ANCESTOR STEP: the reader's section, when their exact unit is not on this face.
-   *
-   * This is the arm `mapToFace`'s nearest-ancestor walk exists for, and `unwiredAnchorModules.
-   * test.ts` records why that module has no caller: it needs a `StructureIndex` carrying
-   * `parentId` and nothing builds one. For the step to a SECTION no index is needed -- every
-   * source id carries its section as a leading `s<n>` and `sectionAnchorOf` already owns reading
-   * it, which is how `resultsAnchorForSource` beside this gets a section today. The finer steps of
-   * that walk (sentence -> paragraph) still want the index, so the entry there stays.
-   *
-   * Measured per face in the built relativity pages, 2026-10-28, as published ids:
-   *
-   *     face        sections  paragraphs  sentences
-   *     german            10         111        223
-   *     english           10           0        285
-   *     parallel          10          94        285
-   *     facsimile         11          94        223
-   *
-   * So a paragraph anchor has a section to fall back to on every one of them, and before this a
-   * reader carrying one landed at the top of the document: #s3-p2 from German went to scrollY 0 on
-   * both english AND parallel, the second of which publishes the id itself.
-   */
+  const resolved = mapToFace(requestedId, structureIndex ?? { units: [] }, { has: present });
+  if (resolved !== undefined) return resolved;
+  // A supplied manifest is authoritative: unknown units cannot invent a parent from their name.
+  if (structureIndex !== undefined) return null;
+  // Standalone faces without source metadata retain the previous section-level fallback.
   const section = sectionAnchorOf(requestedId);
   if (section !== null && section !== requestedId && present(section)) return section;
   return null;
@@ -419,11 +397,8 @@ function currentFace(pathname: string): string {
  * gloss page does contain it: `/papers/special-relativity/s3/view/gloss/` prints 44 sentences
  * including `s3-p2-s1`.
  *
- * `mapToFace` IS NOT THE ANSWER HERE, although its ancestor walk is the obvious candidate and is
- * recorded as unwired for this reason. It would walk `s3-p2-s1` to `s3-p2` to `s3` and return
- * undefined, because the whole-paper gloss page publishes no `s3` of any kind -- its 14 structural
- * ids are all `s0`. The ancestor is not on this page; it is on another page, and what resolves that
- * is the link the page already prints.
+ * A nearest-ancestor walk cannot resolve a section absent from this page. When `s3-p2-s1`,
+ * `s3-p2`, and `s3` are all absent, the section's existing page link supplies the destination.
  *
  * Returns null rather than guessing: when the anchor names no section, when this is not a face
  * page, when no such link is printed, and -- the one that would otherwise loop -- when the link
@@ -452,7 +427,11 @@ export function sectionPageForStrandedAnchor(
   return null;
 }
 
-export function FaceSwitchAnchor() {
+export function FaceSwitchAnchor({
+  structureIndex,
+}: {
+  readonly structureIndex?: StructureIndex | undefined;
+} = {}) {
   /** An intermediate section redirect must not consume the destination's saved position. */
   const redirectingRef = useRef(false);
   /** The anchor's place the last time it was at least half visible. */
@@ -486,7 +465,19 @@ export function FaceSwitchAnchor() {
       declaredSections !== null &&
       !contentIdVariants(requested).some(present)
     ) {
-      const destination = glossPageForStrandedAnchor(requested, currentPath, declaredSections);
+      let destination = glossPageForStrandedAnchor(requested, currentPath, declaredSections);
+      if (
+        destination === null &&
+        structureIndex !== undefined &&
+        resolvedFaceAnchor(requested, present, structureIndex) === null
+      ) {
+        destination = glossPageForStrandedAnchor(
+          requested,
+          currentPath,
+          declaredSections,
+          structureIndex,
+        );
+      }
       if (destination !== null) {
         redirectingRef.current = true;
         try {
@@ -509,7 +500,7 @@ export function FaceSwitchAnchor() {
       }
     }
     const resolved =
-      resolvedFaceAnchor(requested, present) ??
+      resolvedFaceAnchor(requested, present, structureIndex) ??
       // Nothing in the source grammar is on this page. If it is the results face, the carried id
       // still names a section, and that section's first card is where the reader asked to be.
       resultsAnchorForSource(
@@ -551,7 +542,7 @@ export function FaceSwitchAnchor() {
     // replaceState, so Back still goes where the reader came from and a copied URL names the id
     // they are actually at.
     window.history.replaceState(window.history.state, "", `#${resolved}`);
-  }, []);
+  }, [structureIndex]);
 
   /*
     THE SAME RELATIVE POSITION, criterion 2's second clause: "shows the same sentence at the same
@@ -605,7 +596,7 @@ export function FaceSwitchAnchor() {
       parsed,
       window.location.pathname + window.location.search,
       window.location.hash,
-      (id) => resolvedFaceAnchor(id, present),
+      (id) => resolvedFaceAnchor(id, present, structureIndex),
     );
     if (snapshot === null) return;
     const element = document.getElementById(snapshot.anchorId);
@@ -619,7 +610,7 @@ export function FaceSwitchAnchor() {
       stop();
       if (carriedHoldRef.current === stop) carriedHoldRef.current = undefined;
     };
-  }, []);
+  }, [structureIndex]);
 
   /*
     KEEP THE ANCHOR'S PLACE WHILE THE READER CAN SEE IT.
@@ -844,11 +835,11 @@ export function FaceSwitchAnchor() {
       if (record === null || record.face !== currentFace(window.location.pathname)) return;
       const present = (id: string) => document.getElementById(id) !== null;
       const requested = anchorFromFaceHash(window.location.hash);
-      const landed = resolvedFaceAnchor(record.anchor, present);
+      const landed = resolvedFaceAnchor(record.anchor, present, structureIndex);
       if (
         landed === null ||
         requested === null ||
-        resolvedFaceAnchor(requested, present) !== landed
+        resolvedFaceAnchor(requested, present, structureIndex) !== landed
       )
         return;
       const element = document.getElementById(landed);
@@ -907,7 +898,7 @@ export function FaceSwitchAnchor() {
       window.removeEventListener("popstate", onPopState);
       window.removeEventListener("pageshow", onPopState);
     };
-  }, []);
+  }, [structureIndex]);
 
   return null;
 }

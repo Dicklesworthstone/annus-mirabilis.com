@@ -1,4 +1,5 @@
 import type { PaperPayload } from "../../content/compiler/compile.ts";
+import type { StructureIndex } from "../anchors/mapToFace.ts";
 import { paneDomId } from "../anchors/paneIds.ts";
 import { ReadingBlocks } from "../Blocks.tsx";
 import { FaceChooser } from "../FaceChooser.tsx";
@@ -37,11 +38,13 @@ export async function SplitReadingView({
   edition,
   section,
   availability,
+  structureIndex,
 }: {
   payload: PaperPayload;
   edition: BilingualEdition | null;
   section?: string | undefined;
   availability: Readonly<Partial<Record<FaceId, FaceAvailability>>>;
+  structureIndex?: StructureIndex | undefined;
 }) {
   const { paper, foundations } = payload;
   const selected = paper.sections.find((s) => s.id === (section ?? paper.sections[0]?.id));
@@ -75,6 +78,7 @@ export async function SplitReadingView({
         section={section}
         current="split"
         availability={availability}
+        structureIndex={structureIndex}
       />
 
       <div

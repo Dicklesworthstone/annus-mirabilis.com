@@ -7,6 +7,7 @@ import type {
   TranslationUnit,
 } from "../../content/schemas/source.ts";
 import type { SourceAliasMap } from "../anchors/sourceAliases.ts";
+import type { StructureIndex } from "../anchors/mapToFace.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
 import { PassageProjectionNavigation } from "../PassageProjectionNavigation.tsx";
@@ -31,6 +32,7 @@ export interface EnglishFaceProps {
   readonly projectionsByUnit?: Readonly<Record<string, PassageProjection>> | undefined;
   /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
+  readonly structureIndex?: StructureIndex | undefined;
   readonly paper: Paper;
   readonly units: readonly TranslationUnit[];
   readonly alignment?: Alignment | undefined;
@@ -51,6 +53,7 @@ export function EnglishFace({
   reviewRecords = [],
   sectionId,
   availability,
+  structureIndex,
   blocks,
   untranslatedSections = [],
   projectionsByUnit,
@@ -141,6 +144,7 @@ export function EnglishFace({
         section={sectionId}
         current="english"
         availability={availability}
+        structureIndex={structureIndex}
       />
 
       {/* The reader's measure and type step, as the German face reads (readingSettings.css

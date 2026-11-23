@@ -9,6 +9,7 @@
  * ids, every one of them a split half.
  */
 import { describe, expect, test } from "bun:test";
+import { sourceStructureIndex } from "../anchors/sourceStructureIndex.ts";
 import {
   crossesFaces,
   faceHrefWithFragment,
@@ -127,11 +128,8 @@ describe("crossesFaces: only the kinds both source faces publish are carried out
 
 describe("resolvedFaceAnchor: the ancestor step to a section", () => {
   /*
-   * The arm `mapToFace`'s nearest-ancestor walk exists for, implemented where the live caller is.
-   * Only the step to a SECTION is here: every source id carries its section as a leading `s<n>` and
-   * `sectionAnchorOf` owns reading it, so no StructureIndex is needed for this one. The finer steps
-   * (sentence -> paragraph) still want the index that nothing builds, which is why
-   * unwiredAnchorModules.test.ts keeps its entry.
+   * Standalone faces without source metadata retain their section fallback. Routed source faces
+   * supply sourceStructureIndex and use the finer sentence/paragraph ancestry tested below.
    */
   const only =
     (...ids: readonly string[]) =>
@@ -378,5 +376,39 @@ describe("sectionPageForStrandedAnchor", () => {
         `${PAPER}/s3/view/gloss/#s3-p1-s1`,
       ]),
     ).toBe(`${PAPER}/s3/view/gloss/`);
+  });
+});
+
+describe("resolvedFaceAnchor uses the supplied source hierarchy", () => {
+  const index = sourceStructureIndex(
+    [
+      { id: "s0-p5" },
+      { id: "s0-p5-s1", containedIn: "s0-p5" },
+      { id: "s0-p5-s1-m1", containedIn: "s0-p5-s1" },
+    ],
+    ["s0"],
+  );
+  const has = (...ids: string[]) => (id: string) => ids.includes(id);
+
+  test("a formula reaches the containing sentence before the section", () => {
+    expect(resolvedFaceAnchor("s0-p5-s1-m1", has("s0-p5-s1", "s0-p5", "s0"), index)).toBe(
+      "s0-p5-s1",
+    );
+  });
+
+  test("missing sentences and their split halves land on the actual paragraph", () => {
+    expect(resolvedFaceAnchor("s0-p5-s1", has("s0-p5", "s0"), index)).toBe("s0-p5");
+    expect(resolvedFaceAnchor("s0-p5-s1b", has("s0-p5", "s0"), index)).toBe("s0-p5");
+  });
+
+  test("an inline formula can reach a split translation of its sentence", () => {
+    expect(resolvedFaceAnchor("s0-p5-s1-m1", has("s0-p5-s1a", "s0-p5-s1b", "s0"), index)).toBe(
+      "s0-p5-s1a",
+    );
+  });
+
+  test("unknown source units cannot use their spelling to claim a known section", () => {
+    expect(resolvedFaceAnchor("s0-p99-s1", has("s0"), index)).toBeNull();
+    expect(resolvedFaceAnchor("s0-p5-s1-m1", has("s9"), index)).toBeNull();
   });
 });

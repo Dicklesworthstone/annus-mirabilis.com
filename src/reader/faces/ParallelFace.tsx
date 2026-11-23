@@ -8,6 +8,7 @@ import {
   type TranslationUnit,
 } from "../../content/schemas/source.ts";
 import type { SourceAliasMap } from "../anchors/sourceAliases.ts";
+import type { StructureIndex } from "../anchors/mapToFace.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
 import { PassageProjectionNavigation } from "../PassageProjectionNavigation.tsx";
@@ -43,6 +44,7 @@ export interface ParallelFaceProps {
   readonly projectionsByUnit?: Readonly<Record<string, PassageProjection>> | undefined;
   /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
+  readonly structureIndex?: StructureIndex | undefined;
   readonly paper: Paper;
   readonly blocks: readonly SourceBlock[];
   readonly units: readonly TranslationUnit[];
@@ -66,6 +68,7 @@ export function ParallelFace({
   layout = "side-by-side",
   untranslatedSections = [],
   availability,
+  structureIndex,
   projectionsByUnit,
   aliases = {},
 }: ParallelFaceProps) {
@@ -192,6 +195,7 @@ export function ParallelFace({
         section={sectionId}
         current="parallel"
         availability={availability}
+        structureIndex={structureIndex}
       />
 
       {/*

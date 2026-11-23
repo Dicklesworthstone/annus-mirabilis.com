@@ -3,6 +3,9 @@ import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { installDom, uninstallDom } from "../../testing/reactDom.ts";
+import type { StructureIndex } from "../anchors/mapToFace.ts";
+import { sourceStructureIndex } from "../anchors/sourceStructureIndex.ts";
+import { FaceChooser } from "../FaceChooser.tsx";
 import { FaceSwitchAnchor } from "./FaceSwitchAnchor.tsx";
 
 const PAPER = "/papers/special-relativity";
@@ -78,11 +81,17 @@ function fixture(face = "german", hash = SENTENCE) {
   };
 }
 
-async function mount(root: HTMLElement) {
+async function mount(root: HTMLElement, structureIndex?: StructureIndex) {
   const container = document.createElement("div");
   root.prepend(container);
   reactRoot = createRoot(container);
-  await act(async () => reactRoot?.render(createElement(FaceSwitchAnchor)));
+  await act(async () =>
+    reactRoot?.render(
+      structureIndex
+        ? createElement(FaceChooser, { paperId: "special-relativity", structureIndex })
+        : createElement(FaceSwitchAnchor),
+    ),
+  );
 }
 
 function follow(link: HTMLAnchorElement) {
@@ -299,5 +308,90 @@ describe("transferred and history scroll holds share a lifecycle", () => {
     expect(frames.size).toBe(0);
     expect(scrolled).toEqual([SENTENCE]);
     expect(window.location.hash).toBe("#s7");
+  });
+});
+
+describe("the face chooser restores the nearest published source unit", () => {
+  const inline = `${SENTENCE}-m1`;
+  const paragraph = "s4-p3";
+  const structure = sourceStructureIndex(
+    [
+      { id: paragraph, section: "s4" },
+      { id: SENTENCE, containedIn: paragraph, section: "s4" },
+      { id: inline, containedIn: SENTENCE, section: "s4" },
+      { id: "s7-p1", section: "s7" },
+      { id: NEXT_SENTENCE, containedIn: "s7-p1", section: "s7" },
+    ],
+    ["s4", "s7"],
+  );
+
+  function transfer(anchorId: string, face: string, relativeOffset = 0.2) {
+    sessionStorage.setItem(
+      PLACE_KEY,
+      JSON.stringify({ anchorId, relativeOffset, path: `${PAPER}/view/${face}/` }),
+    );
+  }
+
+  test("an inline-formula arrival keeps the containing sentence at the transferred position", async () => {
+    const { root } = fixture("german", inline);
+    transfer(inline, "german");
+    await mount(root, structure);
+    expect(window.location.hash).toBe(`#${SENTENCE}`);
+    expect(scrolled.at(-1)).toBe(SENTENCE);
+    expect(document.getElementById(SENTENCE)?.style.scrollMarginTop).toBe("180px");
+    expect(window.history.state.unrelated).toBe("kept");
+    expect(sessionStorage.getItem(PLACE_KEY)).toBeNull();
+  });
+
+  test("a missing sentence lands on its published paragraph, without inventing a sentence node", async () => {
+    const { root } = fixture("parallel", SENTENCE);
+    const sentence = document.getElementById(SENTENCE);
+    if (!sentence) throw new Error("Missing source fixture.");
+    sentence.id = paragraph;
+    transfer(SENTENCE, "parallel", 0.25);
+    await mount(root, structure);
+    expect(document.getElementById(SENTENCE)).toBeNull();
+    expect(window.location.hash).toBe(`#${paragraph}`);
+    expect(scrolled.at(-1)).toBe(paragraph);
+    expect(sentence.style.scrollMarginTop).toBe("225px");
+  });
+
+  test("German to split English keeps the first translated half at the transferred position", async () => {
+    const { root } = fixture("english", SENTENCE);
+    const sentence = document.getElementById(SENTENCE);
+    if (!sentence) throw new Error("Missing source fixture.");
+    sentence.id = `${SENTENCE}a`;
+    const second = document.createElement("p");
+    second.id = `${SENTENCE}b`;
+    second.textContent = "The second translated half.";
+    root.append(second);
+    transfer(SENTENCE, "english");
+    await mount(root, structure);
+    expect(window.location.hash).toBe(`#${SENTENCE}a`);
+    expect(scrolled.at(-1)).toBe(`${SENTENCE}a`);
+    expect(sentence.style.scrollMarginTop).toBe("180px");
+    expect(second.style.scrollMarginTop).toBe("");
+  });
+
+  test("split English to German restores the canonical sentence at the transferred position", async () => {
+    const secondHalf = `${SENTENCE}b`;
+    const { root } = fixture("german", secondHalf);
+    transfer(secondHalf, "german", 0.3);
+    await mount(root, structure);
+    expect(window.location.hash).toBe(`#${SENTENCE}`);
+    expect(scrolled.at(-1)).toBe(SENTENCE);
+    expect(document.getElementById(SENTENCE)?.style.scrollMarginTop).toBe("270px");
+  });
+
+  test("a destination without any published ancestor leaves the unresolved address alone", async () => {
+    const { root } = fixture("english", inline);
+    const sentence = document.getElementById(SENTENCE);
+    if (!sentence) throw new Error("Missing source fixture.");
+    sentence.id = "unrelated-source";
+    transfer(inline, "english");
+    await mount(root, structure);
+    expect(window.location.hash).toBe(`#${inline}`);
+    expect(scrolled).toEqual([]);
+    expect(sessionStorage.getItem(PLACE_KEY)).toBeNull();
   });
 });

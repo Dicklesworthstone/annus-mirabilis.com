@@ -13,6 +13,7 @@ import type {
   SourceBlock,
   TranslationUnit,
 } from "../../content/schemas/source.ts";
+import type { StructureIndex } from "../anchors/mapToFace.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
 import { PassageProjectionNavigation } from "../PassageProjectionNavigation.tsx";
@@ -51,6 +52,7 @@ export interface GlossFaceProps {
   readonly projections?: Readonly<Record<string, PassageProjection>> | undefined;
   /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
+  readonly structureIndex?: StructureIndex | undefined;
   readonly paper: Paper;
   readonly blocks: readonly SourceBlock[];
   readonly glossUnits: readonly GlossUnit[];
@@ -102,6 +104,7 @@ export function GlossFace({
   initialReasoningWords = false,
   modalityClasses,
   availability,
+  structureIndex,
   unglossedSections = [],
   section,
   aliases = {},
@@ -239,7 +242,12 @@ export function GlossFace({
       </header>
 
       {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
-      <FaceChooser paperId={paper.slug} current="gloss" availability={availability} />
+      <FaceChooser
+        paperId={paper.slug}
+        current="gloss"
+        availability={availability}
+        structureIndex={structureIndex}
+      />
       <PassageProjectionNavigation />
 
       {/* The gloss a section at a time (dispatch 254): real links, so it works without JavaScript. */}
