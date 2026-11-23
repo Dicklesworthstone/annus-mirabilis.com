@@ -1,124 +1,443 @@
-import { useId } from "react";
-import { bellHeight, WIDTH_BANDS, withinWidths } from "../../foundations/bridgeFigures.ts";
+"use client";
+
+import { useEffect, useId, useState } from "react";
+import {
+  GAUSSIAN_LIMITS,
+  GAUSSIAN_WIDTH_COUNTS,
+  type GaussianIntervalResult,
+  type GaussianRefusal,
+  type GaussianSample,
+  type GaussianWidthCount,
+  INITIAL_GAUSSIAN_INTERVAL,
+  readGaussianBand,
+  readGaussianInterval,
+} from "../../foundations/gaussianIntervals.ts";
+import { exponentialSpoken, exponentialText } from "../../units/scientific.ts";
+import { Sci } from "../lab/Sci.tsx";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
+import "./gaussianIntervals.css";
 
-/**
- * The shape foundation:gaussian-distributions is about (dispatch 420).
- *
- * The lesson was 6,747 visible characters on the shape of a distribution, with five inline svg
- * that were all square-root signs inside its own formulas and no picture of the shape at all. Its
- * first step list is the figure, written out: "Within one width of the start, between minus 1 and
- * plus 1 micrometre, end about 68 per cent of the particles. Within two widths, about 95; within
- * three, about 99.7."
- *
- * The bands are drawn once, on one curve, because they are nested and a reader has to see that the
- * 95 contains the 68. Their percentages come from withinWidths(), which is the erf owner, so this
- * figure and foundSlice.numbers.test.ts are held to one function rather than to two copies of
- * three numbers.
- *
- * Colour carries none of it: each band is separated by a drawn rule at its width, numbered along
- * the axis, and named in the key underneath.
- */
+const W = 300;
+const H = 194;
+const LEFT = 32;
+const RIGHT = 288;
+const BASE = 142;
+const TOP = 28;
+const MAX_DENSITY = 0.85;
+const rounded = (value: number) => Number(value.toPrecision(5));
+const isPlain = (value: number) => value === 0 || (Math.abs(value) >= 0.001 && Math.abs(value) < 10000);
+const shown = (value: number) =>
+  isPlain(rounded(value))
+    ? String(rounded(value)).replace(/^-/, "−")
+    : exponentialText(rounded(value));
+const spoken = (value: number) =>
+  isPlain(rounded(value)) ? shown(value).replace("−", "minus ") : exponentialSpoken(rounded(value));
+const percentage = (value: number) => spoken(100 * value);
+// Keep distinct accepted bounds distinct; only calculated probabilities and densities are rounded.
+const coordinate = (value: number) => String(value).replace(/^-/, "−");
 
-const W = 300,
-  H = 180;
-const MID = W / 2,
-  UNIT = 44,
-  BASE = 132,
-  PEAK = 34,
-  SPAN = 3.2;
+function Reading({ value }: { readonly value: number }) {
+  return isPlain(rounded(value)) ? <>{shown(value)}</> : <Sci value={rounded(value)} />;
+}
+const x = (position: number) =>
+  LEFT +
+  ((position - GAUSSIAN_LIMITS.minimumBound) /
+    (GAUSSIAN_LIMITS.maximumBound - GAUSSIAN_LIMITS.minimumBound)) *
+    (RIGHT - LEFT);
+const y = (density: number) => BASE - (density / MAX_DENSITY) * (BASE - TOP);
 
-const x = (widths: number) => MID + widths * UNIT;
-const y = (height: number) => BASE - height * (BASE - PEAK);
-
-/** The filled region of the bell between two widths, closed along the axis. */
-function band(from: number, to: number): string {
-  const steps = 48;
-  const top = Array.from({ length: steps + 1 }, (_, i) => {
-    const u = from + ((to - from) * i) / steps;
-    return `${x(u)},${y(bellHeight(u))}`;
-  });
-  return `M ${x(from)},${BASE} L ${top.join(" L ")} L ${x(to)},${BASE} Z`;
+function line(points: readonly GaussianSample[]): string {
+  return "M " + points.map((point) => x(point.position) + "," + y(point.density)).join(" L ");
 }
 
-const CURVE = Array.from({ length: 129 }, (_, i) => -SPAN + (2 * SPAN * i) / 128);
+function area(points: readonly GaussianSample[]): string {
+  const first = points[0];
+  const last = points[points.length - 1];
+  if (!first || !last) return "";
+  return (
+    "M " +
+    x(first.position) +
+    "," +
+    BASE +
+    " L " +
+    points.map((point) => x(point.position) + "," + y(point.density)).join(" L ") +
+    " L " +
+    x(last.position) +
+    "," +
+    BASE +
+    " Z"
+  );
+}
 
+/** One accepted Gaussian supplies the plot, interval, probability table and spoken description. */
 export function BellAndItsWidths({ headingLevel = 3 }: { readonly headingLevel?: HeadingLevel }) {
-  const headingId = useId(),
-    Title = headingTag(headingLevel),
-    Sub = headingTag(headingLevel, 1);
-  const percent = (k: number) => Number(withinWidths(k).toPrecision(k === 3 ? 4 : 2));
-  const outsideOne = Number((100 - withinWidths(1)).toPrecision(2));
+  const id = useId();
+  const Title = headingTag(headingLevel);
+  const Sub = headingTag(headingLevel, 1);
+  const [ready, setReady] = useState(false);
+  const [accepted, setAccepted] = useState(INITIAL_GAUSSIAN_INTERVAL);
+  const [width, setWidth] = useState("1");
+  const [lower, setLower] = useState("-1");
+  const [upper, setUpper] = useState("1");
+  const [error, setError] = useState<GaussianRefusal | null>(null);
+  useEffect(() => setReady(true), []);
+
+  if (accepted.kind !== "accepted" || INITIAL_GAUSSIAN_INTERVAL.kind !== "accepted")
+    return (
+      <section className="foundation-construction">
+        <Title className="construction-title">The bell, and what each width is worth</Title>
+        <p>The worked Gaussian could not be calculated. The lesson above remains readable.</p>
+      </section>
+    );
+
+  const view = accepted.interval;
+  const reference = INITIAL_GAUSSIAN_INTERVAL.interval;
+  const pending =
+    width !== String(view.width) || lower !== String(view.lower) || upper !== String(view.upper);
+  const errorFor = (field: "width" | "lower" | "upper") =>
+    error?.field === field || (error?.field === "interval" && field !== "width");
+
+  function accept(result: GaussianIntervalResult) {
+    if (result.kind === "refused") {
+      setError(result);
+      return;
+    }
+    setAccepted(result);
+    setWidth(String(result.interval.width));
+    setLower(String(result.interval.lower));
+    setUpper(String(result.interval.upper));
+    setError(null);
+  }
+
+  function chooseBand(widths: GaussianWidthCount) {
+    accept(readGaussianBand(width, widths));
+  }
+
+  const summary =
+    "RMS width " +
+    coordinate(view.width) +
+    " micrometres. From " +
+    coordinate(view.lower) +
+    " to " +
+    coordinate(view.upper) +
+    " micrometres: " +
+    percentage(view.inside) +
+    " per cent of the probability. Outside this interval: " +
+    percentage(view.outside) +
+    " per cent.";
 
   return (
     <section
       className="foundation-construction"
-      aria-labelledby={headingId}
+      aria-labelledby={id + "-title"}
       data-foundation-construction="gaussian-distributions"
     >
-      <Title id={headingId} className="construction-title">
+      <Title id={id + "-title"} className="construction-title">
         The bell, and what each width is worth
       </Title>
       <p>
-        One curve, with a rule drawn at one, two and three widths either side of the start. The
-        bands are nested: the second contains the first.
+        Choose how wide the bell is and which interval to count. A wider bell has a lower peak
+        because its total probability stays one. Keep the bounds fixed to see the chance change,
+        or choose the same number of widths to see the familiar percentages stay the same.
       </p>
-
-      <svg
-        className="bridge-figure bell-figure"
-        viewBox={`0 0 ${W} ${H}`}
-        role="img"
-        aria-label={`A bell curve centred on the start, with rules drawn at one, two and three root-mean-square widths either side. The band within one width either way holds about ${percent(1)} per cent of the chance, within two widths about ${percent(2)} per cent, and within three about ${percent(3)} per cent. The curve is the same shape to the left of the start as to the right.`}
+      <form
+        noValidate
+        onSubmit={(event) => {
+          event.preventDefault();
+          accept(readGaussianInterval(width, lower, upper));
+        }}
       >
-        <text className="bridge-axis-name" x="2" y="14">
-          chance per unit of displacement
-        </text>
+        <fieldset className="construction-controls" disabled={!ready}>
+          <legend>Change the width and the interval</legend>
+          <div className="gaussian-fields">
+            <label htmlFor={id + "-width"}>
+              RMS width (µm)
+              <input
+                id={id + "-width"}
+                name="gaussian-width"
+                type="text"
+                inputMode="decimal"
+                autoComplete="off"
+                maxLength={GAUSSIAN_LIMITS.textLength}
+                value={width}
+                aria-invalid={errorFor("width") || undefined}
+                aria-describedby={id + "-help" + (errorFor("width") ? " " + id + "-error" : "")}
+                onInput={(event) => {
+                  setWidth(event.currentTarget.value);
+                  setError(null);
+                }}
+              />
+            </label>
+            <label htmlFor={id + "-lower"}>
+              Lower bound (µm)
+              <input
+                id={id + "-lower"}
+                name="gaussian-lower"
+                type="text"
+                inputMode="decimal"
+                autoComplete="off"
+                maxLength={GAUSSIAN_LIMITS.textLength}
+                value={lower}
+                aria-invalid={errorFor("lower") || undefined}
+                aria-describedby={id + "-help" + (errorFor("lower") ? " " + id + "-error" : "")}
+                onInput={(event) => {
+                  setLower(event.currentTarget.value);
+                  setError(null);
+                }}
+              />
+            </label>
+            <label htmlFor={id + "-upper"}>
+              Upper bound (µm)
+              <input
+                id={id + "-upper"}
+                name="gaussian-upper"
+                type="text"
+                inputMode="decimal"
+                autoComplete="off"
+                maxLength={GAUSSIAN_LIMITS.textLength}
+                value={upper}
+                aria-invalid={errorFor("upper") || undefined}
+                aria-describedby={id + "-help" + (errorFor("upper") ? " " + id + "-error" : "")}
+                onInput={(event) => {
+                  setUpper(event.currentTarget.value);
+                  setError(null);
+                }}
+              />
+            </label>
+          </div>
+          <p id={id + "-help"} className="fine">
+            Width: 0.5 to 2 µm. Bounds: −6 to 6 µm, measured from the start. Equal bounds select a
+            single point. The width buttons use the width currently entered above.
+          </p>
+          <div className="actions">
+            <button type="submit">Apply width and interval</button>
+            {GAUSSIAN_WIDTH_COUNTS.map((count) => (
+              <button
+                key={count}
+                type="button"
+                className="secondary"
+                onClick={() => chooseBand(count)}
+              >
+                Within {count} {count === 1 ? "width" : "widths"}
+              </button>
+            ))}
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => accept(INITIAL_GAUSSIAN_INTERVAL)}
+            >
+              Restore one-width example
+            </button>
+          </div>
+        </fieldset>
+        {error ? (
+          <p id={id + "-error"} role="alert">
+            {error.message} The drawing and table still use width {coordinate(view.width)} µm and
+            bounds {coordinate(view.lower)} to {coordinate(view.upper)} µm.
+          </p>
+        ) : pending ? (
+          <p className="fine">
+            Apply the entries to update the curve and table together. Until then, the previous
+            accepted width and interval remain shown.
+          </p>
+        ) : null}
+      </form>
 
-        <path className="bridge-band-outer" d={band(-3, 3)} />
-        <path className="bridge-band-middle" d={band(-2, 2)} />
-        <path className="bridge-band-inner" d={band(-1, 1)} />
-
-        <polyline
-          className="bridge-line"
-          points={CURVE.map((u) => `${x(u)},${y(bellHeight(u))}`).join(" ")}
-        />
-        <line className="bridge-axis" x1={x(-SPAN)} y1={BASE} x2={x(SPAN)} y2={BASE} />
-
-        {WIDTH_BANDS.flatMap((k) => [-k, k]).map((k) => (
-          <line
-            key={k}
-            className="bridge-tick"
-            x1={x(k)}
-            y1={y(bellHeight(k))}
-            x2={x(k)}
-            y2={BASE + 6}
-          />
-        ))}
-        <line className="bridge-tick" x1={MID} y1={BASE} x2={MID} y2={BASE + 10} />
-        {[-3, -2, -1, 0, 1, 2, 3].map((k) => (
-          <text key={k} className="bridge-number" x={x(k)} y={BASE + 22} textAnchor="middle">
-            {k > 0 ? `+${k}` : k}
+      <div data-gaussian-current>
+        <p className="construction-status" role="status">
+          {summary}
+        </p>
+        <svg
+          className="bridge-figure bell-figure"
+          viewBox={"0 0 " + W + " " + H}
+          role="img"
+          aria-label={
+            "Two centered bell curves on fixed axes in micrometres and probability per micrometre. " +
+            "The dashed reference has width 1 micrometre; the solid chosen curve has width " +
+            coordinate(view.width) +
+            " micrometres. Hatching marks the chosen interval. " +
+            summary +
+            " The distribution continues beyond the drawing on both sides."
+          }
+        >
+          <defs>
+            <pattern
+              id={id + "-hatch"}
+              width="6"
+              height="6"
+              patternUnits="userSpaceOnUse"
+            >
+              <path className="gaussian-hatch" d="M -1 1 L 1 -1 M 0 6 L 6 0 M 5 7 L 7 5" />
+            </pattern>
+          </defs>
+          <text className="bridge-axis-name" x="2" y="14">
+            chance per micrometre
           </text>
-        ))}
-        <text className="bridge-axis-name" x={MID} y={H - 26} textAnchor="middle">
-          widths from the start
-        </text>
-      </svg>
+          {[...reference.bands].reverse().map((band) => (
+            <path
+              key={band.widths}
+              className={
+                band.widths === 1
+                  ? "bridge-band-inner"
+                  : band.widths === 2
+                    ? "bridge-band-middle"
+                    : "bridge-band-outer"
+              }
+              d={area(band.samples)}
+            />
+          ))}
+          <path
+            data-gaussian-selection
+            fill={"url(#" + id + "-hatch)"}
+            d={area(view.intervalSamples)}
+          />
+          <path className="bridge-line" data-gaussian-curve d={line(view.samples)} />
+          <path className="bridge-step" data-gaussian-reference d={line(reference.samples)} />
+          {[
+            { key: "lower", position: view.lower, density: view.lowerDensity },
+            { key: "upper", position: view.upper, density: view.upperDensity },
+          ].map((bound) => (
+            <line
+              key={bound.key}
+              className="bridge-tick"
+              x1={x(bound.position)}
+              x2={x(bound.position)}
+              y1={y(bound.density)}
+              y2={BASE + 5}
+            />
+          ))}
+          <line className="bridge-axis" x1={LEFT} y1={TOP} x2={LEFT} y2={BASE} />
+          <line className="bridge-axis" x1={LEFT} y1={BASE} x2={RIGHT} y2={BASE} />
+          {[0, 0.4, 0.8].map((tick) => (
+            <text
+              key={tick}
+              className="bridge-number"
+              x={LEFT - 5}
+              y={y(tick) + 4}
+              textAnchor="end"
+            >
+              {tick}
+            </text>
+          ))}
+          {[-6, -3, 0, 3, 6].map((tick) => (
+            <text
+              key={tick}
+              className="bridge-number"
+              x={x(tick)}
+              y={BASE + 19}
+              textAnchor="middle"
+            >
+              {tick}
+            </text>
+          ))}
+          <text
+            className="bridge-axis-name"
+            x={(LEFT + RIGHT) / 2}
+            y={H - 7}
+            textAnchor="middle"
+          >
+            displacement, micrometres
+          </text>
+        </svg>
+        <p className="fine">
+          Solid: chosen width. Dashed: fixed 1 µm reference. Hatched area: chosen interval.
+          Both axes stay fixed. Tails outside the drawing are included in the probabilities.
+          Probabilities and densities are rounded to five significant figures.
+        </p>
+
+        <table className="data-table gaussian-results-table">
+          <caption>Where the probability lies for the chosen width</caption>
+          <thead>
+            <tr>
+              <th scope="col">Region</th>
+              <th scope="col">Probability, per cent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Below {coordinate(view.lower)} µm</th>
+              <td data-gaussian-output="below">
+                <Reading value={100 * view.below} />
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                From {coordinate(view.lower)} to {coordinate(view.upper)} µm
+              </th>
+              <td data-gaussian-output="inside">
+                <Reading value={100 * view.inside} />
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Above {coordinate(view.upper)} µm</th>
+              <td data-gaussian-output="above">
+                <Reading value={100 * view.above} />
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Both outside regions together</th>
+              <td data-gaussian-output="outside">
+                <Reading value={100 * view.outside} />
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Below + inside + above</th>
+              <td data-gaussian-output="total">
+                <Reading value={100 * view.total} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <table className="data-table gaussian-results-table">
+          <caption>Curve heights are densities, not probabilities</caption>
+          <thead>
+            <tr>
+              <th scope="col">Position</th>
+              <th scope="col">Density, per µm</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Lower bound, {coordinate(view.lower)} µm</th>
+              <td data-gaussian-output="lower-density">
+                <Reading value={view.lowerDensity} />
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">At the start, 0 µm</th>
+              <td data-gaussian-output="peak">
+                <Reading value={view.peakDensity} />
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Upper bound, {coordinate(view.upper)} µm</th>
+              <td data-gaussian-output="upper-density">
+                <Reading value={view.upperDensity} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        {view.lower === view.upper ? (
+          <p className="fine">
+            This interval has no width, so its probability is zero even though the curve is
+            positive there. Probability belongs to an area under the curve, not a single height.
+          </p>
+        ) : null}
+      </div>
 
       <p className="fine">
-        One width is the root mean square displacement, √(2Dt). It is a label too long to sit inside
-        a drawing, where text does not reflow on a narrow screen.
+        The three pale bands keep the original 1 µm reference. One width is the RMS displacement,
+        √(2Dt), along one coordinate. A width is a typical distance, never a limit.
       </p>
-
       <ul className="bell-key">
-        {WIDTH_BANDS.map((k) => (
-          <li key={k}>
+        {reference.bands.map((band) => (
+          <li key={band.widths}>
             <svg className="bell-swatch" viewBox="0 0 28 18" aria-hidden="true">
               <rect
                 className={
-                  k === 1
+                  band.widths === 1
                     ? "bridge-band-inner"
-                    : k === 2
+                    : band.widths === 2
                       ? "bridge-band-middle"
                       : "bridge-band-outer"
                 }
@@ -130,32 +449,42 @@ export function BellAndItsWidths({ headingLevel = 3 }: { readonly headingLevel?:
               <rect className="bridge-bar-whole" x="1" y="1" width="26" height="16" />
             </svg>
             <span>
-              Within {k === 1 ? "one width" : k === 2 ? "two widths" : "three widths"} either way,
-              between {`−${k}`} and +{k}: about {percent(k)} per cent of the chance.
+              Within {band.widths === 1 ? "one width" : band.widths === 2 ? "two widths" : "three widths"}
+              {" "}either way: about{" "}
+              {Number((100 * band.probability).toPrecision(band.widths === 3 ? 3 : 2))} per cent.
             </span>
           </li>
         ))}
       </ul>
 
-      <p className="fine">
-        So about {outsideOne} per cent, roughly one particle in three, ends more than one width from
-        where it started. A width is a typical distance, never a limit.
-      </p>
+      <details>
+        <summary>Assumptions behind this comparison</summary>
+        <p>
+          Ideal model, host calculation. This is a centered, unbounded Gaussian along one
+          coordinate, without drift or walls. It shows consequences of that model, not measured
+          particle counts. Choosing a width does not separately determine diffusivity and elapsed
+          time. The curve and its interval probabilities use the same Gaussian calculation as the
+          diffusion laboratory.
+        </p>
+        <p>
+          <a href="/lab/bm-06/">Explore diffusivity and time in the Gaussian laboratory</a>.
+        </p>
+      </details>
 
       <div className="construction-text-equivalent">
         <Sub>What it shows, in words</Sub>
         <p>
-          A bell curve centred on the start, with a rule drawn at one, two and three widths either
-          side. The band within one width either way holds about {percent(1)} per cent of the
-          chance; within two widths about {percent(2)} per cent; within three about {percent(3)}.
-          The bands are nested, so the {percent(2)} already includes the {percent(1)}, and each
-          further width adds less than the one before it.
+          At the initial 1 µm width, the interval from −1 to 1 µm contains about 68 per cent of the
+          probability; about 32 per cent lies outside it. Keep those bounds and double the width
+          to 2 µm: the peak falls by half and the interval contains about 38 per cent. Choose
+          “Within 1 width” at that new width and the bounds move to −2 and 2 µm, containing about
+          68 per cent again.
         </p>
         <p>
-          The curve is the same shape to the left of the start as to the right, because the
-          displacement enters the formula squared. About {outsideOne} per cent of the chance lies
-          outside one width altogether, which is the part a reader most often forgets: the width
-          says where particles typically end, and roughly one in three ends farther out than that.
+          The two-width band includes the one-width band: its roughly 95 per cent already includes
+          that 68 per cent. Three widths include about 99.7 per cent. There is still probability
+          farther away, on both sides. At any accepted setting the tables name the interval, its
+          probability, both outside regions and the curve heights without requiring the drawing.
         </p>
       </div>
     </section>

@@ -103,6 +103,7 @@ export const CONSTRUCTIONS_WITH_CONTROLS: readonly FoundationConstructionId[] = 
   "distributions",
   "integration",
   "random-walks",
+  "gaussian-distributions",
 ];
 
 /** The construction id for a foundation, with or without its `foundation:` prefix, or null. */
