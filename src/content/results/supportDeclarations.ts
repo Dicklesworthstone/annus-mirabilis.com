@@ -13,6 +13,7 @@ export const RESULT_PROOF_IDS = [
   "sr-moving-clock",
   "sr-simultaneous-length",
   "sr-synchronization-midpoint",
+  "sr-spherical-wave-compatibility",
   "sr-velocity-composition",
   "sr-doppler-phase",
   "sr-light-complex-energy",

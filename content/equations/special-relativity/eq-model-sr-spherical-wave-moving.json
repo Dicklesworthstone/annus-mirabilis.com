@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-spherical-wave-moving",
+  "paper": "special-relativity",
+  "argument": "arg-sr-lorentz-map",
+  "title": "The spherical light wave in the moving system",
+  "spoken": "The moving x component squared plus the moving y component squared plus the moving z component squared equals c squared times the moving time squared.",
+  "explanation": "The admitted scaled coordinate map carries the stationary spherical light wave into this moving-frame wave equation. The exact cancellation leaves the common scale arbitrary. It checks compatibility conditional on the map and the light-wave premise; it does not derive the map or fix its normalization.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The moving frame uses xi = phi gamma (x - vt), eta = phi y, zeta = phi z and tau = phi gamma (t - vx/c squared), with gamma = 1/sqrt(1 - v squared/c squared).",
+    "The coordinates and speeds are real, c > 0 and |v| < c; the common scale phi(v) is finite and nonzero.",
+    "A pulse emitted at the common zero event has stationary-frame wave-front coordinates satisfying x squared + y squared + z squared = c squared t squared.",
+    "Modern teaching notation. Component labels x, y and z distinguish the three moving spatial coordinates; the source writes xi, eta, zeta, tau and V."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-spherical-wave-moving.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "sum",
+      "opId": "eq-model-sr-spherical-wave-moving.op.spatialSum",
+      "args": [
+        {
+          "kind": "power",
+          "opId": "eq-model-sr-spherical-wave-moving.op.xSquared",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-sr-spherical-wave-moving.t.xMoving",
+            "quantityId": "coordinatePositionMoving"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        },
+        {
+          "kind": "power",
+          "opId": "eq-model-sr-spherical-wave-moving.op.ySquared",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-sr-spherical-wave-moving.t.yMoving",
+            "quantityId": "coordinatePositionMoving",
+            "index": "y"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        },
+        {
+          "kind": "power",
+          "opId": "eq-model-sr-spherical-wave-moving.op.zSquared",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-sr-spherical-wave-moving.t.zMoving",
+            "quantityId": "coordinatePositionMoving",
+            "index": "z"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        }
+      ]
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-sr-spherical-wave-moving.op.lightDistanceSquared",
+      "args": [
+        {
+          "kind": "power",
+          "opId": "eq-model-sr-spherical-wave-moving.op.lightSquared",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-sr-spherical-wave-moving.t.light",
+            "quantityId": "speedOfLight"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        },
+        {
+          "kind": "power",
+          "opId": "eq-model-sr-spherical-wave-moving.op.timeSquared",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-sr-spherical-wave-moving.t.timeMoving",
+            "quantityId": "coordinateTimeMoving"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.op.relation",
+      "title": "The moving-frame wave condition",
+      "explanation": "For events on this emitted light wave, the moving-frame squared spatial distance from the common origin equals c squared times the moving coordinate time squared.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.op.spatialSum",
+      "title": "Squared spatial distance",
+      "explanation": "Add the squared x, y and z components to describe the spherical front in the moving system.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.op.xSquared",
+      "title": "The longitudinal component squared",
+      "explanation": "Square the coordinate along the relative motion; its mixed space-time terms cancel against those in the time contribution.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.op.ySquared",
+      "title": "The first sideways component squared",
+      "explanation": "The y contribution carries the same common scale squared as the other three coordinates.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.op.zSquared",
+      "title": "The second sideways component squared",
+      "explanation": "The z contribution completes the three-dimensional spherical wave condition.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.op.lightDistanceSquared",
+      "title": "The light-travel distance squared",
+      "explanation": "Multiply the square of the speed of light by the square of the moving coordinate time to obtain the squared radius. This relation also holds when the common scale is negative.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.op.lightSquared",
+      "title": "The same light speed",
+      "explanation": "This is the positive speed c admitted in the stationary light-wave condition. The cancellation checks the same value in the moving coordinates.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.op.timeSquared",
+      "title": "Moving coordinate time squared",
+      "explanation": "The elapsed time is assigned by synchronized clocks at rest in the moving frame.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.t.xMoving",
+      "title": "Moving longitudinal coordinate",
+      "explanation": "The x component of the event's position in the moving frame, called xi in the source.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.t.yMoving",
+      "title": "Moving y coordinate",
+      "explanation": "The y component of the same moving-frame position, called eta in the source. The subscript identifies the component.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.t.zMoving",
+      "title": "Moving z coordinate",
+      "explanation": "The z component of the same moving-frame position, called zeta in the source. The subscript identifies the component.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.t.light",
+      "title": "Speed of light",
+      "explanation": "The positive c of modern notation is the source's V.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-spherical-wave-moving.t.timeMoving",
+      "title": "Moving coordinate time",
+      "explanation": "The time coordinate of the event in the moving frame, called tau in the source. It is not the proper time recorded along one clock's path.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The squared distance built from the moving "
+    },
+    {
+      "text": "x component",
+      "nodeId": "eq-model-sr-spherical-wave-moving.t.xMoving"
+    },
+    {
+      "text": ", "
+    },
+    {
+      "text": "y component",
+      "nodeId": "eq-model-sr-spherical-wave-moving.t.yMoving"
+    },
+    {
+      "text": " and "
+    },
+    {
+      "text": "z component",
+      "nodeId": "eq-model-sr-spherical-wave-moving.t.zMoving"
+    },
+    {
+      "text": " equals "
+    },
+    {
+      "text": "the speed of light squared",
+      "nodeId": "eq-model-sr-spherical-wave-moving.op.lightSquared"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the moving coordinate time squared",
+      "nodeId": "eq-model-sr-spherical-wave-moving.op.timeSquared"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

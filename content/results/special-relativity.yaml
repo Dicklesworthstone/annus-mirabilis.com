@@ -170,8 +170,10 @@ cards:
 
   - id: sr-principles-compatible
     support:
-      kind: "no-checked-proof"
-      reason: "The compatibility argument is explained in the linked passages; no checked derivation record covers this result."
+      kind: "checked-proof"
+      proofId: "sr-spherical-wave-compatibility"
+      conclusion: "eq-model-sr-spherical-wave-moving"
+      scope: "Exact algebra checks that the admitted scaled coordinate map carries the stated spherical light wave in K into the same light-speed equation in k, with c > 0 and |v| < c. The common scale remains arbitrary. Constructing the map, fixing its normalization and the physical light-wave premise remain outside this calculation."
     title: "The two principles are compatible"
     section: s3
     arguments: [arg-sr-lorentz-map]
@@ -182,7 +184,7 @@ cards:
       - anchor: eq-s3-d18
       - anchor: s3-p17
         sentences: [1, 2]
-    equations: []
+    equations: [eq-model-sr-spherical-wave-moving]
     oneSentence: "A spherical light wave sent out from the common origin at the time zero spreads with the speed \\(V\\) in the stationary system and, transformed by the equations of § 3, also with the speed \\(V\\) in the moving system, which shows that the principle of relativity and the constancy of the speed of light are compatible."
     decoder:
       - symbol: "\\(x^2+y^2+z^2=V^2t^2\\)"

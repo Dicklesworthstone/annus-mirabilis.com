@@ -19,12 +19,18 @@ import {
   srCoordinateSourceLinks,
   srCoordinateSourceStages,
 } from "../equations/derivations/srCoordinates.ts";
+import type { ChainVerificationReport } from "../equations/derivations/verifyChain.ts";
 
 export interface SRCoordinateDerivationProps {
   readonly activeDetail?: "0" | "1" | "2";
   readonly perspective?: "historical" | "modern";
   /** Optional controlled source-route notation; the modern route stays explicitly modern. */
   readonly notation?: SRCoordinateNotation;
+  /** Exact server-side evidence for the bounded spherical-wave calculation. */
+  readonly sphericalWaveProof?: Readonly<{
+    report: ChainVerificationReport;
+    premises: readonly Readonly<{ id: string; label: string; explanation: string }>[];
+  }>;
 }
 
 function CoordinateMath({
@@ -72,12 +78,80 @@ function CoordinateStages({
   ));
 }
 
+function SphericalWaveCheck({
+  proof,
+}: {
+  readonly proof: NonNullable<SRCoordinateDerivationProps["sphericalWaveProof"]>;
+}) {
+  const stage = srCoordinateSourceStages.find(
+    (candidate) => candidate.chain.id === "chain-sr-coordinate-source-spherical-wave",
+  )!;
+  const { report } = proof;
+  const checked =
+    report.chainId === stage.chain.id &&
+    report.proofRouteId === stage.chain.proofRouteId &&
+    report.routeKind === stage.chain.routeKind &&
+    report.target === stage.chain.target &&
+    report.passed &&
+    report.isPublicationReady &&
+    report.errors.length === 0 &&
+    report.graphIssues.length === 0 &&
+    report.stepReports.length === stage.chain.steps.length &&
+    stage.chain.steps.every((step, index) => {
+      const result = report.stepReports[index];
+      return (
+        result?.stepId === step.id &&
+        result.passed &&
+        result.ruleOutcome === "pass" &&
+        result.verificationStatus === "verified"
+      );
+    });
+  return (
+    <details
+      id="sr-spherical-wave-check"
+      className="step-local-steps"
+      data-spherical-wave-proof={checked ? "verified" : "failed"}
+      open
+    >
+      <summary>Exact check of the spherical light wave</summary>
+      <p>
+        {checked
+          ? "All four substitutions and cancellations pass their exact checks."
+          : "The spherical-wave calculation does not have a complete passing exact check."}{" "}
+        The check starts from the already constructed coordinate map and the emitted light wave.
+        It leaves the common scale φ arbitrary. The earlier derivation of the map and the later
+        choice φ = 1 remain separate arguments.
+      </p>
+      <dl>
+        {proof.premises.map((premise) => (
+          <div key={premise.id}>
+            <dt>{premise.label}</dt>
+            <dd>{premise.explanation}</dd>
+          </div>
+        ))}
+      </dl>
+      <ol>
+        {stage.chain.steps.map((step) => (
+          <li key={step.id}>
+            <a href={`#${step.id}`}>{step.reasons.r0}</a>
+          </li>
+        ))}
+      </ol>
+      <p className="fine">
+        This is conditional algebra. The light-wave premise and the historical reconstruction
+        retain their stated review status.
+      </p>
+    </details>
+  );
+}
+
 /** Both routes and every step exist in the initial HTML. Native details and fragment
  * links remain useful without hydration; the notation selector is an optional enhancement. */
 export function SRCoordinateDerivation({
   activeDetail = "1",
   perspective = "historical",
   notation,
+  sphericalWaveProof,
 }: SRCoordinateDerivationProps) {
   const [selectedNotation, setSelectedNotation] = useState<SRCoordinateNotation>("source");
   const sourceNotation = notation ?? selectedNotation;
@@ -199,6 +273,7 @@ export function SRCoordinateDerivation({
             those passages; the historical review remains draft.
           </p>
         </details>
+        {sphericalWaveProof && <SphericalWaveCheck proof={sphericalWaveProof} />}
         <details className="step-local-steps">
           <summary>The source’s spherical wave is a consistency check</summary>
           <CoordinateMath

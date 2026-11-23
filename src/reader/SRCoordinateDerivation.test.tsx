@@ -7,6 +7,10 @@ import {
   srCoordinateCrossRouteLinks,
   srCoordinateSourceLinks,
 } from "../equations/derivations/srCoordinates.ts";
+import {
+  srSphericalWavePremises,
+  verifySRSphericalWave,
+} from "../equations/derivations/srSphericalWaveProof.ts";
 import { SRCoordinateDerivation } from "./SRCoordinateDerivation.tsx";
 
 test("SR §3 renders both complete routes and their native disclosures before hydration", () => {
@@ -112,4 +116,44 @@ test("the reader keeps the assumptions, unresolved intermediate scale and histor
   assert.ok(html.includes('aria-label="Symbols in the source-route equations"'));
   assert.ok(html.includes('value="source"'));
   assert.ok(html.includes('value="modern"'));
+});
+
+test("the server's exact sphere report reaches native reader disclosures and all four real steps", () => {
+  const report = verifySRSphericalWave();
+  assert.equal(report.passed, true, JSON.stringify(report));
+  const html = renderToStaticMarkup(
+    <SRCoordinateDerivation sphericalWaveProof={{ report, premises: srSphericalWavePremises }} />,
+  );
+  assert.ok(html.includes('id="sr-spherical-wave-check"'));
+  assert.ok(html.includes('data-spherical-wave-proof="verified"'));
+  assert.ok(html.includes("All four substitutions and cancellations pass their exact checks."));
+  assert.ok(html.includes("leaves the common scale φ arbitrary"));
+  assert.ok(html.includes("does not select phi = 1"));
+  for (const step of report.stepReports) {
+    assert.ok(html.includes(`href="#${step.stepId}"`), step.stepId);
+    assert.ok(html.includes(`data-step-id="${step.stepId}"`), step.stepId);
+  }
+  assert.ok(html.includes('data-review="draft"'));
+});
+
+test("an absent, failed or incomplete proof receipt never appears as an exact sphere check", () => {
+  const report = verifySRSphericalWave();
+  assert.ok(
+    !renderToStaticMarkup(<SRCoordinateDerivation />).includes(
+      'data-spherical-wave-proof="verified"',
+    ),
+  );
+  for (const changed of [
+    { ...report, passed: false, isPublicationReady: false },
+    { ...report, stepReports: report.stepReports.slice(0, 3) },
+  ]) {
+    const html = renderToStaticMarkup(
+      <SRCoordinateDerivation
+        sphericalWaveProof={{ report: changed, premises: srSphericalWavePremises }}
+      />,
+    );
+    assert.ok(html.includes('data-spherical-wave-proof="failed"'));
+    assert.ok(!html.includes("All four substitutions and cancellations pass their exact checks."));
+    assert.ok(html.includes('id="sr-coordinate-source-spherical-cancellation"'));
+  }
 });

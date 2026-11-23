@@ -39,6 +39,7 @@ import factorRecord from "../../../content/equations/special-relativity/eq-model
 import velocityPositionRecord from "../../../content/equations/special-relativity/eq-model-sr-map-position.json";
 import velocityTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-map-time.json";
 import mirrorFrequencyRecord from "../../../content/equations/special-relativity/eq-model-sr-mirror-frequency.json";
+import sphericalWaveRecord from "../../../content/equations/special-relativity/eq-model-sr-spherical-wave-moving.json";
 import syncCriterionRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-equal-legs.json";
 import syncMidpointRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-midpoint.json";
 import clockRecord from "../../../content/equations/special-relativity/eq-model-sr-time-dilation.json";
@@ -80,6 +81,11 @@ import {
 import { srLightComplexDerivation } from "../../equations/derivations/srLightComplex.ts";
 import { srMirrorAssumptions, srMirrorChains } from "../../equations/derivations/srMirror.ts";
 import { verifySRMirror } from "../../equations/derivations/srMirrorProof.ts";
+import {
+  srSphericalWaveChain,
+  srSphericalWavePremises,
+  verifySRSphericalWave,
+} from "../../equations/derivations/srSphericalWaveProof.ts";
 import { srSynchronizationChain } from "../../equations/derivations/srSynchronization.ts";
 import { srVelocityChains } from "../../equations/derivations/srVelocityComposition.ts";
 import { verifySRVelocityComposition } from "../../equations/derivations/srVelocityProof.ts";
@@ -459,6 +465,16 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
           "The time used to form displacement divided by time is nonzero. The common origin's 0/0 does not define a velocity, and no step divides by the sideways velocity.",
       },
     ],
+  },
+  "sr-spherical-wave-compatibility": {
+    paper: "special-relativity",
+    conclusion: sphericalWaveRecord.id,
+    title: "Check the spherical light wave in both frames",
+    href: "/papers/special-relativity/s3/#sr-spherical-wave-check",
+    records: [velocityPositionRecord, velocityTimeRecord, factorRecord, sphericalWaveRecord],
+    chains: [srSphericalWaveChain],
+    verify: (chain) => verifySRSphericalWave(chain, sphericalWaveRecord.tree as Expression),
+    premises: srSphericalWavePremises,
   },
   "sr-synchronization-midpoint": {
     paper: "special-relativity",

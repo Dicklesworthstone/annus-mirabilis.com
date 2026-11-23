@@ -15,6 +15,10 @@ import { hasResultCards } from "../content/results/resultCards.ts";
 import { getModalityClasses } from "../content/schemas/glossConventions.ts";
 import { loadPaper } from "../content/server.ts";
 import { verifySRFieldCovariance } from "../equations/derivations/srFieldCovariance.ts";
+import {
+  srSphericalWavePremises,
+  verifySRSphericalWave,
+} from "../equations/derivations/srSphericalWaveProof.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
 import entranceExample from "../generated/mass-energy-entrance.json";
@@ -917,7 +921,12 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                       {paper.id === "special-relativity" &&
                         a.id === "arg-sr-lorentz-map" &&
                         (sectionId ? (
-                          <LazySRCoordinateDerivation />
+                          <LazySRCoordinateDerivation
+                            sphericalWaveProof={{
+                              report: verifySRSphericalWave(),
+                              premises: srSphericalWavePremises,
+                            }}
+                          />
                         ) : (
                           <p className="fine">
                             <a href="/papers/special-relativity/s3/#sr-coordinate-derivation">
