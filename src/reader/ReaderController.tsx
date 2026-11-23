@@ -936,14 +936,15 @@ export function ReaderController(props: Props) {
                 pages, and nothing on this page renders them in place. */}
             {faceTabs.tabs.map((id) =>
               id === "results" ? (
-                /* The href is the static results page, so without JavaScript the link reaches
-                   the results face; with it, data-view-link switches the face in place as before.
-                   A paper with result cards drops data-view-link, so the link is followed with
-                   JavaScript too: the cards are on that page and nowhere on this one. */
+                /* The static href reaches the results face without JavaScript. A paper with
+                   cards uses the face-navigation owner to retain its section and return passage.
+                   Without cards, data-view-link keeps the existing in-place recap switch. */
                 <a
                   key={id}
                   href={`/papers/${props.registry.paperId}/view/results/`}
-                  {...(props.resultCards ? {} : { "data-view-link": "results" })}
+                  {...(props.resultCards
+                    ? { "data-reader-face-link": "results" }
+                    : { "data-view-link": "results" })}
                   data-face-state={props.availability?.[id] ?? undefined}
                 >
                   {FACE_REGISTRY.results.label}

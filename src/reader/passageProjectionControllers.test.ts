@@ -1,5 +1,5 @@
 /** The existing navigation owners cooperate with passage projection departure and return. */
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
@@ -40,6 +40,7 @@ afterEach(async () => {
   await act(async () => reactRoot?.unmount());
   reactRoot = null;
   HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+  mock.restore();
   await uninstallDom();
 });
 
@@ -284,4 +285,134 @@ describe("projection navigation with the existing reading controller", () => {
     expect(new URLSearchParams(window.location.search).get("notation")).toBe("modern");
     expect(window.history.state.unrelated).toBe("kept");
   });
+});
+
+describe("Explanation and Results cooperate with destination and return owners", () => {
+  for (const example of [
+    {
+      paper: "special-relativity",
+      section: "s9",
+      anchor: "arg-sr-charge-current",
+      path: "/papers/special-relativity/s9/",
+      cards: [
+        { id: "sr-synchronous-clocks", section: "s1" },
+        { id: "sr-convection-current", section: "s9" },
+      ],
+      result: "result-sr-convection-current",
+    },
+    {
+      paper: "brownian-motion",
+      section: "s2",
+      anchor: "arg-bm-kinetic-justification",
+      path: "/papers/brownian-motion/",
+      cards: [
+        { id: "bm-osmotic-pressure", section: "s1" },
+        { id: "bm-diffusion-coefficient", section: "s3" },
+      ],
+      result: null,
+    },
+  ]) {
+    test(example.paper + ": section results preserve the original argument for Back", async () => {
+      window.history.replaceState(
+        { unrelated: "kept" },
+        "",
+        example.path + "?detail=2#" + example.anchor,
+      );
+      const root = document.createElement("div");
+      root.dataset.readerRoot = "";
+      root.dataset.view = "reading";
+      root.innerHTML =
+        "<dialog data-clarification-dialog></dialog><p data-reader-announcement></p>";
+      const section = document.createElement("section");
+      section.id = example.section;
+      section.className = "reader-section";
+      const argument = document.createElement("article");
+      argument.id = example.anchor;
+      argument.dataset.unit = example.anchor;
+      argument.className = "reader-passage";
+      argument.textContent = "The explanation at the reader's current place.";
+      let argumentTop = 90;
+      argument.getBoundingClientRect = () =>
+        ({
+          top: argumentTop - scrollY,
+          bottom: argumentTop + 100 - scrollY,
+          height: 100,
+        }) as DOMRect;
+      section.append(argument);
+      root.append(section);
+      document.body.append(root);
+      const container = document.createElement("div");
+      root.prepend(container);
+      const renderReading = async () => {
+        reactRoot = createRoot(container);
+        await act(async () =>
+          reactRoot?.render(
+            createElement(ReaderController, {
+              registry: {
+                paperId: example.paper,
+                anchors: [example.section, example.anchor],
+                foundations: [],
+              },
+              titles: {},
+              questions: {},
+              resultCards: true,
+            }),
+          ),
+        );
+      };
+      const destinations: string[] = [];
+      spyOn(window.location, "assign").mockImplementation((url) => {
+        destinations.push(String(url));
+      });
+      const redirect = spyOn(window.location, "replace").mockImplementation(() => {});
+      await renderReading();
+      const staticHref = "/papers/" + example.paper + "/view/results/";
+      const link = root.querySelector<HTMLAnchorElement>('a[href="' + staticHref + '"]');
+      if (!link) throw new Error("the actual reader did not render its Results link");
+      expect(link.hasAttribute("data-view-link")).toBe(false);
+      follow(link);
+      expect(destinations).toEqual(["http://localhost" + staticHref + "#" + example.section]);
+      expect(link.getAttribute("href")).toBe(staticHref);
+      expect(window.location.hash).toBe("#" + example.anchor);
+      expect(pendingPassageProjectionReturn(root)?.anchor).toBe(example.anchor);
+      const origin = { href: window.location.href, state: window.history.state };
+
+      await act(async () => reactRoot?.unmount());
+      reactRoot = null;
+      root.remove();
+      window.history.replaceState({}, "", destinations[0]);
+      const results = document.createElement("div");
+      results.dataset.readerRoot = "";
+      results.dataset.view = "results";
+      for (const card of example.cards) {
+        const article = document.createElement("article");
+        article.id = "result-" + card.id;
+        article.dataset.resultId = card.id;
+        article.dataset.sections = card.section;
+        results.append(article);
+      }
+      document.body.append(results);
+      await mountSource(results);
+      expect(window.location.pathname).toBe(staticHref);
+      expect(window.location.hash).toBe("#" + (example.result ?? example.section));
+      expect(scrolledAnchors).toEqual(example.result ? [example.result] : []);
+      expect(redirect).not.toHaveBeenCalled();
+      expect(results.querySelectorAll("[data-result-id]")).toHaveLength(2);
+
+      await act(async () => reactRoot?.unmount());
+      reactRoot = null;
+      results.remove();
+      document.body.append(root);
+      window.history.replaceState(origin.state, "", origin.href);
+      argumentTop = 690;
+      scrollY = 0;
+      await renderReading();
+      expect(window.location.href).toBe(origin.href);
+      expect(argument.getBoundingClientRect().top).toBe(90);
+      expect(window.history.state.annusReader.state.anchor).toBe(example.anchor);
+      expect(window.history.state.annusReader.state.detail).toBe(2);
+      expect(window.history.state.passageProjectionReturn).toBeUndefined();
+      expect(window.history.state.unrelated).toBe("kept");
+    });
+  }
 });

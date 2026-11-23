@@ -1,5 +1,6 @@
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
+import { FACE_SWITCH_PLACE_KEY } from "./anchors/faceSwitchPlace.ts";
 import { createPlaceHold } from "./holdPlace.ts";
 import {
   mountPassageProjectionNavigation,
@@ -9,9 +10,15 @@ import {
 let unmount: (() => void) | undefined;
 let releaseShared: (() => void) | undefined;
 let scrolls: number[];
+let destinations: string[];
 beforeEach(async () => {
   await installDom();
   scrolls = [];
+  destinations = [];
+  sessionStorage.clear();
+  spyOn(window.location, "assign").mockImplementation((url) => {
+    destinations.push(String(url));
+  });
   Object.defineProperty(window, "innerHeight", { value: 900, configurable: true });
   window.scrollBy = ((options: ScrollToOptions) =>
     scrolls.push(options.top ?? 0)) as typeof window.scrollBy;
@@ -21,6 +28,7 @@ afterEach(async () => {
   unmount = undefined;
   releaseShared?.();
   releaseShared = undefined;
+  mock.restore();
   await uninstallDom();
 });
 
@@ -257,5 +265,128 @@ describe("returning from a passage projection", () => {
       stop();
     }
     expect(scrolls).toEqual([]);
+  });
+});
+
+function readingResultsFixture(anchor = "arg-sr-charge-current") {
+  window.history.replaceState(
+    {
+      unrelated: "kept",
+      annusReader: { index: 4, state: { anchor, detail: 2, lens: true } },
+    },
+    "",
+    "/papers/special-relativity/?detail=2&lens=modern#" + anchor,
+  );
+  const root = document.createElement("div");
+  root.dataset.readerRoot = "";
+  root.dataset.view = "reading";
+  root.innerHTML =
+    '<a data-reader-face-link="results" ' +
+    'href="/papers/special-relativity/view/results/">Results</a>' +
+    '<section id="s9" class="reader-section">' +
+    '<article id="arg-sr-charge-current" class="reader-passage">' +
+    '<p id="s9-p2-s1">Charge and current transform together.</p></article></section>';
+  document.body.append(root);
+  const link = root.querySelector<HTMLAnchorElement>("a");
+  if (!link) throw new Error("results fixture is missing its face link");
+  let top = 90;
+  for (const element of root.querySelectorAll<HTMLElement>("[id]")) {
+    element.getBoundingClientRect = () => ({ top, bottom: top + 100, height: 100 }) as DOMRect;
+  }
+  return {
+    root,
+    link,
+    grow() {
+      top = 690;
+    },
+  };
+}
+
+describe("Explanation to Results preserves the section and exact return", () => {
+  test("a deep argument reaches Results and Back restores its exact viewport", () => {
+    const { root, link, grow } = readingResultsFixture();
+    const href = link.getAttribute("href");
+    const origin = window.location.href;
+    unmount = mountPassageProjectionNavigation(root);
+    sessionStorage.setItem(FACE_SWITCH_PLACE_KEY, "an earlier face transfer");
+    expect(follow(link)).toBe(true);
+    expect(destinations).toEqual(["http://localhost/papers/special-relativity/view/results/#s9"]);
+    expect(link.getAttribute("href")).toBe(href);
+    expect(window.location.href).toBe(origin);
+    expect(window.history.state.annusReader).toEqual({
+      index: 4,
+      state: { anchor: "arg-sr-charge-current", detail: 2, lens: true },
+    });
+    expect(pendingPassageProjectionReturn(root)).toEqual({
+      path: "/papers/special-relativity/?detail=2&lens=modern",
+      anchor: "arg-sr-charge-current",
+      relativeOffset: 0.1,
+    });
+    expect(sessionStorage.getItem(FACE_SWITCH_PLACE_KEY)).toBeNull();
+
+    unmount();
+    grow();
+    unmount = mountPassageProjectionNavigation(root);
+    expect(scrolls).toContain(600);
+    expect(window.location.href).toBe(origin);
+    expect(window.history.state.anchor).toBe("arg-sr-charge-current");
+    expect(window.history.state.relativeOffset).toBe(0.1);
+    expect(window.history.state.passageProjectionReturn).toBeUndefined();
+    expect(window.history.state.unrelated).toBe("kept");
+  });
+
+  for (const anchor of ["s9", "s9-p2-s1"]) {
+    test(anchor + " retains its exact origin while Results receives its section", () => {
+      const { root, link } = readingResultsFixture(anchor);
+      unmount = mountPassageProjectionNavigation(root);
+      expect(follow(link)).toBe(true);
+      expect(destinations).toEqual(["http://localhost/papers/special-relativity/view/results/#s9"]);
+      expect(window.location.hash).toBe("#" + anchor);
+      expect(pendingPassageProjectionReturn(root)?.anchor).toBe(anchor);
+    });
+  }
+
+  test("modified clicks, new tabs and downloads preserve native navigation and history", () => {
+    const { root, link } = readingResultsFixture();
+    const state = window.history.state;
+    unmount = mountPassageProjectionNavigation(root);
+    for (const options of [
+      { ctrlKey: true },
+      { metaKey: true },
+      { shiftKey: true },
+      { altKey: true },
+      { button: 1 },
+    ]) {
+      expect(follow(link, options)).toBe(false);
+    }
+    link.target = "_blank";
+    expect(follow(link)).toBe(false);
+    link.target = "";
+    link.download = "results.html";
+    expect(follow(link)).toBe(false);
+    expect(destinations).toEqual([]);
+    expect(window.history.state).toEqual(state);
+    expect(link.getAttribute("href")).toBe("/papers/special-relativity/view/results/");
+  });
+
+  test("foreign routes, unknown anchors and source faces keep native navigation", () => {
+    const { root, link } = readingResultsFixture();
+    const state = window.history.state;
+    unmount = mountPassageProjectionNavigation(root);
+    for (const href of [
+      "/papers/brownian-motion/view/results/",
+      "https://example.org/papers/special-relativity/view/results/",
+    ]) {
+      link.href = href;
+      expect(follow(link)).toBe(false);
+    }
+    link.href = "/papers/special-relativity/view/results/";
+    root.dataset.view = "german";
+    expect(follow(link)).toBe(false);
+    root.dataset.view = "reading";
+    window.history.replaceState(state, "", "#missing");
+    expect(follow(link)).toBe(false);
+    expect(destinations).toEqual([]);
+    expect(window.history.state).toEqual(state);
   });
 });

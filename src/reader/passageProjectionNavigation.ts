@@ -358,6 +358,38 @@ export function mountPassageProjectionNavigation(
     if (link.origin !== win.location.origin) return;
     if (!link.hasAttribute("data-passage-projection-link")) {
       const face = link.dataset.readerFaceLink ?? link.dataset.viewLink;
+      if (face === "results") {
+        const current = passageFaceRoute(win.location.href, win.location.href);
+        const anchor = anchorFromFaceHash(win.location.hash);
+        const section = anchor
+          ? passageProjectionTarget(root, anchor)?.closest<HTMLElement>(".reader-section[id]")
+          : null;
+        if (
+          root.dataset.view !== "reading" ||
+          !current ||
+          current.face !== "reading" ||
+          link.pathname !== `/papers/${current.paper}/view/results/` ||
+          !anchor ||
+          !section ||
+          !root.contains(section) ||
+          !/^s\d+$/.test(section.id)
+        )
+          return;
+        // Results belong to a section. The destination's declared cards resolve it, keeping
+        // the complete catalogue available when this section has no card of its own.
+        const destination = new URL(link.href);
+        destination.hash = section.id;
+        event.preventDefault();
+        departure(anchor, offsetFor(anchor));
+        try {
+          // A section's result card does not share the argument's viewport position.
+          win.sessionStorage.removeItem(FACE_SWITCH_PLACE_KEY);
+        } catch {
+          // The section link and its exact history return still work without storage.
+        }
+        win.location.assign(destination.href);
+        return;
+      }
       if (
         face !== "reading" &&
         face !== "german" &&
