@@ -1,5 +1,5 @@
 /**
- * THE DEBT: FIVE OF THE EIGHT MODULES IN THIS DIRECTORY ARE DRAWN BY NOTHING (am-to1q,
+ * The anchor navigation library's remaining wiring debt (am-to1q,
  * am-read-anchors-navigation-a6o).
  *
  * `am-read-anchors-navigation-a6o` built a complete, pure, tested library for reader anchor
@@ -22,7 +22,7 @@
  * books to make room for the next one.
  *
  * WHAT WATCHES THIS GATE. Its own non-vacuity is checked here, in the same lane, by a positive
- * control: the scanner must independently FIND the importers of the three wired modules and name
+ * control: the scanner must independently FIND the importers of the known live modules and name
  * them. Without that, a scanner that resolved nothing would report all eight as unwired, the list
  * would be a subset of its findings, and the gate would pass while measuring nothing -- the exact
  * shape AGENTS.md records under "A Tool's Exit Code Is Not Evidence". The half this lane cannot
@@ -65,8 +65,7 @@ const CODE_ROOTS = ["src", "scripts", "perf", "ios"]
 /**
  * Each entry is one module in this directory that no non-test module imports, with the bead that
  * owes the wiring. Striking an entry is how the debt is paid; adding one needs the owner, because a
- * sixth unwired module in a directory that already has five is the condition this file exists to
- * refuse rather than to record.
+ * new unwired module is the condition this file exists to refuse rather than to record.
  */
 const UNWIRED_DEBT: Readonly<Record<string, string>> = {
   // THE SECOND SENTENCE HERE USED TO READ "No face emits them, so a retired id still lands
@@ -90,11 +89,9 @@ const UNWIRED_DEBT: Readonly<Record<string, string>> = {
   //
   // STRIKING THE MODULE ENTRY WOULD HAVE DROPPED THE REST OF THE DEBT, which is why UNWIRED_EXPORTS
   // exists below. A module with one live import is "wired" to a per-module scanner while most of it
-  // stays dead, and this module is exactly that case: two of its three exports have no importer. A
+  // stays dead. This module had two exports without importers when the export-level record began. A
   // coarse gate that reads green on one import is the shape a half-wired library hides in.
-  "paneIds.ts":
-    "am-read-anchors-navigation-a6o: split-view DOM identity. No split view is rendered, so the " +
-    "pane-b-- prefix and its data-anchor contract are unexercised outside tests.",
+  // paneIds.ts is paid: SplitReadingView and SplitSource publish its pane DOM identities.
   // "placeKeeper.ts" WAS HERE AND IS PAID, 2026-10-08. It is now imported by
   // src/reader/faces/FaceSwitchAnchor.tsx, which captures the reader's place before a face switch
   // and restores it on arrival -- a6o criterion 2's second clause, "the same relative position
@@ -123,22 +120,7 @@ const UNWIRED_DEBT: Readonly<Record<string, string>> = {
  * acquires a single caller.
  */
 const UNWIRED_EXPORTS: Readonly<Record<string, string>> = {
-  "mapToFace.ts#mapToFace":
-    "am-to1q: the nearest-ancestor walk has no caller. WHAT REMAINS IS THE MIDDLE STEP ONLY, and " +
-    "this reason is narrower than it was on 2026-10-28, because the harm it described has been " +
-    "repaired by other means and a stale reason on a debt record is worse than none. It read: 'a " +
-    "reader switching to a face that publishes neither the sentence nor its paragraph gets no " +
-    "scroll rather than its section. The gloss face is the live case.' Both halves are now " +
-    "addressed. resolvedFaceAnchor takes the step to the SECTION, which needs no StructureIndex " +
-    "because every source id carries its section as a leading s<n> and sectionAnchorOf owns " +
-    "reading it; and the gloss face, which publishes no section ids at all, is handled by " +
-    "sectionPageForStrandedAnchor following the section link that page prints. So the step that " +
-    "still has no caller is sentence -> PARAGRAPH, and it is the one that genuinely needs the " +
-    "index: a paragraph is not derivable from a sentence id wherever paragraphs have been merged, " +
-    "which content/aliases/brownian-motion.yaml records four of (am-mg6d). Its live cost is " +
-    "smaller than the old reason implied: a reader lands on their section rather than their " +
-    "paragraph on a face that publishes sections but not paragraphs, which is english (10 " +
-    "sections, 0 paragraphs for relativity).",
+  // mapToFace is paid: FaceSwitchAnchor and glossNavigation consume manifest-backed ancestry.
   "mapToFace.ts#mapToFacsimilePage":
     "am-to1q, SETTLED BY THE OWNER 2026-10-08: this one is to STAY unwired. The live owner is " +
     "resolveFacsimileTarget, and the ruling was that mapToFacsimilePage is not to be given a " +
@@ -255,7 +237,7 @@ describe("the anchor navigation library's wiring debt", () => {
 
   test("the scanner examined a real population, and says how large it was", () => {
     // `examined N of M` beside the verdict, because zero modules scanned and zero unwired modules
-    // print the same green. The minimum is below today's 8 so adding a module is not a failure here,
+    // print the same green. The minimum is below today's population so adding a module is not a failure here,
     // and far enough above zero that an empty directory walk is.
     console.log(
       `[census] unwired-anchor-modules examined ${modules.length} modules against ${all.length} source files (minimum 6 modules, 500 files)`,
@@ -267,7 +249,7 @@ describe("the anchor navigation library's wiring debt", () => {
     expect(modules).not.toContain("index.ts");
   });
 
-  test("POSITIVE CONTROL: the scanner finds the importers of the three modules that have them", () => {
+  test("POSITIVE CONTROL: the scanner finds each known live anchor module", () => {
     // Without this the gate is satisfiable by a scanner that resolves nothing. Each pair was read
     // from the importing file, so a rename on either side fails here rather than silently widening
     // the debt.
@@ -276,22 +258,28 @@ describe("the anchor navigation library's wiring debt", () => {
     expect(importers.get("emitAnchor.ts")).toContain("src/reader/faces/TranslationUnit.tsx");
 
     const wired = modules.filter((m) => (importers.get(m) ?? []).length > 0);
-    // FOUR NOW, not three: placeKeeper.ts joined on 2026-10-08 (a6o criterion 2). An identity
-    // assertion rather than a count, so wiring a module requires saying so here -- which is how
-    // this line came to be edited rather than quietly satisfied.
-    // SIX NOW: scrollRestore.ts joined on 2026-10-08 (criterion 6). An identity assertion rather
-    // than a count, so wiring a module requires saying so here.
+    // Exact identities, not a relaxed count: both a lost importer and newly paid debt require
+    // this record to change. The source producer must reach a route, not just its own tests.
     expect(wired.sort()).toEqual([
       "aliases.ts",
       "emitAnchor.ts",
+      "faceSwitchPlace.ts",
       "mapToFace.ts",
+      "paneIds.ts",
       "placeKeeper.ts",
       "resolve.ts",
       "scrollRestore.ts",
+      "sourceAliases.ts",
+      "sourceStructureIndex.ts",
     ]);
     expect(importers.get("scrollRestore.ts")).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
     expect(importers.get("mapToFace.ts")).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
     expect(importers.get("placeKeeper.ts")).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
+    expect(importers.get("faceSwitchPlace.ts")).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
+    expect(importers.get("paneIds.ts")).toContain("src/reader/split/SplitReadingView.tsx");
+    expect(importers.get("sourceAliases.ts")).toContain("src/reader/PaperPage.tsx");
+    expect(importers.get("sourceStructureIndex.ts")).toContain("src/reader/PaperPage.tsx");
+    expect(importers.get("sourceStructureIndex.ts")).toContain("src/reader/FaceFallback.tsx");
   });
 
   test("POSITIVE CONTROL for the cross-root walk: a consumer in scripts/ is found", () => {
@@ -363,14 +351,23 @@ describe("the anchor navigation library's wiring debt", () => {
 
     // POSITIVE CONTROL, in the same test so the list above cannot be satisfied by a scanner that
     // resolves no names at all. `mapToResultsFace` is the export this list was built around: it IS
-    // imported, by the file named here, which is why it is not in UNWIRED_EXPORTS beside its two
-    // siblings. A clause parser that stopped working would empty `paid` AND empty this.
+    // imported, by the file named here. A clause parser that stopped working would empty `paid`
+    // AND empty this. The nearest-ancestor export now has its own positive control too.
     const wiredExport = importersOfExport(
       join(ANCHORS_DIR, "mapToFace.ts"),
       "mapToResultsFace",
       all,
     );
     expect(wiredExport).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
+    const ancestorExport = importersOfExport(join(ANCHORS_DIR, "mapToFace.ts"), "mapToFace", all);
+    expect(ancestorExport).toContain("src/reader/faces/FaceSwitchAnchor.tsx");
+    expect(ancestorExport).toContain("src/reader/faces/glossNavigation.ts");
+    const structureExport = importersOfExport(
+      join(ANCHORS_DIR, "sourceStructureIndex.ts"),
+      "sourceStructureIndex",
+      all,
+    );
+    expect(structureExport).toContain("src/reader/PaperPage.tsx");
 
     // And the negative half of the control: the same file must NOT be credited for an export it
     // does not import. Without this, a parser that credited every name in a matched module would
@@ -384,7 +381,8 @@ describe("the anchor navigation library's wiring debt", () => {
 
     console.log(
       `[census] unwired-exports examined ${Object.keys(UNWIRED_EXPORTS).length} declared exports; ` +
-        `control: mapToResultsFace has ${wiredExport.length} importer(s), mapToFacsimilePage ${notImported.length}`,
+        `control: mapToResultsFace ${wiredExport.length}, mapToFace ${ancestorExport.length}, ` +
+        `sourceStructureIndex ${structureExport.length}, mapToFacsimilePage ${notImported.length} importer(s)`,
     );
   });
 
