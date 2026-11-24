@@ -264,6 +264,10 @@ export function ElectronDynamicsLab({
   const potNewt = numericOf(result(snapshot, "acceleratingPotentialNewtonian"));
   const rm = numericOf(result(snapshot, "radiusCurvatureMagnetic"));
   const re = numericOf(result(snapshot, "radiusCurvatureElectric"));
+  const curvatureResult = snapshot.outputs.find(
+    (output) => output.quantityId === "initialTrajectoryCurvature",
+  );
+  const curvature = numericOf(curvatureResult);
   // The path the chamber draws: the same accepted snapshot as every number beside it. Looked up, not
   // required, so a snapshot prepared before the kernel published a path renders without one.
   const path = snapshot.outputs.find((o) => o.quantityId === "trajectoryPositions");
@@ -273,7 +277,12 @@ export function ElectronDynamicsLab({
     `${particleName} initially at ${fixed(beta, 3)}c, γ = ${fixed(gammaVal, 4)}, carries ${sentenceNumber(keExact)} J of kinetic energy where Newton's formula gives ${sentenceNumber(keNewt)} J. ` +
     (potExact !== null && potNewt !== null
       ? `Reaching this speed from rest takes ${sentenceNumber(potExact)} V, against ${sentenceNumber(potNewt)} V by Newton's formula.`
-      : unavailableReason(snapshot, "acceleratingPotential"));
+      : unavailableReason(snapshot, "acceleratingPotential")) +
+    (curvature !== null
+      ? ` Initial spatial curvature: ${sentenceNumber(curvature)} inverse metres.`
+      : curvatureResult
+        ? ` ${unavailableReason(snapshot, "initialTrajectoryCurvature")}`
+        : "");
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
@@ -386,6 +395,19 @@ export function ElectronDynamicsLab({
                   }
                 >
                   Crossed fields (E and B together)
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    preset({
+                      initialSpeed: 0.5,
+                      electricFieldY: 149896.229,
+                      magneticFieldZ: 0.001,
+                    })
+                  }
+                >
+                  Balance the crossed forces (straight entry)
                 </button>
                 <button
                   type="button"
@@ -539,8 +561,7 @@ export function ElectronDynamicsLab({
             <p className="notice" role="status" data-trajectory-status="outside-domain">
               Trajectory unavailable: {path.reason}
             </p>
-          ) : path?.status === "value" &&
-            path.uncertainty?.kind === "numerical-error-estimate" ? (
+          ) : path?.status === "value" && path.uncertainty?.kind === "numerical-error-estimate" ? (
             <p className="fine" data-trajectory-status="value">
               Trajectory numerical check: {display(path.uncertainty.magnitude)} m.{" "}
               {path.uncertainty.method}
@@ -580,6 +601,28 @@ export function ElectronDynamicsLab({
             trajectoryReason={path?.status === "outside-domain" ? path.reason : undefined}
             integrationIntervalS={p.integrationInterval}
           />
+          <section aria-label="How the actual trajectory starts to bend" data-trajectory-curvature>
+            <h3>How this path starts to bend</h3>
+            <p>
+              The initial spatial curvature uses the accepted entry velocity and both fields in
+              three dimensions. It measures the turn of the actual path per metre travelled; it is
+              independent of the x–y projection above. Only force perpendicular to the velocity
+              bends the path. A parallel electric force changes the speed instead.
+            </p>
+            <p>
+              κ = |q| |E<sub>⊥</sub> + v × B| / (γ m |v|<sup>2</sup>). Here E<sub>⊥</sub> is the
+              electric field across the initial velocity, and v × B is the magnetic contribution in
+              the same direction space. These contributions can reinforce or cancel. This is a
+              modern diagnostic of the trajectory, separate from the three experimental relations
+              printed at the end of §10.
+            </p>
+            {curvature === 0 && (
+              <p data-zero-initial-curvature>
+                The accepted path has zero curvature at entry: there is no instantaneous transverse
+                force. Its speed or later curvature may still change.
+              </p>
+            )}
+          </section>
           <h3>Values at the initial speed</h3>
           <p className="fine">
             Energy, potential, and mass coefficients refer to the initial speed, before the fields
@@ -591,6 +634,23 @@ export function ElectronDynamicsLab({
               Relativistic particle dynamics quantities computed under the accepted settings.
             </caption>
             <tbody>
+              <tr>
+                <th scope="row">Actual initial spatial curvature (κ)</th>
+                <td>
+                  {curvatureResult ? (
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="initialTrajectoryCurvature"
+                      unit="m⁻¹"
+                    />
+                  ) : (
+                    <span data-quantity-id="initialTrajectoryCurvature">
+                      This saved snapshot has no curvature diagnostic. Apply settings to calculate
+                      it.
+                    </span>
+                  )}
+                </td>
+              </tr>
               <tr>
                 <th scope="row">Lorentz factor γ</th>
                 <td>

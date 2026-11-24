@@ -5,6 +5,7 @@ import type { Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { encodeTapePermalink } from "../../../experiments/permalink/codec.ts";
 import { tapeForSettings } from "../../../experiments/permalink/sessionTape.ts";
+import { parseResult } from "../../../experiments/results/codec.ts";
 import { SR13_DEFAULTS, type Sr13Parameters } from "../../../experiments/sr13/definition.ts";
 import { createSr13Session, DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr13/session.ts";
 import { SR13_TAPE } from "../../../experiments/sr13/tape.ts";
@@ -14,6 +15,7 @@ import {
   removeContainer,
   uninstallDom,
 } from "../../../testing/reactDom.ts";
+import { display } from "../presentation.ts";
 import { ElectronDynamicsLab } from "./ElectronDynamicsLab.tsx";
 import { ElectronDynamicsPlot } from "./ElectronDynamicsPlot.tsx";
 
@@ -319,6 +321,79 @@ describe("SR-13 complete particle and field controls", () => {
       expect(required<HTMLInputElement>(`input[name="${name}"]`).value).toBe(value);
     });
   }
+
+  test("actual curvature follows accepted direction while the transverse reference stays a reference", async () => {
+    await mount();
+    const selector = '[data-quantity-id="initialTrajectoryCurvature"]';
+    const before = required(selector).textContent;
+    const reference = required('[data-quantity-id="radiusCurvatureElectric"]').textContent;
+    expect(before).not.toBe(`${display(0)} m⁻¹`);
+    await change("initialDirectionDeg", "90");
+    expect(required(selector).textContent).toBe(before);
+    await apply();
+    expect(required(selector).textContent).toBe(`${display(0)} m⁻¹`);
+    expect(required('[data-quantity-id="radiusCurvatureElectric"]').textContent).toBe(reference);
+    expect(required("[data-zero-initial-curvature]").textContent).toContain("at entry");
+    expect(required("[data-trajectory-curvature]").textContent).toContain("three dimensions");
+    expect(required("[data-trajectory-curvature]").textContent).toContain("modern diagnostic");
+  });
+
+  test("the force-balance preset shows zero actual bending with two nonzero reference radii", async () => {
+    await mount();
+    const balanced = [...host.querySelectorAll("button")].find(
+      (button) => button.textContent === "Balance the crossed forces (straight entry)",
+    );
+    assert.ok(balanced);
+    await act(async () => balanced.click());
+    const curvature = () => required('[data-quantity-id="initialTrajectoryCurvature"]').textContent;
+    expect(curvature()).toBe(`${display(0)} m⁻¹`);
+    for (const id of ["radiusCurvatureMagnetic", "radiusCurvatureElectric"]) {
+      const reading = required(`[data-quantity-id="${id}"]`).textContent;
+      expect(reading).not.toBe(`${display(0)} m`);
+      expect(reading).not.toContain("outside");
+    }
+    const balancedPath = endpoints(path());
+    // These are SVG coordinates rounded to 0.1 px. The checked Boris path has a
+    // small finite integration error; this does not assert exact physical positions.
+    expect(balancedPath.first.y).toBe(balancedPath.last.y);
+    await change("initialSpeed", "-0.5");
+    expect(curvature()).toBe(`${display(0)} m⁻¹`);
+    await apply();
+    expect(curvature()).not.toBe(`${display(0)} m⁻¹`);
+    expect(host.querySelector("[data-zero-initial-curvature]")).toBeNull();
+  });
+
+  test("rest reports an undefined initial tangent without printing an infinite radius", async () => {
+    await mount();
+    await change("initialSpeed", "0");
+    await apply();
+    const reading = required('[data-quantity-id="initialTrajectoryCurvature"]').textContent;
+    expect(reading).toContain("starts at rest");
+    expect(reading).not.toContain("m⁻¹");
+    expect(host.querySelector("[data-zero-initial-curvature]")).toBeNull();
+    expect(host.textContent).not.toMatch(/\b(?:NaN|Infinity)\b/u);
+  });
+
+  test("a saved example without the new diagnostic remains readable until explicit Apply", async () => {
+    const previous = {
+      ...DEFAULT_PREPARED_EXAMPLE,
+      results: DEFAULT_PREPARED_EXAMPLE.results.filter(
+        (encoded) => parseResult(encoded).quantityId !== "initialTrajectoryCurvature",
+      ),
+    };
+    await act(async () => root.render(<ElectronDynamicsLab example={previous} />));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(required('[data-quantity-id="initialTrajectoryCurvature"]').textContent).toContain(
+      "This saved snapshot has no curvature diagnostic",
+    );
+    expect(required('[data-quantity-id="kineticEnergy"]').textContent).not.toBe("");
+    await apply();
+    expect(required('[data-quantity-id="initialTrajectoryCurvature"]').textContent).not.toContain(
+      "no curvature diagnostic",
+    );
+  });
 
   test("named presets reset the whole physical setup after arbitrary custom fields", async () => {
     await mount();

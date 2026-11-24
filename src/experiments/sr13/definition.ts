@@ -102,6 +102,11 @@ export const SR13_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   ]),
   radiusCurvatureMagnetic: c("m", "length", "electron", ["value", "outside-domain"]),
   radiusCurvatureElectric: c("m", "length", "electron", ["value", "outside-domain"]),
+  initialTrajectoryCurvature: c("m^-1", "curvature", "electron", [
+    "value",
+    "outside-domain",
+    "not-applicable",
+  ]),
   lorentzFactor: c("1", "dimensionless", "electron", ["value", "outside-domain"]),
   speedRatio: c("1", "ratio", "electron", ["value", "outside-domain"]),
   trajectoryPositions: c("m", "trajectory-xy", "electron", ["value", "outside-domain"]),

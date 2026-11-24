@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { strictParse } from "../content/schemas/strictParse.ts";
 import type { ScientificResult } from "../experiments/results/types.ts";
 import { logElectron } from "../physics/reference/electron.log.ts";
 import {
@@ -21,38 +23,47 @@ function val(r: ScientificResult): number {
 }
 
 describe("electron.relations.test.ts: Transcribed printed relations and modern equivalents (AC6)", () => {
-  test("transcribed relations match facsimile with page locators (AC6)", () => {
+  test("the three printed relations match their actual source records and page locators", () => {
     const t0 = performance.now();
-    expect(PRINTED_RELATIONS_METADATA.length).toBe(3);
-
-    const potRel = PRINTED_RELATIONS_METADATA.find((r) => r.id === "potential-difference");
-    expect(potRel).toBeDefined();
-    expect(potRel?.locator).toBe("p. 920");
-    expect(potRel?.printedForm).toContain("P = \\int X dx");
-
-    const magRel = PRINTED_RELATIONS_METADATA.find((r) => r.id === "magnetic-deflection");
-    expect(magRel).toBeDefined();
-    expect(magRel?.locator).toBe("p. 920");
-    expect(magRel?.printedForm).toContain("R_m = ");
-
-    const elRel = PRINTED_RELATIONS_METADATA.find((r) => r.id === "electric-deflection");
-    expect(elRel).toBeDefined();
-    expect(elRel?.locator).toBe("p. 921");
-    expect(elRel?.printedForm).toContain("R_e = ");
+    expect(PRINTED_RELATIONS_METADATA.map((relation) => relation.id)).toEqual([
+      "deflectability-ratio",
+      "potential-difference",
+      "magnetic-deflection",
+    ]);
+    for (const relation of PRINTED_RELATIONS_METADATA) {
+      const block = strictParse(
+        readFileSync(
+          new URL(
+            `../../content/source-blocks/special-relativity/${relation.sourceBlock}.yaml`,
+            import.meta.url,
+          ),
+          "utf8",
+        ),
+        "yaml",
+      ) as { id: string; diplomaticText: string; locators: { printedPage: number }[] };
+      expect(block.id).toBe(relation.sourceBlock);
+      expect(relation.printedForm).toBe(block.diplomaticText);
+      expect(relation.locator).toBe(`p. ${block.locators[0]?.printedPage}`);
+    }
+    // The electric-radius comparison is useful, but it is not one of Einstein's
+    // three closing experimental relations and must not acquire a fictitious source.
+    expect(PRINTED_RELATIONS_METADATA.some((relation) => /R_e/.test(relation.printedForm))).toBe(
+      false,
+    );
 
     logElectron({
-      testId: "electron-relations-facsimile-locators",
+      testId: "electron-relations-source-locators",
       resultStatus: "value",
-      expected: 3,
-      actual: PRINTED_RELATIONS_METADATA.length,
+      expected: "source records eq-s10-d9, eq-s10-d10, eq-s10-d12",
+      actual: PRINTED_RELATIONS_METADATA.map((relation) => relation.sourceBlock).join(", "),
       outcome: "passed",
       durationMs: performance.now() - t0,
       message:
-        "Three relations transcribed from facsimile with exact page locators p. 920 and p. 921.",
+        "Printed forms and page locators agree with the edition's source ledger; no new review status is claimed.",
     });
   });
 
-  test("three printed relations reproduce modern equivalents across sampled speeds", () => {
+  test("three printed relations and the separate electric comparison reproduce their modern equivalents", () => {
     const t0 = performance.now();
     const speeds = [0.1, 0.3, 0.6, 0.8];
     const eField = 1e5;
@@ -80,7 +91,7 @@ describe("electron.relations.test.ts: Transcribed printed relations and modern e
         true,
       );
 
-      // Electric radius Re = gamma * m * v^2 / (e * E)
+      // Additional modern comparison, not a fourth printed relation: Re = gamma * m * v^2 / (e * E)
       const expectedRe = (gammaVal * ELECTRON_MASS * v * v) / (ELEMENTARY_CHARGE * eField);
       expect(withinTolerance(val(rel.electricRadius), expectedRe, { relative: 1e-10 }).ok).toBe(
         true,

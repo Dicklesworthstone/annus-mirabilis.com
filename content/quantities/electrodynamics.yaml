@@ -755,7 +755,7 @@
 
 - id: radiusCurvatureMagnetic
   name: Radius of curvature (magnetic deflection)
-  description: Section 10's radius of curvature of an electron's path under a magnetic deflecting field.
+  description: Section 10's radius for a uniform magnetic field perpendicular to motion; the laboratory also uses this as a separate transverse-field reference.
   dimensionStatus: declared
   dimension: [1, 0, 0, 0, 0, 0]
   mathematicalKind: scalar
@@ -764,11 +764,25 @@
 
 - id: radiusCurvatureElectric
   name: Radius of curvature (electric deflection)
-  description: Section 10's radius of curvature of an electron's path under an electric deflecting field.
+  description: Modern local curvature-radius reference for a purely transverse electric field, compared with section 10's printed magnetic-radius relation.
   dimensionStatus: declared
   dimension: [1, 0, 0, 0, 0, 0]
   mathematicalKind: scalar
   frame: not-applicable
+  colorRole: space-geometry
+
+- id: initialTrajectoryCurvature
+  name: Initial spatial trajectory curvature
+  description: >
+    Modern diagnostic of the actual three-dimensional path at the selected entry velocity,
+    from the combined electric and magnetic Lorentz force perpendicular to that velocity.
+    Curvature is zero when there is no instantaneous transverse force. It is undefined at rest.
+    This is not an additional printed relation from section 10 and is not the curvature of
+    the displayed x-y projection or the reciprocal of a general helical gyroradius.
+  dimensionStatus: declared
+  dimension: [-1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
   colorRole: space-geometry
 
 - id: magneticDeflectability

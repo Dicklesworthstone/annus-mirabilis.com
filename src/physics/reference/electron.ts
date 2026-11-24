@@ -605,37 +605,140 @@ export function electricRadius(
 }
 
 /**
- * Historical transcription of the three relations accessible to experiment
- * from the facsimile of Paper 3 §10, pp. 920-921.
+ * Exact coordinate-axis directions avoid interpreting cos(pi/2) roundoff as a tiny
+ * transverse force. The path and its initial curvature use this same entry direction.
+ */
+function initialDirection(degrees: number): readonly [number, number] {
+  const angle = ((degrees % 360) + 360) % 360;
+  if (angle === 0) return [1, 0];
+  if (angle === 90) return [0, 1];
+  if (angle === 180) return [-1, 0];
+  if (angle === 270) return [0, -1];
+  const radians = (angle * Math.PI) / 180;
+  return [Math.cos(radians), Math.sin(radians)];
+}
+
+/**
+ * Modern diagnostic of the actual initial spatial path, including both applied fields.
+ * With n = v/|v|, a_perp = q(E_perp + v cross B)/(gamma m), and kappa = |a_perp|/v^2.
+ * The two transverse components below are expressed in an orthonormal basis: across the
+ * declared entry direction in the x-y plane, and along z. No projected drawing is measured.
+ * A helical path's spatial curvature differs from the reciprocal of its gyroradius.
+ */
+export function initialTrajectoryCurvature(
+  input: Sr13Input,
+  charge: number = -ELEMENTARY_CHARGE,
+  mass: number = ELECTRON_MASS,
+): ScientificResult {
+  const quantityId = "initialTrajectoryCurvature";
+  if (
+    ![
+      input.initialSpeed,
+      input.initialDirectionDeg,
+      input.electricFieldX,
+      input.electricFieldY,
+      input.electricFieldZ,
+      input.magneticFieldX,
+      input.magneticFieldY,
+      input.magneticFieldZ,
+      charge,
+      mass,
+    ].every(Number.isFinite) ||
+    mass <= 0
+  ) {
+    return asOutside(
+      quantityId,
+      "m^-1",
+      "curvature",
+      "invalid-input",
+      "Initial path curvature requires finite fields, velocity, charge and positive mass.",
+      "input",
+    );
+  }
+  const factor = gamma(Math.abs(input.initialSpeed));
+  if (factor.status !== "value") {
+    return asOutside(
+      quantityId,
+      "m^-1",
+      "curvature",
+      "superluminal-speed",
+      "Initial path curvature requires a speed below light speed.",
+    );
+  }
+  if (input.initialSpeed === 0) {
+    return Object.freeze({
+      ...identity(quantityId, "m^-1", "curvature"),
+      status: "not-applicable" as const,
+      reason:
+        "The particle starts at rest. Its initial velocity has no direction, so initial path curvature is undefined.",
+    });
+  }
+  const [cosine, sine] = initialDirection(input.initialDirectionDeg);
+  const speed = input.initialSpeed * C_SI;
+  const across =
+    -sine * input.electricFieldX + cosine * input.electricFieldY -
+    speed * input.magneticFieldZ;
+  const outOfPlane =
+    input.electricFieldZ +
+    speed * (cosine * input.magneticFieldY - sine * input.magneticFieldX);
+  const transverseFieldForce = Math.hypot(across, outOfPlane);
+  const curvature = (Math.abs(charge) / mass) * transverseFieldForce /
+    Math.abs(speed) / Math.abs(speed) / factor.value;
+  if (
+    !Number.isFinite(curvature) ||
+    (charge !== 0 && transverseFieldForce > 0 && curvature === 0)
+  ) {
+    return asOutside(
+      quantityId,
+      "m^-1",
+      "curvature",
+      "unresolved-curvature",
+      "The initial curvature cannot be represented at these settings. Choose a finite nonzero speed with a resolvable force.",
+      "numerical",
+    );
+  }
+  // A straight initial tangent has curvature zero, not a numeric infinite radius.
+  return asValue(quantityId, "m^-1", "curvature", curvature);
+}
+
+/**
+ * The three experimental relations, mapped to the edition's source transcriptions.
+ * These locators retain the source ledger's review status; they do not certify a facsimile review.
+ * Electric curvature is a modern comparison, not a fourth printed relation.
  */
 export const PRINTED_RELATIONS_METADATA = Object.freeze([
   Object.freeze({
-    id: "potential-difference",
+    id: "deflectability-ratio",
+    sourceBlock: "eq-s10-d9",
     locator: "p. 920",
-    printedForm:
-      "P = \\int X dx = \\frac{\\mu}{\\varepsilon} V^2 \\left( \\frac{1}{\\sqrt{1 - (v/V)^2}} - 1 \\right)",
-    modernEquivalent: "q V_{\\text{acc}} = m c^2 (\\gamma - 1)",
+    printedForm: "\\frac{A_m}{A_e} = \\frac{v}{V} .",
+    modernEquivalent: "A_m/A_e = v/c",
     description:
-      "Accelerating potential difference related to velocity of electron starting from rest",
+      "The printed ratio of magnetic to electric deflectability in the paper's unit convention",
+  }),
+  Object.freeze({
+    id: "potential-difference",
+    sourceBlock: "eq-s10-d10",
+    locator: "p. 921",
+    printedForm:
+      "P = \\int X d x = \\frac{\\mu}{\\varepsilon} V^2 \\left\\{ \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} - 1 \\right\\} .",
+    modernEquivalent: "|q| U = m c^2 (\\gamma - 1)",
+    description: "Accelerating potential difference for an electron starting from rest",
   }),
   Object.freeze({
     id: "magnetic-deflection",
-    locator: "p. 920",
-    printedForm: "R_m = \\frac{\\mu}{\\varepsilon} \\frac{v V}{N \\sqrt{1 - (v/V)^2}}",
-    modernEquivalent: "R_m = \\gamma m v / (q B)",
-    description: "Radius of curvature in magnetic field perpendicular to motion",
-  }),
-  Object.freeze({
-    id: "electric-deflection",
+    sourceBlock: "eq-s10-d12",
     locator: "p. 921",
-    printedForm: "R_e = \\frac{\\mu}{\\varepsilon} \\frac{v^2}{Y (1 - (v/V)^2)}",
-    modernEquivalent: "R_e = \\gamma m v^2 / (q E)",
-    description: "Radius of curvature in electric field perpendicular to motion",
+    printedForm:
+      "R = V^2 \\frac{\\mu}{\\varepsilon} \\cdot \\frac{\\frac{v}{V}}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} \\cdot \\frac{1}{N} .",
+    modernEquivalent: "R = \\gamma m |v| / (|q| B)",
+    description: "Radius of curvature in a magnetic field perpendicular to motion",
   }),
 ] as const);
 
 /**
- * Three relations accessible to experiment (Paper 3 §10, pp. 920-921).
+ * Three relations accessible to experiment (Paper 3 §10, pp. 920-921), plus the
+ * explicitly modern transverse-electric curvature comparison.
  */
 export function threePrintedRelations(
   beta: number,
@@ -1155,6 +1258,7 @@ export function evaluateSr13(input: Sr13Input): Readonly<Record<string, Scientif
       : ELECTRON_MASS;
 
   const beta = Math.abs(input.initialSpeed);
+  const initialCurvature = initialTrajectoryCurvature(input, charge, mass);
 
   if (beta >= 1) {
     return Object.freeze({
@@ -1235,6 +1339,7 @@ export function evaluateSr13(input: Sr13Input): Readonly<Record<string, Scientif
         "superluminal-speed",
         "Speed must be less than c.",
       ),
+      initialTrajectoryCurvature: initialCurvature,
       trajectoryPositions: asOutside(
         "trajectoryPositions",
         "m",
@@ -1290,6 +1395,7 @@ export function evaluateSr13(input: Sr13Input): Readonly<Record<string, Scientif
     radiusCurvatureElectric: re,
     lorentzFactor: asValue("lorentzFactor", "1", "dimensionless", g),
     speedRatio: asValue("speedRatio", "1", "ratio", beta),
+    initialTrajectoryCurvature: initialCurvature,
     trajectoryPositions: sr13Trajectory(input, beta, charge, mass),
   });
 }
@@ -1322,12 +1428,12 @@ function sr13Trajectory(
       "input",
     );
   }
-  const direction = (input.initialDirectionDeg * Math.PI) / 180;
+  const [cosine, sine] = initialDirection(input.initialDirectionDeg);
   const speed = Math.sign(input.initialSpeed || 1) * beta * C_SI;
   const path = integrateBorisChecked(
     { x: input.electricFieldX, y: input.electricFieldY, z: input.electricFieldZ },
     { x: input.magneticFieldX, y: input.magneticFieldY, z: input.magneticFieldZ },
-    { x: speed * Math.cos(direction), y: speed * Math.sin(direction), z: 0 },
+    { x: speed * cosine, y: speed * sine, z: 0 },
     duration,
     charge,
     mass,

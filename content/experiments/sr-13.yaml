@@ -362,6 +362,13 @@ outputs:
       - value
       - outside-domain
     primary: true
+  - id: initialTrajectoryCurvature
+    quantityId: initialTrajectoryCurvature
+    allowedStatuses:
+      - value
+      - outside-domain
+      - not-applicable
+    primary: true
   - id: lorentzFactor
     quantityId: lorentzFactor
     allowedStatuses:
@@ -431,6 +438,9 @@ owner:
     - kernelFunction: evaluateSr13
       identifier: "radiusCurvatureMagnetic"
       quantityId: radiusCurvatureMagnetic
+    - kernelFunction: evaluateSr13
+      identifier: "initialTrajectoryCurvature"
+      quantityId: initialTrajectoryCurvature
 views:
   - id: svg-electron-trajectory
     kind: svg
@@ -447,6 +457,7 @@ views:
       - transverseMassLaboratory
       - kineticEnergy
       - acceleratingPotential
+      - initialTrajectoryCurvature
       - lorentzFactor
   - id: plot-kinetic-energy
     kind: svg
@@ -479,13 +490,15 @@ actions:
         - acceleratingPotential
         - radiusCurvatureMagnetic
         - radiusCurvatureElectric
+        - initialTrajectoryCurvature
         - lorentzFactor
         - speedRatio
       allowedStatuses:
         - value
         - outside-domain
+        - not-applicable
     visualAffordance: "Trajectory curve in field region with coefficient table and kinetic energy comparison"
-    equivalentAffordance: "Enter field components and initial speed to compute longitudinal and transverse masses, kinetic energy, potential, and deflection radii."
+    equivalentAffordance: "Enter field components and initial speed to compute longitudinal and transverse masses, kinetic energy, potential, transverse-field reference radii, and actual initial three-dimensional trajectory curvature."
     announcement: "Relativistic electron dynamics and mass coefficients computed."
 acceptanceCases:
   - sr-13-convention-0.6
