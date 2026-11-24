@@ -9,6 +9,10 @@ import {
   SHARES,
   WALK,
 } from "../../foundations/bridgeFigures.ts";
+import {
+  INITIAL_RAMP_PARTITION,
+  REFERENCE_RAMP_PARTITION,
+} from "../../foundations/integrationStrips.ts";
 import { CONSTRUCTIONS_WITH_CONTROLS } from "./constructionIds.ts";
 import { FoundationConstruction } from "./FoundationConstruction.tsx";
 
@@ -48,6 +52,110 @@ const BRIDGE_FIGURES = [
   "bridge-scientific-notation-units",
 ] as const;
 
+type BridgeLesson = (typeof BRIDGE_FIGURES)[number];
+
+/**
+ * Preserve the figures each lesson explains, rather than a global census that can be satisfied
+ * by losing one drawing and adding an unrelated one elsewhere. The descriptions identify the
+ * scientific subject, not generated React ids, coordinates or whole mutable captions. New figures
+ * may be added, while each of these required subjects must still appear once in its own lesson.
+ */
+const REQUIRED_FIGURES: Readonly<Record<BridgeLesson, Readonly<Record<string, RegExp>>>> = {
+  "flux-continuity": {
+    "first-second-crossings": /^In one second, .* particles cross the left boundary/,
+    "next-second-crossings": /^In the next second, .* particles cross the left boundary/,
+  },
+  "diffusion-equation": {
+    "peak-and-dip": /^A wavy profile of dye along a tube,/,
+    "spreading-bell": /^Two bell-shaped profiles of the same dye drawn over one another\./,
+    "closed-tube-profile": /^Dye density along a closed tube,/,
+  },
+  "random-walks": {
+    "four-two-step-walks": /^Four two-step walks drawn one above another/,
+    "rms-growth": /^A graph with steps from 0 to .* The independent-step curve/,
+  },
+  "gaussian-distributions": {
+    "reference-and-chosen-bells": /^Two centered bell curves on fixed axes/,
+  },
+  distributions: {
+    "observation-histogram": /^A histogram of .* entered observations in/,
+    "same-bin-two-units": /^Selected bin .* shown as one rectangle under two rulers\./,
+  },
+  integration: {
+    "reference-strips": new RegExp(
+      `^The same density rises .* These ${REFERENCE_RAMP_PARTITION.count} rectangles take the height`,
+    ),
+    "chosen-strips": new RegExp(
+      `^The same density rises .* These ${INITIAL_RAMP_PARTITION.count} rectangles take the height`,
+    ),
+  },
+  "taylor-expansion": {
+    "strips-and-corner": /^A square of side .* with a thin strip added/,
+    "three-expansion-steps": /^Three grown squares side by side at one scale,/,
+  },
+  derivatives: {
+    "secants-and-tangent": /^A curve of position against time, rising more and more steeply\./,
+    "shrinking-intervals": /^Four points plotted against the interval they were averaged over,/,
+  },
+  "frames-events": {
+    "synchronous-clocks":
+      /^Two clocks drawn as vertical lines .* the two clocks are synchronous by the rule\.$/,
+    "fast-clock":
+      /^Two clocks drawn as vertical lines .* clock B is .* seconds fast and setting it back/,
+  },
+  "mean-variance-rms": {
+    "entered-observations": /^\d+ entered observations, each on its own row,/,
+    "four-summary-lengths": /^Four lengths compared on one micrometre scale\./,
+  },
+  "error-and-inference": {
+    "equal-area-different-shapes": /^Three rectangles side by side at one scale,/,
+  },
+  "bridge-a-graph": {
+    "distance-against-time": /^A graph with time in seconds along the bottom/,
+    "particle-end-positions": /^Four bars, each one particle tall,/,
+  },
+  "bridge-sum-average": {
+    "same-total-shared-evenly": /^Two groups of four jars\./,
+  },
+  "bridge-negative-numbers-direction": {
+    "signed-directions-and-return": /^A ruler numbered from minus four to plus four/,
+  },
+  "bridge-fractions-ratios": {
+    "equivalent-shares": /^Two rows of dots with a bar under each\./,
+  },
+  "bridge-scientific-notation-units": {
+    "length-and-area-powers": /^Two rulers of powers of ten, drawn at the same scale\./,
+  },
+};
+
+function namedFigures(html: string) {
+  return (html.match(/<svg\b[\s\S]*?<\/svg>/g) ?? []).flatMap((markup) => {
+    const opening = markup.slice(0, markup.indexOf(">") + 1);
+    if (opening.includes('aria-hidden="true"') || !opening.includes('role="img"')) return [];
+    return [{ markup, label: opening.match(/aria-label="([^"]*)"/)?.[1] ?? "" }];
+  });
+}
+
+function figureIdentityProblems(id: BridgeLesson, html: string): readonly string[] {
+  const named = namedFigures(html);
+  const claimed = new Map<number, string>();
+  const problems: string[] = [];
+  for (const [identity, description] of Object.entries(REQUIRED_FIGURES[id])) {
+    const matches = named.flatMap((figure, index) =>
+      description.test(figure.label) ? [index] : [],
+    );
+    const index = matches[0];
+    if (matches.length !== 1 || index === undefined) {
+      problems.push(`${identity}: found ${matches.length} named figures`);
+    } else if (claimed.has(index)) {
+      problems.push(`${identity}: shares a drawing with ${claimed.get(index)}`);
+    } else {
+      claimed.set(index, identity);
+    }
+  }
+  return problems;
+}
+
 const rendered = BRIDGE_FIGURES.map((id) => ({
   id,
   html: renderToStaticMarkup(<FoundationConstruction foundationId={id} />),
@@ -62,7 +170,6 @@ describe("the bridge lessons' figures", () => {
     // wrong reason: the rule was right and the population was not. Both halves are now required,
     // which is stricter than what it replaced rather than looser.
     expect(rendered.length).toBe(BRIDGE_FIGURES.length);
-    let drawings = 0;
     let decorative = 0;
     for (const { id, html } of rendered) {
       const svgs = html.match(/<svg\b[^>]*>/g) ?? [];
@@ -81,17 +188,64 @@ describe("the bridge lessons' figures", () => {
         // Long enough to describe a picture rather than name it: the shortest here is the jars.
         expect(label.length, `${id}: ${svg}`).toBeGreaterThan(80);
         namedHere += 1;
-        drawings += 1;
       }
       // Every lesson keeps at least one named figure, so nothing can go dark behind aria-hidden.
       expect(namedHere, `${id}: no named figure`).toBeGreaterThan(0);
     }
-    // Twenty-six named drawings across sixteen lessons; bridge-a-graph draws both of the graphs its
-    // prose names, flux-continuity one panel per second, diffusion-equation the profile and then
-    // the same dye later, and random-walks the four walks and then the square-root growth.
-    expect(drawings).toBe(26);
     // And the decorative swatches are a real population, so the branch above is not dead code.
     expect(decorative).toBeGreaterThan(0);
+  });
+
+  test("each lesson retains the named scientific figures its explanation depends on", () => {
+    for (const { id, html } of rendered) {
+      expect(
+        Object.keys(REQUIRED_FIGURES[id]).length,
+        `${id}: no required subjects`,
+      ).toBeGreaterThan(0);
+      expect(figureIdentityProblems(id, html), id).toEqual([]);
+    }
+  });
+
+  test("the identity guard rejects a replaced figure even when the old global count would pass", () => {
+    const html = rendered.find((entry) => entry.id === "diffusion-equation")?.html ?? "";
+    const figures = namedFigures(html);
+    const bell = figures.find((figure) =>
+      REQUIRED_FIGURES["diffusion-equation"]["spreading-bell"]?.test(figure.label),
+    );
+    const peak = figures.find((figure) =>
+      REQUIRED_FIGURES["diffusion-equation"]["peak-and-dip"]?.test(figure.label),
+    );
+    expect(bell).toBeDefined();
+    expect(peak).toBeDefined();
+    const replaced = html.replace(bell?.markup ?? "", peak?.markup ?? "");
+    expect(namedFigures(replaced).length).toBe(figures.length);
+    expect(figureIdentityProblems("diffusion-equation", replaced)).toEqual([
+      "peak-and-dip: found 2 named figures",
+      "spreading-bell: found 0 named figures",
+    ]);
+  });
+
+  test("an extra subject cannot hide a missing required one, and adding a figure alone is allowed", () => {
+    const html = rendered.find((entry) => entry.id === "diffusion-equation")?.html ?? "";
+    const bell = namedFigures(html).find((figure) =>
+      REQUIRED_FIGURES["diffusion-equation"]["spreading-bell"]?.test(figure.label),
+    );
+    expect(bell).toBeDefined();
+    const extra =
+      '<svg role="img" aria-label="A different illustrative subject that does not describe any of the required dye profiles."><path d="M 0 0 L 1 1" /></svg>';
+    expect(figureIdentityProblems("diffusion-equation", html + extra)).toEqual([]);
+    const replaced = html.replace(bell?.markup ?? "", extra);
+    expect(namedFigures(replaced).length).toBe(namedFigures(html).length);
+    expect(figureIdentityProblems("diffusion-equation", replaced)).toEqual([
+      "spreading-bell: found 0 named figures",
+    ]);
+    const hidden = html.replace(
+      bell?.markup ?? "",
+      (bell?.markup ?? "").replace('role="img"', 'aria-hidden="true"'),
+    );
+    expect(figureIdentityProblems("diffusion-equation", hidden)).toEqual([
+      "spreading-bell: found 0 named figures",
+    ]);
   });
 
   test("every one states its reading in words, under a heading", () => {
