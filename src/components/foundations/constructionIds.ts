@@ -104,6 +104,7 @@ export const CONSTRUCTIONS_WITH_CONTROLS: readonly FoundationConstructionId[] = 
   "integration",
   "random-walks",
   "gaussian-distributions",
+  "diffusion-equation",
 ];
 
 /** The construction id for a foundation, with or without its `foundation:` prefix, or null. */

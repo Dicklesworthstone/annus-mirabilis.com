@@ -18,6 +18,7 @@ import type { FoundationConstruction } from "./FoundationConstruction.tsx";
 import "./foundations.css";
 import "./independentSteps.css";
 import "./gaussianIntervals.css";
+import "./diffusionProfile.css";
 import "../lab/sci.css";
 
 const Construction = lazy(() =>

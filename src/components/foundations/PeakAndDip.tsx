@@ -7,6 +7,7 @@ import {
   SPREAD,
   spreadAfter,
 } from "../../foundations/bridgeFigures.ts";
+import { DiffusionProfileConstruction } from "./DiffusionProfile.tsx";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
 /**
@@ -23,7 +24,8 @@ import { type HeadingLevel, headingTag } from "./headingLevel.ts";
  * come from spreadAfter(), which takes the square root of D times t, so the figure cannot show a
  * spreading that disagrees with the rule the lesson states.
  *
- * No new class names, and no formula: the lesson has 46 and needed none of them drawn.
+ * The controlled closed-tube profile below keeps both worked figures readable, including without
+ * JavaScript, and lets the reader compare different initial shapes, diffusion rates and times.
  */
 
 const W = 300;
@@ -190,6 +192,7 @@ export function PeakAndDip({ headingLevel = 3 }: { readonly headingLevel?: Headi
           {denser.toFixed(1)} mm, the square root of two rather than of four.
         </p>
       </div>
+      <DiffusionProfileConstruction headingLevel={headingLevel} />
     </section>
   );
 }
