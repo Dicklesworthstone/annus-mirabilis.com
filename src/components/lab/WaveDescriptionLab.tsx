@@ -28,6 +28,8 @@ import { instrumentRootAttributes } from "../../experiments/store/identityAttrib
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
+import { lq01ReaderWeave } from "../../reader/weave/waveDescriptionPassages.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
@@ -52,6 +54,7 @@ import { ShowTheCode } from "./ShowTheCode.tsx";
 export type WaveDescriptionLabProps = Readonly<{
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean;
   example: PreparedLq01Example;
   title?: string;
 }>;
@@ -94,7 +97,7 @@ const PRESETS_BY_MODE: Readonly<Record<Mode, readonly (keyof typeof LQ01_PRESETS
  */
 const VALUE_ROWS: Readonly<Record<Mode, readonly { id: string; label: string; unit: string }[]>> = {
   interference: [
-    { id: "centerIntensity", label: "Intensity at the centre, averaged", unit: "" },
+    { id: "centerIntensity", label: "Intensity at the centre, selected readout", unit: "" },
     {
       id: "instantaneousCenterIntensity",
       label: "Intensity at the centre, this instant",
@@ -135,6 +138,7 @@ function ValueCell({ snapshot, id }: { snapshot: AcceptedSnapshot; id: string })
 export function WaveDescriptionLab({
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
   example,
   title = "Wave description and energy spreading laboratory",
 }: WaveDescriptionLabProps) {
@@ -158,6 +162,7 @@ export function WaveDescriptionLab({
     session.getServerSnapshot().accepted ??
     (session.getSnapshot().accepted as NonNullable<typeof view.accepted>);
   const p = snapshot.parameters as unknown as Lq01Parameters;
+  const weaveBinding = lq01ReaderWeave(snapshot);
 
   const [draft, setDraftState] = useState(() => toLq01Draft(session.acceptedParameters()));
   const draftRevision = useRef(0);
@@ -604,6 +609,15 @@ export function WaveDescriptionLab({
       </div>
 
       <div data-view-id="lq-01-data-table" className="lab-values" {...gate.response}>
+        {weaveBinding ? (
+          <SessionResultWeave
+            session={session}
+            binding={weaveBinding}
+            suspended={failure !== null}
+            announcementsEnabled={gate.open}
+            highlightPaper={highlightPaper}
+          />
+        ) : null}
         <h3>Values at these settings</h3>
         {interference && (
           <p className="fine">

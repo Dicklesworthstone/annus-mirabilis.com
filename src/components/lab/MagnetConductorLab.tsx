@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { useInvestigationWitness } from "../../discovery/investigation/context.tsx";
 import { readTypedNumber } from "../../experiments/controls/typedNumber.ts";
@@ -34,6 +34,8 @@ import { createReaderCheckpointBinding } from "../../experiments/store/readerChe
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import { sr02ReaderWeave } from "../../reader/weave/magnetConductorPassages.ts";
+import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
@@ -106,12 +108,14 @@ function typedFrom(q: Sr02Parameters): Sr02Typed {
 export function MagnetConductorLab({
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
   example,
   title = "Magnet and conductor",
 }: {
   example: PreparedSr02Example;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean;
   title?: string;
 }) {
   const id = useId();
@@ -140,6 +144,7 @@ export function MagnetConductorLab({
   const gate = usePredictGate("sr-02", SR02_PROMPTS);
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr02Parameters;
+  const weaveBinding = sr02ReaderWeave(snapshot);
   // One sentence for the status line: the force on the charge in each description, which agree.
   const numberAt = (quantityId: string) => {
     const item = result(snapshot, quantityId);
@@ -458,6 +463,15 @@ export function MagnetConductorLab({
           </p>
         ) : null}
         <div className="lab-results" {...gate.response}>
+          {weaveBinding ? (
+            <SessionResultWeave
+              session={session}
+              binding={weaveBinding}
+              suspended={refusal !== null || error.length > 0}
+              announcementsEnabled={gate.open}
+              highlightPaper={highlightPaper}
+            />
+          ) : null}
           {apparatus ? (
             <ApparatusPanel
               motionState={p.motionState}
@@ -564,9 +578,19 @@ function ApparatusPanel({
           : SR02_APPARATUS_CAPTIONS.coilMoves}
       </p>
       <p data-results="qualitative">{SR02_APPARATUS_CAPTIONS.observation}</p>
+      <p>
+        Read the introduction's relative-motion argument in the{" "}
+        <a href="/papers/special-relativity/view/german/#s0-p1-s3">German source</a> or{" "}
+        <a href="/papers/special-relativity/view/english/#s0-p1-s3">English translation</a>.
+      </p>
       <details open={resolutionOpen || undefined}>
         <summary>How the 1905 paper removes this asymmetry (§6)</summary>
         <p data-resolution="section-6">{SR02_APPARATUS_CAPTIONS.resolution}</p>
+        <p>
+          Read the new manner of expression in the{" "}
+          <a href="/papers/special-relativity/view/german/#s6-p10-s1">German source</a> or{" "}
+          <a href="/papers/special-relativity/view/english/#s6-p10-s1">English translation</a>.
+        </p>
       </details>
     </div>
   );

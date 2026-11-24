@@ -1,3 +1,7 @@
+.diffusion-profile {
+  margin-top: 1.5rem;
+}
+
 .diffusion-profile-fields {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));

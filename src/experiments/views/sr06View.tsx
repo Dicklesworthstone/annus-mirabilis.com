@@ -9,6 +9,11 @@ const example = { ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["sr-06"]
 
 export default function Sr06ClarificationView({ instanceId }: ExperimentViewProps) {
   return (
-    <VelocityCompositionLab example={example} instanceId={instanceId} restoreFromLocation={false} />
+    <VelocityCompositionLab
+      example={example}
+      instanceId={instanceId}
+      restoreFromLocation={false}
+      highlightPaper
+    />
   );
 }

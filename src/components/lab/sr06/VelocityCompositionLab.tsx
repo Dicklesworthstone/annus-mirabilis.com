@@ -32,6 +32,8 @@ import { createReaderCheckpointBinding } from "../../../experiments/store/reader
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { sr06ReaderWeave } from "../../../reader/weave/compositionPassages.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
@@ -77,12 +79,14 @@ const SR06_PROMPTS = PREDICT_PROMPTS["sr-06"] ?? [];
 export function VelocityCompositionLab({
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
   example,
   title = "Why speeds do not simply add",
 }: {
   example: PreparedSr06Example;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean;
   title?: string;
 }) {
   const id = useId();
@@ -108,6 +112,7 @@ export function VelocityCompositionLab({
   const gate = usePredictGate("sr-06", SR06_PROMPTS);
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr06Parameters;
+  const weaveBinding = sr06ReaderWeave(snapshot);
   // Earned per snapshot (am-inst-execution-labels-5ywv). The eyebrow used to print "Ideal model,
   // host calculation" as fixed text over the case the build computed.
   const executionKind = executionStateKindFromHostLabel(
@@ -342,6 +347,15 @@ export function VelocityCompositionLab({
         />
         <LabTapeLink link={withPredictions(tapeLink, gate)} />
         <div {...gate.response}>
+          {weaveBinding ? (
+            <SessionResultWeave
+              session={session}
+              binding={weaveBinding}
+              suspended={failure !== null}
+              announcementsEnabled={gate.open}
+              highlightPaper={highlightPaper}
+            />
+          ) : null}
           <VelocityCompositionPlot snapshot={snapshot} />
           <table className="inference-summary">
             <caption>Accepted composition (fractions of c)</caption>

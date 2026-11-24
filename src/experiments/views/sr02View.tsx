@@ -24,6 +24,11 @@ export default function Sr02ClarificationView({ instanceId, mode }: ExperimentVi
   }, [mode]);
   if (!prepared) return <PreparedExampleNotice id="sr-02" />;
   return (
-    <MagnetConductorLab example={prepared} instanceId={instanceId} restoreFromLocation={false} />
+    <MagnetConductorLab
+      example={prepared}
+      instanceId={instanceId}
+      restoreFromLocation={false}
+      highlightPaper
+    />
   );
 }
