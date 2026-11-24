@@ -110,6 +110,21 @@ outputs:
     allowedStatuses:
       - value
       - outside-domain
+  - id: eventSeparationTemporalStationary
+    quantityId: eventSeparationTemporalStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: properTimeElapsed
+    quantityId: properTimeElapsed
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: lorentzFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+      - outside-domain
   - id: dilationLossExact
     quantityId: dilationLossExact
     allowedStatuses:
@@ -229,15 +244,27 @@ owner:
     - kernelFunction: properTimeAlongLegs
       identifier: "properTime"
       quantityId: properTimeElapsed
+      termIds:
+        - eq-model-sr-time-dilation.t.proper
     - kernelFunction: properTimeAlongLegs
       identifier: "coordinateTime"
       quantityId: coordinateTimeStationary
+    - kernelFunction: properTimeAlongLegs
+      identifier: "coordinateTime"
+      quantityId: eventSeparationTemporalStationary
+      termIds:
+        - eq-model-sr-time-dilation.t.coordinate
     - kernelFunction: properTimeAlongLegs
       identifier: "gamma"
       quantityId: lorentzFactor
     - kernelFunction: properTimeAlongLegs
       identifier: "beta"
       quantityId: clockSpeedStationary
+    - kernelFunction: reciprocalRates
+      identifier: "dilationFactor"
+      quantityId: lorentzFactor
+      termIds:
+        - eq-model-sr-time-dilation.t.factor
     - kernelFunction: dilationLossPerSecond
       identifier: "beta"
       quantityId: frameSpeed
@@ -260,6 +287,12 @@ owner:
       identifier: "beta"
       quantityId: frameSpeed
 views:
+  - id: accepted-clock-equation
+    kind: text
+    consumes:
+      - eventSeparationTemporalStationary
+      - properTimeElapsed
+      - lorentzFactor
   - id: clock-readings
     kind: table
     consumes:

@@ -415,6 +415,25 @@ await writeFile(
     2,
   )}\n`,
 );
+// The moving-clock laboratory needs only its bound equation, not the whole relativity reader.
+const sr05Equations = explainedEquations.filter(
+  (equation) =>
+    equation.paper === "special-relativity" &&
+    equation.bindings.some((binding) => binding.experimentId === "sr-05"),
+);
+await writeFile(
+  "src/generated/sr05-equations.json",
+  `${JSON.stringify(
+    {
+      schemaVersion: 1,
+      rendererDigest,
+      equations: sr05Equations,
+      foundationTitles: lessonTitles(sr05Equations),
+    },
+    null,
+    2,
+  )}\n`,
+);
 /*
   ONE COLOUR PER QUANTITY, PER PAPER (owner's ruling, 2026-09-22). The map is computed from the
   paper's records together, because a colour is only unique relative to the other quantities in

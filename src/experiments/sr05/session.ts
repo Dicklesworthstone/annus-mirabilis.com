@@ -24,6 +24,14 @@ export type PreparedSr05Example = Readonly<{
 }>;
 
 const CLOSED_WORLDLINES = new Set(["out-and-back", "circle"]);
+const CANONICAL_CLOCK_QUANTITIES = new Map([
+  [
+    "coordinateTime",
+    { quantityId: "eventSeparationTemporalStationary", semanticKind: "event-separation" },
+  ],
+  ["properTime", { quantityId: "properTimeElapsed", semanticKind: "proper-time" }],
+  ["reciprocalDilationFactor", { quantityId: "lorentzFactor", semanticKind: "lorentz-factor" }],
+]);
 
 function legsFor(p: Sr05Parameters): readonly WorldlineLeg[] {
   if (p.worldlinePreset === "out-and-back") {
@@ -330,6 +338,16 @@ export function evaluateSr05(p: Sr05Parameters): ScientificResult[] {
       boundary: { alternativeModel: "none" },
     });
   }
+
+  // The equation catalogue uses frame-qualified quantity identities. Publish aliases from the
+  // already computed platform-frame results, preserving their numerical owner and any refusal.
+  // Observer descriptions below never replace these durations or the physical trip's factor.
+  outputs.push(
+    ...outputs.flatMap((output) => {
+      const canonical = CANONICAL_CLOCK_QUANTITIES.get(output.quantityId);
+      return canonical ? [{ ...output, ...canonical }] : [];
+    }),
+  );
 
   outputs.push(...observerResults(p));
   return outputs;

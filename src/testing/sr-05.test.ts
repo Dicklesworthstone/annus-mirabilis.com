@@ -3,8 +3,14 @@
  * host calculation), against the bead's exact stated fixtures.
  */
 import { describe, expect, test } from "bun:test";
-import { SR05_DEFAULTS, SR05_PRESETS } from "../experiments/sr05/definition.ts";
-import { evaluateSr05 } from "../experiments/sr05/session.ts";
+import timeDilationRecord from "../../content/equations/special-relativity/eq-model-sr-time-dilation.json";
+import { type LiveSlot, readTermValue } from "../equations/live/values.ts";
+import { parseEquationRecord } from "../equations/record.ts";
+import { compileEquation } from "../equations/render.ts";
+import { deriveHostExecution } from "../experiments/provenance/executionState.ts";
+import type { ScientificResult } from "../experiments/results/types.ts";
+import { SR05_DEFAULTS, SR05_OUTPUTS, SR05_PRESETS } from "../experiments/sr05/definition.ts";
+import { createSr05Session, evaluateSr05 } from "../experiments/sr05/session.ts";
 import {
   dilationLossPerSecond,
   EQUATOR_SPEED_M_PER_S,
@@ -435,6 +441,170 @@ describe("observer changes never alter worldlines, readings, or run identity", (
       if (a?.status === "value" && b?.status === "value") {
         expectClose(a.value as number, b.value as number);
       }
+    }
+  });
+});
+
+describe("canonical values in the moving-clock equation", () => {
+  const equation = compileEquation(
+    parseEquationRecord(timeDilationRecord, "the moving-clock laboratory equation"),
+  );
+  const canonicalIds = [
+    "eventSeparationTemporalStationary",
+    "lorentzFactor",
+    "properTimeElapsed",
+  ] as const;
+  const correspondences = [
+    ["coordinateTime", "eventSeparationTemporalStationary", "s", "event-separation"],
+    ["reciprocalDilationFactor", "lorentzFactor", "1", "lorentz-factor"],
+    ["properTime", "properTimeElapsed", "s", "proper-time"],
+  ] as const;
+
+  function output(outputs: readonly ScientificResult[], id: string) {
+    const matches = outputs.filter((item) => item.quantityId === id);
+    expect(matches).toHaveLength(1);
+    const found = matches[0];
+    if (!found) throw new Error(`Missing accepted clock quantity: ${id}.`);
+    return found;
+  }
+
+  function slotFor(session: ReturnType<typeof createSr05Session>): LiveSlot {
+    const view = session.getSnapshot();
+    return {
+      slot: "primary",
+      experimentId: "sr-05",
+      view,
+      // A deterministic test digest exercises ownership checks; no source certification is inferred.
+      execution: deriveHostExecution(view, SR05_OUTPUTS, `source:sha256:${"5".repeat(64)}`, false),
+    };
+  }
+
+  function valueFor(id: (typeof canonicalIds)[number], slot: LiveSlot) {
+    const term = equation.terms.find((candidate) => candidate.quantityId === id);
+    const binding = equation.bindings.find((candidate) => candidate.quantityId === id);
+    if (!term || !binding) throw new Error(`Missing equation occurrence: ${id}.`);
+    return readTermValue(term, slot, binding);
+  }
+
+  test("all worked trips publish canonical names from the original numerical owners", () => {
+    for (const preset of Object.values(SR05_PRESETS)) {
+      const results = evaluateSr05(preset.parameters);
+      for (const [legacyId, id, unit, semanticKind] of correspondences) {
+        const legacy = output(results, legacyId);
+        const canonical = output(results, id);
+        expect(canonical).toEqual({ ...legacy, quantityId: id, semanticKind });
+        expect(canonical.unit).toBe(unit);
+        expect(SR05_OUTPUTS[id]).toMatchObject({ unit, semanticKind, ownerId: legacy.ownerId });
+      }
+    }
+  });
+
+  test("the authored equation reads the platform interval, physical factor and clock's own time", () => {
+    const session = createSr05Session("canonical-clock-values");
+    expect(session.apply(getPreset("sr-05-inertial-0.6c")).kind).toBe("accepted");
+    const slot = slotFor(session);
+    expect(valueFor("eventSeparationTemporalStationary", slot)).toMatchObject({
+      kind: "value",
+      text: "10",
+      unit: "s",
+      ownerId: "sr05.worldline.properTimeAlongLegs",
+    });
+    expect(valueFor("lorentzFactor", slot)).toMatchObject({
+      kind: "value",
+      text: "1.25",
+      unit: "1",
+      ownerId: "sr05.worldline.reciprocalRates",
+    });
+    expect(valueFor("properTimeElapsed", slot)).toMatchObject({
+      kind: "value",
+      text: "8",
+      unit: "s",
+      ownerId: "sr05.worldline.properTimeAlongLegs",
+    });
+  });
+
+  test("a value with the right name but wrong units, meaning or owner remains symbolic", () => {
+    const session = createSr05Session("canonical-clock-refusals");
+    session.apply(getPreset("sr-05-inertial-0.6c"));
+    const slot = slotFor(session);
+    const accepted = slot.view.accepted;
+    if (!accepted) throw new Error("The real clock owner did not publish a trip.");
+    for (const alteration of [
+      { unit: "ms" },
+      { semanticKind: "coordinate-time" },
+      { ownerId: "unregistered-clock-owner" },
+    ]) {
+      const altered: LiveSlot = {
+        ...slot,
+        view: {
+          ...slot.view,
+          accepted: {
+            ...accepted,
+            outputs: accepted.outputs.map((item) =>
+              item.quantityId === "eventSeparationTemporalStationary"
+                ? { ...item, ...alteration }
+                : item,
+            ),
+          },
+        },
+      };
+      expect(valueFor("eventSeparationTemporalStationary", altered).kind).toBe("symbolic");
+    }
+  });
+
+  test("outside-domain results keep the original refusal instead of inventing finite values", () => {
+    const results = evaluateSr05({ ...SR05_DEFAULTS, speed: 1.5, worldlinePreset: "inertial" });
+    for (const [legacyId, id, , semanticKind] of correspondences) {
+      const legacy = output(results, legacyId);
+      const canonical = output(results, id);
+      expect(canonical.status).toBe("outside-domain");
+      expect(canonical).toEqual({ ...legacy, quantityId: id, semanticKind });
+      expect(Object.hasOwn(canonical, "value")).toBe(false);
+    }
+  });
+
+  test("observer descriptions preserve platform-frame values while a different trip changes them", () => {
+    const parameters = getPreset("sr-05-inertial-0.6c");
+    const original = evaluateSr05(parameters);
+    for (const frameOfDescription of [-0.8, 0, 0.6]) {
+      const redescribed = evaluateSr05({ ...parameters, frameOfDescription });
+      for (const id of canonicalIds) expect(output(redescribed, id)).toEqual(output(original, id));
+    }
+    const changed = evaluateSr05({ ...parameters, speed: -0.8, coordinateDuration: 20 });
+    const time = output(changed, "eventSeparationTemporalStationary");
+    const factor = output(changed, "lorentzFactor");
+    const proper = output(changed, "properTimeElapsed");
+    expect(time).toMatchObject({ status: "value", value: 20 });
+    if (factor.status !== "value" || proper.status !== "value")
+      throw new Error("The valid trip needs finite factor and proper time.");
+    expectClose(factor.value as number, 5 / 3);
+    expectClose(proper.value as number, 12);
+    expectClose((factor.value as number) * (proper.value as number), 20);
+  });
+
+  test("a refused input cannot replace the accepted equation values", () => {
+    const session = createSr05Session("canonical-clock-retention");
+    session.apply(getPreset("sr-05-inertial-0.6c"));
+    const before = session.getSnapshot();
+    expect(session.apply({ speed: 1 }).kind).not.toBe("accepted");
+    expect(session.getSnapshot()).toBe(before);
+    expect(valueFor("properTimeElapsed", slotFor(session)).text).toBe("8");
+    expect(session.apply({ speed: -0.8, coordinateDuration: 20 }).kind).toBe("accepted");
+    expect(valueFor("properTimeElapsed", slotFor(session)).text).toBe("12");
+    expect(valueFor("eventSeparationTemporalStationary", slotFor(session)).text).toBe("20");
+  });
+
+  test("binding admission still rejects legacy names and laboratories outside the paper", () => {
+    for (const replacement of [
+      { outputId: "coordinateTime" },
+      { experimentId: "bm-01" },
+      { quantityId: "properTimeElapsed", outputId: "properTimeElapsed" },
+    ]) {
+      const candidate = structuredClone(timeDilationRecord);
+      candidate.bindings = candidate.bindings.map((binding, index) =>
+        index === 0 ? { ...binding, ...replacement } : binding,
+      );
+      expect(() => parseEquationRecord(candidate, "incorrect clock binding")).toThrow();
     }
   });
 });

@@ -1,5 +1,6 @@
 import { BM01_OUTPUTS } from "../experiments/bm01/definition.ts";
 import { ME02_OUTPUTS } from "../experiments/me02/definition.ts";
+import { SR05_OUTPUTS } from "../experiments/sr05/definition.ts";
 import type { OutputContract } from "../experiments/store/instanceStore.ts";
 import { FOUNDATION_QUANTITIES } from "./foundationQuantities.ts";
 import { LIGHT_QUANTA_QUANTITIES } from "./lightQuantaQuantities.ts";
@@ -17,7 +18,7 @@ export type TeachingPaper =
    * an argument, it is always reading-only (live: false), and it has its own colours.
    */
   | "foundations";
-export type TeachingExperiment = "bm-01" | "me-02";
+export type TeachingExperiment = "bm-01" | "me-02" | "sr-05";
 export type TeachingProfile = Readonly<{
   argumentPrefix: string;
   quantities: QuantityRegistry;
@@ -46,7 +47,7 @@ const profiles: Readonly<Record<TeachingPaper, TeachingProfile>> = Object.freeze
   "special-relativity": Object.freeze({
     argumentPrefix: "arg-sr-",
     quantities: SPECIAL_RELATIVITY_QUANTITIES,
-    outputs: Object.freeze({}),
+    outputs: Object.freeze({ "sr-05": SR05_OUTPUTS }),
   }),
   // The argument field holds the lesson's id; the compiler checks that the lesson exists.
   foundations: Object.freeze({

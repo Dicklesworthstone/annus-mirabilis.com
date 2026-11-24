@@ -73,7 +73,29 @@
       "foundation": "frames-events"
     }
   ],
-  "bindings": [],
+  "bindings": [
+    {
+      "termId": "eq-model-sr-time-dilation.t.coordinate",
+      "quantityId": "eventSeparationTemporalStationary",
+      "experimentId": "sr-05",
+      "outputId": "eventSeparationTemporalStationary",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-sr-time-dilation.t.factor",
+      "quantityId": "lorentzFactor",
+      "experimentId": "sr-05",
+      "outputId": "lorentzFactor",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-sr-time-dilation.t.proper",
+      "quantityId": "properTimeElapsed",
+      "experimentId": "sr-05",
+      "outputId": "properTimeElapsed",
+      "instanceSlot": "primary"
+    }
+  ],
   "sentence": [
     {
       "text": "The stationary system's time between the ticks",

@@ -31,6 +31,7 @@ import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGa
 import { readablePowers } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { ClockObserverView } from "./ClockObserverView.tsx";
+import { Sr05LiveEquation } from "./Sr05LiveEquation.tsx";
 import "./sr05.css";
 
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
@@ -183,14 +184,13 @@ export function MovingClocksLab({
   const accepted = view.accepted;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
-  const executionKind = executionStateKindFromHostLabel(
-    deriveHostExecution(
-      view,
-      SR05_OUTPUTS,
-      example?.sourceDigest ?? "",
-      accepted !== undefined && accepted === session.getServerSnapshot().accepted,
-    ).label,
+  const execution = deriveHostExecution(
+    view,
+    SR05_OUTPUTS,
+    example?.sourceDigest ?? "",
+    accepted !== undefined && accepted === session.getServerSnapshot().accepted,
   );
+  const executionKind = executionStateKindFromHostLabel(execution.label);
   const params = acceptedParameters;
   const outputs = accepted?.outputs ?? [];
 
@@ -547,6 +547,8 @@ export function MovingClocksLab({
               </tr>
             </tbody>
           </table>
+
+          <Sr05LiveEquation view={view} execution={execution} />
 
           <table>
             <caption>

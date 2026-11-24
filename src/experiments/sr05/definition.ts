@@ -68,6 +68,22 @@ export const SR05_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "value",
     "outside-domain",
   ]),
+  // Canonical equation quantities name the elapsed intervals and their frame explicitly.
+  // The evaluator publishes these from the same results as the existing clock readouts.
+  eventSeparationTemporalStationary: c(
+    "s",
+    "event-separation",
+    "sr05.worldline.properTimeAlongLegs",
+    ["value", "outside-domain"],
+  ),
+  properTimeElapsed: c("s", "proper-time", "sr05.worldline.properTimeAlongLegs", [
+    "value",
+    "outside-domain",
+  ]),
+  lorentzFactor: c("1", "lorentz-factor", "sr05.worldline.reciprocalRates", [
+    "value",
+    "outside-domain",
+  ]),
   dilationLossExact: c("1", "dilation-loss-per-second", "kinematics.dilationLossPerSecond", [
     "value",
     "outside-domain",

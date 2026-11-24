@@ -737,10 +737,20 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       r3: "Section 4 treats one clock moved along a closed polygonal path and states the result for a slowly travelled curve as the limit of such paths. This function is that polygon, with the limit left to the caller. Einstein's own closing remark, that a clock at the equator runs slow compared with one at the pole, is the one place the paper applies it to the world, and it is wrong for a reason outside the 1905 theory: the two clocks also sit at different gravitational potentials, which the general theory supplies and this function does not model.",
     },
     equationId: "eq-model-sr-transported-clock",
-    liveTerms: ["properTimeElapsed", "coordinateTimeStationary", "lorentzFactor"],
+    liveTerms: [
+      "properTimeElapsed",
+      "coordinateTimeStationary",
+      "eventSeparationTemporalStationary",
+      "lorentzFactor",
+    ],
     identifierBindings: [
-      bind("properTimeAlongLegs", "properTime", "properTimeElapsed"),
+      bind("properTimeAlongLegs", "properTime", "properTimeElapsed", [
+        "eq-model-sr-time-dilation.t.proper",
+      ]),
       bind("properTimeAlongLegs", "coordinateTime", "coordinateTimeStationary"),
+      bind("properTimeAlongLegs", "coordinateTime", "eventSeparationTemporalStationary", [
+        "eq-model-sr-time-dilation.t.coordinate",
+      ]),
       bind("properTimeAlongLegs", "g", "lorentzFactor"),
     ],
     independentReferences: [],
