@@ -12,10 +12,11 @@ import {
   type WriteResult,
   writeDocument,
 } from "../../../platform/storage/store.ts";
+import { type KitchenSavedSession, parseKitchenSession } from "./sessionFile.ts";
 
 export const KITCHEN_STORAGE_NAMESPACE = "am:kitchen:v1";
 
-export type KeptKitchenObservations = Readonly<{
+type LegacyKitchenObservations = Readonly<{
   schemaVersion: 1;
   /** The accepted document as exportKitchenCsv writes it. */
   csv: string;
@@ -23,21 +24,39 @@ export type KeptKitchenObservations = Readonly<{
   rows: number;
 }>;
 
-const KITCHEN_MIGRATION_CHAIN: MigrationChain = createMigrationChain(1, {});
+/** The old shape remains accepted while callers move to complete scientific sessions. */
+export type KeptKitchenObservations = LegacyKitchenObservations | KitchenSavedSession;
+
+const KITCHEN_MIGRATION_CHAIN: MigrationChain = createMigrationChain(2, {
+  1: (value) => parseKitchenSession(value),
+});
 
 /** The kept observations, or undefined when none are kept or the stored copy cannot be read. */
-export function readKeptKitchen(ctx: StorageContext): KeptKitchenObservations | undefined {
-  const result = readDocument<KeptKitchenObservations>(
+export function readKeptKitchen(ctx: StorageContext): KitchenSavedSession | undefined {
+  const result = readDocument<unknown>(
     ctx,
     KITCHEN_STORAGE_NAMESPACE,
     KITCHEN_MIGRATION_CHAIN,
   );
-  const value = result.status === "ok" ? result.value : undefined;
-  return value && typeof value.csv === "string" && Number.isInteger(value.rows) ? value : undefined;
+  if (result.status !== "ok") return undefined;
+  try {
+    return parseKitchenSession(result.value);
+  } catch {
+    return undefined;
+  }
 }
 
-export function keepKitchen(ctx: StorageContext, csv: string, rows: number): WriteResult {
-  return writeDocument(ctx, KITCHEN_STORAGE_NAMESPACE, { schemaVersion: 1, csv, rows });
+export function keepKitchen(ctx: StorageContext, session: KitchenSavedSession): WriteResult;
+export function keepKitchen(ctx: StorageContext, csv: string, rows: number): WriteResult;
+export function keepKitchen(
+  ctx: StorageContext,
+  input: string | KitchenSavedSession,
+  rows?: number,
+): WriteResult {
+  const session = parseKitchenSession(
+    typeof input === "string" ? { schemaVersion: 1, csv: input, rows } : input,
+  );
+  return writeDocument(ctx, KITCHEN_STORAGE_NAMESPACE, session);
 }
 
 export function removeKeptKitchen(ctx: StorageContext): void {

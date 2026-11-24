@@ -419,8 +419,8 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
   document_(
     "am:kitchen:v1",
     "am-bm-07-kitchen-mode-mays",
-    1,
-    "Kitchen-mode observations you chose to keep: clicks and calibration, never video",
+    2,
+    "Kitchen sessions you chose to keep: observations and analysis choices, never video",
     {
       exportable: true,
       clearable: true,
