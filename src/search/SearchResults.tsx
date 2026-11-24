@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { SEARCH_LIMITS, SEARCH_TYPES, type SearchHit, searchResultHref } from "./core.ts";
+import { SEARCH_LIMITS, SEARCH_TYPES, type SearchPage, searchResultHref } from "./core.ts";
 import type { LoadedSearch } from "./loadIndex.ts";
 import {
   EMPTY_SEARCH,
@@ -19,17 +19,22 @@ const loadSearch = () => import("./loadIndex.ts").then((module) => module.search
 export function SearchResults({ load = loadSearch }: { load?: () => Promise<LoadedSearch> }) {
   const [criteria, setCriteria] = useState<SearchLocation>(EMPTY_SEARCH);
   const [papers, setPapers] = useState<readonly string[]>([]);
-  const [hits, setHits] = useState<readonly SearchHit[]>([]);
+  const [page, setPage] = useState<SearchPage | null>(null);
   const [phase, setPhase] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState<SearchLocation | null>(null);
   const alive = useRef(false);
   const generation = useRef(0);
+  const session = useRef<{ engine: LoadedSearch["engine"]; criteria: SearchLocation } | null>(null);
+  const statusRef = useRef<HTMLParagraphElement>(null);
+  const focusPage = useRef(false);
 
   const search = useCallback(
     async (value: SearchLocation) => {
       const ticket = ++generation.current;
-      setHits([]);
+      setPage(null);
+      session.current = null;
+      focusPage.current = false;
       setSubmitted(null);
       setError("");
       if (!value.query.trim()) {
@@ -46,14 +51,14 @@ export function SearchResults({ load = loadSearch }: { load?: () => Promise<Load
         const loaded = await load();
         // Typing, another search, a restored link or unmount invalidates the old request.
         if (!alive.current || ticket !== generation.current) return;
+        const result = loaded.engine.searchPage(value.query, {
+          ...(value.paper ? { paper: value.paper } : {}),
+          ...(value.type ? { type: value.type } : {}),
+          limit: SEARCH_LIMITS.results,
+        });
+        session.current = { engine: loaded.engine, criteria: value };
         setPapers(loaded.papers);
-        setHits(
-          loaded.engine.search(value.query, {
-            ...(value.paper ? { paper: value.paper } : {}),
-            ...(value.type ? { type: value.type } : {}),
-            limit: SEARCH_LIMITS.results,
-          }),
-        );
+        setPage(result);
         setSubmitted(value);
         setPhase("ready");
       } catch {
@@ -71,7 +76,9 @@ export function SearchResults({ load = loadSearch }: { load?: () => Promise<Load
     alive.current = true;
     const restore = () => {
       ++generation.current;
-      setHits([]);
+      setPage(null);
+      session.current = null;
+      focusPage.current = false;
       setSubmitted(null);
       const restored = readSearchLocation(window.location.hash);
       if (!restored) {
@@ -90,19 +97,45 @@ export function SearchResults({ load = loadSearch }: { load?: () => Promise<Load
     return () => {
       alive.current = false;
       ++generation.current;
+      session.current = null;
+      focusPage.current = false;
       window.removeEventListener("hashchange", restore);
     };
   }, [search]);
 
+  useEffect(() => {
+    if (page && focusPage.current) {
+      focusPage.current = false;
+      // Put keyboard focus before the newly shown results, not after them on the paging control.
+      statusRef.current?.focus();
+    }
+  }, [page]);
+
   function edit(next: SearchLocation) {
     ++generation.current;
     setCriteria(next);
-    setHits([]);
+    setPage(null);
+    session.current = null;
+    focusPage.current = false;
     setSubmitted(null);
     setError("");
     setPhase("idle");
   }
 
+  function showPage(offset: number) {
+    const active = session.current;
+    if (!active || active.criteria !== submitted || phase !== "ready") return;
+    const result = active.engine.searchPage(active.criteria.query, {
+      ...(active.criteria.paper ? { paper: active.criteria.paper } : {}),
+      ...(active.criteria.type ? { type: active.criteria.type } : {}),
+      limit: SEARCH_LIMITS.results,
+      offset,
+    });
+    focusPage.current = true;
+    setPage(result);
+  }
+
+  const hits = page?.hits ?? [];
   const shareHref = submitted ? searchResultsHref(submitted) : null;
   const status =
     phase === "loading"
@@ -110,8 +143,8 @@ export function SearchResults({ load = loadSearch }: { load?: () => Promise<Load
       : phase === "error"
         ? error
         : phase === "ready"
-          ? hits.length
-            ? `${hits.length} result${hits.length === 1 ? "" : "s"} shown${hits.length === SEARCH_LIMITS.results ? "; narrow the query or filters for more specific matches" : ""}.`
+          ? page && hits.length
+            ? `${page.total} result${page.total === 1 ? "" : "s"}. Showing ${page.offset + 1}–${page.offset + hits.length}.`
             : "Nothing matches. Try fewer words, remove quotation marks, or clear the filters."
           : "Enter words, names, symbols or a quoted passage, then choose Search.";
 
@@ -214,16 +247,19 @@ export function SearchResults({ load = loadSearch }: { load?: () => Promise<Load
         Matching happens on this device. Queries are not sent to the server or saved as a search
         history. A link you deliberately share includes the query and filters.
       </p>
-      <p role="status" aria-live="polite" aria-atomic="true">
+      <p ref={statusRef} tabIndex={-1} role="status" aria-live="polite" aria-atomic="true">
         {status}
       </p>
       {shareHref && (
         <p>
           <a href={shareHref}>Link to this search (includes query and filters)</a>
+          {page && page.offset > 0 && (
+            <span className="fine"> Opens at the first result page.</span>
+          )}
         </p>
       )}
       <section aria-label="Search results" aria-busy={phase === "loading"}>
-        <ol className="full-search-results">
+        <ol className="full-search-results" start={(page?.offset ?? 0) + 1}>
           {hits.map((hit) => (
             <li key={hit.document.id}>
               <h2>
@@ -238,6 +274,27 @@ export function SearchResults({ load = loadSearch }: { load?: () => Promise<Load
             </li>
           ))}
         </ol>
+        {page && page.total > SEARCH_LIMITS.results && (
+          <nav className="full-search-actions" aria-label="Search result pages">
+            <button
+              type="button"
+              className="secondary"
+              disabled={page.offset === 0}
+              onClick={() => showPage(Math.max(0, page.offset - SEARCH_LIMITS.results))}
+            >
+              Previous results
+            </button>
+            <button
+              type="button"
+              disabled={page.nextOffset === null}
+              onClick={() => {
+                if (page.nextOffset !== null) showPage(page.nextOffset);
+              }}
+            >
+              Next results
+            </button>
+          </nav>
+        )}
       </section>
     </div>
   );

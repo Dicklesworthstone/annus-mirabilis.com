@@ -3,7 +3,7 @@ import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { createContainer, installDom, removeContainer, uninstallDom } from "../testing/reactDom.ts";
-import { createSearchEngine, type SearchDocument } from "./core.ts";
+import { createSearchEngine, SEARCH_LIMITS, type SearchDocument } from "./core.ts";
 import type { LoadedSearch } from "./loadIndex.ts";
 import { SearchResults } from "./SearchResults.tsx";
 import { readSearchLocation, searchResultsHref } from "./searchLocation.ts";
@@ -40,6 +40,25 @@ const loaded: LoadedSearch = {
   buildDigest: "test-build",
   profile: "preview",
 };
+
+const pagedDocuments: readonly SearchDocument[] = Array.from(
+  { length: SEARCH_LIMITS.results * 2 + 7 },
+  (_, index) => ({
+    ...base,
+    id: "match-" + String(index).padStart(3, "0"),
+    anchor: "match-" + String(index).padStart(3, "0"),
+    title: "Diffusion example " + String(index).padStart(3, "0"),
+    type: index % 2 === 0 ? "equation" : "argument",
+  }),
+);
+const pagedSearch: LoadedSearch = {
+  ...loaded,
+  engine: createSearchEngine([
+    ...pagedDocuments,
+    { ...base, id: "only-clock", anchor: "only-clock", title: "Clock synchronization", text: "Clocks." },
+  ]),
+};
+
 function deferred() {
   let resolve!: (value: LoadedSearch) => void;
   let reject!: (reason: Error) => void;
@@ -198,4 +217,85 @@ describe("full-page search", () => {
     await act(async () => clear?.click());
     expect(titles()).toEqual(["Clock synchronization"]);
   });
+  function pagingButton(label: string): HTMLButtonElement {
+    const button = [
+      ...host.querySelectorAll<HTMLButtonElement>('nav[aria-label="Search result pages"] button'),
+    ].find((candidate) => candidate.textContent?.trim() === label);
+    if (!button) throw new Error("Missing pagination button: " + label);
+    return button;
+  }
+
+  test("every result can be reached in bounded pages without fetching again or changing the URL", async () => {
+    let loads = 0;
+    await restore("diffusion");
+    await mount(async () => {
+      loads++;
+      return pagedSearch;
+    });
+    const href = window.location.href;
+    const historyLength = window.history.length;
+    const pageSize = SEARCH_LIMITS.results;
+    const first = titles();
+    expect(first).toEqual(pagedDocuments.slice(0, pageSize).map((entry) => entry.title));
+    expect(pagingButton("Previous results").disabled).toBe(true);
+    expect(host.querySelector('[role="status"]')?.textContent).toContain(
+      String(pagedDocuments.length) + " results.",
+    );
+
+    await act(async () => pagingButton("Next results").click());
+    const second = titles();
+    expect(second).toEqual(pagedDocuments.slice(pageSize, pageSize * 2).map((entry) => entry.title));
+    expect(host.querySelector("ol.full-search-results")?.getAttribute("start")).toBe(String(pageSize + 1));
+    expect(document.activeElement).toBe(host.querySelector('[role="status"]'));
+    const share = host.querySelector<HTMLAnchorElement>('a[href^="/search/results/#"]');
+    expect(readSearchLocation(new URL(share?.href ?? "").hash)).toEqual({
+      query: "diffusion", paper: "", type: "",
+    });
+    expect(share?.parentElement?.textContent).toContain("Opens at the first result page.");
+
+    await act(async () => pagingButton("Next results").click());
+    const last = titles();
+    expect([...first, ...second, ...last]).toEqual(pagedDocuments.map((entry) => entry.title));
+    expect(pagingButton("Next results").disabled).toBe(true);
+    expect(host.querySelectorAll(".full-search-results > li").length).toBeLessThanOrEqual(pageSize);
+    await act(async () => pagingButton("Previous results").click());
+    expect(titles()).toEqual(second);
+    await act(async () => pagingButton("Previous results").click());
+    expect(titles()).toEqual(first);
+    expect(loads).toBe(1);
+    expect(window.location.href).toBe(href);
+    expect(window.history.length).toBe(historyLength);
+  });
+
+  test("editing a filter and restoring another query reset the page and discard previous navigation", async () => {
+    await restore("diffusion");
+    await mount(async () => pagedSearch);
+    await act(async () => pagingButton("Next results").click());
+    const select = host.querySelector<HTMLSelectElement>("#edition-search-type");
+    if (!select) throw new Error("Missing result-type control");
+    await act(async () => {
+      select.value = "equation";
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    expect(titles()).toEqual([]);
+    expect(host.querySelector('nav[aria-label="Search result pages"]')).toBeNull();
+    expect(host.querySelector('a[href^="/search/results/#"]')).toBeNull();
+    await act(async () => {
+      const form = host.querySelector("form");
+      if (!form) throw new Error("Missing search form");
+      form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    });
+    expect(titles()).toEqual(
+      pagedDocuments.filter((entry) => entry.type === "equation")
+        .slice(0, SEARCH_LIMITS.results).map((entry) => entry.title),
+    );
+    expect(host.querySelector("ol.full-search-results")?.getAttribute("start")).toBe("1");
+    expect(pagingButton("Previous results").disabled).toBe(true);
+
+    await restore("clock");
+    expect(titles()).toEqual(["Clock synchronization"]);
+    expect(host.querySelector('nav[aria-label="Search result pages"]')).toBeNull();
+    expect(host.querySelector("ol.full-search-results")?.getAttribute("start")).toBe("1");
+  });
+
 });

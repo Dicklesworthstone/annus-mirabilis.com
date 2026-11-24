@@ -72,6 +72,14 @@ export type SearchHit = Readonly<{
   snippet: string;
   aliasLabel: SearchAlias["label"] | null;
 }>;
+export type SearchOptions = Readonly<{ paper?: string; type?: SearchType; limit?: number }>;
+export type SearchPage = Readonly<{
+  hits: readonly SearchHit[];
+  total: number;
+  offset: number;
+  nextOffset: number | null;
+}>;
+
 const GREEK: Readonly<Record<string, string>> = Object.freeze({
   α: "alpha",
   β: "beta",
@@ -413,136 +421,167 @@ export function createSearchEngine(
     aliasMap.set(phrase, [...(aliasMap.get(phrase) ?? []), alias]);
   }
   const indexById = new Map(docs.map((doc, index) => [doc.id, index]));
+  function searchPage(
+    query: string,
+    options: SearchOptions & Readonly<{ offset?: number }> = {},
+  ): SearchPage {
+    const offset = options.offset === undefined ? 0 : options.offset;
+    if (!Number.isSafeInteger(offset) || offset < 0 || offset > SEARCH_LIMITS.documents)
+      throw new SearchPageError(
+        "search-page-offset-invalid",
+        "Search offset must be a non-negative integer within the document budget.",
+      );
+    const empty = (): SearchPage => ({ hits: [], total: 0, offset, nextOffset: null });
+    if (typeof query !== "string" || query.length > SEARCH_LIMITS.queryCharacters) return empty();
+    const phrase = normalizeSearchText(query);
+    // Only completed double quotes constrain a phrase; an unfinished quote can be typed live.
+    // Stop words inside quotes are retained by the final phrase check, even though the index
+    // intersection below omits them. Smart quotes copied from a passage work as well.
+    const quotedPhrases = [...query.matchAll(/"([^"]+)"|“([^”]+)”/gu)]
+      .map((match) => normalizeSearchText(match[1] ?? match[2] ?? ""))
+      .filter(Boolean);
+    const allTerms = [...new Set(phrase.split(" ").filter(Boolean))];
+    let terms = allTerms.filter((t) => !STOP_WORDS.has(t));
+    if (!terms.length) terms = allTerms;
+    if (!terms.length || terms.length > SEARCH_LIMITS.queryTerms) return empty();
+    let candidates = new Map<number, number>();
+    const matchedWords = new Map<string, number>();
+    const markWord = (word: string, termIndex: number) => {
+      matchedWords.set(word, (matchedWords.get(word) ?? 0) | (1 << termIndex));
+    };
+    for (const [termIndex, term] of terms.entries()) {
+      const matching = new Map(postings.get(term) ?? []);
+      if (matching.size) markWord(term, termIndex);
+      // Prefixes support German compound words; one-letter physics symbols remain exact.
+      if (term.length >= 3 && !/^[-+]?\d/u.test(term)) {
+        let lo = 0,
+          hi = vocabulary.length;
+        while (lo < hi) {
+          const mid = (lo + hi) >>> 1;
+          const vocabMid = vocabulary[mid];
+          if (vocabMid !== undefined && vocabMid < term) lo = mid + 1;
+          else hi = mid;
+        }
+        for (let i = lo; i < vocabulary.length; i++) {
+          const word = vocabulary[i];
+          if (!word?.startsWith(term)) break;
+          if (word === term) continue;
+          const wordPostings = postings.get(word);
+          if (!wordPostings) continue;
+          markWord(word, termIndex);
+          for (const [index, weight] of wordPostings)
+            matching.set(index, Math.max(matching.get(index) ?? 0, weight * 0.5));
+        }
+      }
+      // A term nothing matches, not even as a prefix, is probably mistyped ("brownain",
+      // "relativty"). Words one edit away (two from eight letters), a swapped pair counting as
+      // one, stand in at a lower weight. A term that matches anything is left as typed, so a
+      // correctly spelled word is never diluted by its neighbours.
+      if (!matching.size && term.length >= 4 && !/^[-+]?\d/u.test(term)) {
+        const allowed = term.length >= 8 ? 2 : 1;
+        for (const word of vocabulary) {
+          if (Math.abs(word.length - term.length) > allowed) continue;
+          if (editDistance(term, word, allowed) > allowed) continue;
+          const wordPostings = postings.get(word);
+          if (!wordPostings) continue;
+          markWord(word, termIndex);
+          for (const [index, weight] of wordPostings)
+            matching.set(index, Math.max(matching.get(index) ?? 0, weight * 0.4));
+        }
+      }
+      if (termIndex === 0) candidates = matching;
+      else {
+        for (const [index, score] of candidates) {
+          const weight = matching.get(index);
+          if (weight === undefined) candidates.delete(index);
+          else candidates.set(index, score + weight);
+        }
+      }
+    }
+    const scores = candidates;
+    const labels = new Map<number, SearchAlias["label"]>();
+    for (const alias of aliasMap.get(phrase) ?? []) {
+      const index = indexById.get(alias.target);
+      if (index !== undefined) {
+        scores.set(index, (scores.get(index) ?? 0) + 200);
+        labels.set(index, alias.label);
+      }
+    }
+    const limit = Math.max(
+      1,
+      Math.min(
+        SEARCH_LIMITS.results,
+        typeof options.limit === "number" && Number.isSafeInteger(options.limit)
+          ? options.limit
+          : 20,
+      ),
+    );
+    const hits: Omit<SearchHit, "snippet">[] = [];
+    for (const [index, initialScore] of scores.entries()) {
+      const document = docs[index];
+      if (!document) continue;
+      if (options.paper && document.paper !== options.paper) continue;
+      if (options.type && document.type !== options.type) continue;
+      if (quotedPhrases.length) {
+        // Do not stitch a quotation across the title/body boundary or between unrelated terms.
+        // Aliases remain useful search aids, but cannot claim a quotation occurs in the source.
+        const fields = [document.title, document.text, ...document.terms].map(
+          normalizeSearchText,
+        );
+        if (
+          !quotedPhrases.every((quoted) => fields.some((field) => containsPhrase(field, quoted)))
+        )
+          continue;
+      }
+      let score = initialScore;
+      const title = titles[index];
+      if (title === phrase) score += 80;
+      else if (title?.includes(phrase)) score += 25;
+      if (keys[index] === phrase) score += 100;
+      // Matching folds case and marks, so k, K and k* all normalize to "k" and a short title
+      // like "k*" even scores as an exact title. A term spelled exactly as typed, case and
+      // marks included, is the letter the reader meant, and it outranks its folded neighbours.
+      if (document.terms.includes(query.trim())) score += 100;
+      hits.push({
+        document,
+        score,
+        aliasLabel: labels.get(index) ?? null,
+      });
+    }
+    const ranked = hits.sort(
+      (a, b) => b.score - a.score || (a.document.id < b.document.id ? -1 : 1),
+    );
+    // Rank and filter the complete population before slicing. Only the requested page pays
+    // for excerpts; the command palette and full-page search share this exact ordering.
+    const pageHits = ranked.slice(offset, offset + limit).map((hit) => ({
+      ...hit,
+      snippet: passageSnippet(hit.document.text, matchedWords, quotedPhrases),
+    }));
+    const following = offset + pageHits.length;
+    return Object.freeze({
+      hits: pageHits,
+      total: ranked.length,
+      offset,
+      nextOffset: following < ranked.length ? following : null,
+    });
+  }
   return Object.freeze({
     size: docs.length,
-    search(
-      query: string,
-      options: { paper?: string; type?: SearchType; limit?: number } = {},
-    ): readonly SearchHit[] {
-      if (typeof query !== "string" || query.length > SEARCH_LIMITS.queryCharacters) return [];
-      const phrase = normalizeSearchText(query);
-      // Only completed double quotes constrain a phrase; an unfinished quote can be typed live.
-      // Stop words inside quotes are retained by the final phrase check, even though the index
-      // intersection below omits them. Smart quotes copied from a passage work as well.
-      const quotedPhrases = [...query.matchAll(/"([^"]+)"|“([^”]+)”/gu)]
-        .map((match) => normalizeSearchText(match[1] ?? match[2] ?? ""))
-        .filter(Boolean);
-      const allTerms = [...new Set(phrase.split(" ").filter(Boolean))];
-      let terms = allTerms.filter((t) => !STOP_WORDS.has(t));
-      if (!terms.length) terms = allTerms;
-      if (!terms.length || terms.length > SEARCH_LIMITS.queryTerms) return [];
-      let candidates = new Map<number, number>();
-      const matchedWords = new Map<string, number>();
-      const markWord = (word: string, termIndex: number) => {
-        matchedWords.set(word, (matchedWords.get(word) ?? 0) | (1 << termIndex));
-      };
-      for (const [termIndex, term] of terms.entries()) {
-        const matching = new Map(postings.get(term) ?? []);
-        if (matching.size) markWord(term, termIndex);
-        // Prefixes support German compound words; one-letter physics symbols remain exact.
-        if (term.length >= 3 && !/^[-+]?\d/u.test(term)) {
-          let lo = 0,
-            hi = vocabulary.length;
-          while (lo < hi) {
-            const mid = (lo + hi) >>> 1;
-            const vocabMid = vocabulary[mid];
-            if (vocabMid !== undefined && vocabMid < term) lo = mid + 1;
-            else hi = mid;
-          }
-          for (let i = lo; i < vocabulary.length; i++) {
-            const word = vocabulary[i];
-            if (!word?.startsWith(term)) break;
-            if (word === term) continue;
-            const wordPostings = postings.get(word);
-            if (!wordPostings) continue;
-            markWord(word, termIndex);
-            for (const [index, weight] of wordPostings)
-              matching.set(index, Math.max(matching.get(index) ?? 0, weight * 0.5));
-          }
-        }
-        // A term nothing matches, not even as a prefix, is probably mistyped ("brownain",
-        // "relativty"). Words one edit away (two from eight letters), a swapped pair counting as
-        // one, stand in at a lower weight. A term that matches anything is left as typed, so a
-        // correctly spelled word is never diluted by its neighbours.
-        if (!matching.size && term.length >= 4 && !/^[-+]?\d/u.test(term)) {
-          const allowed = term.length >= 8 ? 2 : 1;
-          for (const word of vocabulary) {
-            if (Math.abs(word.length - term.length) > allowed) continue;
-            if (editDistance(term, word, allowed) > allowed) continue;
-            const wordPostings = postings.get(word);
-            if (!wordPostings) continue;
-            markWord(word, termIndex);
-            for (const [index, weight] of wordPostings)
-              matching.set(index, Math.max(matching.get(index) ?? 0, weight * 0.4));
-          }
-        }
-        if (termIndex === 0) candidates = matching;
-        else {
-          for (const [index, score] of candidates) {
-            const weight = matching.get(index);
-            if (weight === undefined) candidates.delete(index);
-            else candidates.set(index, score + weight);
-          }
-        }
-      }
-      const scores = candidates;
-      const labels = new Map<number, SearchAlias["label"]>();
-      for (const alias of aliasMap.get(phrase) ?? []) {
-        const index = indexById.get(alias.target);
-        if (index !== undefined) {
-          scores.set(index, (scores.get(index) ?? 0) + 200);
-          labels.set(index, alias.label);
-        }
-      }
-      const limit = Math.max(
-        1,
-        Math.min(
-          SEARCH_LIMITS.results,
-          typeof options.limit === "number" && Number.isSafeInteger(options.limit)
-            ? options.limit
-            : 20,
-        ),
-      );
-      const hits: Omit<SearchHit, "snippet">[] = [];
-      for (const [index, initialScore] of scores.entries()) {
-        const document = docs[index];
-        if (!document) continue;
-        if (options.paper && document.paper !== options.paper) continue;
-        if (options.type && document.type !== options.type) continue;
-        if (quotedPhrases.length) {
-          // Do not stitch a quotation across the title/body boundary or between unrelated terms.
-          // Aliases remain useful search aids, but cannot claim a quotation occurs in the source.
-          const fields = [document.title, document.text, ...document.terms].map(
-            normalizeSearchText,
-          );
-          if (
-            !quotedPhrases.every((quoted) => fields.some((field) => containsPhrase(field, quoted)))
-          )
-            continue;
-        }
-        let score = initialScore;
-        const title = titles[index];
-        if (title === phrase) score += 80;
-        else if (title?.includes(phrase)) score += 25;
-        if (keys[index] === phrase) score += 100;
-        // Matching folds case and marks, so k, K and k* all normalize to "k" and a short title
-        // like "k*" even scores as an exact title. A term spelled exactly as typed, case and
-        // marks included, is the letter the reader meant, and it outranks its folded neighbours.
-        if (document.terms.includes(query.trim())) score += 100;
-        hits.push({
-          document,
-          score,
-          aliasLabel: labels.get(index) ?? null,
-        });
-      }
-      return hits
-        .sort((a, b) => b.score - a.score || (a.document.id < b.document.id ? -1 : 1))
-        .slice(0, limit)
-        .map((hit) => ({
-          ...hit,
-          snippet: passageSnippet(hit.document.text, matchedWords, quotedPhrases),
-        }));
+    search(query: string, options: SearchOptions = {}): readonly SearchHit[] {
+      return searchPage(query, { ...options, offset: 0 }).hits;
     },
+    searchPage,
   });
 }
+/** A refused page request is distinct from an index or document validation failure. */
+export class SearchPageError extends RangeError {
+  readonly code: "search-page-offset-invalid";
+
+  constructor(code: "search-page-offset-invalid", message: string) {
+    super(message);
+    this.name = "SearchPageError";
+    this.code = code;
+  }
+}
+
 export type SearchEngine = ReturnType<typeof createSearchEngine>;
