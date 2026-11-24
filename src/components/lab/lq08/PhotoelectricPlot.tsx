@@ -1,8 +1,9 @@
+import type { Lq08CollectorSweep } from "../../../experiments/lq08/collectorSweep.ts";
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import { visibleColor } from "../../../experiments/lq08/session.ts";
 import { AwaitingNote, placeholderOf } from "../predictPlaceholder.tsx";
-import { fixed } from "../presentation.ts";
-import { Sci, SubSvg } from "../Sci.tsx";
+import { fixed, sentenceNumber } from "../presentation.ts";
+import { Sci, SciSvg } from "../Sci.tsx";
 
 /**
  * A predict gate's attribute (PredictGate.tsx). Each drawing keeps its axes, levels and inputs in
@@ -478,47 +479,79 @@ export function StoppingPotentialPlot({
 }
 
 export type CurrentVoltageProps = Readonly<{
-  collectorPotential: number; // V
-  stoppingPotential: number | null; // V
-  saturationCurrentMicroAmps: number; // uA
-  currentAtOperatingPoint: number | null; // uA or null if underdetermined
+  /** Currents, interval bounds and segment endpoints all belong to this accepted owner view. */
+  sweep: Lq08CollectorSweep | null;
   response?: PredictResponse;
 }>;
 
-export function CurrentVoltagePlot({
-  collectorPotential,
-  stoppingPotential,
-  saturationCurrentMicroAmps,
-  currentAtOperatingPoint,
-  response,
-}: CurrentVoltageProps) {
-  const width = 380;
-  const height = 220;
-  const padding = { top: 25, right: 30, bottom: 40, left: 60 };
+type SweepResult = Lq08CollectorSweep["operatingPoint"]["result"];
 
-  const minU = -3.0;
-  const maxU = 3.0;
-  const maxI = Math.max(10, saturationCurrentMicroAmps * 1.3);
+function CurrentReading({ result }: { result: SweepResult }) {
+  if (result.status === "value") {
+    return (
+      <>
+        <Sci value={result.value * 1e6} digits={3} /> μA
+      </>
+    );
+  }
+  if (result.status === "underdetermined" && result.bounds) {
+    return (
+      <>
+        Between <Sci value={result.bounds[0] * 1e6} digits={3} /> and{" "}
+        <Sci value={result.bounds[1] * 1e6} digits={3} /> μA; the current is not determined.
+      </>
+    );
+  }
+  return <>{result.reason ?? "The current is not available for these settings."}</>;
+}
 
-  const scaleX = (u: number) =>
-    padding.left + ((u - minU) / (maxU - minU)) * (width - padding.left - padding.right);
-  const scaleY = (i: number) =>
-    height - padding.bottom - (i / maxI) * (height - padding.top - padding.bottom);
+const DISTRIBUTION_EXPLANATIONS = {
+  none: "No energy distribution is assumed. In the partly retarding region, shading marks the allowed current range and assigns no probability to values within it.",
+  "all-at-kmax":
+    "Every emitted electron is assumed to have the largest allowed energy. The ideal current jumps at the retarding cutoff; an open endpoint marks a limiting value and a filled endpoint marks the value at the cutoff.",
+  uniform:
+    "Emitted energies are assumed to be uniformly spread from zero to the largest allowed energy. For a nonzero energy range, the partly retarded current rises linearly toward full collection.",
+} as const;
 
-  const vs = stoppingPotential ?? 0;
-  const xZero = scaleX(0);
-  const xCutoff = scaleX(-vs);
-  const ySat = scaleY(saturationCurrentMicroAmps);
-  const yZeroI = scaleY(0);
+export function CurrentVoltagePlot({ sweep, response }: CurrentVoltageProps) {
+  const width = 420;
+  const height = 270;
+  const padding = { top: 35, right: 28, bottom: 48, left: 80 };
+  if (!sweep) {
+    return (
+      <div data-view-id="lq-08-iv-curve">
+        <h3>Current against collector potential</h3>
+        <p className="fine" {...response}>
+          A collector sweep is available after the apparatus accepts its settings.
+        </p>
+      </div>
+    );
+  }
+
+  const { min: minU, max: maxU } = sweep.domain;
+  // Display scaling only: the owner supplies every current, limit and potential endpoint.
+  const maxI = sweep.saturationCurrent > 0 ? sweep.saturationCurrent * 1.25 : 1e-6;
+  const scaleX = (potential: number) =>
+    padding.left + ((potential - minU) / (maxU - minU)) * (width - padding.left - padding.right);
+  const scaleY = (current: number) =>
+    height - padding.bottom - (current / maxI) * (height - padding.top - padding.bottom);
+  const yZero = scaleY(0);
+  const operating = sweep.operatingPoint;
+  const xOperating = scaleX(operating.collectorPotential);
 
   return (
     <div
       data-view-id="lq-08-iv-curve"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "0.5rem",
-      }}
+      data-distribution-model={sweep.distributionModel}
+      data-instance-id={sweep.instanceId}
+      data-run-id={sweep.runId}
+      data-snapshot-version={sweep.snapshotVersion}
+      data-action-index={sweep.actionIndex}
+      data-owner-id={sweep.ownerId}
+      data-constant-set-id={sweep.constantSetId}
+      data-domain-min={minU}
+      data-domain-max={maxU}
+      style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
     >
       <h3
         style={{
@@ -530,18 +563,22 @@ export function CurrentVoltagePlot({
       >
         Current against collector potential
       </h3>
-      <p {...response} className="fine" style={{ margin: "0 0 0.5rem" }}>
-        Saturation current{" "}
-        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
-          I<sub>sat</sub> = {saturationCurrentMicroAmps.toFixed(2)} &mu;A
-        </span>
-        . Below the retarding cutoff the curve stands at zero; above it the current flattens at that
-        saturation.
+      <p {...response} className="fine" data-lq08-distribution-explanation>
+        {DISTRIBUTION_EXPLANATIONS[sweep.distributionModel]} These teaching assumptions do not
+        establish a universal current–voltage curve for real materials.
+      </p>
+      <p {...response} className="fine" data-lq08-operating-reading>
+        At collector potential {sentenceNumber(operating.collectorPotential, 6)} V:{" "}
+        <span data-lq08-current-status={operating.result.status}>
+          <CurrentReading result={operating.result} />
+        </span>{" "}
+        With full collection, the accepted saturation current is{" "}
+        <Sci value={sweep.saturationCurrent * 1e6} digits={3} /> μA.
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label="Current against collector potential."
+        aria-label="Current against collector potential. Lines show determined currents; shading shows allowed currents when the distribution is unknown."
         style={{
           width: "100%",
           height: "auto",
@@ -550,148 +587,207 @@ export function CurrentVoltagePlot({
           borderRadius: "0.25rem",
         }}
       >
-        <AwaitingNote placeholder={placeholderOf(response)} x={190} y={95} />
-        {/* Axes */}
+        <AwaitingNote placeholder={placeholderOf(response)} x={210} y={110} />
         <line
           x1={padding.left}
-          y1={yZeroI}
+          y1={yZero}
           x2={width - padding.right}
-          y2={yZeroI}
+          y2={yZero}
           stroke="var(--line)"
           strokeWidth="1.5"
         />
         <line
-          x1={xZero}
+          x1={scaleX(0)}
           y1={padding.top}
-          x2={xZero}
-          y2={height - padding.bottom}
+          x2={scaleX(0)}
+          y2={yZero}
           stroke="var(--line)"
           strokeWidth="1"
           strokeDasharray="2 2"
         />
-
-        {/* X Ticks & Labels */}
-        {[-3, -2, -1, 0, 1, 2, 3].map((u) => {
-          const x = scaleX(u);
-          return (
-            <g key={u}>
-              <line
-                x1={x}
-                y1={height - padding.bottom}
-                x2={x}
-                y2={height - padding.bottom + 4}
-                stroke="var(--line)"
-              />
-              <text
-                x={x}
-                y={height - padding.bottom + 16}
-                textAnchor="middle"
-                fontSize="10"
-                fill="var(--muted)"
-                fontFamily="var(--font-mono, monospace)"
-              >
-                {u > 0 ? `+${u}` : u}
-              </text>
-            </g>
-          );
-        })}
-        <text
-          x={width / 2}
-          y={height - 6}
-          textAnchor="middle"
-          fontSize="11"
-          fill="var(--ink)"
-          fontWeight="500"
-        >
+        {[minU, minU / 2, 0, maxU / 2, maxU].map((potential) => (
+          <g key={potential}>
+            <line
+              x1={scaleX(potential)}
+              y1={yZero}
+              x2={scaleX(potential)}
+              y2={yZero + 4}
+              stroke="var(--line)"
+            />
+            <text
+              x={scaleX(potential)}
+              y={yZero + 19}
+              textAnchor="middle"
+              fill="var(--muted)"
+              fontFamily="var(--font-mono, monospace)"
+            >
+              {potential > 0 ? "+" : ""}
+              {fixed(potential, 2)}
+            </text>
+          </g>
+        ))}
+        <text x={width / 2} y={height - 7} textAnchor="middle" fill="var(--ink)" fontWeight="500">
           Collector potential (V)
         </text>
-
-        {/* Y Axis Label */}
         <text
-          x={16}
+          x={18}
           y={height / 2}
           textAnchor="middle"
-          transform={`rotate(-90 16 ${height / 2})`}
-          fontSize="11"
+          transform={`rotate(-90 18 ${height / 2})`}
           fill="var(--ink)"
           fontWeight="500"
         >
-          Current I (&mu;A)
+          Current I (μA)
         </text>
-
-        {/* Curve Segments, the stopping mark and the operating point: they show how the fastest
-            electrons' energy and the current respond, so they wait. The axes stay. */}
-        <g {...response}>
-          {/* 1. Full cutoff U_c <= -Vs */}
-          <line
-            x1={padding.left}
-            y1={yZeroI}
-            x2={Math.min(xZero, Math.max(padding.left, xCutoff))}
-            y2={yZeroI}
-            stroke="var(--plot)"
-            strokeWidth="2.5"
-          />
-
-          {/* 2. Underdetermined intermediate regime -Vs < U_c < 0 (dashed) */}
-          {vs > 0 && (
-            <path
-              d={`M ${Math.max(padding.left, xCutoff)} ${yZeroI} Q ${(Math.max(padding.left, xCutoff) + xZero) / 2} ${yZeroI} ${xZero} ${ySat}`}
-              fill="none"
+        <text x={padding.left - 8} y={yZero + 4} textAnchor="end" fill="var(--muted)">
+          0
+        </text>
+        <g {...response} data-lq08-current-response>
+          {sweep.saturationCurrent > 0 && (
+            <text
+              x={padding.left - 8}
+              y={scaleY(sweep.saturationCurrent) + 4}
+              textAnchor="end"
+              fill="var(--muted)"
+            >
+              <SciSvg value={sweep.saturationCurrent * 1e6} digits={2} />
+            </text>
+          )}
+          {sweep.underdetermined.map((region) => (
+            <rect
+              key={`${region.minPotential}:${region.maxPotential}`}
+              data-lq08-current-band
+              data-min-potential={region.minPotential}
+              data-max-potential={region.maxPotential}
+              data-min-included={region.includeMin}
+              data-max-included={region.includeMax}
+              data-lower-current={region.lowerCurrent}
+              data-upper-current={region.upperCurrent}
+              x={scaleX(region.minPotential)}
+              y={scaleY(region.upperCurrent)}
+              width={scaleX(region.maxPotential) - scaleX(region.minPotential)}
+              height={scaleY(region.lowerCurrent) - scaleY(region.upperCurrent)}
+              fill="var(--accent)"
+              fillOpacity="0.12"
               stroke="var(--accent)"
-              strokeWidth="2"
               strokeDasharray="4 3"
             />
-          )}
-
-          {/* 3. Saturation regime U_c >= 0 */}
-          <line
-            x1={xZero}
-            y1={ySat}
-            x2={width - padding.right}
-            y2={ySat}
-            stroke="var(--plot)"
-            strokeWidth="2.5"
-          />
-
-          {/* Stopping potential mark */}
-          {vs > 0 && (
-            <g>
-              <circle cx={xCutoff} cy={yZeroI} r="4" fill="var(--accent)" />
-              <text
-                x={xCutoff}
-                y={yZeroI - 8}
-                textAnchor="middle"
-                fontSize="10"
-                fill="var(--accent)"
-                fontFamily="var(--font-mono, monospace)"
-                fontWeight="600"
-              >
-                −V<SubSvg>s</SubSvg> = −{vs.toFixed(2)} V
-              </text>
-            </g>
-          )}
-
-          {/* Operating Point */}
-          {collectorPotential >= minU && collectorPotential <= maxU && (
+          ))}
+          {sweep.segments.map((segment) => {
+            const start = segment.points[0];
+            const end = segment.points.at(-1);
+            if (!start || !end) return null;
+            return (
+              <g key={`${start.collectorPotential}:${end.collectorPotential}`}>
+                <path
+                  data-lq08-current-segment
+                  data-start-potential={start.collectorPotential}
+                  data-end-potential={end.collectorPotential}
+                  data-start-included={segment.startIncluded}
+                  data-end-included={segment.endIncluded}
+                  d={segment.points
+                    .map(
+                      (point, index) =>
+                        `${index === 0 ? "M" : "L"} ${scaleX(point.collectorPotential)} ${scaleY(point.current)}`,
+                    )
+                    .join(" ")}
+                  fill="none"
+                  stroke="var(--plot)"
+                  strokeWidth="2.5"
+                />
+                {[
+                  { side: "start", point: start, included: segment.startIncluded },
+                  { side: "end", point: end, included: segment.endIncluded },
+                ].map(({ side, point, included }) => (
+                  <circle
+                    key={side}
+                    data-lq08-segment-endpoint={side}
+                    data-endpoint-included={included}
+                    data-collector-potential={point.collectorPotential}
+                    data-current-amperes={point.current}
+                    cx={scaleX(point.collectorPotential)}
+                    cy={scaleY(point.current)}
+                    r="3.5"
+                    fill={included ? "var(--plot)" : "var(--panel)"}
+                    stroke="var(--plot)"
+                    strokeWidth="1.5"
+                  />
+                ))}
+              </g>
+            );
+          })}
+          {operating.result.status === "value" && (
             <circle
-              cx={scaleX(collectorPotential)}
-              cy={
-                currentAtOperatingPoint !== null
-                  ? scaleY(currentAtOperatingPoint)
-                  : collectorPotential >= 0
-                    ? ySat
-                    : collectorPotential <= -vs
-                      ? yZeroI
-                      : (ySat + yZeroI) / 2
-              }
+              data-lq08-operating-point
+              data-collector-potential={operating.collectorPotential}
+              data-current-amperes={operating.result.value}
+              cx={xOperating}
+              cy={scaleY(operating.result.value)}
               r="5"
-              fill="var(--plot)"
+              fill="var(--accent)"
               stroke="var(--panel)"
               strokeWidth="1.5"
             />
           )}
+          {operating.result.status === "underdetermined" && operating.result.bounds && (
+            <g
+              data-lq08-operating-range
+              data-collector-potential={operating.collectorPotential}
+              data-lower-current={operating.result.bounds[0]}
+              data-upper-current={operating.result.bounds[1]}
+              stroke="var(--accent)"
+              strokeWidth="3"
+            >
+              <line
+                x1={xOperating}
+                x2={xOperating}
+                y1={scaleY(operating.result.bounds[0])}
+                y2={scaleY(operating.result.bounds[1])}
+              />
+              {operating.result.bounds.map((current) => (
+                <line
+                  key={current}
+                  x1={xOperating - 5}
+                  x2={xOperating + 5}
+                  y1={scaleY(current)}
+                  y2={scaleY(current)}
+                />
+              ))}
+            </g>
+          )}
         </g>
       </svg>
+      <details {...response} data-lq08-sweep-table>
+        <summary>Inspect the accepted collector sweep</summary>
+        <p className="fine">
+          Every row uses the same accepted settings and declared electron energies. Potentials below
+          zero retard the emitted electrons; potentials above zero collect all emitted electrons in
+          this ideal apparatus.
+        </p>
+        <div className="table-scroll">
+          <table className="data-table" aria-label="Accepted collector sweep">
+            <thead>
+              <tr>
+                <th scope="col">Collector potential (V)</th>
+                <th scope="col">Current (μA)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sweep.samples.map((sample) => (
+                <tr
+                  key={sample.collectorPotential}
+                  data-lq08-sweep-potential={sample.collectorPotential}
+                >
+                  <th scope="row">{sentenceNumber(sample.collectorPotential, 6)}</th>
+                  <td data-lq08-current-status={sample.result.status}>
+                    <CurrentReading result={sample.result} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
     </div>
   );
 }

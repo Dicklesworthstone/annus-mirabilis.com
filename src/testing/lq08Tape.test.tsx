@@ -6,7 +6,11 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { PhotoelectricLab } from "../components/lab/lq08/PhotoelectricLab.tsx";
 import { strictParse } from "../content/schemas/strictParse.ts";
-import { LQ08_DEFAULTS, type Lq08Parameters } from "../experiments/lq08/definition.ts";
+import {
+  LQ08_DEFAULTS,
+  LQ08_DISTRIBUTIONS,
+  type Lq08Parameters,
+} from "../experiments/lq08/definition.ts";
 import { createLq08Session } from "../experiments/lq08/session.ts";
 import {
   createLq08ReplayRunner,
@@ -33,6 +37,7 @@ const SHARED: Lq08Parameters = Object.freeze({
   workFunction: 2.9,
   quantumEfficiency: 0.25,
   collectorPotential: -0.5,
+  distributionModel: "none",
 });
 
 /** The tape for these settings; every settings object in this file can travel in one. */
@@ -46,6 +51,55 @@ const url = (tape: TapeV2) =>
   `https://annus-mirabilis.com/lab/lq-08/?tape=${encodeTapePermalink(tape)}`;
 
 describe("an LQ-08 tape restores the settings it was recorded with", () => {
+  test("every declared distribution restores its own accepted current and curve", async () => {
+    for (const distributionModel of LQ08_DISTRIBUTIONS) {
+      const parameters = { ...SHARED, distributionModel };
+      const tape = lq08TapeFor(parameters);
+      expect(tape.initialConditions.distributionModel).toBe(distributionModel);
+      const session = createLq08Session("lq08-distribution-tape");
+      const initialCurve = session.getSnapshot().collectorSweep;
+      expect(await restoreLq08FromUrl(session, url(tape))).toEqual({ kind: "restored" });
+      expect(session.acceptedParameters()).toEqual(parameters);
+      const restored = session.getSnapshot();
+      expect(restored.collectorSweep).not.toBe(initialCurve);
+      expect(restored.collectorSweep).toMatchObject({
+        distributionModel,
+        snapshotVersion: restored.accepted?.snapshotVersion,
+        actionIndex: restored.accepted?.actionIndex,
+      });
+      expect(restored.collectorSweep?.operatingPoint.collectorPotential).toBe(
+        parameters.collectorPotential,
+      );
+      const ownerCurrent = restored.accepted?.outputs.find(
+        (output) => output.quantityId === "photocurrent",
+      );
+      expect(restored.collectorSweep?.operatingPoint.result.status).toBe(ownerCurrent?.status);
+      if (ownerCurrent?.status === "value") {
+        expect(restored.collectorSweep?.operatingPoint.result).toMatchObject({
+          value: ownerCurrent.value,
+        });
+      }
+    }
+  });
+
+  test("a newly shared legacy settings record declares none without rewriting an old artifact", () => {
+    const { distributionModel: _model, ...legacy } = SHARED;
+    const tape = lq08TapeOrNull(legacy);
+    expect(tape).not.toBeNull();
+    if (!tape) throw new Error("Expected an admitted legacy settings record.");
+    expect(tape.initialConditions).toEqual(SHARED);
+    expect(tape.modelIdentity.artifactDigest).toBe(LQ08_TAPE_ENVIRONMENT.artifactDigest);
+    const session = createLq08Session("lq08-old-artifact");
+    const before = session.getSnapshot();
+    const restored = restoreLq08Tape(session, {
+      ...tape,
+      modelIdentity: { ...tape.modelIdentity, artifactDigest: `host:sha256:${"0".repeat(64)}` },
+      initialConditions: legacy,
+    });
+    expect(restored.kind).toBe("not-restored");
+    expect(session.getSnapshot()).toBe(before);
+  });
+
   test("the link a reader shares restores exactly those settings, and the recorded checkpoint", async () => {
     const tape = lq08TapeFor(SHARED);
     // The tape round-trips through the codec unchanged.

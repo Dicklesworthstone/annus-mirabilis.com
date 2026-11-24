@@ -1,7 +1,14 @@
 import { describe, expect, it } from "bun:test";
-import { LQ08_DEFAULTS, LQ08_MODEL, LQ08_OUTPUTS } from "../experiments/lq08/definition.ts";
+import {
+  LQ08_DEFAULTS,
+  LQ08_DISTRIBUTIONS,
+  LQ08_MODEL,
+  LQ08_OUTPUTS,
+} from "../experiments/lq08/definition.ts";
+import { validateLq08Parameters } from "../experiments/lq08/parameters.ts";
 import { createLq08Session } from "../experiments/lq08/session.ts";
 import { constantValue, getConstantSet } from "../physics/reference/constants.ts";
+import { photocurrent } from "../physics/reference/photoelectric.ts";
 
 describe("LQ-08 Session Management (am-lq-08-photoelectric-va5a)", () => {
   it("initializes an instance store and publishes initial accepted outputs", () => {
@@ -230,5 +237,250 @@ describe("LQ-08 accepted equation values", () => {
     expect(session.getSnapshot().accepted).toBe(before);
     expect(acceptedNumber(session, "workFunction")).toBe(2.2);
     expect(acceptedNumber(session, "escapeWork")).toBe(3.5247885948e-19);
+  });
+});
+
+function acceptedSweep(session: ReturnType<typeof createLq08Session>) {
+  const sweep = session.getSnapshot().collectorSweep;
+  expect(sweep).not.toBeNull();
+  if (!sweep) throw new Error("Expected the accepted photoelectric collector sweep.");
+  return sweep;
+}
+
+describe("LQ-08 declared electron distributions", () => {
+  it("upgrades only complete legacy settings to the undeclared-distribution model", () => {
+    const { distributionModel: _model, ...legacy } = LQ08_DEFAULTS;
+    expect(validateLq08Parameters(legacy)).toEqual({ kind: "accepted", data: LQ08_DEFAULTS });
+    for (const distributionModel of [undefined, null, "uniform-0-kmax", "measured", 0]) {
+      expect(validateLq08Parameters({ ...legacy, distributionModel }).kind).toBe("refused");
+    }
+    expect(validateLq08Parameters({ ...legacy, materialDistribution: "uniform" }).kind).toBe(
+      "refused",
+    );
+    expect(validateLq08Parameters({ frequency: legacy.frequency }).kind).toBe("refused");
+    const session = createLq08Session("lq08-legacy-model-choice");
+    expect(session.apply({ distributionModel: "uniform" }).kind).toBe("accepted");
+    expect(session.apply(legacy).kind).toBe("accepted");
+    expect(session.acceptedParameters()).toEqual(LQ08_DEFAULTS);
+  });
+
+  it("changes retarding current without changing the accepted electron energy", () => {
+    const session = createLq08Session("lq08-distribution-current");
+    const stopping = acceptedNumber(session, "stoppingPotentialMagnitude");
+    const energy = acceptedNumber(session, "maxKineticEnergy");
+    const collectorPotential = -stopping / 2;
+    expect(session.apply({ collectorPotential }).kind).toBe("accepted");
+    const none = acceptedSweep(session);
+    expect(none.operatingPoint.result.status).toBe("underdetermined");
+    if (none.operatingPoint.result.status === "underdetermined") {
+      expect(none.operatingPoint.result.bounds).toEqual([0, none.saturationCurrent]);
+      expect(Object.isFrozen(none.operatingPoint.result.bounds)).toBe(true);
+    }
+    expect(session.apply({ distributionModel: "uniform" }).kind).toBe("accepted");
+    expect(
+      acceptedNumber(session, "photocurrent") / acceptedSweep(session).saturationCurrent,
+    ).toBeCloseTo(0.5, 12);
+    expect(session.apply({ distributionModel: "all-at-kmax" }).kind).toBe("accepted");
+    expect(acceptedNumber(session, "photocurrent")).toBe(acceptedSweep(session).saturationCurrent);
+    expect(acceptedNumber(session, "stoppingPotentialMagnitude")).toBe(stopping);
+    expect(acceptedNumber(session, "maxKineticEnergy")).toBe(energy);
+    expect(session.acceptedParameters().collectorPotential).toBe(collectorPotential);
+  });
+
+  it("keeps the cutoff jump explicit instead of connecting it by an invented ramp", () => {
+    const session = createLq08Session("lq08-cutoff-jump");
+    expect(session.apply({ distributionModel: "all-at-kmax" }).kind).toBe("accepted");
+    const cutoff = -acceptedNumber(session, "stoppingPotentialMagnitude");
+    const sweep = acceptedSweep(session);
+    const high = sweep.segments.find((segment) => !segment.startIncluded);
+    expect(high?.points[0]).toEqual({
+      collectorPotential: cutoff,
+      current: sweep.saturationCurrent,
+    });
+    const low = sweep.segments.find(
+      (segment) => segment.points.at(-1)?.collectorPotential === cutoff,
+    );
+    expect(low?.endIncluded).toBe(true);
+    expect(low?.points.at(-1)?.current).toBe(0);
+    expect(
+      sweep.samples.find((sample) => sample.collectorPotential === cutoff)?.result,
+    ).toMatchObject({ status: "value", value: 0 });
+    expect(sweep.underdetermined).toEqual([]);
+    expect(session.apply({ collectorPotential: cutoff }).kind).toBe("accepted");
+    expect(acceptedNumber(session, "photocurrent")).toBe(0);
+    expect(session.apply({ collectorPotential: cutoff / 2 }).kind).toBe("accepted");
+    expect(acceptedNumber(session, "photocurrent")).toBe(sweep.saturationCurrent);
+  });
+
+  it("publishes only a compatible-current band inside an undeclared retarding distribution", () => {
+    const session = createLq08Session("lq08-current-enclosure");
+    const sweep = acceptedSweep(session);
+    const cutoff = -acceptedNumber(session, "stoppingPotentialMagnitude");
+    expect(sweep.underdetermined).toEqual([
+      {
+        minPotential: cutoff,
+        maxPotential: 0,
+        lowerCurrent: 0,
+        upperCurrent: sweep.saturationCurrent,
+        includeMin: false,
+        includeMax: false,
+      },
+    ]);
+    expect(sweep.segments.length).toBeGreaterThan(0);
+    for (const segment of sweep.segments) {
+      for (const point of segment.points) {
+        expect(point.collectorPotential <= cutoff || point.collectorPotential >= 0).toBe(true);
+      }
+    }
+    const interior = sweep.samples.filter(
+      (sample) => sample.collectorPotential > cutoff && sample.collectorPotential < 0,
+    );
+    expect(interior.length).toBeGreaterThan(0);
+    for (const sample of interior) {
+      expect(sample.result.status).toBe("underdetermined");
+      if (sample.result.status === "underdetermined") {
+        expect(sample.result.bounds).toEqual([0, sweep.saturationCurrent]);
+        expect(Object.isFrozen(sample.result.bounds)).toBe(true);
+      }
+    }
+  });
+
+  it("evaluates every sweep sample through the selected owner and includes the true operating point", () => {
+    const session = createLq08Session("lq08-current-samples");
+    const constants = getConstantSet(LQ08_MODEL.constantSetId);
+    const charge = constantValue(constants, "elementaryCharge").value;
+    for (const distributionModel of LQ08_DISTRIBUTIONS) {
+      expect(session.apply({ distributionModel, collectorPotential: -0.123456 }).kind).toBe(
+        "accepted",
+      );
+      const parameters = session.acceptedParameters();
+      const sweep = acceptedSweep(session);
+      expect(sweep.samples.length).toBeGreaterThan(0);
+      expect(
+        sweep.samples.find((sample) => sample.collectorPotential === parameters.collectorPotential),
+      ).toEqual(sweep.operatingPoint);
+      for (const sample of sweep.samples) {
+        expect(sample.result).toEqual(
+          photocurrent(
+            parameters.incidentPower,
+            parameters.frequency,
+            parameters.workFunction * charge,
+            parameters.quantumEfficiency,
+            sample.collectorPotential,
+            constants,
+            distributionModel,
+          ),
+        );
+      }
+    }
+    expect(session.apply({ collectorPotential: 10, frequency: 3e15, workFunction: 0 }).kind).toBe(
+      "accepted",
+    );
+    const wide = acceptedSweep(session);
+    expect(wide.domain.max).toBeGreaterThanOrEqual(10);
+    expect(wide.domain.min).toBeLessThanOrEqual(
+      -acceptedNumber(session, "stoppingPotentialMagnitude"),
+    );
+    expect(wide.samples.some((sample) => sample.collectorPotential === 10)).toBe(true);
+  });
+
+  it("distinguishes no emission and no light from the exact-threshold collection jump", () => {
+    const session = createLq08Session("lq08-distribution-boundaries");
+    for (const distributionModel of LQ08_DISTRIBUTIONS) {
+      expect(session.apply({ ...LQ08_DEFAULTS, distributionModel, frequency: 4e14 }).kind).toBe(
+        "accepted",
+      );
+      let sweep = acceptedSweep(session);
+      expect(sweep.saturationCurrent).toBe(0);
+      expect(sweep.underdetermined).toEqual([]);
+      expect(
+        sweep.samples.every(
+          (sample) => sample.result.status === "value" && sample.result.value === 0,
+        ),
+      ).toBe(true);
+      expect(session.apply({ frequency: 6e14, incidentPower: 0 }).kind).toBe("accepted");
+      sweep = acceptedSweep(session);
+      expect(
+        sweep.samples.every(
+          (sample) => sample.result.status === "value" && sample.result.value === 0,
+        ),
+      ).toBe(true);
+    }
+    const constants = getConstantSet(LQ08_MODEL.constantSetId);
+    const h = constantValue(constants, "planckConstant").value;
+    const e = constantValue(constants, "elementaryCharge").value;
+    const parameters = { ...LQ08_DEFAULTS, workFunction: (h * LQ08_DEFAULTS.frequency) / e };
+    expect(parameters.workFunction * e).toBe(h * parameters.frequency);
+    expect(session.apply(parameters).kind).toBe("accepted");
+    expect(acceptedNumber(session, "maxKineticEnergy")).toBe(0);
+    const threshold = acceptedSweep(session);
+    expect(threshold.underdetermined).toEqual([]);
+    expect(
+      threshold.segments.some(
+        (segment) => !segment.endIncluded && segment.points.at(-1)?.collectorPotential === 0,
+      ),
+    ).toBe(true);
+    expect(threshold.operatingPoint.result).toMatchObject({
+      status: "value",
+      value: threshold.saturationCurrent,
+    });
+    expect(session.apply({ collectorPotential: -0.01 }).kind).toBe("accepted");
+    expect(acceptedNumber(session, "photocurrent")).toBe(0);
+  });
+
+  it("keeps stable accepted curve identity through reads, refusal and pending notifications", () => {
+    const session = createLq08Session("lq08-sweep-identity");
+    const before = session.getSnapshot();
+    const server = session.getServerSnapshot();
+    expect(session.getSnapshot()).toBe(before);
+    expect(session.getServerSnapshot()).toBe(server);
+    expect(before.collectorSweep).toMatchObject({
+      snapshotVersion: before.accepted?.snapshotVersion,
+      actionIndex: before.accepted?.actionIndex,
+      runId: before.accepted?.runId,
+    });
+    expect(session.apply({ distributionModel: "unmeasured-material" }).kind).toBe("refused");
+    expect(session.getSnapshot()).toBe(before);
+    const pending: ReturnType<typeof session.getSnapshot>[] = [];
+    const off = session.subscribe(() => {
+      const view = session.getSnapshot();
+      if (view.pending) pending.push(view);
+    });
+    expect(session.apply({ distributionModel: "uniform" }).kind).toBe("accepted");
+    off();
+    expect(pending.length).toBeGreaterThan(0);
+    for (const view of pending) {
+      expect(view.accepted).toBe(before.accepted);
+      expect(view.collectorSweep).toBe(before.collectorSweep);
+    }
+    const after = session.getSnapshot();
+    expect(after).not.toBe(before);
+    expect(after.collectorSweep).not.toBe(before.collectorSweep);
+    expect(after.collectorSweep).toMatchObject({
+      distributionModel: "uniform",
+      snapshotVersion: after.accepted?.snapshotVersion,
+      actionIndex: after.accepted?.actionIndex,
+    });
+    expect(before.collectorSweep?.distributionModel).toBe("none");
+    expect(session.getServerSnapshot()).toBe(server);
+  });
+
+  it("rebuilds curve evidence for a restored checkpoint rather than retaining the initial curve", () => {
+    const source = createLq08Session("lq08-sweep-checkpoint");
+    expect(source.apply({ distributionModel: "uniform", collectorPotential: -0.1 }).kind).toBe(
+      "accepted",
+    );
+    const checkpoint = source.exportCheckpoint();
+    expect(checkpoint).not.toBeNull();
+    const target = createLq08Session("lq08-sweep-checkpoint");
+    const before = target.getSnapshot();
+    expect(target.restoreCheckpoint(checkpoint).kind).toBe("restored");
+    const restored = target.getSnapshot();
+    expect(restored.collectorSweep).not.toBe(before.collectorSweep);
+    expect(restored.collectorSweep).toEqual(source.getSnapshot().collectorSweep);
+    expect(restored.collectorSweep?.snapshotVersion).toBe(restored.accepted?.snapshotVersion);
+    expect(restored.collectorSweep?.actionIndex).toBe(restored.accepted?.actionIndex);
+    expect(target.getSnapshot()).toBe(restored);
+    expect(before.collectorSweep?.distributionModel).toBe("none");
   });
 });

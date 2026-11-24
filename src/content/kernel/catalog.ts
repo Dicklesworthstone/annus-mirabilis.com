@@ -1786,6 +1786,55 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     independentReferences: [],
   },
 
+  {
+    instrumentId: "lq-08",
+    kernel: tsRef("src/physics/reference/photoelectric.ts", "photocurrent"),
+    words: words(
+      "The collection current follows the declared electron energy distribution. A retarding potential between zero and the stopping cutoff leaves a family of compatible currents when no distribution is supplied; all-at-maximum and uniform distributions give different, explicit ideal curves.",
+    ),
+    liveTerms: [
+      "incidentPower",
+      "frequency",
+      "escapeWork",
+      "quantumEfficiency",
+      "collectorPotential",
+      "photocurrent",
+    ],
+    identifierBindings: [
+      bind("photocurrent", "P", "incidentPower"),
+      bind("photocurrent", "nu", "frequency"),
+      bind("photocurrent", "Phi", "escapeWork"),
+      bind("photocurrent", "etaQ", "quantumEfficiency"),
+      bind("photocurrent", "Uc", "collectorPotential"),
+      bind("photocurrent", "photocurrent", "photocurrent"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-08",
+    kernel: tsRef("src/physics/reference/photoelectric.ts", "collectorSweep"),
+    words: words(
+      "Sweep the collector potential through a bounded grid using the same current evaluator and selected electron distribution as the operating point. Every point retains its value or underdetermined status; a missing distribution does not become a guessed curve.",
+    ),
+    liveTerms: [
+      "incidentPower",
+      "frequency",
+      "escapeWork",
+      "quantumEfficiency",
+      "collectorPotential",
+      "photocurrent",
+    ],
+    identifierBindings: [
+      bind("collectorSweep", "incidentPowerWatts", "incidentPower"),
+      bind("collectorSweep", "nu", "frequency"),
+      bind("collectorSweep", "workFunctionJoules", "escapeWork"),
+      bind("collectorSweep", "quantumEfficiency", "quantumEfficiency"),
+      bind("collectorSweep", "uc", "collectorPotential"),
+      bind("collectorSweep", "res", "photocurrent"),
+    ],
+    independentReferences: [],
+  },
+
   // BM-02, BM-03 and BM-04 (am-f3e4, dispatch 338). Route A, the osmotic half of paper 2: the
   // partition, the configuration count, and the balance that makes a diffusivity out of the two.
   //

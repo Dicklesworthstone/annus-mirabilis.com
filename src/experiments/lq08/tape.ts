@@ -12,7 +12,12 @@ import {
   tapeForSettings,
 } from "../permalink/sessionTape.ts";
 import type { ExperimentEnvironment, TapeV2 } from "../permalink/types.ts";
-import { LQ08_DEFAULTS, LQ08_MODEL, type Lq08Parameters } from "./definition.ts";
+import {
+  LQ08_DEFAULTS,
+  LQ08_MODEL,
+  type Lq08LegacyParameters,
+  type Lq08Parameters,
+} from "./definition.ts";
 import { validateLq08Parameters } from "./parameters.ts";
 import { createLq08Session } from "./session.ts";
 
@@ -40,7 +45,10 @@ export const LQ08_TAPE: LabTapeBinding = Object.freeze({
 
 export const createLq08ReplayRunner = (session: TapeSession) =>
   createSessionReplayRunner(LQ08_TAPE, session);
-export const lq08TapeFor = (p: Lq08Parameters): TapeV2 | null => tapeForSettings(LQ08_TAPE, p);
+export const lq08TapeFor = (p: Lq08Parameters | Lq08LegacyParameters): TapeV2 | null => {
+  const checked = validateLq08Parameters(p);
+  return checked.kind === "accepted" ? tapeForSettings(LQ08_TAPE, checked.data) : null;
+};
 export const restoreLq08Tape = (session: TapeSession, tape: TapeV2) =>
   restoreTape(LQ08_TAPE, session, tape);
 export const restoreLq08FromUrl = (session: TapeSession, href: string) =>

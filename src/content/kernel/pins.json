@@ -1,6 +1,8 @@
 {
   "schemaVersion": 1,
   "functions": {
+    "photocurrent@src/physics/reference/photoelectric.ts": "sha256:b16d91bbbdf246f50c2a1ae9c730a0b00561c67f17e77cf9c2874f3e72016476",
+    "collectorSweep@src/physics/reference/photoelectric.ts": "sha256:4dfbba64b8e704b102378cd710153c2262470074d7fec17bebbf5c215da6db0f",
     "stokesEinsteinD@src/physics/reference/diffusion/distributions.ts": "sha256:a41fa1ff39026dbed9a701b368028012995d1835d9acebb2e32d5010f47404ec",
     "rmsDisplacement@src/physics/reference/diffusion/distributions.ts": "sha256:6d2d381222179a43397683f83d95eecf9dab253844f72dfcaa1eaab1302222eb",
     "apparentSpeed@src/physics/reference/diffusion/distributions.ts": "sha256:1f2137435fdc15b0a9b5c91cc4dafba680e8d52b0f5143fdbefdfa9945f6baec",

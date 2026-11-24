@@ -30,8 +30,10 @@ describe("LQ-08 asks before it shows what its prompts ask about", () => {
     // Stopping potential: the sentence naming one slope for every metal, and the line itself.
     expect(html).toMatch(/<p data-predict-response="awaiting"[^>]*>In the model the slope is h\/e/);
     expect(html).toMatch(/<line data-predict-response="awaiting"[^>]*stroke="var\(--plot\)"/);
-    // Current against potential: the saturation current and the curve.
-    expect(html).toMatch(/<p data-predict-response="awaiting"[^>]*>Saturation current/);
+    // Current against potential: its accepted readout, known segments, allowed region and table.
+    expect(html).toMatch(/<p data-predict-response="awaiting"[^>]*data-lq08-operating-reading/);
+    expect(html).toMatch(/<g data-predict-response="awaiting"[^>]*data-lq08-current-response/);
+    expect(html).toMatch(/<details data-predict-response="awaiting"[^>]*data-lq08-sweep-table/);
     // The quanta arriving each second, which the second prompt asks about.
     expect(html).toMatch(/lab-slider-readout" data-predict-response="awaiting"/);
     expect(html).toMatch(/class="lab-values" data-predict-response="awaiting"/);

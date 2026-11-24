@@ -1,12 +1,18 @@
 import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
+export const LQ08_DISTRIBUTIONS = ["none", "all-at-kmax", "uniform"] as const;
+export type Lq08Distribution = (typeof LQ08_DISTRIBUTIONS)[number];
 export type Lq08Parameters = Readonly<{
   incidentPower: number;
   frequency: number;
   workFunction: number;
   quantumEfficiency: number;
   collectorPotential: number;
+  distributionModel: Lq08Distribution;
 }>;
+
+/** Settings saved before the distribution control used the undeclared-distribution model. */
+export type Lq08LegacyParameters = Omit<Lq08Parameters, "distributionModel">;
 
 export const LQ08_DEFAULTS: Lq08Parameters = Object.freeze({
   incidentPower: 0.001, // 1 mW in Watts
@@ -14,6 +20,7 @@ export const LQ08_DEFAULTS: Lq08Parameters = Object.freeze({
   workFunction: 2.2, // 2.2 eV (Sodium default)
   quantumEfficiency: 0.1, // 10%
   collectorPotential: 0.0, // 0 V
+  distributionModel: "none",
 });
 
 export const LQ08_CLASSES: Readonly<Record<keyof Lq08Parameters, ParameterClass>> = Object.freeze({
@@ -22,6 +29,7 @@ export const LQ08_CLASSES: Readonly<Record<keyof Lq08Parameters, ParameterClass>
   workFunction: "input",
   quantumEfficiency: "input",
   collectorPotential: "measurement",
+  distributionModel: "input",
 });
 
 export const LQ08_MODEL = Object.freeze({
@@ -82,6 +90,7 @@ export const LQ08_PRESETS = Object.freeze({
       workFunction: 2.0,
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
+      distributionModel: "none" as const,
     }),
   }),
   historicalCheck: Object.freeze({
@@ -94,6 +103,7 @@ export const LQ08_PRESETS = Object.freeze({
       workFunction: 0.0,
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
+      distributionModel: "none" as const,
     }),
   }),
   twoMetals: Object.freeze({
@@ -106,6 +116,7 @@ export const LQ08_PRESETS = Object.freeze({
       workFunction: 3.0,
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
+      distributionModel: "none" as const,
     }),
   }),
   // Aliases for backwards compatibility
@@ -119,6 +130,7 @@ export const LQ08_PRESETS = Object.freeze({
       workFunction: 2.2,
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
+      distributionModel: "none" as const,
     }),
   }),
   subThreshold: Object.freeze({
@@ -131,6 +143,7 @@ export const LQ08_PRESETS = Object.freeze({
       workFunction: 2.2,
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
+      distributionModel: "none" as const,
     }),
   }),
 });

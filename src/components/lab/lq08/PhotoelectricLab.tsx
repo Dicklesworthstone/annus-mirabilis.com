@@ -7,10 +7,12 @@ import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts"
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import {
   LQ08_CAPTION,
+  LQ08_DEFAULTS,
   LQ08_HISTORICAL_CHECK,
   LQ08_NOT_MODELED,
   LQ08_OUTPUTS,
   LQ08_PRESETS,
+  type Lq08Parameters,
 } from "../../../experiments/lq08/definition.ts";
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import { lq08RangeSentence } from "../../../experiments/lq08/parameters.ts";
@@ -110,9 +112,7 @@ const FIELDS: Readonly<Record<FieldKey, { label: string; scale: number; digits: 
   collectorPotential: { label: "Collector potential", scale: 1, digits: 2 },
 };
 
-type Lq08Params = Readonly<Record<FieldKey, number>>;
-
-function shown(key: FieldKey, params: Lq08Params): string {
+function shown(key: FieldKey, params: Lq08Parameters): string {
   const field = FIELDS[key];
   return String(Number((params[key] / field.scale).toFixed(field.digits)));
 }
@@ -209,14 +209,7 @@ export function PhotoelectricLab({
     accepted !== undefined && accepted === session.getServerSnapshot().accepted,
   );
   const executionKind = executionStateKindFromHostLabel(execution.label);
-  const params = (accepted?.parameters ??
-    example?.parameters ?? {
-      incidentPower: 0.001,
-      frequency: 6.0e14,
-      workFunction: 2.2,
-      quantumEfficiency: 0.1,
-      collectorPotential: 0.0,
-    }) as Lq08Params;
+  const params = (accepted?.parameters ?? example?.parameters ?? LQ08_DEFAULTS) as Lq08Parameters;
 
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(LQ08_TAPE, session, accepted?.parameters ?? null, linked);
@@ -227,8 +220,6 @@ export function PhotoelectricLab({
   const tfRes = find("thresholdFrequency");
   const kMaxRes = find("maxKineticEnergy");
   const vsRes = find("stoppingPotentialMagnitude");
-  const eRateRes = find("emissionRate");
-  const pcRes = find("photocurrent");
   const qRateRes = find("quantumRate");
 
   const qEnergyEv =
@@ -236,8 +227,6 @@ export function PhotoelectricLab({
   const kMaxEv = kMaxRes?.status === "value" ? (kMaxRes.value as number) / 1.602176634e-19 : null;
   const vsVal = vsRes?.status === "value" ? (vsRes.value as number) : null;
   const tfVal = tfRes?.status === "value" ? (tfRes.value as number) : 0;
-  const eRateVal = eRateRes?.status === "value" ? (eRateRes.value as number) : 0;
-  const pcVal = pcRes?.status === "value" ? (pcRes.value as number) : null;
   const qRateVal = qRateRes?.status === "value" ? (qRateRes.value as number) : null;
   // One sentence for the status line, from the accepted outputs: what a quantum carries against
   // the work function, and what that leaves the fastest electron.
@@ -252,11 +241,7 @@ export function PhotoelectricLab({
           ? `${quantum}, exactly the work function: the energy budget reaches the emission threshold with no kinetic energy left over.`
           : `${quantum}, more than the ${fixed(params.workFunction, 2)} eV work function, so the most energetic electrons could leave with ${fixed(kMaxEv, 2)} eV and a stopping potential of ${fixed(vsVal, 2)} V would hold them back.`;
 
-  // Saturation current in microamperes: e * eRate * 1e6
-  const iSatMicroAmps = eRateVal * 1.602176634e-19 * 1e6;
-  const pcMicroAmps = pcVal !== null ? pcVal * 1e6 : null;
-
-  function apply(patch: Partial<Lq08Params>) {
+  function apply(patch: Partial<Lq08Parameters>, preserveDraftFeedback = false) {
     // applyFailure() keeps the refusal whole. The previous line read
     // `if (outcome.kind === "refused")` and flattened it to a sentence, losing the code, the ranked
     // repairs and the staleness marking; it also let any non-refusal non-acceptance fall THROUGH to
@@ -268,8 +253,10 @@ export function PhotoelectricLab({
       setError("");
       return false;
     }
-    setFailure(null);
-    setError("");
+    if (!preserveDraftFeedback) {
+      setFailure(null);
+      setError("");
+    }
     return true;
   }
 
@@ -384,7 +371,7 @@ export function PhotoelectricLab({
           </fieldset>
 
           <ExperimentSettings
-            contents={`work function, quantum efficiency, collector potential${millikan?.kind === "plottable" ? ", Millikan’s 1916 data" : ""}`}
+            contents={`work function, quantum efficiency, collector potential, electron energies${millikan?.kind === "plottable" ? ", Millikan’s 1916 data" : ""}`}
           >
             <SliderField
               {...field("workFunction")}
@@ -411,6 +398,34 @@ export function PhotoelectricLab({
               max={3}
               step={0.05}
             />
+            <div className="input-field">
+              <label htmlFor={`${instanceId}-distributionModel`}>Emitted electron energies</label>
+              <select
+                id={`${instanceId}-distributionModel`}
+                value={params.distributionModel}
+                aria-describedby={`${instanceId}-distribution-help`}
+                onChange={(event) => {
+                  const distributionModel = event.currentTarget.value;
+                  if (
+                    distributionModel === "none" ||
+                    distributionModel === "all-at-kmax" ||
+                    distributionModel === "uniform"
+                  ) {
+                    // This model choice uses the accepted numeric settings. Unfinished typed
+                    // fields still belong to the reader and keep their validation feedback.
+                    apply({ distributionModel }, Object.keys(drafts).length > 0);
+                  }
+                }}
+              >
+                <option value="none">No distribution assumed</option>
+                <option value="all-at-kmax">All at maximum energy</option>
+                <option value="uniform">Uniform from zero to maximum</option>
+              </select>
+              <p id={`${instanceId}-distribution-help`} className="fine">
+                This choice sets a teaching model for the emitted electron energies. Real materials
+                require measured energy distributions and collector geometry.
+              </p>
+            </div>
             {millikan?.kind === "plottable" && (
               <label className="check">
                 <input
@@ -487,13 +502,7 @@ export function PhotoelectricLab({
             {millikan?.kind === "plottable" && showMillikan && (
               <MillikanFigure6Panel data={millikan} />
             )}
-            <CurrentVoltagePlot
-              collectorPotential={params.collectorPotential}
-              stoppingPotential={vsVal}
-              saturationCurrentMicroAmps={iSatMicroAmps}
-              currentAtOperatingPoint={pcMicroAmps}
-              response={gate.response}
-            />
+            <CurrentVoltagePlot sweep={view.collectorSweep} response={gate.response} />
           </div>
         </div>
       </div>

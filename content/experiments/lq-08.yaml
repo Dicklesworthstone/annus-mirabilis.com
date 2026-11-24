@@ -120,6 +120,26 @@ parameters:
       kind: linear
     role: independent
     commandClass: measurement-change
+  - id: distributionModel
+    label: "Electron energy distribution"
+    accessibleName: "Declared electron energy distribution"
+    accessibleDescription: "Choose no distribution assumption, all emitted electrons at the largest kinetic energy, or energies uniformly distributed from zero to that maximum. These are declared models, not measured material distributions."
+    quantityId: maxKineticEnergy
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - none
+        - all-at-kmax
+        - uniform
+      reason: "The retarding-current model requires an explicit electron energy distribution; none preserves the interval of compatible currents."
+    visualRange:
+      min: 0
+      max: 2
+    default: none
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: escapeWork
     quantityId: escapeWork
@@ -186,6 +206,7 @@ assumptions:
   - "One absorbed light quantum transfers its full energy to at most one photoelectron."
   - "Electrons expend a characteristic surface escape work Phi leaving the cathode material."
   - "The fastest photoelectrons originate at the Fermi surface and undergo no inelastic collisions before escape."
+  - "The collector uses the explicitly selected ideal electron energy distribution; no distribution leaves intermediate retarding currents underdetermined."
 admittedDomain: "Monochromatic light on clean metallic cathode in vacuum under single-photon photoelectric regime"
 notModeled:
   - "Real-material electron energy distributions and yields"
@@ -214,7 +235,51 @@ owner:
       language: ts
       module: "src/physics/reference/photoelectric.ts"
       exportName: "thresholdFrequency"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/photoelectric.ts"
+      exportName: "photocurrent"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/photoelectric.ts"
+      exportName: "collectorSweep"
   identifierBindings:
+    - kernelFunction: "photocurrent"
+      identifier: "P"
+      quantityId: "incidentPower"
+    - kernelFunction: "photocurrent"
+      identifier: "nu"
+      quantityId: "frequency"
+    - kernelFunction: "photocurrent"
+      identifier: "Phi"
+      quantityId: "escapeWork"
+    - kernelFunction: "photocurrent"
+      identifier: "etaQ"
+      quantityId: "quantumEfficiency"
+    - kernelFunction: "photocurrent"
+      identifier: "Uc"
+      quantityId: "collectorPotential"
+    - kernelFunction: "photocurrent"
+      identifier: "photocurrent"
+      quantityId: "photocurrent"
+    - kernelFunction: "collectorSweep"
+      identifier: "incidentPowerWatts"
+      quantityId: "incidentPower"
+    - kernelFunction: "collectorSweep"
+      identifier: "nu"
+      quantityId: "frequency"
+    - kernelFunction: "collectorSweep"
+      identifier: "workFunctionJoules"
+      quantityId: "escapeWork"
+    - kernelFunction: "collectorSweep"
+      identifier: "quantumEfficiency"
+      quantityId: "quantumEfficiency"
+    - kernelFunction: "collectorSweep"
+      identifier: "uc"
+      quantityId: "collectorPotential"
+    - kernelFunction: "collectorSweep"
+      identifier: "res"
+      quantityId: "photocurrent"
     - kernelFunction: "kMax"
       identifier: "nu"
       quantityId: "frequency"

@@ -189,6 +189,23 @@ describe("photoelectric controlled comparisons retain the physical distinctions"
     expect(numeric(row(stopped, "emissionRate").variant)).toBeGreaterThan(0);
   });
 
+  test("a controlled comparison retains its declared distribution while power changes", () => {
+    const parameters = {
+      ...LQ08_DEFAULTS,
+      distributionModel: "uniform" as const,
+      collectorPotential: -0.1,
+    };
+    const comparison = live(parameters);
+    expect(comparison.apply({ ...parameters, incidentPower: 0.002 })).toBe(true);
+    const current = row(comparison, "photocurrent");
+    expect(numeric(current.variant)).toBe(2 * numeric(current.baseline));
+    expect(comparison.getSnapshot().baseline.parameters.distributionModel).toBe("uniform");
+    expect(comparison.getSnapshot().variant.parameters.distributionModel).toBe("uniform");
+    const before = comparison.getSnapshot().variant;
+    expect(comparison.apply({ ...parameters, distributionModel: "all-at-kmax" })).toBe(false);
+    expect(comparison.getSnapshot().variant).toBe(before);
+  });
+
   test("two changed inputs and held apparatus settings preserve the completed result", () => {
     const comparison = live();
     const before = comparison.getSnapshot();
@@ -196,6 +213,7 @@ describe("photoelectric controlled comparisons retain the physical distinctions"
       { ...LQ08_DEFAULTS, incidentPower: 0.002, frequency: 8e14 },
       { ...LQ08_DEFAULTS, quantumEfficiency: 0.2 },
       { ...LQ08_DEFAULTS, collectorPotential: -0.1 },
+      { ...LQ08_DEFAULTS, distributionModel: "uniform" },
       { ...LQ08_DEFAULTS, frequency: 1e20 },
     ]) {
       expect(comparison.apply(parameters)).toBe(false);
@@ -221,7 +239,7 @@ describe("photoelectric controlled comparisons retain the physical distinctions"
     expect(comparison.getSnapshot().baseline.parameters.incidentPower).toBe(0.002);
     expect(comparison.getSnapshot().variant.parameters.incidentPower).toBe(0.002);
   });
-  test("photoelectric-comparison-evidence refuses false source and settings (comparison.ts:90)", () => {
+  test("photoelectric-comparison-evidence refuses false source and settings (comparison.ts:91)", () => {
     for (const sourceDigest of ["", "anonymous", "source:sha256:abc"]) {
       assert.throws(() => lq08ComparisonIdentity({ sourceDigest }), {
         code: "photoelectric-comparison-evidence",

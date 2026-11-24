@@ -11,19 +11,35 @@ import {
 } from "../../physics/reference/photoelectric.ts";
 import { parseResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
-import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
-import { LQ08_CLASSES, LQ08_MODEL, LQ08_OUTPUTS, type Lq08Parameters } from "./definition.ts";
+import {
+  type AcceptedSnapshot,
+  createInstanceStore,
+  type ExperimentView,
+  type Parameters,
+} from "../store/instanceStore.ts";
+import { acceptedLq08CollectorSweep, type Lq08CollectorSweep } from "./collectorSweep.ts";
+import {
+  LQ08_CLASSES,
+  LQ08_DEFAULTS,
+  LQ08_MODEL,
+  LQ08_OUTPUTS,
+  type Lq08LegacyParameters,
+  type Lq08Parameters,
+} from "./definition.ts";
 import { validateLq08Parameters } from "./parameters.ts";
 
 export type PreparedLq08Example = Readonly<{
   sourceDigest: string;
-  parameters: Lq08Parameters;
+  parameters: Lq08Parameters | Lq08LegacyParameters;
   results: readonly string[];
   stepIndex: number;
   simulationTime: number;
 }>;
 
-export function evaluateLq08(p: Lq08Parameters): ScientificResult[] {
+export type Lq08ExperimentView = ExperimentView &
+  Readonly<{ collectorSweep: Lq08CollectorSweep | null }>;
+
+export function evaluateLq08(p: Lq08Parameters | Lq08LegacyParameters): ScientificResult[] {
   const constants = getConstantSet(LQ08_MODEL.constantSetId);
   const planckConstant = constantValue(constants, "planckConstant").value;
   const elementaryCharge = constantValue(constants, "elementaryCharge").value;
@@ -47,6 +63,7 @@ export function evaluateLq08(p: Lq08Parameters): ScientificResult[] {
     p.quantumEfficiency,
     p.collectorPotential,
     constants,
+    "distributionModel" in p ? p.distributionModel : "none",
   );
 
   const outputs: ScientificResult[] = [
@@ -227,13 +244,10 @@ export function evaluateLq08(p: Lq08Parameters): ScientificResult[] {
 }
 
 export function createLq08Session(instanceId: string, example?: PreparedLq08Example) {
-  const initialParams = example?.parameters ?? {
-    incidentPower: 0.001,
-    frequency: 6.0e14,
-    workFunction: 2.2,
-    quantumEfficiency: 0.1,
-    collectorPotential: 0.0,
-  };
+  const initialParams: Lq08Parameters = Object.freeze({
+    ...LQ08_DEFAULTS,
+    ...example?.parameters,
+  });
 
   const store = createInstanceStore({
     experimentId: "lq-08",
@@ -257,19 +271,46 @@ export function createLq08Session(instanceId: string, example?: PreparedLq08Exam
     final: true,
   });
 
-  const serverSnapshot = store.getSnapshot();
+  const views = new WeakMap<ExperimentView, Lq08ExperimentView>();
+  const sweeps = new WeakMap<AcceptedSnapshot, Lq08CollectorSweep | null>();
+  function withCollectorSweep(view: ExperimentView): Lq08ExperimentView {
+    const cached = views.get(view);
+    if (cached) return cached;
+    const accepted = view.accepted;
+    if (accepted && !sweeps.has(accepted)) {
+      const checked = validateLq08Parameters(accepted.parameters);
+      sweeps.set(
+        accepted,
+        checked.kind === "accepted" ? acceptedLq08CollectorSweep(accepted, checked.data) : null,
+      );
+    }
+    const extended = Object.freeze({
+      ...view,
+      collectorSweep: accepted ? (sweeps.get(accepted) ?? null) : null,
+    });
+    views.set(view, extended);
+    return extended;
+  }
+  const getSnapshot = () => withCollectorSweep(store.getSnapshot());
+  const serverSnapshot = getSnapshot();
 
   function apply(input: unknown, newRun = false) {
     const current = (store.getSnapshot().accepted?.parameters ??
       initialParams) as Parameters as Lq08Parameters;
-    const merged = input && typeof input === "object" ? { ...current, ...input } : input;
+    const complete = validateLq08Parameters(input);
+    const merged =
+      complete.kind === "accepted"
+        ? complete.data
+        : input && typeof input === "object"
+          ? { ...current, ...input }
+          : input;
     const validated = validateLq08Parameters(merged);
     if (validated.kind !== "accepted") return validated;
     const parameters = validated.data;
     const previous = (store.getSnapshot().requested?.parameters ??
       initialParams) as Parameters as Lq08Parameters;
-    const setup: Record<string, number> = {};
-    const measurement: Record<string, number> = {};
+    const setup: Record<string, number | string | boolean> = {};
+    const measurement: Record<string, number | string | boolean> = {};
 
     for (const key of Object.keys(parameters) as (keyof Lq08Parameters)[]) {
       if (Object.is(parameters[key], previous[key])) continue;
@@ -299,7 +340,7 @@ export function createLq08Session(instanceId: string, example?: PreparedLq08Exam
   }
 
   return Object.freeze({
-    getSnapshot: store.getSnapshot,
+    getSnapshot,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
     exportCheckpoint: store.exportCheckpoint,
