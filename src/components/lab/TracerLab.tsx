@@ -183,6 +183,7 @@ export function TracerLab({
       setDirty(true);
     },
     workerWalkthrough,
+    draftRevision,
   );
   // The tracer paths and the controls come first; the spread the prompts ask about waits.
   const gate = usePredictGate("bm-01", BM01_PROMPTS);

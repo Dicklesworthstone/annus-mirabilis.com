@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, type ReactNode, useId, useState } from "react";
+import { type FormEvent, type ReactNode, useCallback, useId, useRef, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { BM02_CAPTION } from "../../experiments/bm02/definition.ts";
 import { BM02_DRAFT_TAPE } from "../../experiments/bm02/draftTape.ts";
@@ -201,7 +201,12 @@ export function OsmoticPartitionLab({
       view.accepted === session.getServerSnapshot().accepted,
     ).label,
   );
-  const [draft, setDraft] = useState<Draft>(() => toDraft(accepted));
+  const [draft, setDraftState] = useState<Draft>(() => toDraft(accepted));
+  const draftRevision = useRef(0);
+  const setDraft = useCallback((next: Parameters<typeof setDraftState>[0]) => {
+    draftRevision.current++;
+    setDraftState(next);
+  }, []);
   const [error, setError] = useState("");
   /**
    * The refusal OBJECT beside the sentence, so the readouts can be marked stale (am-m79c).
@@ -216,9 +221,16 @@ export function OsmoticPartitionLab({
   const gate = usePredictGate("bm-02", BM02_PROMPTS);
   // A shared ?tape= link puts its settings in the FORM and calculates nothing; Apply runs them.
   // The draft is set rather than the accepted inputs, so a reader sees what arrived and chooses.
-  const tapeLink = useDraftTapeLink(BM02_DRAFT_TAPE, accepted, restoreFromLocation, (settings) => {
-    setDraft(toDraft(settings as unknown as Bm02Inputs));
-  });
+  const tapeLink = useDraftTapeLink(
+    BM02_DRAFT_TAPE,
+    accepted,
+    restoreFromLocation,
+    (settings) => {
+      setDraft(toDraft(settings as unknown as Bm02Inputs));
+    },
+    undefined,
+    { draftRevision, session },
+  );
 
   // One sentence for the status line: the pressure on the partition, its force and its water column.
   const valueIn = (item: { status: string; value?: unknown }) =>

@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { useInvestigationWitness } from "../../discovery/investigation/context.tsx";
 import { createBm04BrowserChannel } from "../../experiments/bm04/browser.ts";
@@ -86,7 +86,12 @@ export function DriftDiffusionLab({
     (session.getSnapshot().accepted as NonNullable<typeof view.accepted>);
   const p = snapshot.parameters as unknown as Bm04Parameters;
 
-  const [draft, setDraft] = useState(() => toBm04Draft(session.acceptedParameters()));
+  const [draft, setDraftState] = useState(() => toBm04Draft(session.acceptedParameters()));
+  const draftRevision = useRef(0);
+  const setDraft = useCallback((next: Parameters<typeof setDraftState>[0]) => {
+    draftRevision.current++;
+    setDraftState(next);
+  }, []);
   const [ready, setReady] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
@@ -98,10 +103,17 @@ export function DriftDiffusionLab({
   useInvestigationWitness("bm-04", session, example.sourceDigest, failure !== null);
 
   // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
-  const tapeLink = useDraftTapeLink(BM04_DRAFT_TAPE, p, restoreFromLocation, (settings) => {
-    setDraft(toBm04Draft(settings as unknown as Bm04Parameters));
-    setDirty(true);
-  });
+  const tapeLink = useDraftTapeLink(
+    BM04_DRAFT_TAPE,
+    p,
+    restoreFromLocation,
+    (settings) => {
+      setDraft(toBm04Draft(settings as unknown as Bm04Parameters));
+      setDirty(true);
+    },
+    undefined,
+    { draftRevision, session },
+  );
   useEffect(() => {
     setReady(true);
     const shared = decodeBm04Settings(restoreFromLocation ? window.location.search : "");
@@ -115,7 +127,7 @@ export function DriftDiffusionLab({
       setLinkNote(shared.message);
     }
     return () => session.disconnect();
-  }, [session, restoreFromLocation]);
+  }, [session, restoreFromLocation, setDraft]);
 
   function apply(parameters: Bm04Parameters) {
     const outcome = session.apply(parameters);

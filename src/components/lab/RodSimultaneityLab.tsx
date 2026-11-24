@@ -183,6 +183,7 @@ export function RodSimultaneityLab({
     restoreFromLocation,
     (settings) => setDraft(toSr03Draft(settings as unknown as Sr03Parameters)),
     workerWalkthrough,
+    draftRevision,
   );
 
   useEffect(() => {

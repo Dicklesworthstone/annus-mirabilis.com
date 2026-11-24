@@ -143,6 +143,7 @@ export function CameraLab({
       setDirty(true);
     },
     workerWalkthrough,
+    draftRevision,
   );
   useEffect(() => {
     setReady(true);

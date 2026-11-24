@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm06BrowserChannel } from "../../experiments/bm06/browser.ts";
 import {
@@ -122,7 +122,12 @@ export function BrownianLab({
   const gridKind = gridExecutionKind(snapshot.outputs, snapshot === serverAccepted);
   const gridByFrankenSim = gridKind === "frankensim-accepted";
   const p = snapshot.parameters as Bm06Parameters;
-  const [draft, setDraft] = useState(() => toDraft(session.acceptedParameters()));
+  const [draft, setDraftState] = useState(() => toDraft(session.acceptedParameters()));
+  const draftRevision = useRef(0);
+  const setDraft = useCallback((next: Parameters<typeof setDraftState>[0]) => {
+    draftRevision.current++;
+    setDraftState(next);
+  }, []);
   const [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false);
   const [failure, setFailure] = useState<ApplyFailure | null>(null),
@@ -137,6 +142,8 @@ export function BrownianLab({
       setDirty(true);
       if (predictions) gate.restore(predictions);
     },
+    undefined,
+    { draftRevision, session },
   );
   const curvePrompt = BM06_CURVE_PROMPTS[0];
   const curveRecord = gate.records.get(BM06_CURVE_PROMPT);
@@ -153,7 +160,7 @@ export function BrownianLab({
       );
     } else if (shared.kind === "invalid") setLinkNote(shared.message);
     return () => session.disconnect();
-  }, [session, restoreFromLocation]);
+  }, [session, restoreFromLocation, setDraft]);
   function reflectRequest(outcome: ReturnType<typeof session.apply>) {
     // THE REFUSAL IS KEPT (am-ig23). Flattening it here cost the code, the ranked repairs and the
     // staleness marking, while this same file's worker-refusal surface carried all three - two paths

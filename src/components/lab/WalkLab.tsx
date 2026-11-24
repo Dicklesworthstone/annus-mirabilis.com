@@ -189,6 +189,7 @@ export function WalkLab({
       setDirty(true);
     },
     workerWalkthrough,
+    draftRevision,
   );
   useEffect(() => {
     setReady(true);

@@ -159,6 +159,7 @@ export function InferenceLab({
       setDirty(true);
     },
     workerWalkthrough,
+    draftRevision,
   );
   useEffect(() => {
     setReady(true);

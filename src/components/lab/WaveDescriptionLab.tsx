@@ -201,6 +201,7 @@ export function WaveDescriptionLab({
     restoreFromLocation,
     (settings) => setDraft(toLq01Draft(settings as unknown as Lq01Parameters)),
     workerWalkthrough,
+    draftRevision,
   );
 
   useEffect(() => {

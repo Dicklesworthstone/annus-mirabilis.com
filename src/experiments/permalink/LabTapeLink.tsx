@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import type { ExperimentView } from "../store/instanceStore.ts";
 import {
   type DraftTapeBinding,
+  type DraftTapeLoad,
   draftTapeForSettings,
   loadDraftTapeAsCurrentSettings,
   loadDraftTapeFromUrl,
@@ -28,6 +29,7 @@ import { WalkthroughPlayer } from "./WalkthroughPlayer.tsx";
 import {
   type RetainedWalkthroughTape,
   retainedWalkthroughTape,
+  sameWalkthroughSettings,
   type WalkthroughPlayerTarget,
   type WalkthroughTarget,
   type WorkerWalkthroughTarget,
@@ -43,6 +45,19 @@ type WorkerLinkPhase =
   | "calculating"
   | "calculated";
 type WorkerLinkOwner = Readonly<{ session: WorkerTapeSession; target: WorkerWalkthroughTarget }>;
+/** Form edits are separate from accepted scientific state, including edits back to the same text. */
+export type DraftTapeLinkActivity = Readonly<{
+  draftRevision: Readonly<{ current: number }>;
+  session: Pick<WorkerTapeSession, "getSnapshot">;
+}>;
+type DeferredDraftLoad = Readonly<{
+  binding: DraftTapeBinding;
+  owner: WorkerLinkOwner | undefined;
+  loaded: Extract<
+    DraftTapeLoad | Awaited<ReturnType<typeof loadWorkerTapeFromUrl>>,
+    { kind: "loaded" | "checkpoint" }
+  >;
+}>;
 const noWorkerSnapshot = () => null;
 const noWorkerSubscription = () => () => {};
 
@@ -220,6 +235,7 @@ export function useDraftTapeLink(
     predictions?: readonly TapePredictionEvent[],
   ) => void,
   worker?: WorkerLinkOwner,
+  activity?: DraftTapeLinkActivity,
 ): LabTapeLinkState {
   const [notice, setNotice] = useState("");
   const [note, setNote] = useState("");
@@ -227,6 +243,7 @@ export function useDraftTapeLink(
     binding: DraftTapeBinding;
     tape: TapeV2;
   }> | null>(null);
+  const [deferredLoad, setDeferredLoad] = useState<DeferredDraftLoad | null>(null);
   const [incoming, setIncoming] = useState<Readonly<{
     binding: DraftTapeBinding;
     owner: WorkerLinkOwner;
@@ -248,22 +265,68 @@ export function useDraftTapeLink(
   const generation = useRef(0);
   const loadedRef = useRef(onLoaded);
   loadedRef.current = onLoaded;
+  const activityRef = useRef(activity);
+  activityRef.current = activity;
+  const acceptedParametersRef = useRef(acceptedParameters);
+  acceptedParametersRef.current = acceptedParameters;
   useEffect(() => {
     const current = ++generation.current;
     operation.current?.abort();
     operation.current = null;
     setPendingSettings(null);
+    setDeferredLoad(null);
     setIncoming(null);
     setVerifiedShare(null);
     setNote("");
     setNotice("");
     if (!enabled) return;
     let live = true;
+    function currentActivity() {
+      const current = activityRef.current;
+      const view = (current?.session ?? worker?.session)?.getSnapshot();
+      return {
+        identity: {
+          draftRevision: current?.draftRevision.current,
+          hasOwner: view !== undefined,
+          hasAccepted: Boolean(view?.accepted),
+          instanceId: view?.accepted?.instanceId,
+          runId: view?.accepted?.runId,
+          snapshotVersion: view?.accepted?.snapshotVersion,
+          actionIndex: view?.accepted?.actionIndex,
+          requestedRunId: view?.requested?.runId,
+          requestedActionIndex: view?.requested?.actionIndex,
+          status: view?.status,
+          pending: view?.pending === true,
+        },
+        acceptedRevisions: { ...view?.accepted?.revisions },
+        requestedRevisions: { ...view?.requested?.revisions },
+        parameters: { ...(view?.accepted?.parameters ?? acceptedParametersRef.current ?? {}) },
+      };
+    }
+    const initial = currentActivity();
     const loading = worker
       ? loadWorkerTapeFromUrl(binding, window.location.href)
       : loadDraftTapeFromUrl(binding, window.location.href);
     void loading.then((loaded) => {
       if (!live || generation.current !== current) return;
+      if (loaded.kind === "absent") return;
+      const latest = currentActivity();
+      if (
+        latest.identity.pending ||
+        !sameWalkthroughSettings(initial.identity, latest.identity) ||
+        !sameWalkthroughSettings(initial.acceptedRevisions, latest.acceptedRevisions) ||
+        !sameWalkthroughSettings(initial.requestedRevisions, latest.requestedRevisions) ||
+        !sameWalkthroughSettings(initial.parameters, latest.parameters)
+      ) {
+        // A valid incoming link remains usable, but only after another explicit choice.
+        // Do not replace newer work with either its settings or an outdated failure/recovery offer.
+        if (loaded.kind === "loaded" || (loaded.kind === "checkpoint" && worker))
+          setDeferredLoad({ binding, owner: worker, loaded });
+        setNote(
+          "You changed this laboratory while the shared link was loading. Your current form and results have been kept.",
+        );
+        return;
+      }
       if (loaded.kind === "not-restored") {
         setNotice(loaded.notice);
         if (loaded.newSettings) setPendingSettings({ binding, tape: loaded.newSettings });
@@ -391,30 +454,62 @@ export function useDraftTapeLink(
       cancel: () => operation.current?.abort(),
     };
   }, [binding, enabled, incoming, worker?.session, worker?.target]);
-  const recovery = useMemo<LabTapeLinkState["recovery"]>(
-    () =>
-      enabled && pendingSettings?.binding === binding
-        ? {
-            label: "Copy these settings for a new calculation",
-            explanation:
-              "The recorded result could not be verified. Copy its validated settings into the form, then Apply to calculate with the current model.",
-            run() {
-              const loaded = loadDraftTapeAsCurrentSettings(binding, pendingSettings.tape);
-              if (loaded.kind !== "loaded") {
-                if (loaded.kind === "not-restored") setNotice(loaded.notice);
-                return;
-              }
-              loadedRef.current(loaded.settings, loaded.predictions);
-              setPendingSettings(null);
-              setNotice("");
-              setNote(
-                "Settings copied for a new calculation. Apply them to calculate with the current model. The recorded result has not been verified.",
-              );
-            },
+  const recovery = useMemo<LabTapeLinkState["recovery"]>(() => {
+    if (!enabled) return undefined;
+    if (
+      deferredLoad?.binding === binding &&
+      deferredLoad.owner?.session === worker?.session &&
+      deferredLoad.owner?.target === worker?.target
+    ) {
+      const { loaded, owner } = deferredLoad;
+      return {
+        label:
+          loaded.kind === "loaded" ? "Load the shared settings" : "Review the shared calculation",
+        explanation:
+          loaded.kind === "loaded"
+            ? "Your newer entries have been kept. Load this link's settings into the form only if you want to replace them; Apply still starts the calculation."
+            : "Your newer form and results have been kept. Review this link before choosing whether to restore its recorded calculation.",
+        run() {
+          setDeferredLoad(null);
+          setPendingSettings(null);
+          setNotice("");
+          if (loaded.kind === "loaded") {
+            loadedRef.current(loaded.settings, loaded.predictions);
+            setNote("The shared link's settings are in the form. Apply them to calculate.");
+          } else if (owner) {
+            setIncoming({
+              binding,
+              owner,
+              checkpoint: loaded,
+              phase: loaded.compatibilityNotice ? "not-restored" : "ready",
+            });
+            setNotice(loaded.compatibilityNotice ?? "");
+            setNote("");
           }
-        : undefined,
-    [binding, enabled, pendingSettings],
-  );
+        },
+      };
+    }
+    return pendingSettings?.binding === binding
+      ? {
+          label: "Copy these settings for a new calculation",
+          explanation:
+            "The recorded result could not be verified. Copy its validated settings into the form, then Apply to calculate with the current model.",
+          run() {
+            const loaded = loadDraftTapeAsCurrentSettings(binding, pendingSettings.tape);
+            if (loaded.kind !== "loaded") {
+              if (loaded.kind === "not-restored") setNotice(loaded.notice);
+              return;
+            }
+            loadedRef.current(loaded.settings, loaded.predictions);
+            setPendingSettings(null);
+            setNotice("");
+            setNote(
+              "Settings copied for a new calculation. Apply them to calculate with the current model. The recorded result has not been verified.",
+            );
+          },
+        }
+      : undefined;
+  }, [binding, enabled, pendingSettings, deferredLoad, worker?.session, worker?.target]);
   const walkthrough = useMemo<WalkthroughTarget | undefined>(
     () =>
       enabled
@@ -439,6 +534,7 @@ export function useDraftTapeLink(
                 data && typeof data === "object" ? (data as Record<string, unknown>) : settings,
               );
               setPendingSettings(null);
+              setDeferredLoad(null);
               setNotice("");
               setNote("");
               return { kind: "loaded" };
@@ -469,9 +565,17 @@ export function useWorkerTapeLink(
     predictions?: readonly TapePredictionEvent[],
   ) => void,
   target: WorkerWalkthroughTarget,
+  draftRevision?: Readonly<{ current: number }>,
 ): LabTapeLinkState {
   const worker = useMemo(() => ({ session, target }), [session, target]);
-  const link = useDraftTapeLink(binding, acceptedParameters, enabled, onLoaded, worker);
+  const link = useDraftTapeLink(
+    binding,
+    acceptedParameters,
+    enabled,
+    onLoaded,
+    worker,
+    draftRevision ? { draftRevision, session } : undefined,
+  );
   const captured = useWorkerTapeCapture(binding, session, enabled);
   if (!binding.capture) return link;
   return {
