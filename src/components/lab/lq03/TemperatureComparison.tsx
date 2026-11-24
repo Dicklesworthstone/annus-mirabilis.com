@@ -1,12 +1,12 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import type { ComparisonSnapshot } from "../../../experiments/compare/Baseline.ts";
 import { ComparisonPanel } from "../../../experiments/compare/ComparisonPanel.tsx";
 import {
   ComparisonRecovery,
   comparisonCurrency,
 } from "../../../experiments/compare/ComparisonRecovery.tsx";
-import type { ComparisonSnapshot } from "../../../experiments/compare/Baseline.ts";
 import type { Lq03Coordinate, Lq03Parameters } from "../../../experiments/lq03/definition.ts";
 import type { createLq03Session } from "../../../experiments/lq03/session.ts";
 import {
@@ -112,8 +112,7 @@ function Comparison({ controller, onClose }: { controller: Controller; onClose()
         Fixed band: <Sci value={baseline.nu1} digits={4} /> to{" "}
         <Sci value={baseline.nu2} digits={4} /> Hz. Probe:{" "}
         <Sci value={baseline.probeNu} digits={4} /> Hz. Approximation tolerance:{" "}
-        {baseline.epsilon * 100}%.
-        {" "}
+        {baseline.epsilon * 100}%.{" "}
         {baseline.constantSetId === "modern-si-2019"
           ? "Both spectra use the modern SI constants."
           : "Both spectra use the light paper's historical calibration with the corrected exponent of α, as declared above; no modern h or Boltzmann constant is substituted."}
@@ -175,11 +174,7 @@ function Comparison({ controller, onClose }: { controller: Controller; onClose()
             >
               Halve baseline temperature
             </button>
-            <button
-              type="button"
-              disabled={!changed}
-              onClick={() => applyTemperature(baseline.T)}
-            >
+            <button type="button" disabled={!changed} onClick={() => applyTemperature(baseline.T)}>
               Return to baseline temperature
             </button>
             <button
@@ -231,15 +226,15 @@ function Comparison({ controller, onClose }: { controller: Controller; onClose()
       />
       <p className="fine">
         Both Planck curves share the same axes. Changing representation applies the wavelength
-        Jacobian to each curve and preserves the fixed band's energy. The peak of uν and the
-        peak of uλ are different observables: c divided by the wavelength-density peak is not
-        the frequency-density peak.
+        Jacobian to each curve and preserves the fixed band's energy. The peak of uν and the peak of
+        uλ are different observables: c divided by the wavelength-density peak is not the
+        frequency-density peak.
       </p>
       <p>
         A higher temperature raises the Planck density at every fixed frequency. It moves the
-        frequency-density peak upward and the wavelength-density peak downward. The energy ratio
-        in this fixed band need not equal the fourth power of the temperature ratio: that
-        fourth-power law applies to the integral over all frequencies.
+        frequency-density peak upward and the wavelength-density peak downward. The energy ratio in
+        this fixed band need not equal the fourth power of the temperature ratio: that fourth-power
+        law applies to the integral over all frequencies.
       </p>
       <section aria-label="Approximation regimes at the fixed probe">
         <h4>Which approximation survives the temperature change?</h4>
@@ -250,8 +245,8 @@ function Comparison({ controller, onClose }: { controller: Controller; onClose()
           Variant at {variant.T} K: {regime(state.variantSnapshot)}
         </p>
         <p className="fine">
-          These are pointwise spectral-density tests at the fixed probe, not a certificate for
-          the integrated entropy argument in §4.
+          These are pointwise spectral-density tests at the fixed probe, not a certificate for the
+          integrated entropy argument in §4.
         </p>
       </section>
       <ComparisonPanel
@@ -305,8 +300,8 @@ export function TemperatureComparison({
     <section aria-labelledby={uid + "-offer"} data-temperature-comparison-offer>
       <h3 id={uid + "-offer"}>What changes when the body gets hotter?</h3>
       <p>
-        Keep this spectrum as a baseline and compare another temperature on the same axes. See
-        how the peak, energy in the fixed band and validity of the two approximations change.
+        Keep this spectrum as a baseline and compare another temperature on the same axes. See how
+        the peak, energy in the fixed band and validity of the two approximations change.
       </p>
       <p className="fine">
         This uses the last accepted settings. Unapplied or refused form edits are not included.
@@ -314,7 +309,11 @@ export function TemperatureComparison({
       <button type="button" disabled={!ready || !enabled} onClick={pin}>
         Pin spectrum for temperature comparison
       </button>
-      {error && <p className="notice" role="alert">{error}</p>}
+      {error && (
+        <p className="notice" role="alert">
+          {error}
+        </p>
+      )}
     </section>
   );
 }

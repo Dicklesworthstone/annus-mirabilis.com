@@ -3,14 +3,8 @@ import assert from "node:assert/strict";
 import { act, StrictMode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
-import {
-  LQ03_DEFAULTS,
-  type Lq03Parameters,
-} from "../../../experiments/lq03/definition.ts";
-import {
-  createLq03Session,
-  evaluateLq03,
-} from "../../../experiments/lq03/session.ts";
+import { LQ03_DEFAULTS, type Lq03Parameters } from "../../../experiments/lq03/definition.ts";
+import { createLq03Session, evaluateLq03 } from "../../../experiments/lq03/session.ts";
 import {
   installPredictPersistence,
   REMEMBERS_NOTHING,
@@ -62,11 +56,25 @@ async function click(label: string, scope: ParentNode = host) {
 
 async function change(selector: string, value: string) {
   const control = required<HTMLInputElement | HTMLSelectElement>(selector);
+  if (control.tagName === "SELECT") {
+    // happy-dom's select proxy enumerates option indices, not React's private props key.
+    // A bubbling change event exercises React's real select-event path instead.
+    await act(async () => {
+      control.value = value;
+      control.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    return;
+  }
   const key = Object.keys(control).find((name) => name.startsWith("__reactProps$"));
   assert.ok(key);
-  const props = (control as unknown as Record<string, {
-    onChange(event: { target: typeof control; currentTarget: typeof control }): void;
-  }>)[key];
+  const props = (
+    control as unknown as Record<
+      string,
+      {
+        onChange(event: { target: typeof control; currentTarget: typeof control }): void;
+      }
+    >
+  )[key];
   assert.ok(props);
   await act(async () => {
     control.value = value;
@@ -128,7 +136,9 @@ test("server output offers the comparison after the existing prediction boundary
   );
   expect(host.querySelector("[data-temperature-comparison]")).toBeNull();
   expect(button("Pin spectrum for temperature comparison").disabled).toBe(true);
-  expect(required("[data-temperature-comparison-offer]").closest("[data-predict-response]")).not.toBeNull();
+  expect(
+    required("[data-temperature-comparison-offer]").closest("[data-predict-response]"),
+  ).not.toBeNull();
   expect(host.textContent).toContain("complete worked example");
 });
 
@@ -171,15 +181,25 @@ test("doubling temperature overlays two accepted curves and exposes the regime a
   expect(columns("T")[1]).toContain("5000");
   expect(columns("T")[2]).toContain("10000");
   expect(required("[data-spectrum-reference]").getAttribute("d")?.length).toBeGreaterThan(100);
-  const variantPath = required("[data-temperature-comparison] path.lq03-curve:not([data-spectrum-reference])");
-  expect(variantPath.getAttribute("d")).not.toBe(required("[data-spectrum-reference]").getAttribute("d"));
+  const variantPath = required(
+    "[data-temperature-comparison] path.lq03-curve:not([data-spectrum-reference])",
+  );
+  expect(variantPath.getAttribute("d")).not.toBe(
+    required("[data-spectrum-reference]").getAttribute("d"),
+  );
   expect(readout("peakFrequency").querySelector("[data-comparison-ratio]")?.textContent).toBe("2");
-  expect(readout("peakWavelength").querySelector("[data-comparison-ratio]")?.textContent).toBe("0.5");
-  expect(required('[data-temperature-regime="baseline"]').textContent).toContain("Wien's law meets");
+  expect(readout("peakWavelength").querySelector("[data-comparison-ratio]")?.textContent).toBe(
+    "0.5",
+  );
+  expect(required('[data-temperature-regime="baseline"]').textContent).toContain(
+    "Wien's law meets",
+  );
   expect(required('[data-temperature-regime="variant"]').textContent).toContain("Neither");
   expect(owner.getSnapshot()).toBe(mainBefore);
-  expect(host.textContent).toContain("fourth-power law applies to the integral over all frequencies");
-  expect(required('a[download]').getAttribute("href")).toContain("application/json");
+  expect(host.textContent).toContain(
+    "fourth-power law applies to the integral over all frequencies",
+  );
+  expect(required("a[download]").getAttribute("href")).toContain("application/json");
 });
 
 test("coordinate and scale switches keep both accepted identities and all quantitative readouts", async () => {
@@ -210,7 +230,9 @@ test("a refused temperature keeps its draft and the previous accepted pair; a va
   await change('input[name="comparison-temperature"]', "20000");
   await submit();
   expect(required<HTMLInputElement>('input[name="comparison-temperature"]').value).toBe("20000");
-  expect(required("[data-temperature-comparison]").getAttribute("data-currency-state")).not.toBe("current");
+  expect(required("[data-temperature-comparison]").getAttribute("data-currency-state")).not.toBe(
+    "current",
+  );
   expect(host.textContent).toContain("previous completed comparison is unchanged");
   expect(identity()).toEqual(acceptedIds);
   expect(readout("bandEnergy").innerHTML).toBe(band);

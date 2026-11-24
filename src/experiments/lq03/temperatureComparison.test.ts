@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import assert from "node:assert/strict";
-import type { ComparisonSnapshot } from "../compare/Baseline.ts";
 import labDigests from "../../generated/lab-source-digests.json";
+import type { ComparisonSnapshot } from "../compare/Baseline.ts";
 import { LQ03_DEFAULTS, type Lq03Parameters } from "./definition.ts";
 import { createLq03Session, evaluateLq03Spectrum } from "./session.ts";
 import {
@@ -31,7 +31,9 @@ function value(snapshot: ComparisonSnapshot, id: string): number {
 }
 
 function close(actual: number, expected: number) {
-  expect(Math.abs(actual - expected)).toBeLessThanOrEqual(1e-12 * Math.max(Math.abs(expected), 1e-300));
+  expect(Math.abs(actual - expected)).toBeLessThanOrEqual(
+    1e-12 * Math.max(Math.abs(expected), 1e-300),
+  );
 }
 
 describe("temperature-only spectrum comparison", () => {
@@ -45,7 +47,9 @@ describe("temperature-only spectrum comparison", () => {
     expect(after.baseline).toBe(before.baseline);
     expect(JSON.stringify(after.baseline)).toBe(baselineJSON);
     expect(after.variant.runId).not.toBe(before.baseline.runId);
-    expect(after.variant.acceptedInputRevision).toBeGreaterThan(before.baseline.acceptedInputRevision);
+    expect(after.variant.acceptedInputRevision).toBeGreaterThan(
+      before.baseline.acceptedInputRevision,
+    );
     expect(after.result.kind).toBe("accepted");
     if (after.result.kind === "accepted") expect(after.result.variation.changedInput).toBe("T");
     for (const key of Object.keys(LQ03_TEMPERATURE_COMPARISON.inputs)) {
@@ -53,7 +57,8 @@ describe("temperature-only spectrum comparison", () => {
     }
     expect(main.getSnapshot()).toBe(mainBefore);
     close(
-      value(after.variantSnapshot, "peakFrequency") / value(after.baselineSnapshot, "peakFrequency"),
+      value(after.variantSnapshot, "peakFrequency") /
+        value(after.baselineSnapshot, "peakFrequency"),
       1.5,
     );
     close(
@@ -71,7 +76,9 @@ describe("temperature-only spectrum comparison", () => {
   test("continued exploration of the main apparatus cannot replace the pinned comparison", () => {
     const { main, comparison } = fixture();
     const held = comparison.getSnapshot();
-    expect(main.apply({ ...LQ03_DEFAULTS, T: 8000, nu1: 1e14, probeNu: 2e14 }).kind).toBe("accepted");
+    expect(main.apply({ ...LQ03_DEFAULTS, T: 8000, nu1: 1e14, probeNu: 2e14 }).kind).toBe(
+      "accepted",
+    );
     expect(comparison.getSnapshot()).toBe(held);
     expect(held.baseline.parameters.nu1).toBe(LQ03_DEFAULTS.nu1);
     expect(held.baseline.parameters.probeNu).toBe(LQ03_DEFAULTS.probeNu);
@@ -109,7 +116,9 @@ describe("temperature-only spectrum comparison", () => {
 
   test("out-of-domain temperature preserves the last completed pair and its typed refusal", () => {
     const { main, comparison } = fixture();
-    expect(comparison.apply({ ...comparison.getSnapshot().baseline.parameters, T: 7500 })).toBe(true);
+    expect(comparison.apply({ ...comparison.getSnapshot().baseline.parameters, T: 7500 })).toBe(
+      true,
+    );
     const accepted = comparison.getSnapshot().variant;
     for (const T of [499, 10001]) {
       expect(comparison.apply({ ...comparison.getSnapshot().baseline.parameters, T })).toBe(false);
@@ -119,7 +128,9 @@ describe("temperature-only spectrum comparison", () => {
       expect(refused.error).toContain("500");
       expect(refused.variant.parameters.T).toBe(7500);
     }
-    expect(comparison.apply({ ...comparison.getSnapshot().baseline.parameters, T: 6000 })).toBe(true);
+    expect(comparison.apply({ ...comparison.getSnapshot().baseline.parameters, T: 6000 })).toBe(
+      true,
+    );
     expect(comparison.getSnapshot().error).toBe("");
     comparison.disconnect();
     main.disconnect();
@@ -131,7 +142,9 @@ describe("temperature-only spectrum comparison", () => {
     expect(comparison.apply({ ...initial.parameters, T: 10000 })).toBe(true);
     expect(comparison.pinCurrent()).toBe(true);
     expect(comparison.getSnapshot().baseline.parameters.T).toBe(10000);
-    expect(comparison.apply({ ...comparison.getSnapshot().baseline.parameters, T: 5000 })).toBe(true);
+    expect(comparison.apply({ ...comparison.getSnapshot().baseline.parameters, T: 5000 })).toBe(
+      true,
+    );
     expect(comparison.getSnapshot().baseline.parameters.T).toBe(10000);
     close(
       value(comparison.getSnapshot().variantSnapshot, "bandEnergy"),
@@ -151,7 +164,9 @@ describe("temperature-only spectrum comparison", () => {
       constantSetId: "einstein-1905-light-quanta-printed" as const,
     };
     const { main, comparison } = fixture(parameters);
-    expect(comparison.apply({ ...comparison.getSnapshot().baseline.parameters, T: 7500 })).toBe(true);
+    expect(comparison.apply({ ...comparison.getSnapshot().baseline.parameters, T: 7500 })).toBe(
+      true,
+    );
     const state = comparison.getSnapshot();
     for (const entry of [state.baseline, state.variant]) {
       expect(entry.identity.constantSetId).toBe(parameters.constantSetId);
@@ -175,7 +190,9 @@ describe("temperature-only spectrum comparison", () => {
     expect(density?.status).toBe("outside-domain");
     expect(density?.value).toBeNull();
     expect(density?.evidence?.status).toBe("outside-domain");
-    expect(comparison.apply({ ...comparison.getSnapshot().baseline.parameters, T: 1000 })).toBe(true);
+    expect(comparison.apply({ ...comparison.getSnapshot().baseline.parameters, T: 1000 })).toBe(
+      true,
+    );
     const result = comparison.getSnapshot().result;
     assert.equal(result.kind, "accepted");
     const row = result.rows.find((entry) => entry.id === "frequencyEnergyDensity");

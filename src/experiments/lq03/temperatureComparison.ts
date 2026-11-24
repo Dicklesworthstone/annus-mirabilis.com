@@ -247,8 +247,7 @@ export function temperatureComparisonSpectra(
   const yDecades: number[] = [];
   if (axisScale === "logarithmic") {
     const stride = Math.max(1, Math.ceil((yRange[1] - yRange[0]) / 6));
-    for (let e = Math.ceil(yRange[0]); e <= Math.floor(yRange[1]); e += stride)
-      yDecades.push(e);
+    for (let e = Math.ceil(yRange[0]); e <= Math.floor(yRange[1]); e += stride) yDecades.push(e);
   }
   const axes = {
     xRange,

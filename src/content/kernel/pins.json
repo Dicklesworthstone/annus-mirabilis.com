@@ -115,7 +115,7 @@
     "evaluateSr10@src/physics/reference/waves.ts": "sha256:ad778c144088027bf765a7708142de80d198481e20d810dad7ba4d4e62bca5e2",
     "evaluateSr12@src/physics/reference/fields.ts": "sha256:2456d6085eed656243ff791b623bb875b6b857f37d0460ec80a5545dc81b1e9a",
     "transformChargeCurrent@src/physics/reference/fields.ts": "sha256:4efbed0926134abf4e2db73308635313f2cfefb0971f46939053c1346f13dfad",
-    "evaluateSr13@src/physics/reference/electron.ts": "sha256:bb62046b9943f0fd874f6cf4023f1baf428e741c5f1cbd01923fbbab5921bad3",
+    "evaluateSr13@src/physics/reference/electron.ts": "sha256:e72629885e2e8c33e6b351a0bbebf83cfd6ccb0ff1ad1b0db07684ae75536d71",
     "transformLightDirection@src/physics/reference/kinematics.ts": "sha256:45e109910d50a5fb320c607f808811be15638af4b0f79bd5742ded519f51c6c5",
     "evaluateModernEmission@src/physics/reference/massEnergy.ts": "sha256:0908b165e9ebb9e825581c4f55888648d103d0d954481cb5b0046f09669f6612"
   },
@@ -146,6 +146,6 @@
     "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:4e573122ab0d8b46da42fdba7ea7db12b130a29ce803693b308328d261580556",
     "src/physics/reference/inference.ts": "source:sha256:f0df545a6faed521f98e2bfe4e5d6ce6beb41c1d513fdbf9f38929cd36fd9dbe",
     "src/physics/reference/inference/observation.ts": "source:sha256:f0df545a6faed521f98e2bfe4e5d6ce6beb41c1d513fdbf9f38929cd36fd9dbe",
-    "src/physics/reference/electron.ts": "source:sha256:92f3e373efface40a230b58442cb57ab517a7cc37f4b735311dde2d7eddf59bb"
+    "src/physics/reference/electron.ts": "source:sha256:d7f2ad5888b9cbbed799d94e067a5c84209567c1593d6ef2d223f126eb2ec9d9"
   }
 }

@@ -160,10 +160,10 @@ export function SpectrumPlot({
   const description = reference
     ? `Two Planck spectra on the same ${scaleWord} axes: the dashed baseline at ${reference.temperature} K and the solid variant at ${spectrum.temperature} K. Both show energy density ${plainSubscripts(CONVENTION_PHRASE[spectrum.convention])} against ${spectrum.coordinate}. The fixed band and probe apply to both. Accepted band energies and the two distinct density peaks are in the comparison table.`
     : `The spectrum at T = ${spectrum.temperature} K: energy density ${plainSubscripts(
-    CONVENTION_PHRASE[spectrum.convention],
-  )}, against ${spectrum.coordinate}, on ${scaleWord} axes. Planck's curve peaks at ${
-    peak ? `${sci(10 ** peak.log10X, 2)} ${unitX}` : "a point outside the drawn range"
-  }. Wien's law meets Planck's at high frequency (short wavelength); the classical law meets it at low frequency (long wavelength) and keeps rising where Planck's falls.`;
+        CONVENTION_PHRASE[spectrum.convention],
+      )}, against ${spectrum.coordinate}, on ${scaleWord} axes. Planck's curve peaks at ${
+        peak ? `${sci(10 ** peak.log10X, 2)} ${unitX}` : "a point outside the drawn range"
+      }. Wien's law meets Planck's at high frequency (short wavelength); the classical law meets it at low frequency (long wavelength) and keeps rising where Planck's falls.`;
   const probeInFrame = probeX >= PAD.left && probeX <= PAD.left + PLOT_W;
 
   return (
@@ -205,7 +205,11 @@ export function SpectrumPlot({
         </g>
         <g clipPath={`url(#${clipId})`}>
           {referencePath && (
-            <path className="lq03-curve lq03-curve-reference" data-spectrum-reference d={referencePath} />
+            <path
+              className="lq03-curve lq03-curve-reference"
+              data-spectrum-reference
+              d={referencePath}
+            />
           )}
           {reference?.peak && (
             <rect

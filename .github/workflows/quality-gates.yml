@@ -89,8 +89,25 @@ jobs:
           src/equations/derivations/lightQuantaPlanckProof.test.ts
           src/content/results/lightQuantaPlanckSupport.test.tsx
           src/reader/LightQuantaPlanckDerivation.test.tsx
+          src/equations/derivations/lightQuantaPhotoelectric.test.ts
+          src/reader/PhotoelectricDerivation.test.tsx
+          src/content/results/photoelectricSupport.test.ts
+          src/equations/derivations/srElectronMeasurementsProof.test.ts
+          src/reader/SRElectronMeasurementsDerivation.test.tsx
+          src/content/results/electronMeasurementsSupport.test.tsx
           src/content/results/resultDependencies.test.ts
           src/reader/faces/results/ResultDependencies.test.tsx
+
+      - name: Verify spectrum comparisons and electron trajectory curvature
+        run: >-
+          bun test --isolate --timeout 60000
+          src/experiments/lq03/temperatureComparison.test.ts
+          src/components/lab/lq03/TemperatureComparison.test.tsx
+          src/testing/sr13.curvature.test.ts
+          src/testing/electron.relations.test.ts
+          src/testing/sr13.session.test.ts
+          src/testing/sr13.manifest.test.ts
+          src/components/lab/sr13/ElectronDynamicsControls.test.tsx
 
       - name: Verify exact series and existing low-speed limits
         run: >-
