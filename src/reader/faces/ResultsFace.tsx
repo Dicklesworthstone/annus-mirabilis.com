@@ -1,12 +1,13 @@
 /**
  * The results face (am-read-results-face-uzh): a paper's numbered results as cards, in paper
  * order, with a section filter and a slot for the equation genealogy (am-eq-genealogy-hmm draws it;
- * this face only places it). With no genealogy supplied the slot is left out: a line naming a
- * pending task is not something a reader can use.
+ * this face only places it). The first live route traces the checked light-complex result into
+ * the September paper. Other papers keep the slot absent until their own dependencies are joined.
  */
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { InlineTerms } from "./InlineTerms.tsx";
+import { LightComplexGenealogy } from "./results/LightComplexGenealogy.tsx";
 import { ResultCard } from "./results/ResultCard.tsx";
 import type { ResultCard as ResultCardData } from "./results/types.ts";
 
@@ -23,7 +24,7 @@ export function ResultsFace({
   cards: readonly ResultCardData[];
   /** The paper's compiled equations by id, for each card's modern layer. */
   equations?: ReadonlyMap<string, CompiledEquation> | undefined;
-  /** Supplied by the genealogy bead once it lands; this face never draws it itself. */
+  /** An optional caller-supplied genealogy overrides the supported local route. */
   genealogy?: React.ReactNode;
 }) {
   /**
@@ -58,6 +59,16 @@ export function ResultsFace({
     ([a], [b]) => sectionNumber(a) - sectionNumber(b) || a.localeCompare(b),
   );
 
+  const lightEnergy = cards.find((card) => card.resultId === "sr-light-complex-energy");
+  const lightEnergySupport = lightEnergy?.support;
+  const defaultGenealogy =
+    paper === "special-relativity" &&
+    lightEnergySupport?.kind === "checked-proof" &&
+    lightEnergySupport.proofId === "sr-light-complex-energy" ? (
+      <LightComplexGenealogy support={lightEnergySupport} />
+    ) : null;
+  const renderedGenealogy = genealogy ?? defaultGenealogy;
+
   return (
     <div className="results-face" data-paper={paper}>
       {/* The quoted inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
@@ -77,19 +88,36 @@ export function ResultsFace({
         </nav>
       )}
 
+      {genealogy == null && defaultGenealogy ? (
+        <p>
+          <a href="#light-complex-genealogy">
+            Trace how the light-energy result reaches the September paper
+          </a>
+        </p>
+      ) : null}
+
+      {paper === "mass-energy" &&
+      cards.some((card) => card.resultId === "me-light-energy-transformation") ? (
+        <p>
+          <a href="/papers/special-relativity/view/results/#light-complex-genealogy">
+            Trace where the imported light-energy formula comes from
+          </a>
+        </p>
+      ) : null}
+
       <div className="results-face-cards">
         {cards.map((card) => (
           <ResultCard key={card.resultId} card={card} equations={equations} />
         ))}
       </div>
 
-      {genealogy ? (
+      {renderedGenealogy ? (
         <section
           className="results-face-genealogy"
           aria-label="Equation genealogy"
           data-genealogy-slot="true"
         >
-          {genealogy}
+          {renderedGenealogy}
         </section>
       ) : null}
     </div>

@@ -1,0 +1,47 @@
+.light-complex-genealogy {
+  margin-block: 2rem;
+  scroll-margin-top: 7rem;
+}
+
+.light-complex-genealogy-factors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-block: 1rem;
+}
+
+.light-complex-genealogy-factors > section,
+.light-complex-genealogy-combination,
+.light-complex-genealogy-import {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+}
+
+.light-complex-genealogy-combination {
+  margin-block: 1rem;
+  border-inline-start: 0.25rem solid var(--accent);
+}
+
+.light-complex-genealogy-import {
+  margin-block-start: 1.25rem;
+}
+
+@media (max-width: 40rem) {
+  .light-complex-genealogy-factors {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media print {
+  .light-complex-genealogy-factors {
+    display: block;
+  }
+
+  .light-complex-genealogy-factors > section,
+  .light-complex-genealogy-combination,
+  .light-complex-genealogy-import {
+    break-inside: avoid;
+  }
+}
