@@ -148,6 +148,132 @@ describe("URL restoration cancellation preserves the accepted owner", () => {
     expect(owner.acceptedParameters().frameSpeed).toBe(0.25);
   });
 
+  for (const change of ["observer", "presentation", "new run", "away and back"] as const) {
+    test(`a newer ${change} action supersedes a shared state still being decoded`, async () => {
+      const owner = createMe01Session(`tape-newer-${change}`);
+      const initial = owner.getSnapshot();
+      const held = holdDecompression();
+      try {
+        const pending = restoreTapeFromUrl(ME01_TAPE, owner, sharedUrl());
+        await held.entered();
+        if (change === "new run") {
+          expect(owner.startNewRun(owner.acceptedParameters()).kind).toBe("accepted");
+        } else if (change === "presentation") {
+          expect(owner.apply({ ...owner.acceptedParameters(), notation: "modern" }).kind).toBe(
+            "accepted",
+          );
+        } else {
+          expect(owner.apply({ ...owner.acceptedParameters(), frameSpeed: 0.75 }).kind).toBe(
+            "accepted",
+          );
+          if (change === "away and back")
+            expect(owner.apply(ME01_TAPE.defaults).kind).toBe("accepted");
+        }
+        const newer = owner.getSnapshot();
+        expect(newer.accepted?.snapshotVersion).toBeGreaterThan(
+          initial.accepted?.snapshotVersion ?? 0,
+        );
+        if (change !== "new run") {
+          expect(newer.accepted?.runId).toBe(initial.accepted?.runId);
+          expect(newer.accepted?.revisions.input).toBe(initial.accepted?.revisions.input);
+        }
+        if (change === "presentation")
+          expect(newer.accepted?.revisions).toEqual(initial.accepted?.revisions);
+        if (change === "new run" || change === "away and back")
+          expect(owner.acceptedParameters()).toEqual(ME01_TAPE.defaults);
+        held.release();
+        const result = await pending;
+        expect(result.kind).toBe("not-restored");
+        if (result.kind === "not-restored") {
+          expect(result.notice).toContain("laboratory has changed");
+          expect(result.newRun).toBeUndefined();
+        }
+        expect(owner.getSnapshot()).toBe(newer);
+      } finally {
+        held.restore();
+      }
+    });
+  }
+
+  test("unchanged semantic identities restore through an adapter that copies its snapshots", async () => {
+    const owner = createMe01Session("tape-copied-view");
+    const session = {
+      ...owner,
+      getSnapshot() {
+        const view = owner.getSnapshot();
+        return {
+          ...view,
+          requested: view.requested ? { ...view.requested } : null,
+          accepted: view.accepted
+            ? {
+                ...view.accepted,
+                parameters: { ...view.accepted.parameters },
+                revisions: { ...view.accepted.revisions },
+              }
+            : null,
+        };
+      },
+      acceptedParameters: () => ({ ...owner.acceptedParameters() }),
+    };
+    const held = holdDecompression();
+    try {
+      const pending = restoreTapeFromUrl(ME01_TAPE, session, sharedUrl());
+      await held.entered();
+      expect(session.getSnapshot()).not.toBe(session.getSnapshot());
+      held.release();
+      expect(await pending).toEqual({ kind: "restored" });
+      expect(owner.acceptedParameters().frameSpeed).toBe(0.25);
+    } finally {
+      held.restore();
+    }
+  });
+
+  test("a late shared state never synchronizes the form over a newer accepted experiment", async () => {
+    const owner = createMe01Session("tape-newer-form");
+    const calls: object[] = [];
+    let current: LabTapeLinkState | null = null;
+    function Probe() {
+      const view = useSyncExternalStore(
+        owner.subscribe,
+        owner.getSnapshot,
+        owner.getServerSnapshot,
+      );
+      current = useLabTapeLink(ME01_TAPE, owner, view.accepted?.parameters, true, (parameters) => {
+        calls.push(parameters);
+      });
+      return null;
+    }
+    function link() {
+      assert.ok(current, "The mounted hook must expose its real link state.");
+      return current;
+    }
+    window.history.replaceState({}, "", sharedUrl());
+    const held = holdDecompression();
+    try {
+      root = createRoot(container);
+      await act(async () => root?.render(<Probe />));
+      await held.entered();
+      await act(async () => {
+        expect(owner.apply({ ...owner.acceptedParameters(), frameSpeed: 0.75 }).kind).toBe(
+          "accepted",
+        );
+      });
+      const newer = owner.getSnapshot();
+      await act(async () => {
+        held.release();
+        await held.finished();
+        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      });
+      expect(owner.getSnapshot()).toBe(newer);
+      expect(calls).toEqual([]);
+      expect(link().notice).toContain("laboratory has changed");
+      expect(link().recovery).toBeUndefined();
+      expect(link().shareTape?.initialConditions.frameSpeed).toBe(0.75);
+    } finally {
+      held.restore();
+    }
+  });
+
   for (const departure of ["unmount", "disabled", "URL opt-out"] as const) {
     test(`${departure} during decoding preserves the owner and allows a later fresh restore`, async () => {
       const owner = createMe01Session(`tape-cleanup-${departure}`);

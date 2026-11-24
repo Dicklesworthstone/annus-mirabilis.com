@@ -182,7 +182,7 @@ describe("current-model calculations own their new scientific run", () => {
 });
 
 describe("new-run validation precedes the accepting owner", () => {
-  test("(sessionTape.ts:69) invalid canonical settings throw parameters-rejected before starting a run", () => {
+  test("(sessionTape.ts:73) invalid canonical settings throw parameters-rejected before starting a run", () => {
     const owner = ME03_TAPE.createSession("me03-new-run-invalid-settings");
     const before = owner.getSnapshot();
     const runner = createSessionReplayRunner(ME03_TAPE, owner);
@@ -197,7 +197,7 @@ describe("new-run validation precedes the accepting owner", () => {
     expect(owner.getSnapshot()).toBe(before);
   });
 
-  test("(sessionTape.ts:221) owner refusal throws parameters-rejected and keeps its repair sentence", () => {
+  test("(sessionTape.ts:225) owner refusal throws parameters-rejected and keeps its repair sentence", () => {
     const real = ME03_TAPE.createSession("me03-refusing-owner");
     const before = real.getSnapshot();
     const runner = createSessionReplayRunner(ME03_TAPE, {
@@ -214,7 +214,7 @@ describe("new-run validation precedes the accepting owner", () => {
     expect(real.getSnapshot()).toBe(before);
   });
 
-  test("(sessionTape.ts:237) a new ID without a complete final acceptance throws new-run-not-accepted", () => {
+  test("(sessionTape.ts:241) a new ID without a complete final acceptance throws new-run-not-accepted", () => {
     for (const defect of ["pending", "partial", "stale-parameters"] as const) {
       const owner = ME03_TAPE.createSession(`me03-invalid-receipt-${defect}`);
       const runner = createSessionReplayRunner(ME03_TAPE, {

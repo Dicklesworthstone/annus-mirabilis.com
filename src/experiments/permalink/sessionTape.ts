@@ -29,9 +29,13 @@ export type TapeSession = Readonly<{
   startNewRun?(input: unknown): ApplyOutcome;
   getSnapshot(): Readonly<{
     pending?: boolean | undefined;
+    status?: string | undefined;
+    requested?: Readonly<{ runId: string; actionIndex: number }> | null | undefined;
     accepted: Readonly<{
       revisions: Readonly<{ input: number }>;
       runId?: string | undefined;
+      snapshotVersion?: number | undefined;
+      actionIndex?: number | undefined;
       final?: boolean | undefined;
       parameters?: object | undefined;
     }> | null;
@@ -507,7 +511,7 @@ export function restoreTape(
 
 /**
  * Reads ?tape= from the page's address and restores it; "absent" when there is none.
- * Cancellation prevents a finished asynchronous decode from mutating a departed live owner.
+ * Cancellation and newer laboratory actions both retire an unfinished asynchronous restore.
  */
 export async function restoreTapeFromUrl(
   binding: LabTapeBinding,
@@ -529,20 +533,69 @@ export async function restoreTapeFromUrl(
     notice: "The shared state restore was canceled. Your experiment is unchanged.",
   };
   if (signal?.aborted) return canceled;
+  // Copy semantic identities before yielding. Observer and presentation changes can preserve
+  // the run and input revision, and adapters may return fresh snapshot/parameter objects.
+  const ownerState = () => {
+    const view = session.getSnapshot();
+    return {
+      identity: {
+        hasAccepted: view.accepted !== null,
+        runId: view.accepted?.runId,
+        snapshotVersion: view.accepted?.snapshotVersion,
+        actionIndex: view.accepted?.actionIndex,
+        requestedRunId: view.requested?.runId,
+        requestedActionIndex: view.requested?.actionIndex,
+        status: view.status,
+        pending: view.pending === true,
+      },
+      revisions: { ...view.accepted?.revisions },
+      parameters: { ...session.acceptedParameters() },
+    };
+  };
+  const initial = ownerState();
+  const interrupted = (): LabTapeRestore | null => {
+    if (signal?.aborted) return canceled;
+    const current = ownerState();
+    if (
+      current.identity.pending ||
+      !sameWalkthroughSettings(initial.identity, current.identity) ||
+      !sameWalkthroughSettings(initial.revisions, current.revisions) ||
+      !sameWalkthroughSettings(initial.parameters, current.parameters)
+    )
+      return {
+        kind: "not-restored",
+        notice:
+          "The shared state was not applied because the laboratory has changed or is still calculating. Your current experiment is unchanged.",
+      };
+    return null;
+  };
+  let stopped = interrupted();
+  if (stopped) return stopped;
   // Ordinary laboratory visits need neither the codec nor the authored catalogue.
+  let restoring = false;
   try {
     const { decodeTapePermalinkInBrowser } = await import("./browserCodec.ts");
-    if (signal?.aborted) return canceled;
+    stopped = interrupted();
+    if (stopped) return stopped;
     const decoded = await decodeTapePermalinkInBrowser(address);
-    if (signal?.aborted) return canceled;
+    stopped = interrupted();
+    if (stopped) return stopped;
     if (decoded.kind === "absent") return { kind: "absent" };
     if (decoded.kind === "invalid") return { kind: "not-restored", notice: decoded.notice };
-    if (!decoded.tape.teachingTapeRef) return restoreTape(binding, session, decoded.tape);
-    const { resolveTeachingTape } = await import("./teachingTapeCatalogue.ts");
-    if (signal?.aborted) return canceled;
-    return restoreTape(binding, session, decoded.tape, resolveTeachingTape);
+    let resolve: ReplayRunner["resolveTeachingTape"];
+    if (decoded.tape.teachingTapeRef) {
+      const catalogue = await import("./teachingTapeCatalogue.ts");
+      stopped = interrupted();
+      if (stopped) return stopped;
+      resolve = catalogue.resolveTeachingTape;
+    }
+    // Publications made by this synchronous replay are its own, not a superseding reader action.
+    restoring = true;
+    return restoreTape(binding, session, decoded.tape, resolve);
   } catch (err: unknown) {
     if (signal?.aborted) return canceled;
+    stopped = restoring ? null : interrupted();
+    if (stopped) return stopped;
     return {
       kind: "not-restored",
       notice: `The shared state could not be loaded: ${String(err)}`,
