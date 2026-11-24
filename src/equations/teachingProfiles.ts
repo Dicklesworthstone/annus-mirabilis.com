@@ -20,7 +20,14 @@ export type TeachingPaper =
    * an argument, it is always reading-only (live: false), and it has its own colours.
    */
   | "foundations";
-export type TeachingExperiment = "bm-01" | "bm-06" | "lq-08" | "me-02" | "sr-05" | "sr-09";
+export type TeachingExperiment =
+  | "bm-01"
+  | "bm-06"
+  | "lq-08"
+  | "me-02"
+  | "sr-03"
+  | "sr-05"
+  | "sr-09";
 export type TeachingProfile = Readonly<{
   argumentPrefix: string;
   quantities: QuantityRegistry;
@@ -51,6 +58,7 @@ const profiles: Readonly<Record<TeachingPaper, TeachingProfile>> = Object.freeze
     argumentPrefix: "arg-sr-",
     quantities: SPECIAL_RELATIVITY_QUANTITIES,
     outputs: Object.freeze({
+      "sr-03": LABORATORY_EQUATION_OUTPUTS["sr-03"],
       "sr-05": SR05_OUTPUTS,
       "sr-09": LABORATORY_EQUATION_OUTPUTS["sr-09"],
     }),

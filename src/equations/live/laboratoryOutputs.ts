@@ -1,11 +1,13 @@
 import { BM06_OUTPUTS } from "../../experiments/bm06/definition.ts";
+import { SR03_OUTPUTS } from "../../experiments/sr03/definition.ts";
 import { SR09_OUTPUTS } from "../../experiments/sr09/definition.ts";
 import type { OutputContract } from "../../experiments/store/instanceStore.ts";
 
-export type LaboratoryEquationId = "bm-06" | "sr-09";
+export type LaboratoryEquationId = "bm-06" | "sr-03" | "sr-09";
 export type EquationUnitConversion =
   | "identity"
   | "speed-in-c-to-metres-per-second"
+  | "light-seconds-to-metres"
   | "degrees-to-radians";
 
 /** Each correspondence is authored for one published quantity, never inferred from its glyph. */
@@ -63,6 +65,52 @@ export const LABORATORY_OUTPUT_PROJECTIONS: Readonly<
       "diffusion.rmsDisplacement",
       "m",
       "latent-coordinate-rms",
+    ),
+  }),
+  "sr-03": Object.freeze({
+    // These are differences between the same pair of events, never single-event coordinates
+    // or rod lengths. The owner has already transformed both events before publishing them.
+    eventSeparationSpatial: projection(
+      "spatialSeparationK",
+      "ls",
+      "coordinate-differential",
+      "sr03-rod-simultaneity-v1",
+      "m",
+      "event-separation",
+      "light-seconds-to-metres",
+    ),
+    eventSeparationSpatialMoving: projection(
+      "spatialSeparationKPrime",
+      "ls",
+      "coordinate-differential",
+      "sr03-rod-simultaneity-v1",
+      "m",
+      "event-separation",
+      "light-seconds-to-metres",
+    ),
+    eventSeparationTemporalStationary: projection(
+      "temporalSeparationK",
+      "s",
+      "coordinate-differential",
+      "sr03-rod-simultaneity-v1",
+      "s",
+      "event-separation",
+    ),
+    eventSeparationTemporalMoving: projection(
+      "temporalSeparationKPrime",
+      "s",
+      "coordinate-differential",
+      "sr03-rod-simultaneity-v1",
+      "s",
+      "event-separation",
+    ),
+    lorentzFactor: projection(
+      "gammaFactor",
+      "1",
+      "lorentz-factor",
+      "sr03-rod-simultaneity-v1",
+      "1",
+      "lorentz-factor",
     ),
   }),
   "sr-09": Object.freeze({
@@ -123,7 +171,7 @@ export const LABORATORY_OUTPUT_PROJECTIONS: Readonly<
 
 export const LABORATORY_SOURCE_OUTPUTS: Readonly<
   Record<LaboratoryEquationId, Readonly<Record<string, OutputContract>>>
-> = Object.freeze({ "bm-06": BM06_OUTPUTS, "sr-09": SR09_OUTPUTS });
+> = Object.freeze({ "bm-06": BM06_OUTPUTS, "sr-03": SR03_OUTPUTS, "sr-09": SR09_OUTPUTS });
 
 export function matchesLaboratorySource(
   identity: Readonly<{ unit: string; semanticKind: string; ownerId: string }>,

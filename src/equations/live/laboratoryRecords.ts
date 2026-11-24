@@ -14,6 +14,26 @@ const declarations: Readonly<Record<LaboratoryEquationId, readonly Declaration[]
       ],
     },
   ],
+  "sr-03": [
+    {
+      id: "eq-model-sr-event-separation-position",
+      terms: [
+        ["positionMoving", "eventSeparationSpatialMoving"],
+        ["factor", "lorentzFactor"],
+        ["position", "eventSeparationSpatial"],
+        ["time", "eventSeparationTemporalStationary"],
+      ],
+    },
+    {
+      id: "eq-model-sr-event-separation-time",
+      terms: [
+        ["timeMoving", "eventSeparationTemporalMoving"],
+        ["factor", "lorentzFactor"],
+        ["time", "eventSeparationTemporalStationary"],
+        ["position", "eventSeparationSpatial"],
+      ],
+    },
+  ],
   "sr-09": [
     {
       id: "eq-model-sr-doppler-factor",

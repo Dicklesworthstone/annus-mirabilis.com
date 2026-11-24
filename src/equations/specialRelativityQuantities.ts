@@ -136,6 +136,16 @@ export const SPECIAL_RELATIVITY_QUANTITIES: QuantityRegistry = Object.freeze(
         "The difference in position of two events along the direction of motion, in the stationary system.",
       ),
       quantity(
+        "eventSeparationSpatialMoving",
+        "Spatial separation between two events, moving system",
+        "\\Delta x'",
+        length,
+        "m",
+        "event-separation",
+        "result",
+        "The signed difference in position of the same two events along the motion, in the moving system. It is a coordinate separation; a rod length also requires simultaneous readings of its two ends.",
+      ),
+      quantity(
         "eventSeparationTemporalStationary",
         "Time between two events, stationary system",
         "\\Delta t",

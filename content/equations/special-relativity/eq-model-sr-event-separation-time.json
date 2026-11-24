@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-event-separation-time",
+  "paper": "special-relativity",
+  "argument": "arg-sr-lorentz-map",
+  "title": "Time separation of the same events in the moving system",
+  "spoken": "Delta t prime equals gamma times the difference between delta t and v times delta x divided by c squared.",
+  "explanation": "Apply the time half of the Lorentz transformation to two events and subtract the first result from the second. The time separation in the moving system depends on both their time separation and their spatial separation in the stationary system. At 0.6c, events 10 light-seconds apart and simultaneous in K are 7.5 seconds apart in k, with the second event earlier. For other pairs the original time separation must also be included. These are coordinate-time differences, not the proper time of one clock.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "K and k are inertial systems with aligned axes; k moves at speed v along K's x axis and |v| < c.",
+    "Every difference is the second event's coordinate minus the first event's coordinate. Both frames describe the same pair of events.",
+    "This modern teaching form follows by subtracting the two event transformations in section 3. It is not a new measurement rule or a claim that every spatial separation is a rod length."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-event-separation-time.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-event-separation-time.t.timeMoving",
+      "quantityId": "eventSeparationTemporalMoving"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-event-separation-time.t.factor",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-event-separation-time.t.time",
+              "quantityId": "eventSeparationTemporalStationary"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "quotient",
+                "numerator": {
+                  "kind": "product",
+                  "args": [
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-event-separation-time.t.speed",
+                      "quantityId": "frameSpeed"
+                    },
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-event-separation-time.t.position",
+                      "quantityId": "eventSeparationSpatial"
+                    }
+                  ],
+                  "opId": "eq-model-sr-event-separation-time.op.vx"
+                },
+                "denominator": {
+                  "kind": "power",
+                  "base": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-event-separation-time.t.light",
+                    "quantityId": "speedOfLight"
+                  },
+                  "exponent": {
+                    "num": 2,
+                    "den": 1
+                  },
+                  "opId": "eq-model-sr-event-separation-time.op.lightSquared"
+                },
+                "opId": "eq-model-sr-event-separation-time.op.lead"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-event-separation-time.op.shift"
+        }
+      ],
+      "opId": "eq-model-sr-event-separation-time.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-event-separation-time.op.lead",
+      "title": "The contribution from separation in space",
+      "explanation": "The relative speed times the spatial separation, divided by c squared, has units of time. Its sign depends on the direction of motion and on the order of the two events.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-time.op.lightSquared",
+      "title": "Convert the spatial contribution to a time",
+      "explanation": "Dividing speed times spatial separation by the square of the speed of light gives a time.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-time.op.relation",
+      "title": "The same pair, timed in another frame",
+      "explanation": "Apply the Lorentz map to the difference between two events. The result is their coordinate-time separation in k, not the proper time elapsed on one clock.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-time.op.scaled",
+      "title": "Scaled by gamma",
+      "explanation": "The same Lorentz factor multiplies the spatial and temporal transformations.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-time.op.shift",
+      "title": "Include both time and spatial separation",
+      "explanation": "Subtract the position-dependent contribution from the time separation in K. This works for non-simultaneous pairs as well as simultaneous ones.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-time.op.vx",
+      "title": "Speed times spatial separation",
+      "explanation": "The relative speed multiplies the signed separation of the same events in K.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-time.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared: 1 at rest, larger at any speed, without limit as v approaches c. The paper writes it as beta.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-time.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V. It enters because both systems must find the same speed for light.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-time.t.position",
+      "title": "Spatial separation in K",
+      "explanation": "The second event's position minus the first event's position along x, both assigned in K.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-time.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "The speed of k relative to K. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-time.t.time",
+      "title": "Time separation in K",
+      "explanation": "The second event's time minus the first event's time, read from synchronized clocks in K.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-time.t.timeMoving",
+      "title": "Time separation in k",
+      "explanation": "The second event's time minus the first event's time, read from synchronized clocks in k. It can have a different sign from the separation in K for spacelike pairs.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The time separation in the moving system",
+      "nodeId": "eq-model-sr-event-separation-time.t.timeMoving"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-event-separation-time.t.factor"
+    },
+    {
+      "text": " times the difference between "
+    },
+    {
+      "text": "the time separation in K",
+      "nodeId": "eq-model-sr-event-separation-time.t.time"
+    },
+    {
+      "text": " and "
+    },
+    {
+      "text": "the relative speed",
+      "nodeId": "eq-model-sr-event-separation-time.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the spatial separation in K",
+      "nodeId": "eq-model-sr-event-separation-time.t.position"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "the speed of light",
+      "nodeId": "eq-model-sr-event-separation-time.t.light"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

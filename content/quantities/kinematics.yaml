@@ -201,6 +201,17 @@
   frame: not-applicable
   colorRole: space-geometry
 
+- id: eventSeparationSpatialMoving
+  name: Spatial event separation (moving system)
+  description: >
+    The signed difference between the positions of the same two events along x in the moving
+    system k, written Delta x'. It is a coordinate separation, not automatically a rod length.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: space-geometry
+
 - id: eventSeparationTemporal
   name: Temporal event separation
   description: The temporal separation Delta t between two events.

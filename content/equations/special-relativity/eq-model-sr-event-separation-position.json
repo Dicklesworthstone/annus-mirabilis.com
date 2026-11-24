@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-event-separation-position",
+  "paper": "special-relativity",
+  "argument": "arg-sr-lorentz-map",
+  "title": "Spatial separation of the same events in the moving system",
+  "spoken": "Delta x prime equals gamma times the difference between delta x and v times delta t.",
+  "explanation": "Apply the position half of the Lorentz transformation to two events and subtract the first result from the second. The same linear rule then relates their spatial and temporal separations, even when neither event is at the origin. The spatial separation can be signed. Calling it a rod length additionally requires readings on the rod's two ends taken at the same time in the measuring frame.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "K and k are inertial systems with aligned axes; k moves at speed v along K's x axis and |v| < c.",
+    "Every difference is the second event's coordinate minus the first event's coordinate. Both frames describe the same pair of events.",
+    "This modern teaching form follows by subtracting the two event transformations in section 3. It is not a new measurement rule or a claim that every spatial separation is a rod length."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-event-separation-position.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-event-separation-position.t.positionMoving",
+      "quantityId": "eventSeparationSpatialMoving"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-event-separation-position.t.factor",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-event-separation-position.t.position",
+              "quantityId": "eventSeparationSpatial"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "product",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-event-separation-position.t.speed",
+                    "quantityId": "frameSpeed"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-event-separation-position.t.time",
+                    "quantityId": "eventSeparationTemporalStationary"
+                  }
+                ],
+                "opId": "eq-model-sr-event-separation-position.op.vt"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-event-separation-position.op.shift"
+        }
+      ],
+      "opId": "eq-model-sr-event-separation-position.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-event-separation-position.op.relation",
+      "title": "The same pair, described in another frame",
+      "explanation": "Subtract the first event's position from the second event's in each frame. The Lorentz transformation relates these signed differences; it does not by itself make them a rod length.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-position.op.scaled",
+      "title": "Scaled by gamma",
+      "explanation": "Apply the Lorentz factor to the whole difference. At everyday relative speeds the factor is nearly one.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-position.op.shift",
+      "title": "Allow for motion between the events",
+      "explanation": "Start with their spatial separation in K, then subtract how far k's origin travels during their time separation in K.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-position.op.vt",
+      "title": "Motion during the time between the events",
+      "explanation": "The relative speed multiplied by the time separation in K is a length. This term vanishes for events simultaneous in K.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-position.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared: 1 at rest, larger at any speed, without limit as v approaches c. The paper writes it as beta.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-position.t.position",
+      "title": "Spatial separation in K",
+      "explanation": "The second event's position minus the first event's position along x, both assigned in K. A negative value denotes the opposite direction.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-position.t.positionMoving",
+      "title": "Spatial separation in k",
+      "explanation": "The second event's position minus the first event's position along x in k. These events need not be simultaneous in k.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-position.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "The speed of k relative to K. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-event-separation-position.t.time",
+      "title": "Time separation in K",
+      "explanation": "The second event's time minus the first event's time, read from synchronized clocks in K.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The spatial separation in the moving system",
+      "nodeId": "eq-model-sr-event-separation-position.t.positionMoving"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-event-separation-position.t.factor"
+    },
+    {
+      "text": " times the difference between "
+    },
+    {
+      "text": "the spatial separation in K",
+      "nodeId": "eq-model-sr-event-separation-position.t.position"
+    },
+    {
+      "text": " and "
+    },
+    {
+      "text": "the relative speed",
+      "nodeId": "eq-model-sr-event-separation-position.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the time separation in K",
+      "nodeId": "eq-model-sr-event-separation-position.t.time"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
