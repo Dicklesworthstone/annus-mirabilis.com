@@ -1,4 +1,4 @@
-# Draft step readings; kept in sync with lightQuantaEntropy.ts by its focused test.
+# Draft step readings; synchronized with lightQuantaEntropy.ts and lightQuantaFoundations.ts by focused tests.
 paper: "light-quanta"
 ownerBeadId: "am-lq-equations-s1-s4-9gl5"
 targetKinds:
@@ -6,6 +6,11 @@ targetKinds:
 scope:
   derivationChainIds:
     - "chain-lq-wien-entropy"
+  derivationStepIds:
+    - "lq-classical-admit-spectrum"
+    - "lq-classical-insert-spectrum"
+    - "lq-classical-integrate-polynomial"
+    - "lq-classical-widen-cutoff"
 targets:
   - kind: "derivation-step"
     id: "chain-lq-wien-entropy/lq-wien-normalize-spectrum"
@@ -106,3 +111,39 @@ targets:
       r3: "Einstein's §3, p. 139, explicitly sets the entropy density to zero at zero radiation density. Section 4 then uses Wien's approximate law to derive the entropy-volume relation. This reconstruction writes A, B, sν and V for the paper's α, β, φ and v, and Δν for its narrow interval dν. The printed argument carries the integration constant implicitly through its stated zero-density boundary condition."
       r3Citations:
         - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§3–4, pp. 138–140)."
+  - kind: "derivation-step"
+    id: "lq-classical-admit-spectrum"
+    readings:
+      r0: "The classical picture assigns more energy to equal-width bands at higher frequencies."
+      r1: "At a fixed positive temperature the density grows as frequency squared. The source combines two equilibrium conditions to obtain this law; that physical law is the starting premise here."
+      r2: "Hold kB, T and c fixed. Einstein equates the mean energy of one linear resonator oscillation, (R/N)T, to Planck's equilibrium value L³ρν/(8πν²). We use the resulting density in modern notation and check its integral, without claiming to prove either equilibrium assumption."
+      r3: "On p. 136, Einstein combines the mean resonator energy from kinetic equilibrium with Planck's resonator-radiation relation and prints the integral over all frequencies as infinite. The finite cutoff, cubic antiderivative and repeated-doubling argument here unpack that printed limit. They do not add a physical cutoff to the paper or derive the equilibrium conditions. This reconstruction writes kB for R/N and c for L."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§1, p. 136)."
+  - kind: "derivation-step"
+    id: "lq-classical-insert-spectrum"
+    readings:
+      r0: "Add up the radiation below a chosen frequency. The upper boundary is still finite."
+      r1: "The integral adds spectral energy density over frequency. Its result is energy per unit volume, not another density per unit frequency."
+      r2: "Substitute the admitted density into u(νc) = ∫₀^{νc} ρν dν. The variable ν is distinct from the fixed upper boundary νc. No infinite value is inserted into finite arithmetic."
+      r3: "On p. 136, Einstein combines the mean resonator energy from kinetic equilibrium with Planck's resonator-radiation relation and prints the integral over all frequencies as infinite. The finite cutoff, cubic antiderivative and repeated-doubling argument here unpack that printed limit. They do not add a physical cutoff to the paper or derive the equilibrium conditions. This reconstruction writes kB for R/N and c for L."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§1, p. 136)."
+  - kind: "derivation-step"
+    id: "lq-classical-integrate-polynomial"
+    readings:
+      r0: "Adding up a square gives a cube divided by three."
+      r1: "Differentiate the proposed cubic to recover the spectrum. Its limit at zero frequency is zero, so the upper endpoint alone supplies the finite integral."
+      r2: "For F(ν) = [8πkBT/(3c³)]ν³, exact differentiation gives F′(ν) = ρν and F(0) = 0. The fundamental theorem of calculus therefore gives u(νc) = F(νc) − F(0), including the factor 1/3."
+      r3: "On p. 136, Einstein combines the mean resonator energy from kinetic equilibrium with Planck's resonator-radiation relation and prints the integral over all frequencies as infinite. The finite cutoff, cubic antiderivative and repeated-doubling argument here unpack that printed limit. They do not add a physical cutoff to the paper or derive the equilibrium conditions. This reconstruction writes kB for R/N and c for L."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§1, p. 136)."
+  - kind: "derivation-step"
+    id: "lq-classical-widen-cutoff"
+    readings:
+      r0: "Every doubling of the upper frequency makes the total eight times larger. This cannot settle at a finite total."
+      r1: "The factor eight holds for every positive cutoff at the same temperature, not just a chosen numerical example. Starting from a positive total, repeated doublings grow without bound."
+      r2: "The checked identity u(2νc) = 8u(νc) gives u(2ᵐνc) = 8ᵐu(νc). Since u(νc) > 0 and the integrand is nonnegative, an integral over all frequencies cannot have a finite upper bound. A finite screen or cutoff does not cure that failure of the admitted model."
+      r3: "On p. 136, Einstein combines the mean resonator energy from kinetic equilibrium with Planck's resonator-radiation relation and prints the integral over all frequencies as infinite. The finite cutoff, cubic antiderivative and repeated-doubling argument here unpack that printed limit. They do not add a physical cutoff to the paper or derive the equilibrium conditions. This reconstruction writes kB for R/N and c for L."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§1, p. 136)."

@@ -1,4 +1,4 @@
-# Draft step readings; kept in sync with lightQuantaEntropy.ts by its focused test.
+# Draft step readings; synchronized with lightQuantaEntropy.ts and lightQuantaFoundations.ts by focused tests.
 paper: "light-quanta"
 ownerBeadId: "am-lq-equations-s5-s9-3cjh"
 targetKinds:
@@ -6,6 +6,10 @@ targetKinds:
 scope:
   derivationChainIds:
     - "chain-lq-entropy-correspondence"
+  derivationStepIds:
+    - "lq-independent-admit-product"
+    - "lq-independent-insert-probability"
+    - "lq-independent-take-logarithm"
 targets:
   - kind: "derivation-step"
     id: "chain-lq-entropy-correspondence/lq-correspondence-match-coefficients"
@@ -43,3 +47,30 @@ targets:
       r3: "In §6, pp. 142–143, Einstein rewrites the radiation entropy through Boltzmann's principle and compares its configuration exponent with the independent molecular points of §5. He concludes that dilute monochromatic radiation behaves thermodynamically as if it consisted of independent energy quanta of magnitude Rβν/N. The coefficient comparison here unpacks that heuristic argument; h is only a subsequent modern identification."
       r3Citations:
         - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§§5–6, pp. 140–143)."
+  - kind: "derivation-step"
+    id: "lq-independent-admit-product"
+    readings:
+      r0: "One point has chance f of being in the chosen part. Independent points contribute one factor each."
+      r1: "Uniform position gives each point probability f = V/V₀. Independence supplies the product fⁿ. Giving several labels to one shared position would not supply several independent chances."
+      r2: "Admit a nonnegative integer count n and a uniform independent joint distribution. For 0 < f ≤ 1, the event that every point lies in the part has W = fⁿ. This is a statistical model assumption; the exact entropy calculation does not establish it from observations."
+      r3: "Section 5 first discusses the logarithmic relation between entropy and relative probability, fixing its coefficient through kinetic theory on p. 141. On p. 142, independently placed molecular points give W = (v/v₀)ⁿ and then S − S₀ = R(n/N) lg(v/v₀). The steps here begin after the logarithmic principle is admitted. They expose the substitution and power rule, using f for v/v₀ and kB for R/N, without claiming that algebra establishes the physical independence of real particles."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§5, pp. 140–142)."
+  - kind: "derivation-step"
+    id: "lq-independent-insert-probability"
+    readings:
+      r0: "Use the chance of the whole configuration in the entropy formula."
+      r1: "Boltzmann's principle relates the entropy difference to the logarithm of the relative probability. Substituting fⁿ for W retains that reference state."
+      r2: "Begin with ΔS = kB ln W, where kB denotes R/N. Replace only W by the independent-point probability fⁿ. The logarithmic entropy principle and its kinetic-theory coefficient remain explicit physical premises."
+      r3: "Section 5 first discusses the logarithmic relation between entropy and relative probability, fixing its coefficient through kinetic theory on p. 141. On p. 142, independently placed molecular points give W = (v/v₀)ⁿ and then S − S₀ = R(n/N) lg(v/v₀). The steps here begin after the logarithmic principle is admitted. They expose the substitution and power rule, using f for v/v₀ and kB for R/N, without claiming that algebra establishes the physical independence of real particles."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§5, pp. 140–142)."
+  - kind: "derivation-step"
+    id: "lq-independent-take-logarithm"
+    readings:
+      r0: "The logarithm turns the repeated product into a sum: one equal contribution per point."
+      r1: "For a positive fraction, ln(fⁿ) = n ln f. Multiplying by kB gives the independent-point entropy change with n as its coefficient."
+      r2: "The positive real power has fⁿ = exp(n ln f), so ln(exp(n ln f)) = n ln f. The checker applies that identity to the supplied expression and then compares the remaining products exactly. The coefficient n is never inferred from a numerical sample."
+      r3: "Section 5 first discusses the logarithmic relation between entropy and relative probability, fixing its coefficient through kinetic theory on p. 141. On p. 142, independently placed molecular points give W = (v/v₀)ⁿ and then S − S₀ = R(n/N) lg(v/v₀). The steps here begin after the logarithmic principle is admitted. They expose the substitution and power rule, using f for v/v₀ and kB for R/N, without claiming that algebra establishes the physical independence of real particles."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§5, pp. 140–142)."

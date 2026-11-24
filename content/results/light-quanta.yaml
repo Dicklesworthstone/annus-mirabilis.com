@@ -15,8 +15,10 @@ review: draft
 cards:
   - id: lq-classical-difficulty
     support:
-      kind: "no-checked-proof"
-      reason: "The classical radiation argument is explained in the linked passages; no checked derivation record covers the mode-counting and energy assumptions."
+      kind: "checked-proof"
+      proofId: "lq-classical-cutoff"
+      conclusion: "eq-model-lq-cutoff-total"
+      scope: "Checks the finite frequency integral by exact differentiation and its zero lower boundary, then proves unbounded growth through the identity u(2νc) = 8u(νc) for every positive cutoff. The classical equilibrium density, fixed positive temperature and interpretation of the frequency integral remain premises; this does not derive the source's resonator assumptions or the light-quantum hypothesis."
     title: "The equilibrium the classical picture requires, and its infinite total"
     section: s1
     arguments: [arg-lq-classical-allocation, arg-lq-equilibrium-assumptions]
@@ -190,8 +192,10 @@ cards:
 
   - id: lq-boltzmann-principle
     support:
-      kind: "no-checked-proof"
-      reason: "The statistical principle and independent-particle example are explained in the linked passages; no checked derivation record covers this result."
+      kind: "checked-proof"
+      proofId: "lq-independent-entropy"
+      conclusion: "eq-model-lq-configuration-entropy"
+      scope: "Checks substitution of W = fⁿ into the admitted relative-entropy relation, the exact positive-power logarithm identity and the resulting entropy-volume coefficient, including equal-volume and zero-count boundaries. Uniform independent positions and Boltzmann's principle remain premises; the calculation admits 0 < f ≤ 1 and does not establish those physical assumptions from a simulation."
     title: "Boltzmann's principle and the entropy of independent points"
     section: s5
     arguments: [arg-lq-statistical-probability, arg-lq-independent-configurations]

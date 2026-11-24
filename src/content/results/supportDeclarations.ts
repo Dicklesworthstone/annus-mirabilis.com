@@ -7,6 +7,8 @@ export const RESULT_PROOF_IDS = [
   "bm-historical-displacement",
   "bm-molecular-number-inference",
   "lq-wien-entropy-volume",
+  "lq-classical-cutoff",
+  "lq-independent-entropy",
   "lq-entropy-energy-scale",
   "lq-photoelectric-energy",
   "lq-fluorescence-energy",

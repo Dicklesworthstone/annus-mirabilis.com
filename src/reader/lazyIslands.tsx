@@ -54,6 +54,7 @@ import type { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEnco
 import type { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
 import type { LightQuantaClosingDerivation } from "./LightQuantaClosingDerivation.tsx";
 import type { LightQuantaDerivation } from "./LightQuantaDerivation.tsx";
+import type { LightQuantaFoundationsDerivation } from "./LightQuantaFoundationsDerivation.tsx";
 import type { PhotoelectricDerivation } from "./PhotoelectricDerivation.tsx";
 import type { SRChargeCurrentDerivation } from "./SRChargeCurrentDerivation.tsx";
 import type { SRClocksAndLengthsDerivation } from "./SRClocksAndLengthsDerivation.tsx";
@@ -110,6 +111,11 @@ const BrownianOsmoticSteps = lazy(() =>
 const LightQuantaSteps = lazy(() =>
   import("./LightQuantaDerivation.tsx").then((m) => ({ default: m.LightQuantaDerivation })),
 );
+const LightQuantaFoundationsSteps = lazy(() =>
+  import("./LightQuantaFoundationsDerivation.tsx").then((m) => ({
+    default: m.LightQuantaFoundationsDerivation,
+  })),
+);
 const LightQuantaClosingSteps = lazy(() =>
   import("./LightQuantaClosingDerivation.tsx").then((m) => ({
     default: m.LightQuantaClosingDerivation,
@@ -158,6 +164,12 @@ export function LazyLinearProofExplorer(props: ComponentProps<typeof LinearProof
 
 export function LazyLightQuantaDerivation(props: ComponentProps<typeof LightQuantaDerivation>) {
   return <LightQuantaSteps {...props} />;
+}
+
+export function LazyLightQuantaFoundationsDerivation(
+  props: ComponentProps<typeof LightQuantaFoundationsDerivation>,
+) {
+  return <LightQuantaFoundationsSteps {...props} />;
 }
 
 export function LazyLightQuantaClosingDerivation(

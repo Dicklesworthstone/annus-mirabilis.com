@@ -106,6 +106,7 @@ import { checkedClosingSupport } from "./closingSupport.ts";
 import { checkedFieldCovarianceSupport } from "./fieldCovarianceSupport.ts";
 import { checkedGaussianSupport } from "./gaussianSupport.ts";
 import { checkedKernelSupport } from "./kernelSupport.ts";
+import { checkedLqFoundationsSupport } from "./lightQuantaFoundationsSupport.ts";
 import { checkedOsmoticSupport } from "./osmoticSupport.ts";
 import { checkedPredictionSupport } from "./predictionSupport.ts";
 import { ResultCardsError } from "./printedChecks.ts";
@@ -121,6 +122,8 @@ type DerivationProofId = Exclude<
   | "bm-osmotic-volume"
   | "lq-fluorescence-energy"
   | "lq-ionization-energy-count"
+  | "lq-classical-cutoff"
+  | "lq-independent-entropy"
 >;
 type ProofRecord = Readonly<{
   id: string;
@@ -668,6 +671,12 @@ export function checkedSupportFor(
 
   if (declaration.proofId === "bm-historical-displacement")
     return checkedPredictionSupport(card.id, declaration, conclusion, equations);
+
+  if (
+    declaration.proofId === "lq-classical-cutoff" ||
+    declaration.proofId === "lq-independent-entropy"
+  )
+    return checkedLqFoundationsSupport(card.id, declaration, conclusion, equations);
 
   if (
     declaration.proofId === "lq-fluorescence-energy" ||

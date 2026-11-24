@@ -64,6 +64,7 @@ import {
   LazyLightQuantaClosingDerivation,
   LazyLightQuantaDerivation,
   LazyLightQuantaFirstEncounter,
+  LazyLightQuantaFoundationsDerivation,
   LazyMassEnergyFirstEncounter,
   LazyPhotoelectricDerivation,
   LazySRChargeCurrentDerivation,
@@ -753,6 +754,28 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                       {paper.id === "mass-energy" && a.id === "arg-me-constant-premise" && (
                         <MassEnergyDerivation />
                       )}
+                      {paper.id === "light-quanta" &&
+                        a.id === "arg-lq-classical-allocation" &&
+                        (sectionId ? (
+                          <LazyLightQuantaFoundationsDerivation section="s1" />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/light-quanta/s1/#lq-classical-cutoff-derivation">
+                              Follow the finite cutoff to the unbounded classical total
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "light-quanta" &&
+                        a.id === "arg-lq-independent-configurations" &&
+                        (sectionId ? (
+                          <LazyLightQuantaFoundationsDerivation section="s5" />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/light-quanta/s5/#lq-independent-entropy-derivation">
+                              Follow independent chances into the entropy difference
+                            </a>
+                          </p>
+                        ))}
                       {paper.id === "light-quanta" &&
                         a.id === "arg-lq-fixed-band-volume" &&
                         (sectionId ? (
