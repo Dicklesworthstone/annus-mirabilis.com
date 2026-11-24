@@ -7,29 +7,12 @@ import {
 } from "../../experiments/permalink/recordedExperiments.ts";
 import { validateTapeV2 } from "../../experiments/permalink/schema.ts";
 
-const laboratories = Object.freeze({
-  "bm-01": Object.freeze({
-    experimentId: "bm-01",
-    paper: "brownian-motion",
-    anchor: "arg-bm-observable",
-    title: "Brownian tracer",
-    href: "/lab/bm-01/",
-  } as const),
-  "bm-05": Object.freeze({
-    experimentId: "bm-05",
-    paper: "brownian-motion",
-    anchor: "arg-bm-independent-steps",
-    title: "Random walks",
-    href: "/lab/bm-05/",
-  } as const),
-});
+import {
+  type NotebookRecordingExperiment,
+  recordingLaboratory,
+} from "./recordingLaboratories.ts";
 
-export type NotebookRecordingExperiment = keyof typeof laboratories;
-export function recordingLaboratory(experimentId: string) {
-  return Object.hasOwn(laboratories, experimentId)
-    ? laboratories[experimentId as NotebookRecordingExperiment]
-    : null;
-}
+export { type NotebookRecordingExperiment, recordingLaboratory } from "./recordingLaboratories.ts";
 
 /**
  * Stored tapes use the existing lossless wire representation. They must pass through
@@ -226,7 +209,7 @@ function admitRecording(input: unknown, paper?: string): RecordedExperiment {
   if (!laboratory)
     throw new NotebookRecordingError(
       "notebook-recording-instrument",
-      "Notebook recordings currently support the Brownian tracer and random-walk laboratories.",
+      "Notebook recordings currently support Brownian tracers, random walks, synthetic inference and camera trials.",
     );
   if (paper !== undefined && paper !== laboratory.paper)
     throw new NotebookRecordingError(
@@ -236,6 +219,27 @@ function admitRecording(input: unknown, paper?: string): RecordedExperiment {
   const admitted = readRecordedExperiment(source, laboratory.experimentId, validateTapeV2);
   if (admitted.kind !== "accepted")
     throw new NotebookRecordingError("notebook-recording-envelope", admitted.notice);
+  if (laboratory.requiresScientificCheckpoint) {
+    for (const stop of admitted.value.stops) {
+      if (
+        !stop.tape.acceptedCheckpoint.scientificState ||
+        !/^host:sha256:[a-f0-9]{64}$/.test(stop.tape.acceptedCheckpoint.digest)
+      )
+        throw new NotebookRecordingError(
+          "notebook-recording-scientific-checkpoint",
+          "Inference and camera notebook recordings require completed scientific checkpoints. Calculate the trial before saving.",
+        );
+      if (
+        stop.tape.initialConditions.coverageTrials !== 0 ||
+        (laboratory.experimentId === "bm-07" &&
+          stop.tape.initialConditions.observationSet !== "synthetic")
+      )
+        throw new NotebookRecordingError(
+          "notebook-recording-single-trial",
+          "Save one synthetic inference or camera trial without hypothetical coverage experiments. Imported kitchen data belongs to its own laboratory.",
+        );
+    }
+  }
   // Expanded stops must also remain admissible to the recorder's normal capture/export path.
   notebookRecordingSource(admitted.value);
   return admitted.value;

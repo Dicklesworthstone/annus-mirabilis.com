@@ -137,7 +137,7 @@ test("recording size, nesting and laboratory admission have distinct bounded ref
   assert.throws(() => notebookRecordingSource(nested), {
     code: "notebook-recording-complexity",
   });
-  assert.throws(() => parseNotebookRecording({ experimentId: "bm-08", stops: [] }), {
+  assert.throws(() => parseNotebookRecording({ experimentId: "sr-03", stops: [] }), {
     code: "notebook-recording-instrument",
   });
   assert.throws(() => parseNotebookRecording({ experimentId: "bm-01", stops: [] }), {
