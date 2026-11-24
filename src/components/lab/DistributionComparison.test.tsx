@@ -32,8 +32,11 @@ function createOwner() {
   });
   return {
     store,
-    async accept(patch: Partial<typeof BM06_DEFAULTS> = {}) {
-      const token = store.issue("setup-change", patch);
+    async accept(
+      patch: Partial<typeof BM06_DEFAULTS> = {},
+      command: "setup-change" | "measurement-change" = "setup-change",
+    ) {
+      const token = store.issue(command, patch);
       const evaluated = await evaluateBm06(token.parameters);
       expect(evaluated.kind).toBe("accepted");
       if (evaluated.kind !== "accepted")
@@ -124,9 +127,9 @@ describe("holding a real accepted BM-06 distribution", () => {
     const current = await owner.accept({ t: 4 });
     await render();
 
-    expect(
-      container.querySelector("[data-held-run-id]")?.getAttribute("data-held-run-id"),
-    ).toBe(held.runId);
+    expect(container.querySelector("[data-held-run-id]")?.getAttribute("data-held-run-id")).toBe(
+      held.runId,
+    );
     expect(
       container.querySelector("[data-distribution-comparison]")?.getAttribute("data-run-id"),
     ).toBe(current.runId);
@@ -157,7 +160,8 @@ describe("holding a real accepted BM-06 distribution", () => {
 
   test("pending and refused requests cannot relabel accepted data", async () => {
     await press("Hold this accepted distribution");
-    const current = await owner.accept({ t: 4, lower: -2e-6, upper: 2e-6 });
+    await owner.accept({ t: 4 });
+    const current = await owner.accept({ lower: -2e-6, upper: 2e-6 }, "measurement-change");
     await render();
     const curves = [points("comparison-curve"), points("curve")];
     const request = owner.store.issue("setup-change", { t: -1 });
