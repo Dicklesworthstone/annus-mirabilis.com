@@ -45,17 +45,19 @@ describe("the spherical-wave result uses the exact compatibility owner", () => {
     expect(catalogue?.problems).toEqual([]);
     const support = project().support;
     expect(support?.kind).toBe("checked-proof");
-    expect(support?.proofId).toBe("sr-spherical-wave-compatibility");
-    expect(support?.conclusion.equationId).toBe(conclusion!.id);
-    expect(support?.href).toBe("/papers/special-relativity/s3/#sr-spherical-wave-check");
-    expect(support?.scope).toContain("common scale remains arbitrary");
+    if (support?.kind !== "checked-proof")
+      throw new Error("Missing checked spherical-wave support.");
+    expect(support.proofId).toBe("sr-spherical-wave-compatibility");
+    expect(support.conclusion.equationId).toBe(conclusion!.id);
+    expect(support.href).toBe("/papers/special-relativity/s3/#sr-spherical-wave-check");
+    expect(support.scope).toContain("common scale remains arbitrary");
     for (const id of [
       "sr-spherical-wave-admitted-scaled-map",
       "sr-positive-light-speed-subluminal-frame",
       "sr-spherical-wave-finite-nonzero-common-scale",
       "eq-s3-d17",
     ])
-      expect(support?.assumptions.map((premise) => premise.id)).toContain(id);
+      expect(support.assumptions.map((premise) => premise.id)).toContain(id);
     expect(JSON.parse(JSON.stringify(support))).toEqual(support);
   });
 

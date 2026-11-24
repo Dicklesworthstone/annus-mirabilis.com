@@ -128,9 +128,10 @@ function settingLabel(control: Element, nodes: readonly Element[]): string {
 
 function radioGroupLabel(control: Element): string {
   for (let parent = control.parent; parent; parent = parent.parent) {
-    if (parent.tag !== "fieldset") continue;
-    const legend = elements(parent).find((node) => node.tag === "legend");
-    return legend ? textOf(legend) : "";
+    if (parent.tag === "fieldset") {
+      const legend = elements(parent).find((node) => node.tag === "legend");
+      return legend ? textOf(legend) : "";
+    }
   }
   return "";
 }

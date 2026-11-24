@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { act, createElement } from "react";
+import { act, type ComponentProps, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { createContainer, installDom, uninstallDom } from "../../testing/reactDom.ts";
 import { FACE_SWITCH_PLACE_KEY } from "../anchors/faceSwitchPlace.ts";
@@ -62,7 +62,13 @@ function page(path: string, anchor: string, publishedIds: readonly string[] = []
 
 async function mount(structureIndex?: StructureIndex) {
   reactRoot = createRoot(createContainer());
-  await act(async () => reactRoot?.render(createElement(FaceSwitchAnchor, { structureIndex })));
+  await act(async () =>
+    reactRoot?.render(
+      createElement<NonNullable<ComponentProps<typeof FaceSwitchAnchor>>>(FaceSwitchAnchor, {
+        structureIndex,
+      }),
+    ),
+  );
 }
 
 describe("the source-face navigation owner consumes the declared gloss destinations", () => {
