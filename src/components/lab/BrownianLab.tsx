@@ -46,6 +46,7 @@ import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import { BM06_READER_WEAVE } from "../../reader/weave/spreadingPassages.ts";
+import { DistributionComparison } from "./DistributionComparison.tsx";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { gridRefusalSentences } from "./gridRefusalWords.ts";
@@ -565,6 +566,23 @@ export function BrownianLab({
             <DistributionPlot
               snapshot={snapshot}
               clipId={`plot-${id.replace(/[^a-zA-Z0-9]/g, "")}`}
+            />
+            <DistributionComparison
+              key={snapshot.instanceId}
+              snapshot={snapshot}
+              requestState={
+                view.pending
+                  ? "pending"
+                  : failure
+                    ? failure.kind === "refused"
+                      ? "refused"
+                      : "unavailable"
+                    : requestFeedback
+                      ? view.status
+                      : dirty
+                        ? "edited"
+                        : "accepted"
+              }
             />
             {curveChoice && curvePrompt?.curvePrediction && (
               <div {...identity(snapshot)} data-prediction-comparison="bm-06">
