@@ -72,6 +72,15 @@ jobs:
           src/reader/notebook/recordingEntry.test.ts
           src/reader/notebook/recordingNotebook.test.ts
           src/reader/notebook/recordingRecorder.test.tsx
+          src/experiments/bm07/tapeCapture.test.ts
+          src/reader/notebook/inferenceRecording.test.ts
+          src/reader/notebook/inferenceRecorder.test.tsx
+          src/experiments/bm07/kitchen/sessionFile.test.ts
+          src/testing/kitchenKeep.test.ts
+          src/testing/kitchenSessionRestore.test.tsx
+          src/equations/live/sr03Records.test.ts
+          src/equations/live/sr03Equations.test.ts
+          src/components/lab/RodSimultaneityEquations.test.tsx
 
       - name: Verify completed radiation and relativity arguments
         run: >-
