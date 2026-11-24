@@ -8,16 +8,24 @@ import {
 } from "../../../experiments/bm07/kitchen/definition.ts";
 import { kitchenAnalysisJson } from "../../../experiments/bm07/kitchen/export.ts";
 import {
-  type KeptKitchenObservations,
   keepKitchen,
   readKeptKitchen,
   removeKeptKitchen,
 } from "../../../experiments/bm07/kitchen/kitchenStorage.ts";
 import { KITCHEN_LIMITS, type KitchenDocument } from "../../../experiments/bm07/kitchen/schema.ts";
 import { createKitchenSession } from "../../../experiments/bm07/kitchen/session.ts";
+import {
+  captureKitchenSession,
+  KITCHEN_SESSION_FILE_BYTES,
+  type KitchenSavedSession,
+  type KitchenSessionPreview,
+  kitchenSessionJson,
+  prepareKitchenSession,
+  readKitchenSessionFile,
+} from "../../../experiments/bm07/kitchen/sessionFile.ts";
 import { useLaboratoryVisibility } from "../../../experiments/lifecycle/useLaboratoryVisibility.ts";
 import { createStorageContext } from "../../../platform/storage/store.ts";
-import { identity } from "../presentation.ts";
+import { display, identity } from "../presentation.ts";
 import {
   KitchenAnalysisControls,
   KitchenInputs,
@@ -27,6 +35,22 @@ import { KitchenResults } from "./KitchenResults.tsx";
 import { VideoTracker } from "./VideoTracker.tsx";
 
 export type KitchenPractice = Readonly<{ csv: string; sourceDigest: string }>;
+function savedTrackLabel(track: string): string {
+  if (!track) return "First particle track in the file";
+  try {
+    const value: unknown = JSON.parse(track);
+    if (
+      Array.isArray(value) &&
+      value.length === 2 &&
+      typeof value[0] === "string" &&
+      Number.isSafeInteger(value[1]) &&
+      value[1] >= 0
+    ) return value[1] === 0 ? value[0] : value[0] + " · new object " + (value[1] + 1);
+  } catch {
+    // The owner will refuse an unsupported track identity when analysis is requested.
+  }
+  return track;
+}
 export function KitchenLab({
   practice,
   title = "Your observations, kept on this device",
@@ -47,6 +71,9 @@ export function KitchenLab({
     accepted = state.accepted;
   const [ready, setReady] = useState(false),
     [file, setFile] = useState<File | null>(null),
+    [sessionFile, setSessionFile] = useState<File | null>(null),
+    [incoming, setIncoming] = useState<KitchenSessionPreview | null>(null),
+    [saving, setSaving] = useState(false),
     [paste, setPaste] = useState(""),
     [error, setError] = useState(""),
     [reading, setReading] = useState(false),
@@ -54,16 +81,24 @@ export function KitchenLab({
     [captureEpoch, setCaptureEpoch] = useState(0);
   // Observations are kept on this device only when the reader asks (am-bm-07-kitchen-mode-mays).
   const [storage] = useState(() => createStorageContext()),
-    [kept, setKept] = useState<KeptKitchenObservations | undefined>(undefined),
+    [kept, setKept] = useState<KitchenSavedSession | undefined>(undefined),
     [keptNote, setKeptNote] = useState("");
   const fileInput = useRef<HTMLInputElement>(null),
+    sessionFileInput = useRef<HTMLInputElement>(null),
     fileGeneration = useRef(0),
+    saveGeneration = useRef(0),
+    lifetime = useRef(0),
+    mounted = useRef(false),
     downloads = useRef(new Set<string>());
   useEffect(() => {
+    mounted.current = true;
     setReady(true);
     setKept(readKeptKitchen(storage));
     return () => {
+      mounted.current = false;
       fileGeneration.current++;
+      saveGeneration.current++;
+      lifetime.current++;
       session.disconnect();
       downloads.current.forEach((url) => {
         URL.revokeObjectURL(url);
@@ -77,9 +112,46 @@ export function KitchenLab({
       error instanceof Error ? error.message : "The local observations could not be processed.",
     );
   }
-  async function load(csv: string) {
+  function dismissPreview() {
+    fileGeneration.current++;
+    setReading(false);
+    setIncoming(null);
+  }
+  async function load(csv: string, options: KitchenOptions = KITCHEN_OPTIONS) {
+    dismissPreview();
     setError("");
-    await session.submit(csv, KITCHEN_OPTIONS);
+    await session.submit(csv, options);
+  }
+  async function preparePreview(prepare: () => Promise<KitchenSessionPreview>) {
+    const ticket = ++fileGeneration.current;
+    setReading(true);
+    setIncoming(null);
+    setError("");
+    try {
+      const preview = await prepare();
+      if (ticket === fileGeneration.current) setIncoming(preview);
+    } catch (error) {
+      if (ticket === fileGeneration.current) catchError(error);
+    } finally {
+      if (ticket === fileGeneration.current) setReading(false);
+    }
+  }
+  async function importSessionFile() {
+    const selected = sessionFile;
+    if (!selected) return;
+    if (selected.size > KITCHEN_SESSION_FILE_BYTES) {
+      setError("Choose a saved session no larger than 2.2 MB. The accepted observations are unchanged.");
+      return;
+    }
+    await preparePreview(async () =>
+      readKitchenSessionFile(await selected.text(), practice.sourceDigest),
+    );
+  }
+  function confirmSession() {
+    if (!incoming) return;
+    const selected = incoming.session;
+    setKeptNote(incoming.notice);
+    void load(selected.csv, selected.options).catch(catchError);
   }
   async function importFile() {
     const selected = file;
@@ -106,10 +178,12 @@ export function KitchenLab({
     }
   }
   function reanalyze(options: KitchenOptions) {
+    dismissPreview();
     setError("");
     void session.reanalyze(options).catch(catchError);
   }
   function revise(document: KitchenDocument) {
+    dismissPreview();
     setError("");
     try {
       void session.revise(document).catch(catchError);
@@ -117,13 +191,17 @@ export function KitchenLab({
       catchError(error);
     }
   }
-  function download(kind: "csv" | "json") {
+  async function download(kind: "csv" | "json" | "session") {
     if (!accepted) return;
+    const generation = lifetime.current;
     try {
       const text =
         kind === "csv"
           ? exportKitchenCsv(accepted.document)
-          : kitchenAnalysisJson(accepted, practice.sourceDigest);
+          : kind === "json"
+            ? kitchenAnalysisJson(accepted, practice.sourceDigest)
+            : kitchenSessionJson(await captureKitchenSession(accepted, practice.sourceDigest));
+      if (!mounted.current || generation !== lifetime.current) return;
       const url = URL.createObjectURL(
         new Blob([text], {
           type: kind === "csv" ? "text/csv;charset=utf-8" : "application/json;charset=utf-8",
@@ -132,58 +210,76 @@ export function KitchenLab({
       downloads.current.add(url);
       const a = document.createElement("a");
       a.href = url;
-      a.download = kind === "csv" ? "local-observations.csv" : "local-observation-analysis.json";
+      a.download = kind === "csv"
+        ? "local-observations.csv"
+        : kind === "json"
+          ? "local-observation-analysis.json"
+          : "local-observation-session.json";
       a.click();
       setTimeout(() => {
         URL.revokeObjectURL(url);
         downloads.current.delete(url);
       }, 1000);
     } catch (error) {
-      catchError(error);
+      if (mounted.current && generation === lifetime.current) catchError(error);
     }
   }
-  function keep() {
+  async function keep() {
     if (!accepted) return;
-    const csv = exportKitchenCsv(accepted.document);
-    const rows = accepted.document.points.length;
-    const written = keepKitchen(storage, csv, rows);
-    if (written.status === "ok") {
-      setKept({ schemaVersion: 1, csv, rows });
-      setKeptNote(
-        `Kept ${rows} observation rows on this device. Restore them here later, or remove them here or in your saved data.`,
-      );
-    } else if (written.status === "quota") {
-      setKeptNote(
-        "This browser's storage for the site is full, so nothing was kept. Export the observations to keep them.",
-      );
-    } else {
-      setKeptNote(
-        "This browser is not keeping site data (private browsing or blocked storage), so nothing was kept. Export the observations to keep them.",
-      );
+    const ticket = ++saveGeneration.current;
+    setSaving(true);
+    setError("");
+    try {
+      const saved = await captureKitchenSession(accepted, practice.sourceDigest);
+      if (!mounted.current || ticket !== saveGeneration.current) return;
+      const written = keepKitchen(storage, saved);
+      setKept(saved);
+      if (written.status === "ok") {
+        setKeptNote(
+          `Kept ${saved.rows} observation rows and their accepted analysis choices on this device. Preview them here later or export a resumable session file.`,
+        );
+      } else {
+        setKeptNote(
+          written.status === "quota"
+            ? "This browser's storage is full. The saved session remains in this open page. Export a resumable session file before leaving."
+            : "This browser is not keeping site data. The saved session remains in this open page. Export a resumable session file before leaving.",
+        );
+      }
+    } catch (error) {
+      if (mounted.current && ticket === saveGeneration.current) catchError(error);
+    } finally {
+      if (mounted.current && ticket === saveGeneration.current) setSaving(false);
     }
   }
   function restoreKept() {
-    if (!kept) return;
-    fileGeneration.current++;
+    const saved = kept;
+    if (!saved) return;
     setKeptNote("");
-    void load(kept.csv).catch(catchError);
+    void preparePreview(() => prepareKitchenSession(saved, practice.sourceDigest));
   }
   function removeKept() {
+    saveGeneration.current++;
+    setSaving(false);
+    dismissPreview();
     removeKeptKitchen(storage);
     setKept(undefined);
-    setKeptNote("Removed the observations kept on this device.");
+    setKeptNote("Removed the kitchen session kept on this device.");
   }
   function stop() {
-    fileGeneration.current++;
-    setReading(false);
+    dismissPreview();
     session.stop();
   }
   function clear() {
     stop();
+    saveGeneration.current++;
+    lifetime.current++;
+    setSaving(false);
     session.clear();
     setCaptureEpoch((n) => n + 1);
     setFile(null);
+    setSessionFile(null);
     if (fileInput.current) fileInput.current.value = "";
+    if (sessionFileInput.current) sessionFileInput.current.value = "";
     setPaste("");
     setError("");
     setConfirmClear(false);
@@ -218,15 +314,15 @@ export function KitchenLab({
       {kept && !accepted && (
         <div className="notice">
           <p>
-            You kept {kept.rows} observation rows on this device. Restore them to continue, or
-            remove them.
+            A kept copy contains {kept.rows} observation rows. Preview its analysis choices before
+            calculating, or remove the copy.
           </p>
           <div className="actions">
             <button type="button" disabled={!ready || busy} onClick={restoreKept}>
-              Restore kept observations
+              Preview kept session
             </button>
             <button type="button" className="secondary" onClick={removeKept}>
-              Remove kept observations
+              Remove kept session
             </button>
           </div>
         </div>
@@ -247,7 +343,7 @@ export function KitchenLab({
             accept=".csv,text/csv"
             disabled={!ready || busy}
             onChange={(e) => {
-              fileGeneration.current++;
+              dismissPreview();
               setFile(e.target.files?.[0] ?? null);
               setError("");
             }}
@@ -300,11 +396,91 @@ export function KitchenLab({
             Import pasted CSV
           </button>
         </details>
+        <details>
+          <summary>Open a saved kitchen session</summary>
+          <p>
+            A session file contains observations, calibration, analysis choices and evaluator
+            identity. Opening it shows a preview. Confirmation calculates fresh results locally.
+          </p>
+          <div className="input-field">
+            <label htmlFor={`${id}-session-file`}>Saved session JSON</label>
+            <input
+              ref={sessionFileInput}
+              id={`${id}-session-file`}
+              type="file"
+              accept=".json,application/json"
+              disabled={!ready || busy}
+              onChange={(event) => {
+                dismissPreview();
+                setSessionFile(event.target.files?.[0] ?? null);
+                setError("");
+              }}
+            />
+          </div>
+          <button
+            type="button"
+            disabled={!ready || busy || !sessionFile}
+            onClick={() => void importSessionFile()}
+          >
+            Preview selected session
+          </button>
+          <p className="fine">Session files: at most 2.2 MB. Video and decoded frames are never saved.</p>
+        </details>
       </div>
+      {incoming && (
+        <section
+          className="notice"
+          data-kitchen-session-preview={incoming.compatibility}
+          aria-labelledby={`${id}-session-preview`}
+        >
+          <h3 id={`${id}-session-preview`}>Review the saved analysis</h3>
+          <p>{incoming.notice}</p>
+          <dl>
+            <dt>Observation rows</dt>
+            <dd>{incoming.session.rows}</dd>
+            <dt>Particle track</dt>
+            <dd>{savedTrackLabel(incoming.session.options.track)}</dd>
+            <dt>Coordinate</dt>
+            <dd>{incoming.session.options.axis}</dd>
+            <dt>Target coverage</dt>
+            <dd>{display(incoming.session.options.coverage, 100)}%</dd>
+            <dt>Gas-constant source</dt>
+            <dd>
+              {incoming.session.options.constantSet === "metadata"
+                ? "Use the observation file's declaration"
+                : incoming.session.options.constantSet === "modern-si-2019"
+                  ? "Modern SI: consistency check"
+                  : "Measured from gases"}
+            </dd>
+          </dl>
+          {incoming.session.origin && (
+            <details>
+              <summary>Recorded model and observation identities</summary>
+              <p>Model: <code>{incoming.session.origin.modelVersion}</code>.</p>
+              <p>Evaluator: <code>{incoming.session.origin.sourceDigest}</code>.</p>
+              <p>Original file: <code>{incoming.session.origin.sourceId}</code>.</p>
+              <p>Accepted observations: <code>{incoming.session.origin.documentDigest}</code>.</p>
+            </details>
+          )}
+          <p>
+            The observations stay on this device. Current accepted results remain visible until
+            the new calculation succeeds. The file supplies no numerical results to trust.
+          </p>
+          <div className="actions">
+            <button type="button" disabled={!ready || busy} onClick={confirmSession}>
+              Analyze saved session
+            </button>
+            <button type="button" className="secondary" onClick={dismissPreview}>
+              Keep current analysis
+            </button>
+          </div>
+        </section>
+      )}
       <p className="fine">
         CSV limit: 2 MiB and 20,000 rows. To capture coordinates from your own video, use the
         tracker at the end of this laboratory. Nothing is saved automatically: export the
-        observations, or keep them on this device, before closing or reloading the page.
+        observations and a resumable session, or keep the accepted session on this device, before
+        closing or reloading the page.
       </p>
       <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
         {status}
@@ -322,11 +498,14 @@ export function KitchenLab({
       {accepted && (
         <>
           <div className="actions kitchen-export">
-            <button type="button" className="secondary" onClick={() => download("csv")}>
+            <button type="button" className="secondary" onClick={() => void download("csv")}>
               Export accepted observations
             </button>
-            <button type="button" className="secondary" onClick={() => download("json")}>
+            <button type="button" className="secondary" onClick={() => void download("json")}>
               Export accepted analysis
+            </button>
+            <button type="button" className="secondary" onClick={() => void download("session")}>
+              Export resumable session
             </button>
             <button
               type="button"
@@ -336,13 +515,18 @@ export function KitchenLab({
             >
               Reanalyze accepted observations
             </button>
-            <button type="button" className="secondary" onClick={keep}>
-              Keep these observations on this device
+            <button type="button" className="secondary" disabled={saving} onClick={() => void keep()}>
+              Keep accepted session on this device
             </button>
             {kept && (
-              <button type="button" className="secondary" onClick={removeKept}>
-                Remove the kept copy
-              </button>
+              <>
+                <button type="button" className="secondary" disabled={!ready || busy} onClick={restoreKept}>
+                  Preview kept session
+                </button>
+                <button type="button" className="secondary" onClick={removeKept}>
+                  Remove the kept copy
+                </button>
+              </>
             )}
             <button type="button" className="secondary" onClick={() => setConfirmClear(true)}>
               Clear local observations
@@ -389,8 +573,9 @@ export function KitchenLab({
               <code>{accepted.documentDigest}</code>. Source: <code>{practice.sourceDigest}</code>.
             </p>
             <p>
-              An identity hash records content, not whether an observation is true. Exported JSON
-              records this analysis but is not a resumable session file.
+              An identity hash records content, not whether an observation is true. The analysis
+              export records the calculated results. Use “Export resumable session” to keep the
+              observations and choices for a later calculation.
             </p>
             <dl>
               {Object.entries(accepted.document.metadata).map(([key, value]) => (
