@@ -692,11 +692,19 @@ export function BrownianLab({
                 <caption>One accepted calculation, in explicit units</caption>
                 <tbody>
                   <tr>
-                    <th scope="row">Diffusion coefficient</th>
-                    <td data-output="diffusionCoefficient">
-                      {display(scalar(snapshot, "diffusionCoefficient"), 1e12)} μm²/s
+                    <th scope="row">Active diffusion coefficient</th>
+                    <td data-output="activeDiffusionCoefficient">
+                      {display(scalar(snapshot, "activeDiffusionCoefficient"), 1e12)} μm²/s
                     </td>
                   </tr>
+                  {p.copiedDiffusivityValue > 0 && (
+                    <tr>
+                      <th scope="row">Diffusion coefficient from physical settings (not used)</th>
+                      <td data-output="diffusionCoefficient">
+                        {display(scalar(snapshot, "diffusionCoefficient"), 1e12)} μm²/s
+                      </td>
+                    </tr>
+                  )}
                   <tr>
                     <th scope="row">RMS displacement</th>
                     <td data-output="rmsDisplacement1d">{display(rms, 1e6)} μm</td>
