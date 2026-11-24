@@ -39,7 +39,7 @@ const equation = (left: Expression, right: Expression, id: string): Relation => 
 const K = named("maxKineticEnergy");
 const h = named("planckConstant");
 const frequency = named("frequency");
-const work = named("workFunction");
+const work = named("escapeWork");
 const charge = named("elementaryCharge");
 const voltage = named("stoppingPotentialMagnitude");
 const quantum = product(h, frequency);
@@ -203,7 +203,7 @@ const glyphs: Readonly<Record<string, string>> = {
   maxKineticEnergy: "K_{\\max}",
   planckConstant: "h",
   frequency: "ν",
-  workFunction: "W",
+  escapeWork: "W",
   elementaryCharge: "e",
   stoppingPotentialMagnitude: "V_s",
 };

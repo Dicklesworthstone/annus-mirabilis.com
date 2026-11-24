@@ -10,6 +10,11 @@ test("photoelectric steps, math and source returns are available without JavaScr
   assert.ok(html.includes('id="lq-photoelectric-derivation"'));
   assert.ok(html.includes('data-argument-id="arg-lq-photoelectric-energy"'));
   assert.ok(html.includes("<math"));
+  const mathml = [...html.matchAll(/<math[\s\S]*?<\/math>/g)].map(([math]) => math).join("");
+  assert.match(mathml, /<mi(?:\s[^>]*)?>W<\/mi>/);
+  assert.ok(!mathml.replace(/<[^>]*>/g, "").includes("escapeWork"));
+  for (const [, label] of html.matchAll(/aria-label="([^"]+)"/g))
+    assert.ok(!label?.includes("escapeWork"));
   assert.ok(!html.includes("katex-error"));
   assert.ok(html.includes("<details"));
   const foundations = readFileSync("content/foundations/registry.yaml", "utf8");

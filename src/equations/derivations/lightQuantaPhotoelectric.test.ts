@@ -8,12 +8,19 @@ import {
   PhotoelectricDerivationError,
   photoelectricChain,
   photoelectricEquations,
+  presentPhotoelectricExpression,
 } from "./lightQuantaPhotoelectric.ts";
 import { verifyPhotoelectric } from "./lightQuantaPhotoelectricProof.ts";
+import { substituteNode } from "./treeUtils.ts";
 import type { DerivationChain } from "./types.ts";
 import { verifyChain } from "./verifyChain.ts";
 
 test("the full one-quantum argument checks every transformation using exact arithmetic", () => {
+  const setup = createPhotoelectricSetup();
+  assert.equal(setup.work.quantityId, "escapeWork");
+  assert.equal(setup.work.termId, "escapeWork");
+  const displayed = presentPhotoelectricExpression(setup.work);
+  assert.equal(displayed.kind === "symbol" && displayed.termId, "W");
   const report = verifyPhotoelectric();
   assert.equal(report.passed, true, report.errors.join("; "));
   assert.equal(report.isPublicationReady, true);
@@ -44,6 +51,30 @@ function canonicalMismatch(error: unknown): boolean {
     error.code === "lq-photoelectric-canonical-mismatch"
   );
 }
+
+test("the SI proof refuses a legacy electron-volt work-function identity in either canonical record", () => {
+  for (const [record, targetId] of [
+    [maximumRecord, "eq-model-lq-photoelectric-maximum.t.escapeWork"],
+    [stoppingRecord, "eq-model-lq-stopping-energy.t.escapeWork"],
+  ] as const) {
+    const legacy = {
+      ...record,
+      tree: substituteNode(record.tree as Expression, targetId, {
+        kind: "symbol",
+        termId: targetId,
+        quantityId: "workFunction",
+      }),
+    };
+    assert.throws(
+      () =>
+        createPhotoelectricSetup(
+          record.id === maximumRecord.id ? legacy : maximumRecord,
+          record.id === stoppingRecord.id ? legacy : stoppingRecord,
+        ),
+      { code: "lq-photoelectric-canonical-mismatch" },
+    );
+  }
+});
 
 test("the same-unit wrong sign for escape work cannot become a proved canonical result", () => {
   const changed = structuredClone(maximumRecord);
