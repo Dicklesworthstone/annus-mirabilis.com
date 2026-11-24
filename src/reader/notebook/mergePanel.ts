@@ -101,9 +101,7 @@ export function mountNotebookMergePanel(
         definition,
       );
       section.append(details);
-    } else if (
-      entry.kind === "replay" || entry.kind === "capstone" || entry.kind === "recording"
-    ) {
+    } else if (entry.kind === "replay" || entry.kind === "capstone" || entry.kind === "recording") {
       const details = node("details");
       details.append(
         node(

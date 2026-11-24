@@ -6,11 +6,7 @@ import {
   BM06_PARAMETER_CLASSES,
 } from "../../experiments/bm06/definition.ts";
 import { makeRefusal } from "../../experiments/results/refusals.ts";
-import {
-  SR09_CLASSES,
-  SR09_DEFAULTS,
-  SR09_OUTPUTS,
-} from "../../experiments/sr09/definition.ts";
+import { SR09_CLASSES, SR09_DEFAULTS, SR09_OUTPUTS } from "../../experiments/sr09/definition.ts";
 import { snapshotOutputs } from "../../experiments/sr09/session.ts";
 import {
   createInstanceStore,
@@ -22,7 +18,7 @@ import { projectLaboratoryEquationView } from "./laboratoryProjection.ts";
 
 function output(view: ExperimentView, quantityId: string): PublishedResult {
   const found = view.accepted?.outputs.find((item) => item.quantityId === quantityId);
-  assert.ok(found, "The fixture must publish " + quantityId);
+  assert.ok(found, `The fixture must publish ${quantityId}`);
   return found;
 }
 
@@ -32,10 +28,7 @@ function scalar(view: ExperimentView, quantityId: string): number {
   return found.value;
 }
 
-function withOutputs(
-  view: ExperimentView,
-  outputs: readonly PublishedResult[],
-): ExperimentView {
+function withOutputs(view: ExperimentView, outputs: readonly PublishedResult[]): ExperimentView {
   assert.ok(view.accepted);
   return { ...view, accepted: { ...view.accepted, outputs } };
 }
@@ -49,9 +42,7 @@ function replaceOutput(
   output(view, quantityId);
   return withOutputs(
     view,
-    view.accepted.outputs.map((item) =>
-      item.quantityId === quantityId ? replace(item) : item,
-    ),
+    view.accepted.outputs.map((item) => (item.quantityId === quantityId ? replace(item) : item)),
   );
 }
 
@@ -115,9 +106,7 @@ test("BM06 substitutes the copied diffusivity governing its accepted spread", as
   expect(original.accepted.outputs).toContain(output(original, "activeDiffusionCoefficient"));
   const missingActive = withOutputs(
     original,
-    original.accepted.outputs.filter(
-      (item) => item.quantityId !== "activeDiffusionCoefficient",
-    ),
+    original.accepted.outputs.filter((item) => item.quantityId !== "activeDiffusionCoefficient"),
   );
   expect(
     projectLaboratoryEquationView("bm-06", missingActive).accepted?.outputs.some(
@@ -141,8 +130,10 @@ test("SR09 converts speed and angles while preserving accepted frequencies and f
     14,
   );
   expect(scalar(projected, "waveFrequencyStationary")).toBe(5e14);
-  expect(scalar(projected, "waveFrequencyMoving")).toBe(6.25e14);
-  expect(scalar(projected, "dopplerFactor")).toBe(1.25);
+  for (const quantityId of ["waveFrequencyStationary", "waveFrequencyMoving", "dopplerFactor"])
+    expect(scalar(projected, quantityId)).toBe(scalar(view, quantityId));
+  expect(scalar(projected, "waveFrequencyMoving") / 1e12).toBeCloseTo(625, 12);
+  expect(scalar(projected, "dopplerFactor")).toBeCloseTo(1.25, 14);
   for (const item of projected.accepted?.outputs ?? []) expect(item.ownerId).toBe("waves");
   expect(scalar(view, "frameSpeed")).toBe(0.6);
   expect(output(view, "frameSpeed").unit).toBe("c");
@@ -282,9 +273,7 @@ test("uncertainty converts with the accepted value", () => {
     },
   }));
   const bounded = output(projectLaboratoryEquationView("sr-09", magnitude), "frameSpeed");
-  assert.ok(
-    bounded.status === "value" && bounded.uncertainty?.kind === "numerical-error-estimate",
-  );
+  assert.ok(bounded.status === "value" && bounded.uncertainty?.kind === "numerical-error-estimate");
   expect(bounded.uncertainty.magnitude / 299792458).toBeCloseTo(0.01, 14);
   expect(bounded.uncertainty.guarantee).toBe("bound");
 });

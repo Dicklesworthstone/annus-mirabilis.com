@@ -109,14 +109,7 @@ export const LABORATORY_OUTPUT_PROJECTIONS: Readonly<
       "Hz",
       "wave-frequency",
     ),
-    dopplerFactor: projection(
-      "dopplerFactor",
-      "1",
-      "ratio",
-      "waves",
-      "1",
-      "doppler-factor",
-    ),
+    dopplerFactor: projection("dopplerFactor", "1", "ratio", "waves", "1", "doppler-factor"),
     lorentzFactor: projection(
       "lorentzFactor",
       "1",

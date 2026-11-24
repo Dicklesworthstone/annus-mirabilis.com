@@ -263,9 +263,10 @@ describe("private exercise responses in the reading notebook", () => {
   });
 
   test("notebook-migration-version: the exercise upgrade requires version 2 and an entry array (teachBack.ts:69)", () => {
-    expect(migrateExerciseNotebook({ ...emptyNotebook(), schemaVersion: 2 })).toEqual(
-      { ...emptyNotebook(), schemaVersion: 3 },
-    );
+    expect(migrateExerciseNotebook({ ...emptyNotebook(), schemaVersion: 2 })).toEqual({
+      ...emptyNotebook(),
+      schemaVersion: 3,
+    });
     for (const input of [emptyNotebook(), { ...emptyNotebook(), schemaVersion: 2, entries: {} }]) {
       assert.throws(() => migrateExerciseNotebook(input), {
         name: "NotebookMigrationError",

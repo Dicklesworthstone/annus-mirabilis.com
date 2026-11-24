@@ -57,9 +57,7 @@ export function projectLaboratoryEquationView(
   let projected = projectedSnapshots.get(accepted);
   if (!projected) {
     const outputs: PublishedResult[] = [];
-    for (const [quantityId, entry] of Object.entries(
-      LABORATORY_OUTPUT_PROJECTIONS[experimentId],
-    )) {
+    for (const [quantityId, entry] of Object.entries(LABORATORY_OUTPUT_PROJECTIONS[experimentId])) {
       const candidates = accepted.outputs.filter(
         (output) => output.quantityId === entry.sourceQuantityId,
       );

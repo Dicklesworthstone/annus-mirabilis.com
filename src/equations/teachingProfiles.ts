@@ -20,13 +20,7 @@ export type TeachingPaper =
    * an argument, it is always reading-only (live: false), and it has its own colours.
    */
   | "foundations";
-export type TeachingExperiment =
-  | "bm-01"
-  | "bm-06"
-  | "lq-08"
-  | "me-02"
-  | "sr-05"
-  | "sr-09";
+export type TeachingExperiment = "bm-01" | "bm-06" | "lq-08" | "me-02" | "sr-05" | "sr-09";
 export type TeachingProfile = Readonly<{
   argumentPrefix: string;
   quantities: QuantityRegistry;

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { createKeyRegistry } from "../../platform/storage/keys.ts";
 import { listQuarantine } from "../../platform/storage/quarantine.ts";
 import { createStorageContext } from "../../platform/storage/store.ts";
+import { exportNotebookJson } from "./export.ts";
 import { createNotebookStore } from "./notebookStore.ts";
 import { NOTEBOOK_KEY, type NotebookEntry } from "./schema.ts";
 import { createNotebookStorage } from "./storage.ts";
@@ -64,17 +65,20 @@ describe("notebook with the real shared storage layer", () => {
     expect(f.values.get("am:settings:v1:detail")).toBe("2");
     expect(JSON.parse(f.values.get(NOTEBOOK_KEY)!).entries).toEqual([]);
   });
-  test("blocked writes retain session work and recover through writeDocument", () => {
+  test("unavailable reads retain exportable work and save after storage can be checked", () => {
     const f = fixture();
     f.mode.blocked = true;
     const store = createNotebookStore(f.storage);
     store.add(entry());
     expect(store.getSnapshot().persistence).toBe("session-only");
-    expect(f.context.fallback.has(NOTEBOOK_KEY)).toBe(true);
+    expect(JSON.parse(exportNotebookJson(store.getSnapshot().document)).entries).toEqual([entry()]);
+    expect(f.values.has(NOTEBOOK_KEY)).toBe(false);
     f.mode.blocked = false;
     store.retry();
     expect(store.getSnapshot().persistence).toBe("saved");
-    expect(f.context.fallback.has(NOTEBOOK_KEY)).toBe(false);
+    const reopened = createNotebookStore(createNotebookStorage(f.context));
+    reopened.open();
+    expect(reopened.getSnapshot().document.entries).toEqual([entry()]);
   });
   test("an external clear is authoritative even after a quota failure left a fallback", () => {
     const f = fixture(),

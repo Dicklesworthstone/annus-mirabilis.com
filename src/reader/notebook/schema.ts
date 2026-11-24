@@ -58,7 +58,9 @@ type NotebookEntryBase = Readonly<{
   createdAt: string;
 }>;
 export type NotebookTextEntry = NotebookEntryBase &
-  Readonly<{ kind: Exclude<NotebookKind, "replay" | "capstone" | "teachBack" | "exercise" | "recording"> }>;
+  Readonly<{
+    kind: Exclude<NotebookKind, "replay" | "capstone" | "teachBack" | "exercise" | "recording">;
+  }>;
 export type NotebookReplayEntry = NotebookEntryBase &
   Readonly<{ kind: "replay"; replay: ComparisonReplay }>;
 export type NotebookCapstoneEntry = NotebookEntryBase &

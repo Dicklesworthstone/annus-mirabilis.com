@@ -76,9 +76,7 @@ test("contextual bindings preserve sources and leave unpublished symbols unbound
       .some((binding) => binding.quantityId === "speedOfLight"),
   ).toBe(false);
   expect(authored).toEqual(before);
-  expect(authored.find((record) => record.id === brownian.id)?.bindings).toEqual(
-    brownian.bindings,
-  );
+  expect(authored.find((record) => record.id === brownian.id)?.bindings).toEqual(brownian.bindings);
 });
 
 test("missing, duplicate and reading-only sources cannot acquire live bindings", () => {

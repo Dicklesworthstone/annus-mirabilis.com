@@ -7,8 +7,8 @@ import { recordingLaboratory } from "./recordingEntry.ts";
 import {
   type NotebookDocument,
   type NotebookExerciseEntry,
-  type NotebookReplayEntry,
   type NotebookRecordingEntry,
+  type NotebookReplayEntry,
   type NotebookTeachBackEntry,
   notebookFrameHref,
   parseNotebookDocument,
@@ -62,25 +62,47 @@ function exerciseHtml(entry: NotebookExerciseEntry): string {
 }
 function recordingHtml(entry: NotebookRecordingEntry): string {
   const laboratory = recordingLaboratory(entry.recording.experimentId);
-  const stops = entry.recording.stops.map((stop) => {
-    const checkpoint = stop.tape.acceptedCheckpoint as Readonly<Record<string, unknown>>;
-    return "<li><h4>" + escapeHtml(stop.label) + "</h4><pre>" + escapeHtml(stop.note) +
-      "</pre><p>" + (checkpoint.scientificState
-        ? "Saved scientific checkpoint; replay in the laboratory verifies its output digest."
-        : "Saved settings only; calculate them as a new run in the laboratory.") +
-      "</p><p>" + (typeof stop.tape.seed === "string"
-        ? "Exact seed: " + escapeHtml(stop.tape.seed) : "No seeded stream declared.") +
-      "</p><details><summary>Saved settings</summary><pre>" +
-      escapeHtml(JSON.stringify(stop.tape.initialConditions, null, 2)) + "</pre></details></li>";
-  }).join("");
-  return "<section><h3>" + escapeHtml(entry.recording.title) + "</h3><p>Recording saved " +
-    escapeHtml(entry.createdAt) + ". Opening it does not run or verify an experiment.</p><ol>" + stops +
-    "</ol>" + (laboratory
-      ? '<p><a href="https://annus-mirabilis.com' + escapeHtml(laboratory.href) + '">Open ' +
-        escapeHtml(laboratory.title) + ' to load a saved notebook recording</a>. Restore is a separate action.</p>'
+  const stops = entry.recording.stops
+    .map((stop) => {
+      const checkpoint = stop.tape.acceptedCheckpoint as Readonly<Record<string, unknown>>;
+      return (
+        "<li><h4>" +
+        escapeHtml(stop.label) +
+        "</h4><pre>" +
+        escapeHtml(stop.note) +
+        "</pre><p>" +
+        (checkpoint.scientificState
+          ? "Saved scientific checkpoint; replay in the laboratory verifies its output digest."
+          : "Saved settings only; calculate them as a new run in the laboratory.") +
+        "</p><p>" +
+        (typeof stop.tape.seed === "string"
+          ? "Exact seed: " + escapeHtml(stop.tape.seed)
+          : "No seeded stream declared.") +
+        "</p><details><summary>Saved settings</summary><pre>" +
+        escapeHtml(JSON.stringify(stop.tape.initialConditions, null, 2)) +
+        "</pre></details></li>"
+      );
+    })
+    .join("");
+  return (
+    "<section><h3>" +
+    escapeHtml(entry.recording.title) +
+    "</h3><p>Recording saved " +
+    escapeHtml(entry.createdAt) +
+    ". Opening it does not run or verify an experiment.</p><ol>" +
+    stops +
+    "</ol>" +
+    (laboratory
+      ? '<p><a href="https://annus-mirabilis.com' +
+        escapeHtml(laboratory.href) +
+        '">Open ' +
+        escapeHtml(laboratory.title) +
+        " to load a saved notebook recording</a>. Restore is a separate action.</p>"
       : "") +
     "<details><summary>Complete recording: model identities, seeds, checkpoints and notes</summary><pre>" +
-    escapeHtml(JSON.stringify(entry.recording, null, 2)) + "</pre></details></section>";
+    escapeHtml(JSON.stringify(entry.recording, null, 2)) +
+    "</pre></details></section>"
+  );
 }
 /** Self-contained, script-free private export. Text is never interpreted as HTML or Markdown. */
 export function exportNotebookHtml(input: NotebookDocument): string {

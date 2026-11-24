@@ -118,8 +118,10 @@ export function ExperimentRecorder({
     setMessage({
       kind: "loaded",
       notice: tape.acceptedCheckpoint.scientificState
-        ? "Saved the completed trial's scientific checkpoint with its exact seeds and settings. " + keepNotice
-        : "Saved the laboratory's accepted settings, not unapplied edits in its form. " + keepNotice,
+        ? "Saved the completed trial's scientific checkpoint with its exact seeds and settings. " +
+          keepNotice
+        : "Saved the laboratory's accepted settings, not unapplied edits in its form. " +
+          keepNotice,
     });
   }
   async function restore(next: number, calculate = false) {
@@ -165,7 +167,8 @@ export function ExperimentRecorder({
       if (next.experimentId !== target.experimentId) {
         setMessage({
           kind: "refused",
-          notice: "This recording belongs to another laboratory. The current recording is unchanged.",
+          notice:
+            "This recording belongs to another laboratory. The current recording is unchanged.",
         });
         return;
       }
@@ -175,7 +178,10 @@ export function ExperimentRecorder({
       if (ticket === importGeneration.current)
         setMessage({
           kind: "refused",
-          notice: reason instanceof Error ? reason.message : "The notebook recording could not be opened.",
+          notice:
+            reason instanceof Error
+              ? reason.message
+              : "The notebook recording could not be opened.",
         });
     } finally {
       if (ticket === importGeneration.current) setReading(false);

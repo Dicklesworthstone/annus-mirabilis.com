@@ -1,9 +1,9 @@
 import { tapePayloadBytes } from "../../experiments/permalink/codecCore.ts";
 import {
-  readRecordedExperiment,
   RECORDING_LIMITS,
   type RecordedExperiment,
   type RecordedStop,
+  readRecordedExperiment,
 } from "../../experiments/permalink/recordedExperiments.ts";
 import { validateTapeV2 } from "../../experiments/permalink/schema.ts";
 
@@ -161,12 +161,17 @@ function recordingExpansionFits(raw: unknown, wireBytes: number): boolean {
       if (!object(range)) return false;
       const firstTile = u64(range.firstTile);
       if (
-        firstTile === null || u64(range.index) === null ||
-        typeof range.allocationId !== "string" || typeof range.streamKernelId !== "string" ||
-        typeof range.count !== "number" || !Number.isSafeInteger(range.count) ||
-        range.count < 1 || range.count > maxPositions ||
+        firstTile === null ||
+        u64(range.index) === null ||
+        typeof range.allocationId !== "string" ||
+        typeof range.streamKernelId !== "string" ||
+        typeof range.count !== "number" ||
+        !Number.isSafeInteger(range.count) ||
+        range.count < 1 ||
+        range.count > maxPositions ||
         firstTile + BigInt(range.count - 1) > maxU64
-      ) return false;
+      )
+        return false;
       positions += range.count;
       if (positions > maxPositions) return false;
       const positionBytes = jsonBytes({
@@ -181,8 +186,11 @@ function recordingExpansionFits(raw: unknown, wireBytes: number): boolean {
     requiredArrayBytes += expandedArrayBytes;
     if (requiredArrayBytes > RECORDING_LIMITS.bytes) return false;
     // First-tile digits are a lower bound. Owner admission below checks the exact expanded size.
-    estimatedBytes += expandedArrayBytes - jsonBytes(ranges) +
-      jsonBytes("streamPositions") - jsonBytes("streamPositionRanges");
+    estimatedBytes +=
+      expandedArrayBytes -
+      jsonBytes(ranges) +
+      jsonBytes("streamPositions") -
+      jsonBytes("streamPositionRanges");
   }
   return estimatedBytes <= RECORDING_LIMITS.bytes;
 }
@@ -210,9 +218,10 @@ export function notebookRecordingSource(input: unknown): string {
 
 function admitRecording(input: unknown, paper?: string): RecordedExperiment {
   const source = notebookRecordingSource(input);
-  const experimentId = input && typeof input === "object" && !Array.isArray(input)
-    ? (input as Record<string, unknown>).experimentId
-    : undefined;
+  const experimentId =
+    input && typeof input === "object" && !Array.isArray(input)
+      ? (input as Record<string, unknown>).experimentId
+      : undefined;
   const laboratory = typeof experimentId === "string" ? recordingLaboratory(experimentId) : null;
   if (!laboratory)
     throw new NotebookRecordingError(
@@ -226,10 +235,7 @@ function admitRecording(input: unknown, paper?: string): RecordedExperiment {
     );
   const admitted = readRecordedExperiment(source, laboratory.experimentId, validateTapeV2);
   if (admitted.kind !== "accepted")
-    throw new NotebookRecordingError(
-      "notebook-recording-envelope",
-      admitted.notice,
-    );
+    throw new NotebookRecordingError("notebook-recording-envelope", admitted.notice);
   // Expanded stops must also remain admissible to the recorder's normal capture/export path.
   notebookRecordingSource(admitted.value);
   return admitted.value;
@@ -254,7 +260,10 @@ export function parseNotebookRecording(input: unknown, paper?: string): Notebook
         Object.freeze({
           ...stop,
           tape: freezeData(
-            JSON.parse(new TextDecoder().decode(tapePayloadBytes(stop.tape))) as Record<string, unknown>,
+            JSON.parse(new TextDecoder().decode(tapePayloadBytes(stop.tape))) as Record<
+              string,
+              unknown
+            >,
           ),
         }),
       ),

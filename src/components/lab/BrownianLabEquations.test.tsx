@@ -57,16 +57,14 @@ describe("the spreading laboratory's accepted equation values", () => {
 
   function value(term: "rms" | "diffusion" | "time") {
     const element = container.querySelector<HTMLElement>(
-      '[data-equation-values] [data-term-value="eq-model-bm-rms.t.' + term + '"]',
+      `[data-laboratory-equations="bm-06"] [data-term-value="eq-model-bm-rms.t.${term}"]`,
     );
-    assert.ok(element, "The spreading equation must expose " + term + ".");
+    assert.ok(element, `The spreading equation must expose ${term}.`);
     return element;
   }
 
   function values() {
-    const element = container.querySelector<HTMLElement>(
-      '[data-equation-id="eq-model-bm-rms"] [data-equation-values]',
-    );
+    const element = value("rms").closest<HTMLElement>("[data-equation-values]");
     assert.ok(element, "The actual laboratory must mount its live equation.");
     return element;
   }
@@ -109,9 +107,9 @@ describe("the spreading laboratory's accepted equation values", () => {
     expect(active?.textContent).toBe("1.6 μm²/s");
     expect(physical?.textContent).not.toBe(active?.textContent);
     expect(physical?.closest("tr")?.textContent).toContain("physical settings (not used)");
-    expect(
-      container.querySelector('[data-output="rmsDisplacement1d"]')?.textContent,
-    ).toBe(value("rms").textContent);
+    expect(container.querySelector('[data-output="rmsDisplacement1d"]')?.textContent).toBe(
+      value("rms").textContent,
+    );
     expect(container.textContent).toContain("a one-time value, not a live link");
     expect(container.textContent).toContain("JavaScript is off");
   });
@@ -236,9 +234,7 @@ describe("the spreading laboratory's accepted equation values", () => {
     assert.ok(accepted);
     expect(accepted.parameters.t).toBe(4);
     expect(values().getAttribute("data-run-id")).toBe(accepted.runId);
-    expect(values().getAttribute("data-snapshot-version")).toBe(
-      String(accepted.snapshotVersion),
-    );
+    expect(values().getAttribute("data-snapshot-version")).toBe(String(accepted.snapshotVersion));
     expect(values().getAttribute("data-execution-label")).toBe("host");
     expect(value("rms").textContent).not.toBe(initialRms);
     expect(value("diffusion").textContent).toBe(initialD);
@@ -254,8 +250,8 @@ describe("the spreading laboratory's accepted equation values", () => {
     expect(session.getSnapshot().accepted).toBe(accepted);
     expect(value("rms").textContent).toBe(acceptedRms);
     expect(values().textContent).toContain("request refused");
-    expect(
-      container.querySelector('[data-output="rmsDisplacement1d"]')?.textContent,
-    ).toBe(tableRms);
+    expect(container.querySelector('[data-output="rmsDisplacement1d"]')?.textContent).toBe(
+      tableRms,
+    );
   });
 });

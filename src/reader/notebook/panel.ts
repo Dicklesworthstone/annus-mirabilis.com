@@ -526,7 +526,10 @@ export function mountNotebookPanel(
     }
   });
   function add(
-    kind: Exclude<NotebookEntry["kind"], "replay" | "capstone" | "teachBack" | "exercise" | "recording">,
+    kind: Exclude<
+      NotebookEntry["kind"],
+      "replay" | "capstone" | "teachBack" | "exercise" | "recording"
+    >,
     frame: NotebookFrame,
     title: string,
     text: string,

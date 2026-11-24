@@ -23,26 +23,22 @@ afterEach(async () => {
 const ray = rayExample as PreparedSr09Example;
 
 function term(root: ParentNode, termId: string): HTMLElement {
-  const value = root.querySelector<HTMLElement>('[data-term-value="' + termId + '"]');
-  assert.ok(value, "The actual laboratory must render " + termId);
+  const value = root.querySelector<HTMLElement>(`[data-term-value="${termId}"]`);
+  assert.ok(value, `The actual laboratory must render ${termId}`);
   return value;
 }
 
 function button(root: ParentNode, text: string): HTMLButtonElement {
-  const found = Array.from(root.querySelectorAll<HTMLButtonElement>("button")).find(
-    (candidate) => candidate.textContent?.includes(text),
+  const found = Array.from(root.querySelectorAll<HTMLButtonElement>("button")).find((candidate) =>
+    candidate.textContent?.includes(text),
   );
-  assert.ok(found, "The laboratory must expose " + text);
+  assert.ok(found, `The laboratory must expose ${text}`);
   return found;
 }
 
 function checkIdentity(root: ParentNode, experimentId: string) {
-  const laboratory = root.querySelector<HTMLElement>(
-    '[data-instrument-id="' + experimentId + '"]',
-  );
-  const panel = root.querySelector<HTMLElement>(
-    '[data-laboratory-equations="' + experimentId + '"]',
-  );
+  const laboratory = root.querySelector<HTMLElement>(`[data-instrument-id="${experimentId}"]`);
+  const panel = root.querySelector<HTMLElement>(`[data-laboratory-equations="${experimentId}"]`);
   assert.ok(laboratory && panel);
   const regions = panel.querySelectorAll<HTMLElement>("[data-equation-values]");
   expect(regions.length).toBeGreaterThan(0);
@@ -106,7 +102,7 @@ test("Doppler controls update the accepted equation and its pinned companion", a
     await act(async () => {
       pin.click();
     });
-    expect(document.querySelectorAll('[data-term-value="' + ratioId + '"]').length).toBe(2);
+    expect(document.querySelectorAll(`[data-term-value="${ratioId}"]`).length).toBe(2);
     await act(async () => {
       button(container, "Transverse 0.6c").click();
     });
@@ -114,9 +110,7 @@ test("Doppler controls update the accepted equation and its pinned companion", a
     const afterVersion =
       panel.querySelector<HTMLElement>("[data-equation-values]")?.dataset.snapshotVersion;
     expect(afterVersion).not.toBe(beforeVersion);
-    for (const value of document.querySelectorAll<HTMLElement>(
-      '[data-term-value="' + ratioId + '"]',
-    )) {
+    for (const value of document.querySelectorAll<HTMLElement>(`[data-term-value="${ratioId}"]`)) {
       expect(value.dataset.valueKind).toBe("value");
       expect(value.textContent).toContain("1.25");
       const identity = value.closest<HTMLElement>("[data-equation-values]")?.dataset;
@@ -126,9 +120,7 @@ test("Doppler controls update the accepted equation and its pinned companion", a
     expect(
       container.querySelector('.lab-results [data-quantity-id="dopplerFactor"]')?.textContent,
     ).toContain("1.25");
-    expect(term(panel, "eq-model-sr-doppler-factor.t.light").dataset.valueKind).toBe(
-      "symbolic",
-    );
+    expect(term(panel, "eq-model-sr-doppler-factor.t.light").dataset.valueKind).toBe("symbolic");
   } finally {
     await act(async () => {
       root.unmount();

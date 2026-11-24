@@ -13,38 +13,53 @@ test("recording admission identifies executable, cyclic, sparse and non-JSON inp
   let called = 0;
   const getter = Object.defineProperty({}, "privateWords", {
     enumerable: true,
-    get() { called++; return "must not be read"; },
+    get() {
+      called++;
+      return "must not be read";
+    },
   });
-  const toJSON = { toJSON() { called++; return {}; } };
+  const toJSON = {
+    toJSON() {
+      called++;
+      return {};
+    },
+  };
   const cycle: Record<string, unknown> = {};
   cycle.self = cycle;
   const hidden = Object.defineProperty({}, "hidden", { value: "must not disappear" });
   for (const value of [getter, hidden]) {
     assert.throws(() => notebookRecordingSource(value), {
-      name: "NotebookRecordingError", code: "notebook-recording-accessor",
+      name: "NotebookRecordingError",
+      code: "notebook-recording-accessor",
     });
   }
   for (const value of [toJSON, { value: undefined }, { value: 1n }, { value: Infinity }]) {
     assert.throws(() => notebookRecordingSource(value), {
-      name: "NotebookRecordingError", code: "notebook-recording-json-value",
+      name: "NotebookRecordingError",
+      code: "notebook-recording-json-value",
     });
   }
   for (const value of [new Date(), new Uint8Array(1)]) {
     assert.throws(() => notebookRecordingSource(value), {
-      name: "NotebookRecordingError", code: "notebook-recording-prototype",
+      name: "NotebookRecordingError",
+      code: "notebook-recording-prototype",
     });
   }
   assert.throws(() => notebookRecordingSource(cycle), {
-    name: "NotebookRecordingError", code: "notebook-recording-cycle",
+    name: "NotebookRecordingError",
+    code: "notebook-recording-cycle",
   });
   assert.throws(() => notebookRecordingSource(Array(2)), {
-    name: "NotebookRecordingError", code: "notebook-recording-array",
+    name: "NotebookRecordingError",
+    code: "notebook-recording-array",
   });
   for (const value of [
-    { [Symbol("private")]: "unrepresentable" }, JSON.parse('{"__proto__":{}}'),
+    { [Symbol("private")]: "unrepresentable" },
+    JSON.parse('{"__proto__":{}}'),
   ]) {
     assert.throws(() => notebookRecordingSource(value), {
-      name: "NotebookRecordingError", code: "notebook-recording-field",
+      name: "NotebookRecordingError",
+      code: "notebook-recording-field",
     });
   }
   expect(called).toBe(0);
@@ -54,13 +69,25 @@ test("recording admission identifies executable, cyclic, sparse and non-JSON inp
 
 function ranges(count: number, firstTile = "0") {
   return {
-    stops: [{
-      tape: { acceptedCheckpoint: { scientificState: { streamPositionRanges: [{
-        allocationId: "fixture-allocation",
-        streamKernelId: "fixture-kernel",
-        firstTile, count, index: "18446744073709551615",
-      }] } } },
-    }],
+    stops: [
+      {
+        tape: {
+          acceptedCheckpoint: {
+            scientificState: {
+              streamPositionRanges: [
+                {
+                  allocationId: "fixture-allocation",
+                  streamKernelId: "fixture-kernel",
+                  firstTile,
+                  count,
+                  index: "18446744073709551615",
+                },
+              ],
+            },
+          },
+        },
+      },
+    ],
   };
 }
 
@@ -159,10 +186,13 @@ test("version 1, 2 and 3 notebooks migrate one step at a time without changing r
 
 test("older envelopes cannot counterfeit the new recording entry kind", () => {
   for (const schemaVersion of [1, 2, 3]) {
-    expect(() => readNotebookDocument({
-      ...notebook, schemaVersion,
-      entries: [{ ...note, kind: "recording", recording: {} }],
-    })).toThrow(/cannot contain/);
+    expect(() =>
+      readNotebookDocument({
+        ...notebook,
+        schemaVersion,
+        entries: [{ ...note, kind: "recording", recording: {} }],
+      }),
+    ).toThrow(/cannot contain/);
   }
   expect(() => readNotebookDocument({ ...notebook, schemaVersion: 99 })).toThrow();
 });
@@ -174,7 +204,8 @@ test("notebook-migration-version: recording upgrade requires version 3 and an en
     { ...notebook, schemaVersion: 3, entries: {} },
   ]) {
     assert.throws(() => migrateRecordingNotebook(input), {
-      name: "NotebookMigrationError", code: "notebook-migration-version",
+      name: "NotebookMigrationError",
+      code: "notebook-migration-version",
     });
   }
 });
@@ -184,7 +215,8 @@ test("notebook-migration-entry: old envelopes cannot contain recordings or spars
     const input = { ...notebook, schemaVersion: 3, entries };
     const original = JSON.stringify(input);
     assert.throws(() => migrateRecordingNotebook(input), {
-      name: "NotebookMigrationError", code: "notebook-migration-entry",
+      name: "NotebookMigrationError",
+      code: "notebook-migration-entry",
     });
     expect(JSON.stringify(input)).toBe(original);
   }

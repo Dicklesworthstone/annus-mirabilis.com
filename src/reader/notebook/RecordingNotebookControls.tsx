@@ -51,10 +51,14 @@ export function RecordingNotebookControls({
 
   function refresh(store: NotebookStore) {
     if (!alive.current) return;
-    setEntries(store.getSnapshot().document.entries.filter(
-      (entry): entry is NotebookRecordingEntry =>
-        entry.kind === "recording" && entry.recording.experimentId === experimentId,
-    ));
+    setEntries(
+      store
+        .getSnapshot()
+        .document.entries.filter(
+          (entry): entry is NotebookRecordingEntry =>
+            entry.kind === "recording" && entry.recording.experimentId === experimentId,
+        ),
+    );
   }
 
   async function getStore(): Promise<NotebookStore | null> {
@@ -89,7 +93,11 @@ export function RecordingNotebookControls({
       setMessage("Kept a copy in your notebook. " + store.getSnapshot().message);
     } catch (reason) {
       if (alive.current)
-        setError(reason instanceof Error ? reason.message : "This recording could not be saved. It is still here.");
+        setError(
+          reason instanceof Error
+            ? reason.message
+            : "This recording could not be saved. It is still here.",
+        );
     } finally {
       inFlight.current = false;
       if (alive.current) setBusy(false);
@@ -137,7 +145,13 @@ export function RecordingNotebookControls({
         previews its stops; Restore remains a separate action.
       </p>
       <div className="actions">
-        <button type="button" disabled={!recording || disabled || busy} onClick={() => { void save(); }}>
+        <button
+          type="button"
+          disabled={!recording || disabled || busy}
+          onClick={() => {
+            void save();
+          }}
+        >
           Save recording in notebook
         </button>
         <button
@@ -145,21 +159,34 @@ export function RecordingNotebookControls({
           disabled={disabled || busy}
           aria-expanded={showSaved}
           aria-controls={id + "-saved"}
-          onClick={() => { void show(); }}
+          onClick={() => {
+            void show();
+          }}
         >
           {showSaved ? "Hide notebook recordings" : "Show notebook recordings"}
         </button>
         <a href="/notebook/">Open your notebook</a>
       </div>
       <div id={id + "-saved"} hidden={!showSaved}>
-        {entries.length === 0 ? <p>No recordings for this laboratory are saved in your notebook yet.</p> : (
+        {entries.length === 0 ? (
+          <p>No recordings for this laboratory are saved in your notebook yet.</p>
+        ) : (
           <ul>
             {entries.map((entry) => (
               <li key={entry.id}>
                 <strong>{entry.title}</strong>
-                {" — " + entry.recording.stops.length + " saved " +
-                  (entry.recording.stops.length === 1 ? "stop" : "stops") + ". "}
-                <button type="button" disabled={disabled || busy} onClick={() => { void open(entry); }}>
+                {" — " +
+                  entry.recording.stops.length +
+                  " saved " +
+                  (entry.recording.stops.length === 1 ? "stop" : "stops") +
+                  ". "}
+                <button
+                  type="button"
+                  disabled={disabled || busy}
+                  onClick={() => {
+                    void open(entry);
+                  }}
+                >
                   Open saved recording
                 </button>
               </li>
@@ -167,7 +194,9 @@ export function RecordingNotebookControls({
           </ul>
         )}
       </div>
-      <p role="status" aria-live="polite" aria-atomic="true">{busy ? "Opening notebook…" : message}</p>
+      <p role="status" aria-live="polite" aria-atomic="true">
+        {busy ? "Opening notebook…" : message}
+      </p>
       {error && <p role="alert">{error}</p>}
     </section>
   );
