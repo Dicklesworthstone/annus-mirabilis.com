@@ -85,6 +85,15 @@ import {
   srElectronTransverse,
   srElectronWork,
 } from "../../equations/derivations/srElectron.ts";
+import {
+  srElectronMeasurementChains,
+  srElectronMeasurementPremises,
+  srElectronMeasurementRecords,
+} from "../../equations/derivations/srElectronMeasurements.ts";
+import {
+  verifySRElectronMeasurementRoute,
+  verifySRElectronMeasurements,
+} from "../../equations/derivations/srElectronMeasurementsProof.ts";
 import { srLightComplexDerivation } from "../../equations/derivations/srLightComplex.ts";
 import { srMirrorAssumptions, srMirrorChains } from "../../equations/derivations/srMirror.ts";
 import { verifySRMirror } from "../../equations/derivations/srMirrorProof.ts";
@@ -577,6 +586,17 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
     records: [longitudinalRecord, workIntegralRecord, workResultRecord],
     chains: [srElectronLongitudinal, srElectronWork],
   },
+  "sr-electron-measurements": {
+    paper: "special-relativity",
+    conclusion: "eq-model-sr-magnetic-radius",
+    title: "Follow the electron laws to three measurable consequences",
+    href: "/papers/special-relativity/s10/#sr-electron-measurements-derivation",
+    records: srElectronMeasurementRecords,
+    chains: srElectronMeasurementChains,
+    verify: verifySRElectronMeasurements,
+    verifyRoute: verifySRElectronMeasurementRoute,
+    premises: srElectronMeasurementPremises,
+  },
 };
 
 /**
@@ -609,6 +629,8 @@ function checkedDerivationSupport(
       !actual ||
       actual.paper !== expected.paper ||
       actual.argument !== expected.argument ||
+      (declaration.proofId === "sr-electron-measurements" &&
+        (actual.unitSystem !== "si" || actual.notation !== "modern-pedagogical")) ||
       !structurallyEqual(actual.tree, expected.tree as Expression) ||
       JSON.stringify(actual.assumptions) !== JSON.stringify(expected.assumptions)
     )

@@ -30,6 +30,7 @@ export const RESULT_PROOF_IDS = [
   "sr-charge-current",
   "sr-electron-force-conventions",
   "sr-electron-work",
+  "sr-electron-measurements",
 ] as const;
 export type ResultProofId = (typeof RESULT_PROOF_IDS)[number];
 

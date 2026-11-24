@@ -795,8 +795,10 @@ cards:
 
   - id: sr-electron-laws
     support:
-      kind: "no-checked-proof"
-      reason: "The electron's measurable relations are explained in the linked passages; no checked derivation record covers these combined consequences."
+      kind: "checked-proof"
+      proofId: sr-electron-measurements
+      conclusion: eq-model-sr-magnetic-radius
+      scope: "The electric and magnetic deflectability comparison, voltage supplied from rest, and magnetic-only circular radius follow by exact algebra from the admitted laboratory force and kinetic-work laws. The Gaussian printed relations and SI forms remain distinct. The circular-radius argument requires positive speed below c, positive mass and charge magnitude, and a nonzero perpendicular magnetic field; rest and vanishing-field cases do not describe a finite magnetic circle. Prescribed fields, negligible radiation and the force/work laws remain physical premises. This calculation supplies predictions, not experimental confirmation, and does not establish rest energy."
     title: "Three relations for experiment on the electron"
     section: s10
     arguments: [arg-sr-electron-work]

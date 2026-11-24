@@ -22,6 +22,9 @@ scope:
     - 'chain-sr-field-m-component'
     - 'chain-sr-field-n-component'
     - 'chain-sr-field-normalization'
+    - "chain-sr-electron-deflectability"
+    - "chain-sr-electron-accelerating-voltage"
+    - "chain-sr-electron-magnetic-radius"
 targets:
   - kind: 'derivation-step'
     id: 'sr-light-complex-separate-density-volume'
@@ -419,3 +422,93 @@ targets:
       r3: 'Einstein''s §6 first rewrites the six vacuum Maxwell–Hertz curl equations using the coordinate transformation of §3. It next compares the regrouped functions with the fields measured in the moving system, introduces a common factor, and fixes it by an inverse transformation and a spatial-symmetry example. This reconstruction exposes the derivative algebra, the vacuum divergence conditions and the continuity choice for the sign. The identification of fields is a physical step; equal differential form by itself is not a uniqueness theorem. The source''s V and β mean the speed of light and Lorentz factor. SI component equations shown separately are a modern unit mapping, not an added historical premise.'
       r3Citations:
         - 'Einstein, Zur Elektrodynamik bewegter Körper (1905), §6, pp. 907–910; coordinate transformation in §3, pp. 899–902.'
+  - kind: 'derivation-step'
+    id: "sr-electron-measurements-magnetic-response"
+    readings:
+      r0: "Compare the turning response per unit field, keeping the particle and its speed fixed."
+      r1: "The magnetic force in the paper's Gaussian convention has magnitude q_G v B_G/c. Divide by the laboratory response coefficient mγ to obtain a_m. A_m = a_m/B_G and A_e = a_e/E_G remove the different field strengths from the comparison."
+      r2: "Here a_m and a_e are positive local acceleration magnitudes in separate matched trials, not displacements from unrelated paths. E_G and B_G denote positive Gaussian field magnitudes and q_G the charge magnitude in that unit system. The same particle, speed, geometry and observation factors are held fixed. The assumed force law and F⊥ = mγa⊥ give a_m = q_G v B_G/(c mγ). Substitute that expression in (a_m/B_G)/(a_e/E_G)."
+      r3: "Einstein closes §10 with three relations accessible to experiment: the ratio of magnetic to electric deflectability, the potential difference needed to reach a speed from rest, and the curvature in a perpendicular magnetic field. The first is printed on p. 920 and the last two formulas on p. 921. The first reconstruction retains Gaussian field normalization. The voltage and radius calculations use explicit modern SI magnitudes and the already explained laboratory-force convention; this is a unit and convention bridge, not a silent renaming of the source. The mathematical check establishes consequences of admitted force, work and circular-motion premises. It neither certifies the draft source transcription nor supplies experimental confirmation."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 920–921."
+  - kind: 'derivation-step'
+    id: "sr-electron-measurements-electric-response"
+    readings:
+      r0: "Use the same response coefficient for the separate electric comparison."
+      r1: "The electric force has magnitude q_G E_G. Its acceleration is a_e = q_G E_G/(mγ), with the same mass and Lorentz factor as the magnetic trial."
+      r2: "The comparison must keep v fixed: otherwise the two factors γ would differ. Substitute a_e = q_G E_G/(mγ) in the denominator. The particle is charged, m > 0 and E_G > 0, so a_e is nonzero and the response ratio is defined. At v = 0 only the magnetic response vanishes; the normalized ratio remains defined."
+      r3: "Einstein closes §10 with three relations accessible to experiment: the ratio of magnetic to electric deflectability, the potential difference needed to reach a speed from rest, and the curvature in a perpendicular magnetic field. The first is printed on p. 920 and the last two formulas on p. 921. The first reconstruction retains Gaussian field normalization. The voltage and radius calculations use explicit modern SI magnitudes and the already explained laboratory-force convention; this is a unit and convention bridge, not a silent renaming of the source. The mathematical check establishes consequences of admitted force, work and circular-motion premises. It neither certifies the draft source transcription nor supplies experimental confirmation."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 920–921."
+  - kind: 'derivation-step'
+    id: "sr-electron-measurements-cancel-response"
+    readings:
+      r0: "The relative deflectability reveals v/c without knowing the particle's mass."
+      r1: "After the field strengths have been divided out, q_G/(mγ) is common to both responses. Their quotient is A_m/A_e = v/c, the first relation printed in §10."
+      r2: "The numerator becomes q_G v/(c mγ), the denominator q_G/(mγ), and division cancels q_G, m and γ. None is zero. No factor v is cancelled, so zero speed is still allowed. This dimensionless relation uses the paper's Gaussian normalization. In SI the corresponding field-normalized acceleration ratio (a_B/B)/(a_E/E) is v, with velocity units; dividing it by c gives v/c. Setting a numeric SI electric field equal to a numeric SI magnetic field would mix units."
+      r3: "Einstein closes §10 with three relations accessible to experiment: the ratio of magnetic to electric deflectability, the potential difference needed to reach a speed from rest, and the curvature in a perpendicular magnetic field. The first is printed on p. 920 and the last two formulas on p. 921. The first reconstruction retains Gaussian field normalization. The voltage and radius calculations use explicit modern SI magnitudes and the already explained laboratory-force convention; this is a unit and convention bridge, not a silent renaming of the source. The mathematical check establishes consequences of admitted force, work and circular-motion premises. It neither certifies the draft source transcription nor supplies experimental confirmation."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 920–921."
+  - kind: 'derivation-step'
+    id: "sr-electron-measurements-work-to-voltage"
+    readings:
+      r0: "The voltage supplies the work already calculated from the motion."
+      r1: "Start with the admitted energy-transfer relation |q|U = W and substitute the previous result W = mc²(γ − 1). The charge and voltage here are SI magnitudes."
+      r2: "U is the positive accelerating voltage, |q| the positive charge magnitude, m the slow-motion mass and γ the Lorentz factor at the final speed. Multiplying coulombs by volts gives joules. With the initial kinetic energy set to zero and radiative losses excluded, all electrical work becomes W. The substitution imports the preceding work argument; it does not use a rest-energy formula or derive the work-energy principle."
+      r3: "Einstein closes §10 with three relations accessible to experiment: the ratio of magnetic to electric deflectability, the potential difference needed to reach a speed from rest, and the curvature in a perpendicular magnetic field. The first is printed on p. 920 and the last two formulas on p. 921. The first reconstruction retains Gaussian field normalization. The voltage and radius calculations use explicit modern SI magnitudes and the already explained laboratory-force convention; this is a unit and convention bridge, not a silent renaming of the source. The mathematical check establishes consequences of admitted force, work and circular-motion premises. It neither certifies the draft source transcription nor supplies experimental confirmation."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 920–921."
+  - kind: 'derivation-step'
+    id: "sr-electron-measurements-voltage"
+    readings:
+      r0: "Dividing the energy by the charge gives the required accelerating voltage."
+      r1: "Divide both sides by |q| to obtain U = mc²(γ − 1)/|q|. A measured voltage can be compared with an independently measured speed."
+      r2: "Because |q| > 0, |q|U/|q| = U. The right side keeps the subtraction of 1 that came from starting at rest. At v = 0, γ = 1 and U = 0; the division never removes that boundary. The Newtonian approximation U ≈ mv²/(2|q|) agrees only for v much smaller than c. The relation is a conditional prediction, not evidence that the specified voltage has been measured."
+      r3: "Einstein closes §10 with three relations accessible to experiment: the ratio of magnetic to electric deflectability, the potential difference needed to reach a speed from rest, and the curvature in a perpendicular magnetic field. The first is printed on p. 920 and the last two formulas on p. 921. The first reconstruction retains Gaussian field normalization. The voltage and radius calculations use explicit modern SI magnitudes and the already explained laboratory-force convention; this is a unit and convention bridge, not a silent renaming of the source. The mathematical check establishes consequences of admitted force, work and circular-motion premises. It neither certifies the draft source transcription nor supplies experimental confirmation."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 920–921."
+  - kind: 'derivation-step'
+    id: "sr-electron-measurements-force-law"
+    readings:
+      r0: "Use force and acceleration measured in the same laboratory."
+      r1: "The preceding convention comparison gives F⊥/a⊥ = mγ. Multiply by the nonzero acceleration of this circular case to obtain F⊥ = mγa⊥."
+      r2: "The canonical ratio uses the laboratory force, not the momentary rest-frame force. The latter would bring an extra γ and give the wrong laboratory radius if used without conversion. Here B > 0 and 0 < v < c, so the admitted magnetic force and the acceleration are nonzero. Choose the positive transverse axis along that force; the canonical signed component equation then reads as an equality of positive magnitudes."
+      r3: "Einstein closes §10 with three relations accessible to experiment: the ratio of magnetic to electric deflectability, the potential difference needed to reach a speed from rest, and the curvature in a perpendicular magnetic field. The first is printed on p. 920 and the last two formulas on p. 921. The first reconstruction retains Gaussian field normalization. The voltage and radius calculations use explicit modern SI magnitudes and the already explained laboratory-force convention; this is a unit and convention bridge, not a silent renaming of the source. The mathematical check establishes consequences of admitted force, work and circular-motion premises. It neither certifies the draft source transcription nor supplies experimental confirmation."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 920–921."
+  - kind: 'derivation-step'
+    id: "sr-electron-measurements-magnetic-force"
+    readings:
+      r0: "A perpendicular magnetic field supplies a sideways force."
+      r1: "In SI, replace F⊥ by |q|vB. The magnetic field is uniform and perpendicular to the velocity, and the electric field is zero."
+      r2: "The Lorentz force q(v × B) is perpendicular to v. In the prescribed-field model without radiation reaction it changes the direction but does no work, so the speed and γ stay fixed. Taking magnitudes for perpendicular v and B gives |q|vB. A component of B parallel to v would not contribute this force; arbitrary combined electric and magnetic fields are outside this circular calculation."
+      r3: "Einstein closes §10 with three relations accessible to experiment: the ratio of magnetic to electric deflectability, the potential difference needed to reach a speed from rest, and the curvature in a perpendicular magnetic field. The first is printed on p. 920 and the last two formulas on p. 921. The first reconstruction retains Gaussian field normalization. The voltage and radius calculations use explicit modern SI magnitudes and the already explained laboratory-force convention; this is a unit and convention bridge, not a silent renaming of the source. The mathematical check establishes consequences of admitted force, work and circular-motion premises. It neither certifies the draft source transcription nor supplies experimental confirmation."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 920–921."
+  - kind: 'derivation-step'
+    id: "sr-electron-measurements-circular-acceleration"
+    readings:
+      r0: "A smaller circle needs more acceleration at the same speed."
+      r1: "Use the circular-motion relation a⊥ = v²/R. The force equation becomes |q|vB = mγv²/R."
+      r2: "R denotes the radius of a genuine moving circle. With constant speed v, the acceleration is inward and has magnitude v²/R. Substituting this kinematic relation connects the laboratory force to path geometry. This is the SI magnitude form of the step printed before the radius in §10; the printed sign depends on the selected transverse direction."
+      r3: "Einstein closes §10 with three relations accessible to experiment: the ratio of magnetic to electric deflectability, the potential difference needed to reach a speed from rest, and the curvature in a perpendicular magnetic field. The first is printed on p. 920 and the last two formulas on p. 921. The first reconstruction retains Gaussian field normalization. The voltage and radius calculations use explicit modern SI magnitudes and the already explained laboratory-force convention; this is a unit and convention bridge, not a silent renaming of the source. The mathematical check establishes consequences of admitted force, work and circular-motion premises. It neither certifies the draft source transcription nor supplies experimental confirmation."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 920–921."
+  - kind: 'derivation-step'
+    id: "sr-electron-measurements-clear-radius"
+    readings:
+      r0: "Multiply by the radius to remove it from the denominator."
+      r1: "Since R > 0, multiplication by R gives |q|vBR = mγv²."
+      r2: "Both sides are multiplied by the same R. On the right, R cancels only against the existing radius denominator, giving mγv². The finite positive radius is part of this circular case; the operation does not assign a radius to a stationary electron or to straight motion."
+      r3: "Einstein closes §10 with three relations accessible to experiment: the ratio of magnetic to electric deflectability, the potential difference needed to reach a speed from rest, and the curvature in a perpendicular magnetic field. The first is printed on p. 920 and the last two formulas on p. 921. The first reconstruction retains Gaussian field normalization. The voltage and radius calculations use explicit modern SI magnitudes and the already explained laboratory-force convention; this is a unit and convention bridge, not a silent renaming of the source. The mathematical check establishes consequences of admitted force, work and circular-motion premises. It neither certifies the draft source transcription nor supplies experimental confirmation."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 920–921."
+  - kind: 'derivation-step'
+    id: "sr-electron-measurements-radius"
+    readings:
+      r0: "The circle is larger by γ than the low-speed prediction."
+      r1: "Divide by |q|vB and cancel one factor v. The result is R = γmv/(|q|B), the canonical SI radius."
+      r2: "Every divisor is nonzero in this branch: |q| > 0, B > 0 and v > 0. The numerator mγv² then leaves mγv. At fixed speed, mass and charge, doubling B halves R; compared with the Newtonian mv/(|q|B), the radius is larger by γ. The limit R → 0 as v → 0 does not make a stationary particle trace a zero-radius orbit, and B = 0 gives no magnetic circle."
+      r3: "Einstein closes §10 with three relations accessible to experiment: the ratio of magnetic to electric deflectability, the potential difference needed to reach a speed from rest, and the curvature in a perpendicular magnetic field. The first is printed on p. 920 and the last two formulas on p. 921. The first reconstruction retains Gaussian field normalization. The voltage and radius calculations use explicit modern SI magnitudes and the already explained laboratory-force convention; this is a unit and convention bridge, not a silent renaming of the source. The mathematical check establishes consequences of admitted force, work and circular-motion premises. It neither certifies the draft source transcription nor supplies experimental confirmation."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §10, pp. 920–921."

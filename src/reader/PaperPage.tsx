@@ -78,6 +78,7 @@ import {
   LazySRCoordinateDerivation,
   LazySRDopplerDerivation,
   LazySRElectronDerivation,
+  LazySRElectronMeasurementsDerivation,
   LazySRFieldDerivation,
   LazySRLightComplexDerivation,
   LazySRMirrorDerivation,
@@ -914,6 +915,17 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <p className="fine">
                             <a href="/papers/special-relativity/s10/#sr-electron-work-derivation">
                               Follow the longitudinal force through the work integral
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-electron-work" &&
+                        (sectionId ? (
+                          <LazySRElectronMeasurementsDerivation />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s10/#sr-electron-measurements-derivation">
+                              Follow the force and work laws to three measurable consequences
                             </a>
                           </p>
                         ))}

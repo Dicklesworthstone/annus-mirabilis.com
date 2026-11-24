@@ -62,6 +62,7 @@ import type { SRClocksAndLengthsDerivation } from "./SRClocksAndLengthsDerivatio
 import type { SRCoordinateDerivation } from "./SRCoordinateDerivation.tsx";
 import type { SRDopplerDerivation } from "./SRDopplerDerivation.tsx";
 import type { SRElectronDerivation } from "./SRElectronDerivation.tsx";
+import type { SRElectronMeasurementsDerivation } from "./SRElectronMeasurementsDerivation.tsx";
 import type { SRFieldDerivation } from "./SRFieldDerivation.tsx";
 import type { SRLightComplexDerivation } from "./SRLightComplexDerivation.tsx";
 import type { SRMirrorDerivation } from "./SRMirrorDerivation.tsx";
@@ -211,6 +212,17 @@ const SRElectronSteps = lazy(() =>
 );
 export function LazySRElectronDerivation(props: ComponentProps<typeof SRElectronDerivation>) {
   return <SRElectronSteps {...props} />;
+}
+
+const SRElectronMeasurementsSteps = lazy(() =>
+  import("./SRElectronMeasurementsDerivation.tsx").then((m) => ({
+    default: m.SRElectronMeasurementsDerivation,
+  })),
+);
+export function LazySRElectronMeasurementsDerivation(
+  props: ComponentProps<typeof SRElectronMeasurementsDerivation>,
+) {
+  return <SRElectronMeasurementsSteps {...props} />;
 }
 
 const SRFieldSteps = lazy(() =>
