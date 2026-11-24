@@ -6,10 +6,12 @@ targetKinds:
 scope:
   sections:
     - 's1'
+    - 's2'
     - 's3'
     - 's4'
     - 's5'
   chainIds:
+    - 'chain-sr-simultaneity-offset'
     - 'chain-sr-moving-clock'
     - 'chain-sr-simultaneous-length'
     - 'chain-sr-velocity-longitudinal'
@@ -963,3 +965,75 @@ targets:
       r3: "This is a teaching reconstruction of §4 using two events and modern interval notation. Einstein measures the sphere at t = 0 and obtains the clock rate by substituting x = vt into the forward time transformation. Subtracting two instances of the already admitted maps makes the measurement conditions and the cancellation of arbitrary starting readings explicit. Modern Δτ denotes one clock's proper elapsed time; the paper's τ is the moving system's time coordinate. The source's later curved-path extension and low-speed approximation are distinct claims."
       r3Citations:
         - "A. Einstein, Zur Elektrodynamik bewegter Körper (1905), §4, Annalen der Physik 17, pp. 903–906; §3 supplies the coordinate transformation."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneity-offset/sr-simultaneity-subtract-first-event"
+    readings:
+      r0: "Compare two events without placing either at the clock's zero."
+      r1: "Start with the admitted time map for event 2. Subtract the mapped time of event 1 from both sides, using the same frame speed and Lorentz factor."
+      r2: "Apply t′ = γ(t − vx/c²) to event 2, then subtract γ(t₁ − vx₁/c²) from both sides. The same inertial frames describe both events. Neither t₁ nor x₁ has been set to zero, so the result will concern differences and cannot depend on a conveniently chosen origin."
+      r3: "The paper's §2 argues from the unequal light-travel times along a moving rod and the synchronization convention of §1. It has not yet derived the coordinate transformation. This teaching route instead imports §3's completed time map to quantify the disagreement for an ordered pair of events. Every dependency here is labeled pedagogical reconstruction, so this consequence cannot become a historical premise of the map that it uses. Modern primes label the moving frame and Δ names a difference; the source uses τ for moving coordinate time, not for a single clock's proper elapsed time. The exact algebra check is separate from historical and physical review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§2–3. Source anchors eq-s2-d2, eq-s2-d3, s2-p8 and eq-s3-d25."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneity-offset/sr-simultaneity-map-first-event"
+    readings:
+      r0: "The first event's mapped time is its time coordinate in k."
+      r1: "Use the same map for event 1 to replace the subtracted expression on the left by t′₁. The left side now compares the two moving-frame times."
+      r2: "The substitution uses t′₁ = γ(t₁ − vx₁/c²), not an assumption about simultaneity. Both stationary times and both stationary positions remain on the right. At this stage either frame may assign a nonzero interval to the pair; the choice of simultaneous events has not yet been made."
+      r3: "The paper's §2 argues from the unequal light-travel times along a moving rod and the synchronization convention of §1. It has not yet derived the coordinate transformation. This teaching route instead imports §3's completed time map to quantify the disagreement for an ordered pair of events. Every dependency here is labeled pedagogical reconstruction, so this consequence cannot become a historical premise of the map that it uses. Modern primes label the moving frame and Δ names a difference; the source uses τ for moving coordinate time, not for a single clock's proper elapsed time. The exact algebra check is separate from historical and physical review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§2–3. Source anchors eq-s2-d2, eq-s2-d3, s2-p8 and eq-s3-d25."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneity-offset/sr-simultaneity-collect-differences"
+    readings:
+      r0: "The offset depends on the separation between the events."
+      r1: "Collect the two time terms and the two position terms. The result contains t₂ − t₁ and x₂ − x₁, with the same factor γ outside."
+      r2: "Expand γ(t₂ − vx₂/c²) − γ(t₁ − vx₁/c²), then collect it as γ[(t₂ − t₁) − v(x₂ − x₁)/c²]. All cancellations are exact on c > 0. The position difference is signed: reversing the event order changes both coordinate differences rather than replacing the distance by its absolute value."
+      r3: "The paper's §2 argues from the unequal light-travel times along a moving rod and the synchronization convention of §1. It has not yet derived the coordinate transformation. This teaching route instead imports §3's completed time map to quantify the disagreement for an ordered pair of events. Every dependency here is labeled pedagogical reconstruction, so this consequence cannot become a historical premise of the map that it uses. Modern primes label the moving frame and Δ names a difference; the source uses τ for moving coordinate time, not for a single clock's proper elapsed time. The exact algebra check is separate from historical and physical review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§2–3. Source anchors eq-s2-d2, eq-s2-d3, s2-p8 and eq-s3-d25."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneity-offset/sr-simultaneity-name-moving-interval"
+    readings:
+      r0: "Name the moving frame's time difference."
+      r1: "Write Δt′ for t′₂ − t′₁. The prime names the frame, while the subscripts name events; neither notation refers to a signal's arrival at a camera."
+      r2: "This is a definition of the ordered coordinate difference in k. It compares the readings assigned to event 2 and event 1 by k's synchronized clocks. It is not generally the proper time of one clock, because the two events need not share a moving-frame position."
+      r3: "The paper's §2 argues from the unequal light-travel times along a moving rod and the synchronization convention of §1. It has not yet derived the coordinate transformation. This teaching route instead imports §3's completed time map to quantify the disagreement for an ordered pair of events. Every dependency here is labeled pedagogical reconstruction, so this consequence cannot become a historical premise of the map that it uses. Modern primes label the moving frame and Δ names a difference; the source uses τ for moving coordinate time, not for a single clock's proper elapsed time. The exact algebra check is separate from historical and physical review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§2–3. Source anchors eq-s2-d2, eq-s2-d3, s2-p8 and eq-s3-d25."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneity-offset/sr-simultaneity-name-stationary-interval"
+    readings:
+      r0: "Name the stationary frame's time difference."
+      r1: "Write Δt for t₂ − t₁. Keep it visible before imposing equal times, so the special case can be distinguished from the general event transformation."
+      r2: "The equality Δt = t₂ − t₁ is a definition, not a claim that the difference is zero. A pair chosen at different stationary times retains this term. Erasing it for an arbitrary pair would drop a physical part of the transformation and could reverse the inferred event order."
+      r3: "The paper's §2 argues from the unequal light-travel times along a moving rod and the synchronization convention of §1. It has not yet derived the coordinate transformation. This teaching route instead imports §3's completed time map to quantify the disagreement for an ordered pair of events. Every dependency here is labeled pedagogical reconstruction, so this consequence cannot become a historical premise of the map that it uses. Modern primes label the moving frame and Δ names a difference; the source uses τ for moving coordinate time, not for a single clock's proper elapsed time. The exact algebra check is separate from historical and physical review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§2–3. Source anchors eq-s2-d2, eq-s2-d3, s2-p8 and eq-s3-d25."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneity-offset/sr-simultaneity-name-separation"
+    readings:
+      r0: "Name the signed separation along the direction of motion."
+      r1: "Write Δx for x₂ − x₁. The result so far is the full difference relation Δt′ = γ(Δt − vΔx/c²), valid for this admitted linear map."
+      r2: "Only the separation along the relative motion enters the time correction. A negative Δx means event 2 lies behind event 1 in K; it is allowed. This definition introduces no division by v or Δx, so a stationary frame change and zero longitudinal separation both remain in the calculation's domain."
+      r3: "The paper's §2 argues from the unequal light-travel times along a moving rod and the synchronization convention of §1. It has not yet derived the coordinate transformation. This teaching route instead imports §3's completed time map to quantify the disagreement for an ordered pair of events. Every dependency here is labeled pedagogical reconstruction, so this consequence cannot become a historical premise of the map that it uses. Modern primes label the moving frame and Δ names a difference; the source uses τ for moving coordinate time, not for a single clock's proper elapsed time. The exact algebra check is separate from historical and physical review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§2–3. Source anchors eq-s2-d2, eq-s2-d3, s2-p8 and eq-s3-d25."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneity-offset/sr-simultaneity-choose-equal-times"
+    readings:
+      r0: "Now choose the two events to be simultaneous in K."
+      r1: "Set Δt to zero because this pair was selected at one stationary-frame time. Do not also set Δt′ to zero: the calculation asks what the moving frame assigns."
+      r2: "The measurement choice is equality of the two K times, not equality of both frames' times. The general relation therefore becomes Δt′ = γ(0 − vΔx/c²). The zero can be imposed at any common t₁ = t₂, not only at the coordinate origin. No assumption that the events lie on a rod is required for this pairwise result."
+      r3: "The paper's §2 argues from the unequal light-travel times along a moving rod and the synchronization convention of §1. It has not yet derived the coordinate transformation. This teaching route instead imports §3's completed time map to quantify the disagreement for an ordered pair of events. Every dependency here is labeled pedagogical reconstruction, so this consequence cannot become a historical premise of the map that it uses. Modern primes label the moving frame and Δ names a difference; the source uses τ for moving coordinate time, not for a single clock's proper elapsed time. The exact algebra check is separate from historical and physical review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§2–3. Source anchors eq-s2-d2, eq-s2-d3, s2-p8 and eq-s3-d25."
+  - kind: 'derivation-step'
+    id: "chain-sr-simultaneity-offset/sr-simultaneity-read-offset"
+    readings:
+      r0: "The moving times differ unless the speed or longitudinal separation vanishes."
+      r1: "Collect the zero term to obtain Δt′ = −γvΔx/c². With positive v and Δx, event 2 has the earlier time coordinate in k."
+      r2: "The positive finite γ and c² leave the sign opposite to vΔx. Reversing the motion or the order of the two events reverses the offset. If v = 0 or Δx = 0, the offset is exactly zero; no cancellation has excluded either case. This compares coordinate assignments to the same events, not light arriving together and not a change in a clock's mechanism."
+      r3: "The paper's §2 argues from the unequal light-travel times along a moving rod and the synchronization convention of §1. It has not yet derived the coordinate transformation. This teaching route instead imports §3's completed time map to quantify the disagreement for an ordered pair of events. Every dependency here is labeled pedagogical reconstruction, so this consequence cannot become a historical premise of the map that it uses. Modern primes label the moving frame and Δ names a difference; the source uses τ for moving coordinate time, not for a single clock's proper elapsed time. The exact algebra check is separate from historical and physical review."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921, §§2–3. Source anchors eq-s2-d2, eq-s2-d3, s2-p8 and eq-s3-d25."

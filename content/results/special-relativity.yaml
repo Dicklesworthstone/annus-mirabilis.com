@@ -125,8 +125,10 @@ cards:
 
   - id: sr-relativity-of-simultaneity
     support:
-      kind: "no-checked-proof"
-      reason: "The synchronization comparison is explained in the linked passages; no checked derivation record covers this result."
+      kind: "checked-proof"
+      proofId: "sr-simultaneity-offset"
+      conclusion: "eq-model-sr-simultaneity-offset"
+      scope: "Exact algebra subtracts the admitted §3 time map at two events and, for equal stationary times, obtains the signed moving-time offset −γvΔx/c². This is a pedagogical consequence of the map, not the earlier §2 light-chase derivation or an independent derivation of the map. The same inertial frames, synchronization convention, c > 0 and |v| < c remain premises; zero speed and zero longitudinal separation are included."
     title: "The relativity of simultaneity"
     section: s2
     arguments: [arg-sr-rod-events]

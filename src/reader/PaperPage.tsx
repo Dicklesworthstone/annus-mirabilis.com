@@ -15,6 +15,7 @@ import { hasResultCards } from "../content/results/resultCards.ts";
 import { getModalityClasses } from "../content/schemas/glossConventions.ts";
 import { loadPaper } from "../content/server.ts";
 import { verifySRFieldCovariance } from "../equations/derivations/srFieldCovariance.ts";
+import { verifySRSimultaneity } from "../equations/derivations/srSimultaneityProof.ts";
 import {
   srSphericalWavePremises,
   verifySRSphericalWave,
@@ -73,6 +74,7 @@ import {
   LazySRFieldDerivation,
   LazySRLightComplexDerivation,
   LazySRMirrorDerivation,
+  LazySRSimultaneityDerivation,
   LazySRSynchronizationDerivation,
   LazySRVelocityDerivation,
 } from "./lazyIslands.tsx";
@@ -892,6 +894,17 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <p className="fine">
                             <a href="/papers/special-relativity/s1/#sr-synchronization-derivation">
                               Follow the synchronization definition to its midpoint consequence
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "special-relativity" &&
+                        a.id === "arg-sr-rod-events" &&
+                        (sectionId ? (
+                          <LazySRSimultaneityDerivation report={verifySRSimultaneity()} />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/special-relativity/s2/#sr-simultaneity-derivation">
+                              Compare the same two events in both frames
                             </a>
                           </p>
                         ))}

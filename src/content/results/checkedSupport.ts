@@ -39,6 +39,7 @@ import factorRecord from "../../../content/equations/special-relativity/eq-model
 import velocityPositionRecord from "../../../content/equations/special-relativity/eq-model-sr-map-position.json";
 import velocityTimeRecord from "../../../content/equations/special-relativity/eq-model-sr-map-time.json";
 import mirrorFrequencyRecord from "../../../content/equations/special-relativity/eq-model-sr-mirror-frequency.json";
+import simultaneityOffsetRecord from "../../../content/equations/special-relativity/eq-model-sr-simultaneity-offset.json";
 import sphericalWaveRecord from "../../../content/equations/special-relativity/eq-model-sr-spherical-wave-moving.json";
 import syncCriterionRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-equal-legs.json";
 import syncMidpointRecord from "../../../content/equations/special-relativity/eq-model-sr-sync-midpoint.json";
@@ -81,6 +82,11 @@ import {
 import { srLightComplexDerivation } from "../../equations/derivations/srLightComplex.ts";
 import { srMirrorAssumptions, srMirrorChains } from "../../equations/derivations/srMirror.ts";
 import { verifySRMirror } from "../../equations/derivations/srMirrorProof.ts";
+import {
+  srSimultaneityAssumptions,
+  srSimultaneityChain,
+} from "../../equations/derivations/srSimultaneity.ts";
+import { verifySRSimultaneity } from "../../equations/derivations/srSimultaneityProof.ts";
 import {
   srSphericalWaveChain,
   srSphericalWavePremises,
@@ -141,6 +147,16 @@ type DerivationProof = Readonly<{
  * for authored, unchecked calculus is not a checked proof.
  */
 const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = {
+  "sr-simultaneity-offset": {
+    paper: "special-relativity",
+    conclusion: simultaneityOffsetRecord.id,
+    title: "Compare the same two events in both frames",
+    href: "/papers/special-relativity/s2/#sr-simultaneity-derivation",
+    records: [velocityTimeRecord, factorRecord, simultaneityOffsetRecord],
+    chains: [srSimultaneityChain],
+    verify: verifySRSimultaneity,
+    premises: srSimultaneityAssumptions,
+  },
   "sr-moving-clock": {
     paper: "special-relativity",
     conclusion: clockRecord.id,
@@ -539,6 +555,15 @@ const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = 
     chains: [srElectronLongitudinal, srElectronWork],
   },
 };
+
+/**
+ * Authored routes for a result already admitted by checkedSupportFor. An empty
+ * list means a separate calculation owner supplies the proof; it does not turn
+ * that result into an assumption-free root or establish any dependency by itself.
+ */
+export function checkedResultChains(proofId: ResultProofId): readonly DerivationChain[] {
+  return DERIVATION_PROOFS[proofId as DerivationProofId]?.chains ?? [];
+}
 
 function checkedDerivationSupport(
   cardId: string,

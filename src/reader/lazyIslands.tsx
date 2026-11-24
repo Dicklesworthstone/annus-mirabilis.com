@@ -63,6 +63,7 @@ import type { SRElectronDerivation } from "./SRElectronDerivation.tsx";
 import type { SRFieldDerivation } from "./SRFieldDerivation.tsx";
 import type { SRLightComplexDerivation } from "./SRLightComplexDerivation.tsx";
 import type { SRMirrorDerivation } from "./SRMirrorDerivation.tsx";
+import type { SRSimultaneityDerivation } from "./SRSimultaneityDerivation.tsx";
 import type { SRSynchronizationDerivation } from "./SRSynchronizationDerivation.tsx";
 import type { SRVelocityDerivation } from "./SRVelocityDerivation.tsx";
 import "./entrances/countingEntrance.css";
@@ -117,6 +118,15 @@ const LightQuantaClosingSteps = lazy(() =>
 const SRLightComplexSteps = lazy(() =>
   import("./SRLightComplexDerivation.tsx").then((m) => ({ default: m.SRLightComplexDerivation })),
 );
+const SRSimultaneitySteps = lazy(() =>
+  import("./SRSimultaneityDerivation.tsx").then((m) => ({ default: m.SRSimultaneityDerivation })),
+);
+
+export function LazySRSimultaneityDerivation(
+  props: ComponentProps<typeof SRSimultaneityDerivation>,
+) {
+  return <SRSimultaneitySteps {...props} />;
+}
 
 export function LazyBrownianFirstEncounter(props: ComponentProps<typeof BrownianFirstEncounter>) {
   return <Brownian {...props} />;
