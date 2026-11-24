@@ -3,6 +3,7 @@
 import { type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 import { RecordingNotebookControls } from "../../reader/notebook/RecordingNotebookControls.tsx";
 import type { NotebookRecording } from "../../reader/notebook/recordingEntry.ts";
+import { recordingLaboratory } from "../../reader/notebook/recordingLaboratories.ts";
 import {
   captureRecordedStop,
   RECORDING_LIMITS,
@@ -54,7 +55,7 @@ export function ExperimentRecorder({
   const importGeneration = useRef(0);
   const formOnly = target.kind === "form";
   const scientific = target.kind === "worker";
-  const notebookSupported = target.experimentId === "bm-01" || target.experimentId === "bm-05";
+  const notebookSupported = recordingLaboratory(target.experimentId) !== null;
   const keepNotice = notebookSupported
     ? "Save the recording in your notebook or download it to keep it after leaving this page."
     : "Download the recording to keep it after leaving this page.";

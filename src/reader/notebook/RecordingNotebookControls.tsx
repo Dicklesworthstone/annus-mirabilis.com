@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { RecordedExperiment } from "../../experiments/permalink/recordedExperiments.ts";
 import type { NotebookStore } from "./notebookStore.ts";
 import type { NotebookRecording } from "./recordingEntry.ts";
+import { recordingLaboratory } from "./recordingLaboratories.ts";
 import type { NotebookRecordingEntry } from "./schema.ts";
 
 async function browserNotebook(): Promise<NotebookStore> {
@@ -29,7 +30,7 @@ export function RecordingNotebookControls({
   loadStore?: () => Promise<NotebookStore>;
 }>) {
   const id = useId();
-  const supported = experimentId === "bm-01" || experimentId === "bm-05";
+  const supported = recordingLaboratory(experimentId) !== null;
   const [entries, setEntries] = useState<readonly NotebookRecordingEntry[]>([]);
   const [showSaved, setShowSaved] = useState(false);
   const [busy, setBusy] = useState(false);
