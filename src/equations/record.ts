@@ -19,10 +19,10 @@ export type NumericalBinding = Readonly<{
   quantityId: string;
   experimentId: TeachingExperiment;
   outputId: string;
-  instanceSlot: "primary";
+  instanceSlot: string;
 }>;
 export type EquationRecord = Readonly<{
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
   kind: "equation";
   id: string;
   paper: TeachingPaper;
@@ -97,7 +97,7 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
   );
   const profile = teachingProfile(o.paper);
   if (
-    o.schemaVersion !== 1 ||
+    (o.schemaVersion !== 1 && o.schemaVersion !== 2) ||
     o.kind !== "equation" ||
     !profile ||
     o.review !== "draft" ||
@@ -149,15 +149,21 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
   list(o.bindings, path);
   for (const b of o.bindings) {
     const v = record(b, path, ["termId", "quantityId", "experimentId", "outputId", "instanceSlot"]),
-      n = selectable.get(String(v.termId));
+      n = selectable.get(String(v.termId)),
+      bindingKey =
+        o.schemaVersion === 1
+          ? String(v.termId)
+          : `${v.experimentId}/${v.instanceSlot}/${v.termId}`;
     if (
       n?.kind !== "symbol" ||
       n.quantityId !== v.quantityId ||
       v.outputId !== v.quantityId ||
       typeof v.experimentId !== "string" ||
       !Object.hasOwn(profile.outputs, v.experimentId) ||
-      v.instanceSlot !== "primary" ||
-      bindings.has(String(v.termId))
+      typeof v.instanceSlot !== "string" ||
+      !/^[a-z][a-z0-9-]{0,31}$/.test(v.instanceSlot) ||
+      (o.schemaVersion === 1 && v.instanceSlot !== "primary") ||
+      bindings.has(bindingKey)
     )
       fail(path, "Binding must resolve the exact term, quantity, output and instance slot.");
     const q = profile.quantities[n.quantityId];
@@ -165,7 +171,7 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
     const c = profile.outputs[v.experimentId as TeachingExperiment]?.[String(v.outputId)];
     if (!c || c.unit !== q.unit || c.semanticKind !== q.semanticKind)
       fail(path, "The output contract does not have this quantity's units and meaning.");
-    bindings.add(n.termId);
+    bindings.add(bindingKey);
   }
   // A lesson's formula explains a tool; no laboratory value ever reaches it, so it is reading-only
   // by declaration, never by default.
