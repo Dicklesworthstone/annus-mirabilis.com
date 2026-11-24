@@ -45,10 +45,25 @@ jobs:
       - name: Verify search loading and queries
         run: >-
           node --experimental-strip-types --test
-          src/search/loadIndex.test.mjs src/search/core.test.mjs src/search/build.test.mjs
+          src/search/loadIndex.test.mjs src/search/core.test.mjs src/search/build.test.mjs src/search/pagination.test.mjs
 
       - name: Prepare the real equation corpus
         run: bun scripts/prepare-lane.ts
+
+      - name: Verify reader navigation, search and held distributions
+        run: >-
+          bun test --isolate --timeout 60000
+          src/reader/faces/results/LightComplexGenealogy.test.tsx
+          src/testing/ResultsFace.render.test.tsx
+          src/components/lab/DistributionComparison.test.tsx
+          src/experiments/bm06/distributionComparison.test.mjs
+          src/reader/notebook/portableClarification.test.tsx
+          src/reader/SourceClarificationController.test.tsx
+          src/reader/nestedFoundationReturn.test.tsx
+          src/equations/termNavigation.test.tsx
+          src/equations/TermHighlight.test.tsx
+          src/equations/InlineTermLighting.test.tsx
+          src/search/SearchResults.test.tsx
 
       - name: Verify result probes and exact equation bindings
         run: >-
