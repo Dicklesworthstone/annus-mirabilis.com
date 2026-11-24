@@ -100,12 +100,12 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
               strictConcordance: false,
               marked: false,
             })}\\right)`
-          : component ?? resolved.glyph;
-        // A component or instance label is part of the term, inside its colour: E_y, t_0. A glyph
-        // that already carries a subscript is braced first, so the label never doubles one. A
-        // component letter already names its component, so it takes no label.
+          : (component ?? resolved.glyph);
+        // A component label belongs inside the term's colour. Group an existing subscript or
+        // prime first, so a later power cannot become x'_{y}^{2} (a double superscript).
+        // A component letter already names its component, so it takes no extra label.
         if (n.index !== undefined && component === undefined) {
-          s = s.includes("_") ? `{${s}}_{${n.index}}` : `${s}_{${n.index}}`;
+          s = /[_']/.test(s) ? `{${s}}_{${n.index}}` : `${s}_{${n.index}}`;
         }
 
         if (n.scale && (n.scale.num !== 1 || n.scale.den !== 1)) {
