@@ -6,10 +6,9 @@
 # same pre-existing gap lq-01.yaml and lq-03.yaml already note); sourceRefs below name the
 # sections the bead itself cites (S3, S4).
 #
-# modern-si-2019 only: einstein-1905-light-quanta-printed is not yet a registered constant set
-# (src/physics/reference/constants.ts's getConstantSet throws for it; owner am-ref-constants-xik),
-# so there is no constant-set toggle here -- the same honest limit lq-03.yaml already states
-# against the same owner.
+# Modern SI and the registered light-paper constants are separate calculations. The historical
+# spectrum and entropy use corrected alpha and printed beta; the dimensionless coefficient
+# uses (R/N) beta from that same set. Older recordings with no constantSetId remain modern SI.
 #
 # A NAMED OWNER DEFECT found while building this instrument, not patched here (not this bead's
 # file): radiationEntropyVolumeChange's returned `effectiveIndependentCount` field is really
@@ -45,6 +44,23 @@ argumentIds:
   - arg-lq-wien-integration
 schemaVersion: 1
 parameters:
+  - id: constantSetId
+    label: "Constant set"
+    accessibleName: "Constants for this calculation"
+    accessibleDescription: "Choose modern SI or the light paper's corrected alpha and printed beta; changing constants starts a new reference state."
+    quantityId: wienConstantBeta
+    displayUnit: "s K"
+    modelDomain:
+      enumerated: ["modern-si-2019", "einstein-1905-light-quanta-printed"]
+      reason: "Use one declared set for the reference spectrum, both endpoint entropies and the dimensionless coefficient."
+    visualRange:
+      min: 0
+      max: 1
+    default: "modern-si-2019"
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
   - id: frequency
     label: "Frequency"
     accessibleName: "Monochromatic radiation frequency"

@@ -4,7 +4,8 @@
  */
 
 import { withinTolerance } from "../../../units/tolerance.ts";
-import { type ConstantSet, constantValue, thermalConstant } from "../constants.ts";
+import type { ConstantSet } from "../constants.ts";
+import { spectralConstantsSI } from "./spectralConstants.ts";
 import type { CyclicFrequency, RadiationResult } from "./types.ts";
 
 export type WienCoefficients = Readonly<{
@@ -17,13 +18,10 @@ function resolveCoefficients(setOrCoeffs?: ConstantSet | WienCoefficients): Wien
     return setOrCoeffs;
   }
   if (setOrCoeffs && "entries" in setOrCoeffs) {
-    const c = constantValue(setOrCoeffs, "speedOfLight").value;
-    const kB = thermalConstant(setOrCoeffs).value;
-    const h = constantValue(setOrCoeffs, "planckConstant").value;
-    return {
-      A: (8 * Math.PI * h) / c ** 3,
-      B: h / kB,
-    };
+    // The printed light paper supplies alpha and beta directly. Reconstructing them from
+    // rounded R/N, or borrowing modern h, would give the entropy a different spectrum.
+    const { A, B } = spectralConstantsSI(setOrCoeffs);
+    return { A, B };
   }
   // Default to Modern SI 2019
   const c = 299792458;

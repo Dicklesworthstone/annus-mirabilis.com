@@ -3,13 +3,13 @@ import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 
 /**
  * LQ-04: the Wien-regime radiation entropy workbench (am-lq-04-entropy-workbench-senj).
- *
- * modern-si-2019 only this pass: einstein-1905-light-quanta-printed is not yet a registered
- * constant set (src/physics/reference/constants.ts's getConstantSet throws
- * constant-set-not-registered for it; owner am-ref-constants-xik). This is the same honest
- * scope limit lq03/definition.ts already states for the same reason against the same owner.
+ * Each run uses either modern SI or the light paper's printed constants throughout.
  */
+export type Lq04ConstantSet = "modern-si-2019" | "einstein-1905-light-quanta-printed";
+
 export type Lq04Parameters = Readonly<{
+  /** Omitted in older modern-SI recordings, whose settings and digests stay unchanged. */
+  constantSetId?: Lq04ConstantSet;
   frequency: number; // nu, Hz
   bandwidth: number; // dNu, Hz
   referenceVolume: number; // V0, m^3
@@ -32,6 +32,7 @@ export const LQ04_DEFAULTS: Lq04Parameters = Object.freeze({
 });
 
 export const LQ04_CLASSES: Readonly<Record<keyof Lq04Parameters, ParameterClass>> = Object.freeze({
+  constantSetId: "input",
   frequency: "input",
   bandwidth: "input",
   referenceVolume: "input",
@@ -98,8 +99,18 @@ export const LQ04_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "radiation.entropy",
     OUTSIDE,
   ),
-  initialEntropyDensitySlope: c("1/K", "spectral-entropy-density-slope", "radiation.entropy", OUTSIDE),
-  finalEntropyDensitySlope: c("1/K", "spectral-entropy-density-slope", "radiation.entropy", OUTSIDE),
+  initialEntropyDensitySlope: c(
+    "1/K",
+    "spectral-entropy-density-slope",
+    "radiation.entropy",
+    OUTSIDE,
+  ),
+  finalEntropyDensitySlope: c(
+    "1/K",
+    "spectral-entropy-density-slope",
+    "radiation.entropy",
+    OUTSIDE,
+  ),
   initialInverseTemperature: c("1/K", "inverse-temperature", "radiation.entropy", OUTSIDE),
   finalInverseTemperature: c("1/K", "inverse-temperature", "radiation.entropy", OUTSIDE),
   initialEntropySlopeDensityStep: c(

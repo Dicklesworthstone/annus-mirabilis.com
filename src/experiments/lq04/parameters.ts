@@ -28,13 +28,23 @@ export function validateLq04Parameters(input: unknown): Computation<Lq04Paramete
 
   const keys = Object.keys(LQ04_DEFAULTS);
   if (
-    Reflect.ownKeys(input).length !== keys.length ||
-    Reflect.ownKeys(input).some((k) => typeof k !== "string" || !keys.includes(k))
+    keys.some((k) => !Object.hasOwn(input, k)) ||
+    Reflect.ownKeys(input).some(
+      (k) => typeof k !== "string" || (!keys.includes(k) && k !== "constantSetId"),
+    )
   ) {
     return bad("Parameter fields must be complete, known data fields.");
   }
 
   const p = input as Lq04Parameters;
+
+  if (
+    Object.hasOwn(p, "constantSetId") &&
+    p.constantSetId !== "modern-si-2019" &&
+    p.constantSetId !== "einstein-1905-light-quanta-printed"
+  ) {
+    return bad("Choose modern SI or the light paper's historical constants.");
+  }
 
   if (!Number.isFinite(p.frequency) || p.frequency < 1e13 || p.frequency > 1e16) {
     return bad(`Enter a frequency from ${powerOfTenText(1e13)} to ${powerOfTenText(1e16)} Hz.`);

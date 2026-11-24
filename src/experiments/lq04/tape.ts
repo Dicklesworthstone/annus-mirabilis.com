@@ -22,5 +22,6 @@ export const LQ04_TAPE: LabTapeBinding = Object.freeze({
   }),
   defaults: LQ04_DEFAULTS,
   validate: validateLq04Parameters,
+  constantSetIdForSettings: (settings) => String(settings.constantSetId ?? "modern-si-2019"),
   createSession: (instanceId: string) => createLq04Session(instanceId),
 });

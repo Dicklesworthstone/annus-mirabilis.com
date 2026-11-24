@@ -143,7 +143,7 @@
     "src/physics/reference/radiation/avogadro.ts": "source:sha256:bcda87cc6d5f83f61f0b5afa8a9bf486e56ac81e0ec9ae92091aee79a5458ad9",
     "src/physics/reference/radiation/spectra.ts": "source:sha256:e36b10e9e2d2bcb501177ee9ee876142df69593a569bc2bd82cee6f71b4ae08c",
     "src/physics/reference/radiation/bandIntegration.ts": "source:sha256:f24f08f7c74a40d0702dedb9b18a7770df4cdd16f936b0d79c388d374b710077",
-    "src/physics/reference/radiation/entropy.ts": "source:sha256:fca8be891fd4c1b9bc64e4a895df12a016302b9f236428009eeec898a3eedb7d",
+    "src/physics/reference/radiation/entropy.ts": "source:sha256:a7550094896b4c1d4ebc66cbb3350173503308c47f5f9de690cc0b295d88c247",
     "src/physics/reference/diffusion/routeA.ts": "source:sha256:46c1f6ca0c5cf360c7295d50136f8f7c733e714883b7ba1304ee6f317006d3ba",
     "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:4e573122ab0d8b46da42fdba7ea7db12b130a29ce803693b308328d261580556",
     "src/physics/reference/inference.ts": "source:sha256:f0df545a6faed521f98e2bfe4e5d6ce6beb41c1d513fdbf9f38929cd36fd9dbe",

@@ -13,17 +13,22 @@
  * two dimensions"). Verified numerically: at the modern golden state the owner's field reads
  * 3.1448...e-13 (J/K, matching kB * 2.277774e10), not 2.277774e10 itself. This module maps that
  * field to `entropyVolumeCoefficient` and computes the true dimensionless `effectiveIndependentCount`
- * independently below, from E and the constant set's own Planck constant.
+ * independently below, from E and the same set's quantum energy coefficient.
  */
-import { constantValue, getConstantSet } from "../../physics/reference/constants.ts";
+import {
+  constantValue,
+  getConstantSet,
+  thermalConstant,
+} from "../../physics/reference/constants.ts";
+import { quantumConstantsSI } from "../../physics/reference/radiation/quantumConstants.ts";
 import {
   compareWienEntropySlope,
   entropyWithUnfixedConstant,
   type RadiationEntropyVolumeChangeResult,
   radiationEntropyVolumeChange,
   regimeRelativeErrors,
-  wienFrequencyEnergyDensity,
   type WienEntropySlopeComparison,
+  wienFrequencyEnergyDensity,
   wienSpectralEntropyDensity,
 } from "../../physics/reference/radiation.ts";
 import type {
@@ -36,7 +41,6 @@ import { LQ04_DEFAULTS, LQ04_ENTROPY_SLOPE_COMPARISON, type Lq04Parameters } fro
 import { validateLq04Parameters } from "./parameters.ts";
 
 const MAX_DELTA_NU_RATIO = 0.01;
-const CONSTANT_SET_ID = "modern-si-2019";
 
 export type Lq04Refusal = Readonly<{
   condition: string;
@@ -81,7 +85,7 @@ export type Lq04Evaluation =
   | Readonly<{ status: "outside-domain" } & Lq04Refusal>;
 
 export function evaluateLq04(p: Lq04Parameters): Lq04Evaluation {
-  const set = getConstantSet(CONSTANT_SET_ID);
+  const set = getConstantSet(p.constantSetId ?? "modern-si-2019");
   const rho0Result = wienFrequencyEnergyDensity(p.frequency, p.referenceTemperature, set);
   if (rho0Result.status !== "value" || !rho0Result.linearRepresentable) {
     return {
@@ -130,7 +134,7 @@ export function evaluateLq04(p: Lq04Parameters): Lq04Evaluation {
     epsilonW,
   });
 
-  const h = constantValue(set, "planckConstant").value;
+  const { h } = quantumConstantsSI(set, { read: constantValue, thermal: thermalConstant });
   const effectiveIndependentCount = energy / (h * p.frequency);
 
   const s0Total = p.referenceVolume * p.bandwidth * s0.value;
@@ -494,6 +498,8 @@ export function createLq04Session(
 
     actionIndex++;
     const isSetupChange =
+      (currentParams.constantSetId ?? "modern-si-2019") !==
+        (validated.data.constantSetId ?? "modern-si-2019") ||
       currentParams.frequency !== validated.data.frequency ||
       currentParams.bandwidth !== validated.data.bandwidth ||
       currentParams.referenceVolume !== validated.data.referenceVolume ||

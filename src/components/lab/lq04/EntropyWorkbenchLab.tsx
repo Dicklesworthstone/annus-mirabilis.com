@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, type ReactNode, useEffect, useId, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useId, useMemo, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -13,6 +13,7 @@ import {
   LQ04_NOT_MODELED,
   LQ04_OUTPUTS,
   LQ04_QUESTION,
+  type Lq04ConstantSet,
   type Lq04Parameters,
 } from "../../../experiments/lq04/definition.ts";
 import {
@@ -59,6 +60,7 @@ import { withScripts } from "../subscripts.tsx";
 const LQ04_PROMPTS = PREDICT_PROMPTS["lq-04"] ?? [];
 
 type Draft = Readonly<{
+  constantSetId: Lq04ConstantSet;
   frequency: string;
   bandwidth: string;
   referenceVolume: string;
@@ -71,6 +73,7 @@ type Draft = Readonly<{
 
 function toDraft(p: Lq04Parameters): Draft {
   return {
+    constantSetId: p.constantSetId ?? "modern-si-2019",
     frequency: String(p.frequency),
     bandwidth: String(p.bandwidth),
     referenceVolume: String(p.referenceVolume),
@@ -84,6 +87,7 @@ function toDraft(p: Lq04Parameters): Draft {
 
 function fromDraft(d: Draft): unknown {
   return {
+    ...(d.constantSetId === "modern-si-2019" ? {} : { constantSetId: d.constantSetId }),
     frequency: Number(d.frequency),
     bandwidth: Number(d.bandwidth),
     referenceVolume: Number(d.referenceVolume),
@@ -175,6 +179,11 @@ export function EntropyWorkbenchLab({
     buildLq04Snapshot(instanceId ?? `lq04-${id}`, "lq04-init", LQ04_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Lq04Parameters;
+  const historical = p.constantSetId === "einstein-1905-light-quanta-printed";
+  const weave = useMemo(
+    () => ({ ...LQ04_READER_WEAVE, constantSetId: p.constantSetId ?? "modern-si-2019" }),
+    [p.constantSetId],
+  );
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation; no example, no earned label.
   const executionKind = executionStateKindFromHostLabel(
@@ -232,6 +241,7 @@ export function EntropyWorkbenchLab({
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="lq-04"
+      data-constant-set={p.constantSetId ?? "modern-si-2019"}
       {...identity(snapshot)}
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
@@ -297,7 +307,21 @@ export function EntropyWorkbenchLab({
             />
           </fieldset>
 
-          <ExperimentSettings contents="frequency, band width, reference volume and temperature, the dilute threshold">
+          <ExperimentSettings contents="constants, frequency, band width, reference volume and temperature, the dilute threshold">
+            <label htmlFor={`${id}-constantSetId`}>Constants for this calculation</label>
+            <select
+              id={`${id}-constantSetId`}
+              name="constantSetId"
+              value={draft.constantSetId}
+              onChange={(e) =>
+                setDraft({ ...draft, constantSetId: e.target.value as Lq04ConstantSet })
+              }
+            >
+              <option value="modern-si-2019">Modern SI</option>
+              <option value="einstein-1905-light-quanta-printed">
+                Light paper, 1905 (corrected α)
+              </option>
+            </select>
             <label htmlFor={`${id}-frequency`}>Frequency (Hz)</label>
             <input
               id={`${id}-frequency`}
@@ -403,6 +427,22 @@ export function EntropyWorkbenchLab({
         </form>
 
         <div className="lab-results" {...gate.response}>
+          <p className="fine" data-accepted-constants={p.constantSetId ?? "modern-si-2019"}>
+            {historical ? (
+              <>
+                These results use the light paper's α = 6.10 × 10<sup>−57</sup> erg s⁴/cm³ (the
+                corrected exponent) and β = 4.866 × 10<sup>−11</sup> s K. The dimensionless
+                coefficient uses that set's editorial gas constant R and printed N, giving the
+                quantum energy (R/N)βν. No modern h or Boltzmann constant enters the calculation.
+                All densities and entropies are converted to SI.{" "}
+                <a href="/papers/light-quanta/#s2">Read §2</a>.
+              </>
+            ) : (
+              "These results use modern SI constants throughout the spectrum and entropy calculation."
+            )}{" "}
+            Changing constants starts a new reference state with its own fixed energy. The worked
+            numbers in the explanations below use modern SI constants.
+          </p>
           <p className="fine">
             Fixed energy E = {energyText} at ν = <Sci value={p.frequency} digits={2} /> Hz in a{" "}
             <Sci value={p.bandwidth} digits={2} /> Hz band.
@@ -412,8 +452,9 @@ export function EntropyWorkbenchLab({
             <p role="status">
               ΔS = {valueText(snapshot, "radiationEntropy", "J/K")} (closed form);{" "}
               {valueText(snapshot, "radiationEntropyNumeric", "J/K")} (numerical S(V) − S(V₀));
-              coefficient E/(βν) = {valueText(snapshot, "entropyVolumeCoefficient", "J/K")}; E/(hν)
-              = {valueText(snapshot, "effectiveIndependentCount", "", 6)} (never a count of
+              coefficient E/(βν) = {valueText(snapshot, "entropyVolumeCoefficient", "J/K")};{" "}
+              {historical ? "E/[(R/N)βν]" : "E/(hν)"} ={" "}
+              {valueText(snapshot, "effectiveIndependentCount", "", 6)} (never a count of
               particles).
             </p>
           ) : null}
@@ -527,7 +568,7 @@ export function EntropyWorkbenchLab({
       <div {...gate.response}>
         <SessionResultWeave
           session={session}
-          binding={LQ04_READER_WEAVE}
+          binding={weave}
           suspended={failure !== null}
           announcementsEnabled={gate.open}
           highlightPaper={highlightPaper}
