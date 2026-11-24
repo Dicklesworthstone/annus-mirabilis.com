@@ -1,14 +1,20 @@
 /**
  * The results face (am-read-results-face-uzh): a paper's numbered results as cards, in paper
  * order, with a section filter and a slot for the equation genealogy (am-eq-genealogy-hmm draws it;
- * this face only places it). The first live route traces the checked light-complex result into
- * the September paper. Other papers keep the slot absent until their own dependencies are joined.
+ * this face only places it). Checked routes supply the dependency links; the light-complex
+ * route also has a worked account of the separate density, volume and cross-paper import.
  */
+import { ResultCardsError } from "../../content/results/printedChecks.ts";
+import {
+  type ResultDependency,
+  resultDependenciesFor,
+} from "../../content/results/resultDependencies.ts";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { InlineTerms } from "./InlineTerms.tsx";
 import { LightComplexGenealogy } from "./results/LightComplexGenealogy.tsx";
 import { ResultCard } from "./results/ResultCard.tsx";
+import { ResultDependencies } from "./results/ResultDependencies.tsx";
 import type { ResultCard as ResultCardData } from "./results/types.ts";
 
 export function ResultsFace({
@@ -61,11 +67,38 @@ export function ResultsFace({
 
   const lightEnergy = cards.find((card) => card.resultId === "sr-light-complex-energy");
   const lightEnergySupport = lightEnergy?.support;
-  const defaultGenealogy =
+  const lightComplexGenealogy =
     paper === "special-relativity" &&
     lightEnergySupport?.kind === "checked-proof" &&
     lightEnergySupport.proofId === "sr-light-complex-energy" ? (
       <LightComplexGenealogy support={lightEnergySupport} />
+    ) : null;
+  let dependencies: readonly ResultDependency[] = [];
+  if (genealogy == null && equations && cards.length > 0) {
+    try {
+      dependencies = resultDependenciesFor(
+        paper,
+        cards.map((card) => card.resultId),
+        new Map(
+          cards.flatMap((card) =>
+            card.support?.kind === "checked-proof" ? [[card.resultId, card.support] as const] : [],
+          ),
+        ),
+        equations,
+      );
+    } catch (error) {
+      // An unresolved optional genealogy blocks those links, not the source or result cards.
+      if (!(error instanceof ResultCardsError) || error.rule !== "result-dependencies-unresolved") {
+        throw error;
+      }
+    }
+  }
+  const defaultGenealogy =
+    dependencies.length > 0 || lightComplexGenealogy ? (
+      <>
+        <ResultDependencies results={dependencies} />
+        {lightComplexGenealogy}
+      </>
     ) : null;
   const renderedGenealogy = genealogy ?? defaultGenealogy;
 
@@ -88,7 +121,13 @@ export function ResultsFace({
         </nav>
       )}
 
-      {genealogy == null && defaultGenealogy ? (
+      {dependencies.length > 0 ? (
+        <p>
+          <a href="#result-dependencies">See how these results fit together</a>
+        </p>
+      ) : null}
+
+      {genealogy == null && lightComplexGenealogy ? (
         <p>
           <a href="#light-complex-genealogy">
             Trace how the light-energy result reaches the September paper

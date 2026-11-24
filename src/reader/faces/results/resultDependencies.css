@@ -1,0 +1,65 @@
+.result-dependencies {
+  margin-block: 2rem;
+  scroll-margin-top: 7rem;
+}
+
+.result-dependencies-list {
+  padding-inline-start: 1.75rem;
+}
+
+.result-dependencies-list > li {
+  margin-block: 1.5rem;
+  padding: 1rem;
+  border-block-start: 1px solid var(--line);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.result-dependencies-list h4 {
+  margin-block: 0 0.5rem;
+}
+
+.result-dependencies-label {
+  margin-block-end: 0.25rem;
+  font-weight: 600;
+}
+
+.result-dependencies-label + ul {
+  margin-block-start: 0.25rem;
+  padding-inline-start: 1.25rem;
+}
+
+.result-dependencies-assumptions {
+  margin-block: 1rem;
+}
+
+.result-dependencies-assumptions summary {
+  cursor: pointer;
+}
+
+.result-dependencies-import {
+  margin-block: 1rem;
+  padding-inline-start: 1rem;
+  border-inline-start: 0.25rem solid var(--accent);
+}
+
+.result-dependencies-import h5 {
+  margin-block: 0.5rem;
+  font-size: var(--type-body);
+}
+
+.result-dependencies-destinations {
+  margin-block-end: 0;
+}
+
+@media (max-width: 40rem) {
+  .result-dependencies-list > li {
+    padding-inline: 0.25rem;
+  }
+}
+
+@media print {
+  .result-dependencies-list > li {
+    break-inside: avoid;
+  }
+}
