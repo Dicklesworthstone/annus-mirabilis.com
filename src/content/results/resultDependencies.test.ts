@@ -148,7 +148,8 @@ describe("navigation through actual checked result routes", () => {
       quanta.routes.flatMap((route) => route.inputs).every((input) => input.kind === "passage"),
     ).toBe(true);
     expect(quanta.routes.every((route) => route.kind === "teaching")).toBe(true);
-    expect(node(nodes, "lq-planck-constants").support).toBeNull();
+    expect(node(nodes, "lq-planck-constants").support?.proofId).toBe("lq-planck-molecular-number");
+    expect(node(nodes, "lq-entropy-temperature").support).toBeNull();
   });
 
   test("cross-paper borrowing keeps the derived formula separate from the premises", () => {

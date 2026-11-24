@@ -59,8 +59,10 @@ cards:
 
   - id: lq-planck-constants
     support:
-      kind: "no-checked-proof"
-      reason: "The comparison of radiation constants is explained in the linked passages; no checked derivation record covers this inference."
+      kind: "checked-proof"
+      proofId: "lq-planck-molecular-number"
+      conclusion: "eq-model-lq-avogadro-from-spectrum"
+      scope: "Exact normalization of the supplied Planck spectrum, the analytic removable limit of its exponential difference quotient, reciprocal continuity, and the coefficient inference for N. The fitted radiation law, classical leading-spectrum compatibility, positive domain, consistent units and independent input provenance remain premises. The historical numbers are a worked calculation with the printed alpha exponent kept separate from the edition's numerical choice; no finite-frequency error bound or independent experimental confirmation is claimed."
     title: "Planck's constants and the number of molecules"
     section: s2
     arguments: [arg-lq-planck-constants]

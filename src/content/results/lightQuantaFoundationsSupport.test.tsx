@@ -137,9 +137,8 @@ test("result-support-lq-foundations-not-checked cannot attach the proof to an un
   }
 });
 
-test("the new support preserves the unsolved Planck and entropy-temperature steps", () => {
-  for (const id of ["lq-planck-constants", "lq-entropy-temperature"])
-    expect(card(id).support.kind).toBe("no-checked-proof");
+test("the checked foundational calculations retain the entropy-temperature identity as an admitted step", () => {
+  expect(card("lq-entropy-temperature").support.kind).toBe("no-checked-proof");
   expect(checkedSupportFor(card("lq-classical-difficulty"), fixtures[0].records)?.scope).toContain(
     "fixed positive temperature",
   );

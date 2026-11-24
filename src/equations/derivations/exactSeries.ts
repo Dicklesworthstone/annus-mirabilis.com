@@ -21,7 +21,9 @@ import { exactPolynomial } from "./exactPolynomial.ts";
  * quantities (v/c in the first consumer). Its denominator is held nonzero.
  * Admitted operations are real-analytic near zero: rational arithmetic with
  * nonzero denominators at zero, integer powers, and the identity-connected
- * rational power of a base whose value at zero is exactly one.
+ * rational power of a base whose value at zero is exactly one, and exp of an
+ * analytic argument whose value at zero is exactly zero. For y = exp(a), the
+ * identity y' = a'y fixes coefficients by n y_n = sum(k a_k y_(n-k)).
  * Binomial recurrence: NIST DLMF 4.6.7, https://dlmf.nist.gov/4.6.E7.
  * This computes a finite jet; it does NOT bound a remainder at a finite speed.
  */
@@ -159,6 +161,26 @@ export function exactSeriesAtZero(request: SeriesRequest): TaylorJet {
     }
     return value;
   }
+  function exponential(argument: readonly Rational[]): Rational[] {
+    // exp(0) is exactly one. Nonzero origins generally need transcendental
+    // coefficients, outside this rational owner; do not round them into it.
+    if (argument[0]!.num !== 0n)
+      fail(
+        "exponential-origin-not-zero",
+        "An exact exponential jet requires its argument to vanish at the origin.",
+      );
+    const value = scalar(ONE);
+    for (let n = 1; n <= order; n++) {
+      let coefficient = ZERO;
+      for (let k = 1; k <= n; k++)
+        coefficient = plus(
+          coefficient,
+          times(times(rational(BigInt(k)), argument[k]!), value[n - k]!),
+        );
+      value[n] = over(coefficient, rational(BigInt(n)));
+    }
+    return value;
+  }
   function visit(node: Expression): Rational[] {
     // Matching is by exact canonical quantity identities, not glyphs or the
     // occurrence IDs a renderer assigns. Scaled occurrences are not the atom.
@@ -194,6 +216,12 @@ export function exactSeriesAtZero(request: SeriesRequest): TaylorJet {
         return power(
           visit(node.base),
           rational(BigInt(node.exponent.num), BigInt(node.exponent.den)),
+        );
+      case "function":
+        if (node.name === "exp") return exponential(visit(node.argument));
+        return fail(
+          "series-not-inferable",
+          "Only an exponential with a zero-origin argument is supported here.",
         );
       default:
         return fail(

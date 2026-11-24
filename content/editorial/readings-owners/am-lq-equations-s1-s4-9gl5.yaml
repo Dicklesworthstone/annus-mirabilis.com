@@ -1,4 +1,4 @@
-# Draft step readings; synchronized with lightQuantaEntropy.ts and lightQuantaFoundations.ts by focused tests.
+# Draft step readings; synchronized with the LQ derivation modules by focused tests.
 paper: "light-quanta"
 ownerBeadId: "am-lq-equations-s1-s4-9gl5"
 targetKinds:
@@ -11,6 +11,11 @@ scope:
     - "lq-classical-insert-spectrum"
     - "lq-classical-integrate-polynomial"
     - "lq-classical-widen-cutoff"
+    - "lq-planck-name-ratio"
+    - "lq-planck-normalize-spectrum"
+    - "lq-planck-take-limit"
+    - "lq-planck-match-coefficients"
+    - "lq-planck-solve-number"
 targets:
   - kind: "derivation-step"
     id: "chain-lq-wien-entropy/lq-wien-normalize-spectrum"
@@ -147,3 +152,48 @@ targets:
       r3: "On p. 136, Einstein combines the mean resonator energy from kinetic equilibrium with Planck's resonator-radiation relation and prints the integral over all frequencies as infinite. The finite cutoff, cubic antiderivative and repeated-doubling argument here unpack that printed limit. They do not add a physical cutoff to the paper or derive the equilibrium conditions. This reconstruction writes kB for R/N and c for L."
       r3Citations:
         - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§1, p. 136)."
+  - kind: "derivation-step"
+    id: "lq-planck-name-ratio"
+    readings:
+      r0: "The comparison concerns low frequency relative to temperature, not every part of the spectrum."
+      r1: "Write x = Bν/T. Since B carries seconds times kelvin, x has no units. Holding B and T fixed while decreasing positive ν makes x approach zero."
+      r2: "Admit the fitted Planck law with positive A and B. Define the positive frequency scale νT = T/B, so x = ν/νT. This exact change of variables separates the limiting argument from physical units. The approximate sign on the leading spectrum remains: a local limit cannot make the two spectra identical at a finite frequency."
+      r3: "On pp. 136–137, §2 compares Planck's fitted spectrum with the classical law only for large T/ν. It matches their coefficients and prints N = 6,17 · 10²³. The finite series and removable-limit steps here unpack that limiting comparison; they do not derive the empirical spectrum. The edition retains the printed α exponent −56 while its numerical reconstruction uses −57, with separately supplied historical R and L. Agreement of this calculation with the printed number does not establish the correctness of the spectral fit or the free-light hypothesis."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§2, pp. 136–137)."
+  - kind: "derivation-step"
+    id: "lq-planck-normalize-spectrum"
+    readings:
+      r0: "Divide the full spectrum by the proposed leading spectrum and watch whether the ratio approaches one."
+      r1: "Both densities vanish as frequency approaches zero at fixed temperature. Their shared zero would not identify a coefficient. Dividing the positive expressions gives x/[exp(x) − 1]."
+      r2: "The numerator Aν³ divided by (A/B)ν²T is Bν/T, exactly x. The exponential denominator is exp(x) − 1. Thus their ratio is x/[exp(x) − 1] for positive ν and T. Every A, B, frequency power and temperature factor participates in this cancellation; matching two zero limits alone would miss those factors."
+      r3: "On pp. 136–137, §2 compares Planck's fitted spectrum with the classical law only for large T/ν. It matches their coefficients and prints N = 6,17 · 10²³. The finite series and removable-limit steps here unpack that limiting comparison; they do not derive the empirical spectrum. The edition retains the printed α exponent −56 while its numerical reconstruction uses −57, with separately supplied historical R and L. Agreement of this calculation with the printed number does not establish the correctness of the spectral fit or the free-light hypothesis."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§2, pp. 136–137)."
+  - kind: "derivation-step"
+    id: "lq-planck-take-limit"
+    readings:
+      r0: "After its constant one is removed, the exponential begins with x. The spectral ratio therefore approaches one."
+      r1: "The exponential is analytic and its first coefficients are exactly 1, 1, 1/2. Subtracting one and dividing by x has limit one; taking its reciprocal also has limit one because that limit is nonzero."
+      r2: "For y = exp(a), y′ = a′y determines the Taylor coefficients by n yₙ = ∑ₖ₌₁ⁿ k aₖ yₙ₋ₖ. With a = x and exp(0) = 1, the exact first two coefficients are 1 and 1. The analytic numerator exp(x) − 1 therefore has zero constant coefficient and linear coefficient one. The removable-limit owner divides out x, then continuity of the reciprocal gives the second limit. No value is assigned to 0/0, and no finite-frequency error bound is inferred from a truncated series."
+      r3: "On pp. 136–137, §2 compares Planck's fitted spectrum with the classical law only for large T/ν. It matches their coefficients and prints N = 6,17 · 10²³. The finite series and removable-limit steps here unpack that limiting comparison; they do not derive the empirical spectrum. The edition retains the printed α exponent −56 while its numerical reconstruction uses −57, with separately supplied historical R and L. Agreement of this calculation with the printed number does not establish the correctness of the spectral fit or the free-light hypothesis."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§2, pp. 136–137)."
+  - kind: "derivation-step"
+    id: "lq-planck-match-coefficients"
+    readings:
+      r0: "If both laws describe the same leading spectrum, their coefficients must agree."
+      r1: "The limiting spectral form has coefficient A/B. The classical law of §1 has coefficient 8πR/(Nc³), with kB written as R/N. Their common positive ν²T factor cancels."
+      r2: "The exact limit establishes the leading Planck coefficient, but it cannot establish the physical classical model. Admit that both describe the same low-frequency spectral density in the same units. Divide their leading expressions by ν²T at positive ν and T to obtain A/B = 8πR/(Nc³). This is a comparison of leading coefficients, not an assertion that the full Planck spectrum equals the classical spectrum at nonzero x."
+      r3: "On pp. 136–137, §2 compares Planck's fitted spectrum with the classical law only for large T/ν. It matches their coefficients and prints N = 6,17 · 10²³. The finite series and removable-limit steps here unpack that limiting comparison; they do not derive the empirical spectrum. The edition retains the printed α exponent −56 while its numerical reconstruction uses −57, with separately supplied historical R and L. Agreement of this calculation with the printed number does not establish the correctness of the spectral fit or the free-light hypothesis."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§2, pp. 136–137)."
+  - kind: "derivation-step"
+    id: "lq-planck-solve-number"
+    readings:
+      r0: "The fitted spectral constants and separate gas and light-speed inputs determine the molecular number within this comparison."
+      r1: "Multiply the coefficient equality by N and by B/A. All divisors are positive, leaving N = (B/A)(8πR/c³). The result is an inference from those inputs."
+      r2: "Starting from A/B = 8πR/(Nc³), multiplication by NB/A leaves N on the left and (B/A)(8πR/c³) on the right. Substitute that expression back into the coefficient equality to check every factor exactly. The shared positive-domain premises exclude division by zero. Changing A by a factor of ten changes this inferred N by the reciprocal factor, which is why the printed exponent and the edition's numerical choice must be shown separately."
+      r3: "On pp. 136–137, §2 compares Planck's fitted spectrum with the classical law only for large T/ν. It matches their coefficients and prints N = 6,17 · 10²³. The finite series and removable-limit steps here unpack that limiting comparison; they do not derive the empirical spectrum. The edition retains the printed α exponent −56 while its numerical reconstruction uses −57, with separately supplied historical R and L. Agreement of this calculation with the printed number does not establish the correctness of the spectral fit or the free-light hypothesis."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§2, pp. 136–137)."

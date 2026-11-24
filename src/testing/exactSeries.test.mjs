@@ -138,7 +138,7 @@ for (const [label, expression] of [
   ["square root at the wrong origin", root(num(2))],
   ["negative square-root origin", root(num(-1))],
   ["exponent exceeds budget", pow(sum(num(1), x()), 17)],
-  ["unknown analytic operation", { kind: "function", name: "exp", argument: x() }],
+  ["unknown analytic operation", { kind: "function", name: "sin", argument: x() }],
   ["zero cannot hide unsupported operation", mul(num(0), div(num(1), x()))],
   ["zeroth power cannot hide unsupported operation", pow(div(num(1), x()), 0)],
   ["unbound factor", sym("lorentzFactor")],

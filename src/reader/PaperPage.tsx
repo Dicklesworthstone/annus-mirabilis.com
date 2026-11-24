@@ -11,6 +11,7 @@ import { loadGermanSourceFace, printedUnits } from "../content/editions/germanSo
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import type { RouteSlug } from "../content/ids.ts";
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
+import { buildLqPlanckDerivationPayload } from "../content/results/lightQuantaPlanckSupport.ts";
 import { hasResultCards } from "../content/results/resultCards.ts";
 import { getModalityClasses } from "../content/schemas/glossConventions.ts";
 import { loadPaper } from "../content/server.ts";
@@ -69,6 +70,7 @@ import {
   LazyLightQuantaDerivation,
   LazyLightQuantaFirstEncounter,
   LazyLightQuantaFoundationsDerivation,
+  LazyLightQuantaPlanckDerivation,
   LazyMassEnergyFirstEncounter,
   LazyPhotoelectricDerivation,
   LazySRChargeCurrentDerivation,
@@ -766,6 +768,19 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <p className="fine">
                             <a href="/papers/light-quanta/s1/#lq-classical-cutoff-derivation">
                               Follow the finite cutoff to the unbounded classical total
+                            </a>
+                          </p>
+                        ))}
+                      {paper.id === "light-quanta" &&
+                        a.id === "arg-lq-planck-constants" &&
+                        (sectionId ? (
+                          <LazyLightQuantaPlanckDerivation
+                            payload={buildLqPlanckDerivationPayload()}
+                          />
+                        ) : (
+                          <p className="fine">
+                            <a href="/papers/light-quanta/s2/#lq-planck-constants-derivation">
+                              Follow the low-frequency limit to the molecular-number calculation
                             </a>
                           </p>
                         ))}

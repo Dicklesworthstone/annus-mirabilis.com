@@ -9,6 +9,7 @@ export const RESULT_PROOF_IDS = [
   "lq-wien-entropy-volume",
   "lq-classical-cutoff",
   "lq-independent-entropy",
+  "lq-planck-molecular-number",
   "lq-entropy-energy-scale",
   "lq-photoelectric-energy",
   "lq-fluorescence-energy",

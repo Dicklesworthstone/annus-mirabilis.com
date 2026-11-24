@@ -55,6 +55,7 @@ import type { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncoun
 import type { LightQuantaClosingDerivation } from "./LightQuantaClosingDerivation.tsx";
 import type { LightQuantaDerivation } from "./LightQuantaDerivation.tsx";
 import type { LightQuantaFoundationsDerivation } from "./LightQuantaFoundationsDerivation.tsx";
+import type { LightQuantaPlanckDerivation } from "./LightQuantaPlanckDerivation.tsx";
 import type { PhotoelectricDerivation } from "./PhotoelectricDerivation.tsx";
 import type { SRChargeCurrentDerivation } from "./SRChargeCurrentDerivation.tsx";
 import type { SRClocksAndLengthsDerivation } from "./SRClocksAndLengthsDerivation.tsx";
@@ -121,6 +122,11 @@ const LightQuantaClosingSteps = lazy(() =>
     default: m.LightQuantaClosingDerivation,
   })),
 );
+const LightQuantaPlanckSteps = lazy(() =>
+  import("./LightQuantaPlanckDerivation.tsx").then((m) => ({
+    default: m.LightQuantaPlanckDerivation,
+  })),
+);
 const SRLightComplexSteps = lazy(() =>
   import("./SRLightComplexDerivation.tsx").then((m) => ({ default: m.SRLightComplexDerivation })),
 );
@@ -170,6 +176,12 @@ export function LazyLightQuantaFoundationsDerivation(
   props: ComponentProps<typeof LightQuantaFoundationsDerivation>,
 ) {
   return <LightQuantaFoundationsSteps {...props} />;
+}
+
+export function LazyLightQuantaPlanckDerivation(
+  props: ComponentProps<typeof LightQuantaPlanckDerivation>,
+) {
+  return <LightQuantaPlanckSteps {...props} />;
 }
 
 export function LazyLightQuantaClosingDerivation(

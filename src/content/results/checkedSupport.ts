@@ -113,6 +113,7 @@ import { checkedFieldCovarianceSupport } from "./fieldCovarianceSupport.ts";
 import { checkedGaussianSupport } from "./gaussianSupport.ts";
 import { checkedKernelSupport } from "./kernelSupport.ts";
 import { checkedLqFoundationsSupport } from "./lightQuantaFoundationsSupport.ts";
+import { checkedLqPlanckSupport } from "./lightQuantaPlanckSupport.ts";
 import { checkedOsmoticSupport } from "./osmoticSupport.ts";
 import { checkedPredictionSupport } from "./predictionSupport.ts";
 import { ResultCardsError } from "./printedChecks.ts";
@@ -130,6 +131,7 @@ type DerivationProofId = Exclude<
   | "lq-ionization-energy-count"
   | "lq-classical-cutoff"
   | "lq-independent-entropy"
+  | "lq-planck-molecular-number"
 >;
 type ProofRecord = Readonly<{
   id: string;
@@ -703,6 +705,9 @@ export function checkedSupportFor(
     declaration.proofId === "lq-ionization-energy-count"
   )
     return checkedClosingSupport(card.id, declaration, conclusion, equations);
+
+  if (declaration.proofId === "lq-planck-molecular-number")
+    return checkedLqPlanckSupport(card.id, declaration, conclusion, equations);
 
   if (Object.hasOwn(DERIVATION_PROOFS, declaration.proofId))
     return checkedDerivationSupport(
