@@ -17,6 +17,7 @@ const FIELD_NAMES: Readonly<Record<string, string>> = {
   capstone: "saved reconstruction",
   teachBack: "question and guide revision",
   exercise: "exercise question, definition and unit",
+  recording: "saved experiment stops and notes",
 };
 type MergeStore = Pick<
   NotebookStore,
@@ -100,19 +101,31 @@ export function mountNotebookMergePanel(
         definition,
       );
       section.append(details);
-    } else if (entry.kind === "replay" || entry.kind === "capstone") {
+    } else if (
+      entry.kind === "replay" || entry.kind === "capstone" || entry.kind === "recording"
+    ) {
       const details = node("details");
       details.append(
         node(
           "summary",
           entry.kind === "capstone"
             ? "Inspect the complete saved reconstruction (does not restore it)"
-            : "Inspect the complete saved comparison data (does not run it)",
+            : entry.kind === "recording"
+              ? "Inspect the complete saved recording (does not run it)"
+              : "Inspect the complete saved comparison data (does not run it)",
         ),
       );
       const data = node(
         "pre",
-        JSON.stringify(entry.kind === "capstone" ? entry.capstone : entry.replay, null, 2),
+        JSON.stringify(
+          entry.kind === "capstone"
+            ? entry.capstone
+            : entry.kind === "recording"
+              ? entry.recording
+              : entry.replay,
+          null,
+          2,
+        ),
       );
       data.style.whiteSpace = "pre-wrap";
       data.style.overflowWrap = "anywhere";
@@ -260,7 +273,9 @@ export function mountNotebookMergePanel(
               ? "Saved comparison"
               : entry.kind === "capstone"
                 ? "Saved reconstruction"
-                : "Incoming note",
+                : entry.kind === "recording"
+                  ? "Saved recording"
+                  : "Incoming note",
           ),
         );
       root.append(details);

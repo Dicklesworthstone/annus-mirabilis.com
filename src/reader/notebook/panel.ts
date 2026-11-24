@@ -7,6 +7,7 @@ import { mountNotebookMergePanel } from "./mergePanel.ts";
 import type { NotebookReviewResult } from "./mergeReview.ts";
 import { readNotebookDocument } from "./migrations/teachBack.ts";
 import type { NotebookChange, NotebookStore } from "./notebookStore.ts";
+import { appendRecordingView } from "./recordingView.ts";
 import {
   NOTEBOOK_LIMITS,
   NOTEBOOK_PAPERS,
@@ -500,6 +501,7 @@ export function mountNotebookPanel(
           article.append(reviseLine, sourceLine);
         } else {
           if (entry.kind === "capstone") appendCapstoneView(article, entry, download);
+          if (entry.kind === "recording") appendRecordingView(article, entry, download);
           article.append(edit);
         }
         article.append(remove);

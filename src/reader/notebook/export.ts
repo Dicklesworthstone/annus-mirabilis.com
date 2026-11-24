@@ -3,10 +3,12 @@ import { comparisonDisplay } from "../../experiments/compare/comparisonStatement
 import { capstoneCaptureHref, capstoneCaptureText } from "./capstoneEntry.ts";
 import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
 import { exerciseResponseHref, exerciseResponseText } from "./exerciseEntry.ts";
+import { recordingLaboratory } from "./recordingEntry.ts";
 import {
   type NotebookDocument,
   type NotebookExerciseEntry,
   type NotebookReplayEntry,
+  type NotebookRecordingEntry,
   type NotebookTeachBackEntry,
   notebookFrameHref,
   parseNotebookDocument,
@@ -58,15 +60,37 @@ function teachBackHtml(entry: NotebookTeachBackEntry): string {
 function exerciseHtml(entry: NotebookExerciseEntry): string {
   return `<section><h3>The question when you answered</h3><p>${escapeHtml(entry.exercise.prompt)}</p><h3>Your saved response</h3><pre>${escapeHtml(exerciseResponseText(entry.text, entry.exercise))}</pre><p>Saved ${escapeHtml(entry.createdAt)}, with guide revision ${escapeHtml(entry.exercise.guideRevision)}. This is your response, not a current checker verdict. Return to the exercise to check it again.</p></section>`;
 }
+function recordingHtml(entry: NotebookRecordingEntry): string {
+  const laboratory = recordingLaboratory(entry.recording.experimentId);
+  const stops = entry.recording.stops.map((stop) => {
+    const checkpoint = stop.tape.acceptedCheckpoint as Readonly<Record<string, unknown>>;
+    return "<li><h4>" + escapeHtml(stop.label) + "</h4><pre>" + escapeHtml(stop.note) +
+      "</pre><p>" + (checkpoint.scientificState
+        ? "Saved scientific checkpoint; replay in the laboratory verifies its output digest."
+        : "Saved settings only; calculate them as a new run in the laboratory.") +
+      "</p><p>" + (typeof stop.tape.seed === "string"
+        ? "Exact seed: " + escapeHtml(stop.tape.seed) : "No seeded stream declared.") +
+      "</p><details><summary>Saved settings</summary><pre>" +
+      escapeHtml(JSON.stringify(stop.tape.initialConditions, null, 2)) + "</pre></details></li>";
+  }).join("");
+  return "<section><h3>" + escapeHtml(entry.recording.title) + "</h3><p>Recording saved " +
+    escapeHtml(entry.createdAt) + ". Opening it does not run or verify an experiment.</p><ol>" + stops +
+    "</ol>" + (laboratory
+      ? '<p><a href="https://annus-mirabilis.com' + escapeHtml(laboratory.href) + '">Open ' +
+        escapeHtml(laboratory.title) + ' to load a saved notebook recording</a>. Restore is a separate action.</p>'
+      : "") +
+    "<details><summary>Complete recording: model identities, seeds, checkpoints and notes</summary><pre>" +
+    escapeHtml(JSON.stringify(entry.recording, null, 2)) + "</pre></details></section>";
+}
 /** Self-contained, script-free private export. Text is never interpreted as HTML or Markdown. */
 export function exportNotebookHtml(input: NotebookDocument): string {
   const document = parseNotebookDocument(input);
   const entries = document.entries
     .map(
       (entry) => `<article><h2>${escapeHtml(entry.title)}</h2>
-<p>${escapeHtml(entry.kind === "nextStep" ? "Next step" : entry.kind === "teachBack" ? "Teach-back explanation" : entry.kind === "exercise" ? "Exercise response" : entry.kind)} · ${escapeHtml(entry.frame.paper.replaceAll("-", " "))}</p>
+<p>${escapeHtml(entry.kind === "nextStep" ? "Next step" : entry.kind === "teachBack" ? "Teach-back explanation" : entry.kind === "exercise" ? "Exercise response" : entry.kind === "recording" ? "Experiment recording" : entry.kind)} · ${escapeHtml(entry.frame.paper.replaceAll("-", " "))}</p>
 ${entry.kind === "teachBack" ? teachBackHtml(entry) : entry.kind === "exercise" ? exerciseHtml(entry) : `<pre>${escapeHtml(entry.text)}</pre>`}
-${entry.kind === "replay" ? replayHtml(entry) : entry.kind === "capstone" ? `<section><h3>Snapshot saved ${escapeHtml(entry.createdAt)}</h3>${sketchSvg(entry.capstone.worksheet.sketch)}<pre>${escapeHtml(capstoneCaptureText(entry.capstone))}</pre></section>` : ""}
+${entry.kind === "replay" ? replayHtml(entry) : entry.kind === "recording" ? recordingHtml(entry) : entry.kind === "capstone" ? `<section><h3>Snapshot saved ${escapeHtml(entry.createdAt)}</h3>${sketchSvg(entry.capstone.worksheet.sketch)}<pre>${escapeHtml(capstoneCaptureText(entry.capstone))}</pre></section>` : ""}
 <a href="${escapeHtml(`https://annus-mirabilis.com${entry.kind === "capstone" ? capstoneCaptureHref(entry.capstone) : entry.kind === "teachBack" ? teachBackHref(entry.frame.paper, entry.teachBack) : entry.kind === "exercise" ? exerciseResponseHref(entry.frame.paper, entry.exercise) : notebookFrameHref(entry.frame)}`)}">${entry.kind === "capstone" ? "Open this capstone" : entry.kind === "teachBack" ? "Return to this question" : entry.kind === "exercise" ? "Return to this exercise" : "Return to this passage"}</a></article>`,
     )
     .join("\n");

@@ -1,6 +1,8 @@
 "use client";
 
 import { type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
+import { RecordingNotebookControls } from "../../reader/notebook/RecordingNotebookControls.tsx";
+import type { NotebookRecording } from "../../reader/notebook/recordingEntry.ts";
 import {
   captureRecordedStop,
   RECORDING_LIMITS,
@@ -38,6 +40,7 @@ export function ExperimentRecorder({
   const id = useId();
   const [recording, setRecording] = useState<RecordedExperiment | null>(null);
   const [incoming, setIncoming] = useState<RecordedExperiment | null>(null);
+  const [incomingSource, setIncomingSource] = useState<"file" | "notebook">("file");
   const [title, setTitle] = useState("My experiment");
   const [label, setLabel] = useState("");
   const [note, setNote] = useState("");
@@ -51,6 +54,10 @@ export function ExperimentRecorder({
   const importGeneration = useRef(0);
   const formOnly = target.kind === "form";
   const scientific = target.kind === "worker";
+  const notebookSupported = target.experimentId === "bm-01" || target.experimentId === "bm-05";
+  const keepNotice = notebookSupported
+    ? "Save the recording in your notebook or download it to keep it after leaving this page."
+    : "Download the recording to keep it after leaving this page.";
   const stop = recording?.stops[index];
   const settingsOnlyWorkerStop =
     scientific && stop && !stop.tape.acceptedCheckpoint.scientificState;
@@ -111,8 +118,8 @@ export function ExperimentRecorder({
     setMessage({
       kind: "loaded",
       notice: tape.acceptedCheckpoint.scientificState
-        ? "Saved the completed trial's scientific checkpoint with its exact seeds and settings. Download the recording to keep it after leaving this page."
-        : "Saved the laboratory's accepted settings, not unapplied edits in its form. Download the recording to keep it after leaving this page.",
+        ? "Saved the completed trial's scientific checkpoint with its exact seeds and settings. " + keepNotice
+        : "Saved the laboratory's accepted settings, not unapplied edits in its form. " + keepNotice,
     });
   }
   async function restore(next: number, calculate = false) {
@@ -146,6 +153,34 @@ export function ExperimentRecorder({
       }
     }
   }
+  async function openNotebook(saved: NotebookRecording) {
+    const ticket = ++importGeneration.current;
+    setIncoming(null);
+    setMessage(null);
+    setReading(true);
+    try {
+      const { openNotebookRecording } = await import("../../reader/notebook/recordingEntry.ts");
+      if (ticket !== importGeneration.current) return;
+      const next = openNotebookRecording(saved);
+      if (next.experimentId !== target.experimentId) {
+        setMessage({
+          kind: "refused",
+          notice: "This recording belongs to another laboratory. The current recording is unchanged.",
+        });
+        return;
+      }
+      setIncomingSource("notebook");
+      setIncoming(next);
+    } catch (reason) {
+      if (ticket === importGeneration.current)
+        setMessage({
+          kind: "refused",
+          notice: reason instanceof Error ? reason.message : "The notebook recording could not be opened.",
+        });
+    } finally {
+      if (ticket === importGeneration.current) setReading(false);
+    }
+  }
   async function importFile(file: File) {
     const ticket = ++importGeneration.current;
     setIncoming(null);
@@ -164,8 +199,10 @@ export function ExperimentRecorder({
       const source = await file.text();
       if (ticket !== importGeneration.current) return;
       const result = readRecordedExperiment(source, target.experimentId, validateTapeV2);
-      if (result.kind === "accepted") setIncoming(result.value);
-      else setMessage(result);
+      if (result.kind === "accepted") {
+        setIncomingSource("file");
+        setIncoming(result.value);
+      } else setMessage(result);
     } catch {
       if (ticket === importGeneration.current)
         setMessage({
@@ -222,7 +259,10 @@ export function ExperimentRecorder({
         {scientific
           ? "Save a completed calculation with a note. Each scientific stop preserves the settings, exact seeds and checkpoint needed to reproduce its calculated trial."
           : "Save interesting accepted settings with a note, then revisit them or give the recording to another reader. This saves settings checkpoints, not animation, timing, or observations."}{" "}
-        Nothing is uploaded. The recording lives only in this open page until you download it.
+        Nothing is uploaded.{" "}
+        {notebookSupported
+          ? "Save the recording in your notebook or download it before leaving this page."
+          : "The recording lives only in this open page until you download it."}
       </p>
       <fieldset>
         <legend>Your recording</legend>
@@ -360,8 +400,10 @@ export function ExperimentRecorder({
           {confirmNew && (
             <div className="notice">
               <p>
-                Starting another recording replaces the one in this page. Download it first to keep
-                its saved stops and notes.
+                Starting another recording replaces the one in this page.{" "}
+                {notebookSupported
+                  ? "Save it in your notebook or download it first to keep its saved stops and notes."
+                  : "Download it first to keep its saved stops and notes."}
               </p>
               <button
                 type="button"
@@ -386,6 +428,16 @@ export function ExperimentRecorder({
           )}
         </fieldset>
       )}
+      <RecordingNotebookControls
+        key={target.experimentId}
+        experimentId={target.experimentId}
+        recording={recording}
+        title={title}
+        disabled={working}
+        onOpen={(saved) => {
+          void openNotebook(saved);
+        }}
+      />
       <label htmlFor={`${id}-file`}>Open a saved recording JSON file</label>
       <input
         id={`${id}-file`}
@@ -401,8 +453,9 @@ export function ExperimentRecorder({
       {incoming && (
         <div className="notice">
           <p>
-            <strong>{incoming.title}</strong>: {incoming.stops.length} saved stops. Opening this
-            file does not run the laboratory or verify its claims.
+            <strong>{incoming.title}</strong>: {incoming.stops.length} saved stops. Opening this{" "}
+            {incomingSource === "notebook" ? "notebook recording" : "file"} does not run the
+            laboratory or verify its claims.
           </p>
           <button
             type="button"
@@ -423,10 +476,16 @@ export function ExperimentRecorder({
               });
             }}
           >
-            {recording ? "Replace with imported recording" : "Open imported recording"}
+            {incomingSource === "notebook"
+              ? recording
+                ? "Replace with notebook recording"
+                : "Open notebook recording"
+              : recording
+                ? "Replace with imported recording"
+                : "Open imported recording"}
           </button>{" "}
           <button type="button" onClick={cancelImport}>
-            Cancel import
+            {incomingSource === "notebook" ? "Cancel preview" : "Cancel import"}
           </button>
         </div>
       )}
