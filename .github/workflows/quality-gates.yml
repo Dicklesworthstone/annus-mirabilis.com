@@ -64,6 +64,14 @@ jobs:
           src/equations/TermHighlight.test.tsx
           src/equations/InlineTermLighting.test.tsx
           src/search/SearchResults.test.tsx
+          src/equations/live/laboratoryRecords.test.ts
+          src/equations/live/laboratoryProjection.test.ts
+          src/equations/live/LaboratoryEquations.test.tsx
+          src/components/lab/BrownianLabEquations.test.tsx
+          src/components/lab/BrownianActiveDiffusivity.test.tsx
+          src/reader/notebook/recordingEntry.test.ts
+          src/reader/notebook/recordingNotebook.test.ts
+          src/reader/notebook/recordingRecorder.test.tsx
 
       - name: Verify completed radiation and relativity arguments
         run: >-
