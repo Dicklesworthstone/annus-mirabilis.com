@@ -233,12 +233,14 @@ const sourcePaths = [
   "src/equations/quantities.ts",
   "src/equations/massEnergyQuantities.ts",
   "src/equations/lightQuantaQuantities.ts",
+  "src/equations/specialRelativityQuantities.ts",
   "src/equations/teachingProfiles.ts",
   "src/equations/live/laboratoryOutputs.ts",
   "src/equations/live/laboratoryRecords.ts",
   "src/equations/quantityColours.ts",
   "src/experiments/bm01/definition.ts",
   "src/experiments/bm06/definition.ts",
+  "src/experiments/sr03/definition.ts",
   "src/experiments/sr09/definition.ts",
   "src/experiments/me02/definition.ts",
   "src/equations/navigation.ts",
@@ -441,7 +443,7 @@ await writeFile(
 );
 // Contextual laboratory bindings never replace the paper's own records (BM-01 and BM-06 share
 // the RMS tree). Each client receives only the authored equations its accepted outputs can serve.
-for (const experimentId of ["bm-06", "sr-09"] as const) {
+for (const experimentId of ["bm-06", "sr-03", "sr-09"] as const) {
   const laboratoryEquations = laboratoryEquationRecords(
     result.papers.flatMap((paper) => paper.equations),
     experimentId,

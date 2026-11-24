@@ -13,15 +13,17 @@ import {
   matchesLaboratorySource,
 } from "./laboratoryOutputs.ts";
 
-/** Representation changes only: modern SI c comes from the shared exact unit registry. */
+/** Representation changes only: c and light-seconds use the shared exact unit registry. */
 function convertScalar(value: number, conversion: EquationUnitConversion): number | null {
   if (!Number.isFinite(value)) return null;
   const converted =
     conversion === "speed-in-c-to-metres-per-second"
       ? convertValue(value, "c", "m/s")
-      : conversion === "degrees-to-radians"
-        ? value * (Math.PI / 180)
-        : value;
+      : conversion === "light-seconds-to-metres"
+        ? convertValue(value, "ls", "m")
+        : conversion === "degrees-to-radians"
+          ? value * (Math.PI / 180)
+          : value;
   return Number.isFinite(converted) && (value === 0 || converted !== 0) ? converted : null;
 }
 

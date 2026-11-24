@@ -1,6 +1,8 @@
 "use client";
 
 import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { LaboratoryEquations } from "../../equations/live/LaboratoryEquations.tsx";
+import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import { ExecutionLabel } from "../../experiments/labels/ExecutionLabel.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
@@ -21,6 +23,7 @@ import { createSr03Session, type PreparedSr03Example } from "../../experiments/s
 import { createSr03TapeBinding, createSr03WalkthroughTarget } from "../../experiments/sr03/tape.ts";
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import sr03Equations from "../../generated/sr03-equations.json";
 import { SR03_READER_WEAVE } from "../../reader/weave/rodPassages.ts";
 import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
@@ -301,14 +304,13 @@ export function RodSimultaneityLab({
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
-  const executionKind = executionStateKindFromHostLabel(
-    deriveHostExecution(
-      view,
-      SR03_OUTPUTS,
-      example.sourceDigest,
-      snapshot === session.getServerSnapshot().accepted,
-    ).label,
+  const execution = deriveHostExecution(
+    view,
+    SR03_OUTPUTS,
+    example.sourceDigest,
+    snapshot === session.getServerSnapshot().accepted,
   );
+  const executionKind = executionStateKindFromHostLabel(execution.label);
   return (
     <section
       ref={region}
@@ -756,6 +758,22 @@ export function RodSimultaneityLab({
       </div>
 
       <div {...gate.response}>
+        <p className="fine" data-event-separation-context>
+          These equations compare the same two events in K and k. Calling a spatial separation a
+          rod length also requires readings on the rod's two ends taken at one time in the
+          measuring frame. Spatial equation values use metres; one light-second in the table
+          is 299,792,458 metres.
+        </p>
+        <LaboratoryEquations
+          experimentId="sr-03"
+          view={view}
+          execution={execution}
+          payload={{
+            ...sr03Equations,
+            equations: sr03Equations.equations as readonly CompiledEquation[],
+          }}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
+        />
         <SessionResultWeave
           session={session}
           binding={SR03_READER_WEAVE}
