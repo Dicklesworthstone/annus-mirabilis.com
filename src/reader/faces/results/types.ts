@@ -13,6 +13,7 @@
  */
 
 import type { CheckedResultSupport } from "../../../content/results/supportDeclarations.ts";
+import type { ExperimentLaunch } from "../../../discovery/capstone/experimentLaunch.ts";
 
 export type SourceRef = Readonly<{
   paper: string;
@@ -22,8 +23,8 @@ export type SourceRef = Readonly<{
 
 /** A card cites either a registered instrument preset/mode or a teaching tape, never both in one
  * entry -- a sequence of several `ProbeRef`s is how a card asks a reader to run more than one.
- * `presetLabel` is the label the laboratory's manifest gives the preset, the name a reader finds
- * among the laboratory's presets; no laboratory opens a preset from its URL. */
+ * `presetLabel` is the manifest's own label. A build-time launch resolves its public settings
+ * through the laboratory's codec; an unavailable launch keeps the ordinary laboratory link. */
 export type ProbeRef =
   | Readonly<{
       kind: "instrument";
@@ -31,6 +32,7 @@ export type ProbeRef =
       presetOrModeId: string;
       question: string;
       presetLabel?: string | undefined;
+      launch?: ExperimentLaunch | undefined;
     }>
   | Readonly<{ kind: "tape"; tapeId: string; question: string }>;
 

@@ -13,7 +13,12 @@ import { loadReceptionDatasets, receptionPublication } from "../../../content/re
 import { loadResultCards, type ResultCardRecord } from "../../../content/results/resultCards.ts";
 import type { HistoricalDataset } from "../../../content/schemas/experiment.ts";
 import { loadPaper } from "../../../content/server.ts";
+import {
+  type ExperimentLaunchIndex,
+  experimentSelectionKey,
+} from "../../../discovery/capstone/experimentLaunch.ts";
 import type { EquationRecord } from "../../../equations/record.ts";
+import probeLinks from "../../../generated/result-probe-links.json";
 import { loadPaperMargins } from "../../marginRecords.ts";
 import { projectLimitation, projectPrintedCheck, projectReception } from "./resultsProjection.ts";
 import type { PrintedCheck, ResultCard } from "./types.ts";
@@ -86,7 +91,14 @@ export function toCard(
       instrumentId: p.instrumentId,
       presetOrModeId: p.preset?.id ?? "",
       question: p.question,
-      ...(p.preset ? { presetLabel: p.preset.label } : {}),
+      ...(p.preset
+        ? {
+            presetLabel: p.preset.label,
+            launch: (probeLinks as ExperimentLaunchIndex)[
+              experimentSelectionKey({ instrumentId: p.instrumentId, presetId: p.preset.id })
+            ],
+          }
+        : {}),
     })),
     misconceptionIds: record.misconceptionIds,
     ...(claims

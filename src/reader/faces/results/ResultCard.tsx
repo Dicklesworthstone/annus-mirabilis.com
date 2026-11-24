@@ -8,10 +8,11 @@
  * modern layer is the compiled equation records, coloured by quantity (ColouredFormula). A record
  * that is not compiled keeps a labelled placeholder rather than a formula typed here.
  *
- * A probe links the laboratory and names the preset a reader chooses there. It does not put the
- * preset in the URL: no laboratory opens a preset from its URL, and a link that says it does would
- * leave the reader in the laboratory's default setting believing otherwise.
+ * A probe opens the authored settings through the laboratory's existing URL codec when the
+ * build-time join can resolve them. Otherwise it names the preset to choose manually. Neither a
+ * settings link nor a walkthrough page is presented as replaying an accepted trial.
  */
+import { isExperimentLaunchHref } from "../../../discovery/capstone/experimentLaunch.ts";
 import type { CompiledEquation } from "../../../equations/viewTypes.ts";
 import { ColouredFormula } from "../../ColouredFormula.tsx";
 import { InlineMathText } from "../../InlineMathText.tsx";
@@ -95,22 +96,41 @@ export function sourceLinkName(p: PrintedLayerEntry): string {
 /** "ME-01" for me-01: the name a laboratory page carries. */
 const labName = (id: string) => id.toUpperCase();
 
-function ProbeLink({ probe }: { probe: ResultCardData["probes"][number] }) {
+export function ProbeLink({ probe }: { probe: ResultCardData["probes"][number] }) {
   if (probe.kind === "instrument") {
     const preset = probe.presetLabel ?? probe.presetOrModeId;
+    const launch = probe.launch;
+    const ready =
+      launch?.status === "ready" &&
+      launch.instrumentId === probe.instrumentId &&
+      (launch.kind === "session" || launch.kind === "form") &&
+      isExperimentLaunchHref(launch.href, probe.instrumentId);
     return (
-      <p className="probe-link" data-probe-kind="instrument" data-preset-id={probe.presetOrModeId}>
-        <a href={`/lab/${probe.instrumentId}/`}>
+      <p
+        className="probe-link"
+        data-probe-kind="instrument"
+        data-preset-id={probe.presetOrModeId}
+        data-probe-launch={ready ? launch.kind : "default"}
+      >
+        <a href={ready ? launch.href : `/lab/${probe.instrumentId}/`}>
           {labName(probe.instrumentId)}: <InlineMathText text={probe.question} />
         </a>
-        {preset ? <span className="fine">{` Choose the preset “${preset}” there.`}</span> : null}
+        {preset ? (
+          <span className="fine">
+            {ready
+              ? launch.kind === "form"
+                ? ` The settings for “${preset}” load into the form. Apply them in the laboratory to calculate.`
+                : ` The settings for “${preset}” load when JavaScript is available.`
+              : ` Choose the preset “${preset}” there.`}
+          </span>
+        ) : null}
       </p>
     );
   }
   return (
     <p className="probe-link" data-probe-kind="tape">
-      <a href={`/lab?tape=${encodeURIComponent(probe.tapeId)}`}>
-        Play the teaching tape: {probe.question}
+      <a href={`/tapes/${encodeURIComponent(probe.tapeId)}/`}>
+        Open the walkthrough: {probe.question}
       </a>
     </p>
   );

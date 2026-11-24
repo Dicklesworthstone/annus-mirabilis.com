@@ -21,9 +21,7 @@ import { encodeTapePermalink } from "../src/experiments/permalink/codec.ts";
 import { MAX_PERMALINK_URL_LENGTH } from "../src/experiments/permalink/codecCore.ts";
 import { draftTapeForSettings } from "../src/experiments/permalink/draftTape.ts";
 import { tapeForSettings } from "../src/experiments/permalink/sessionTape.ts";
-import { SR01_DEFAULTS } from "../src/experiments/sr01/definition.ts";
-import { validateSr01Parameters } from "../src/experiments/sr01/parameters.ts";
-import { encodeSr01Settings } from "../src/experiments/sr01/permalink.ts";
+import { QUERY_BINDINGS, settingsForLab } from "./generate-misconception-links.ts";
 import { buildTapeLinks, DRAFT_BINDINGS, SESSION_BINDINGS } from "./generate-tape-links.ts";
 
 export const CAPSTONE_PAPERS = [
@@ -53,7 +51,8 @@ export function buildPresetLaunch(
 ): ExperimentLaunch {
   const session = SESSION_BINDINGS[instrumentId];
   const draft = DRAFT_BINDINGS[instrumentId];
-  const defaults = instrumentId === "sr-01" ? SR01_DEFAULTS : (session ?? draft)?.defaults;
+  const query = !session && !draft ? QUERY_BINDINGS[instrumentId] : undefined;
+  const defaults = (session ?? draft ?? query)?.defaults;
   if (!defaults)
     return unavailable(instrumentId, "This laboratory has no supported settings loader.");
   if (
@@ -65,21 +64,26 @@ export function buildPresetLaunch(
       "The preset contains empty or unrecognized laboratory settings.",
     );
   }
-  const parameters = { ...defaults, ...settings };
-  // SR-01 predates the tape bindings. Its existing URL codec is the authority; adding ?tape=
-  // would suppress that codec, not select the synchronization preset.
-  if (instrumentId === "sr-01") {
-    const checked = validateSr01Parameters(parameters);
+  // Older manifests represent boolean controls as 0/1. Only a control whose own default is a
+  // boolean receives that conversion; other values still go through the owner's validation.
+  const parameters = {
+    ...defaults,
+    ...settingsForLab(defaults, settings as Readonly<Record<string, number | string | boolean>>),
+  };
+  // SR-01 and BM-06 already restore their own query codecs. A generic ?tape= link would be
+  // ignored or suppress that loader, so use the same encoder/decoder pair as the laboratory.
+  if (query) {
+    const checked = query.validate(parameters);
     if (checked.kind !== "accepted")
       return unavailable(instrumentId, "The laboratory refused this preset.");
     return ready(
       instrumentId,
-      `/lab/${instrumentId}/${encodeSr01Settings(checked.data)}`,
-      "session",
+      `/lab/${instrumentId}/${query.encode(checked.data as never)}`,
+      query.kind,
     );
   }
   const binding = session ?? draft;
-  if (!binding || binding.validate(parameters).kind !== "accepted") {
+  if (binding?.validate(parameters).kind !== "accepted") {
     return unavailable(instrumentId, "The laboratory refused this preset.");
   }
   const tape = session
@@ -96,7 +100,7 @@ export function buildPresetLaunch(
   );
 }
 
-function declaredPreset(selection: ExperimentSelection, root: string): ExperimentLaunch {
+export function declaredPreset(selection: ExperimentSelection, root: string): ExperimentLaunch {
   const manifest = strictParse(
     readFileSync(resolve(root, "content/experiments", `${selection.instrumentId}.yaml`), "utf8"),
     "yaml",
