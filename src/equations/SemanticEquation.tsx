@@ -13,10 +13,10 @@ import { announce as announceToReader } from "../a11y/announce.ts";
 import { EquationExplainer } from "../reader/faces/EquationExplainer.tsx";
 import { exponentialParts } from "../units/scientific.ts";
 import { useEquationScope } from "./EquationScope.tsx";
-import { readTermValue, resolveSlot, retainedState } from "./live/values.ts";
+import { equationValueGroups, readBoundTermValue, retainedState } from "./live/values.ts";
 import { NotationNote } from "./NotationNote.tsx";
-import { PinEquationButton } from "./PinEquationButton.tsx";
 import { navigate } from "./navigation.ts";
+import { PinEquationButton } from "./PinEquationButton.tsx";
 import { createSelectionStore } from "./selectionStore.ts";
 import { TermChips } from "./TermChips.tsx";
 import { lightQuantity, quantityAt } from "./TermHighlight.tsx";
@@ -92,12 +92,7 @@ export function SemanticEquation({
     : null;
   const note = equation.notes.find((n) => n.nodeId === current),
     term = equation.terms.find((t) => t.termId === current);
-  const binding = equation.bindings[0],
-    resolution = binding
-      ? resolveSlot(scopeContext?.slots ?? [], binding.experimentId, binding.instanceSlot)
-      : null;
-  const slot = resolution?.kind === "resolved" ? resolution.value : null,
-    snapshot = slot?.view.accepted;
+  const valueGroups = equationValueGroups(equation.bindings, scopeContext?.slots ?? []);
   useEffect(() => {
     setReady(true);
   }, []);
@@ -209,26 +204,58 @@ export function SemanticEquation({
       (selected?.quantityId &&
         equation.terms.find((t) => t.termId === id)?.quantityId === selected.quantityId));
   /**
-   * The inspector's value line for a term: the laboratory's accepted value where this page's slot
-   * computes the quantity, with the execution label that earned it; otherwise one line saying why
-   * there is none. The binding is found by quantity, so every place the quantity is printed reads
-   * the one accepted output, each scaled as its term is.
+   * The inspector and the value regions use the same exact term bindings. Comparisons keep one
+   * line per trial, so a selected term never borrows the first binding's experiment or slot.
    */
   function termValueLine(t: CompiledEquation["terms"][number]): ReactNode {
-    if (!slot)
-      return resolution?.kind === "ambiguous" ? (
-        resolution.message
-      ) : (
-        <SymbolicValue
-          lab={equation.bindings.find((b) => b.quantityId === t.quantityId)?.experimentId}
-        />
-      );
-    const bound = equation.bindings.some((b) => b.quantityId === t.quantityId);
-    const v = readTermValue(t, bound ? slot : null);
-    if (v.kind !== "value") return v.text;
+    const groups = valueGroups.filter((group) =>
+      group.bindings.some((binding) => binding.termId === t.termId),
+    );
+    if (groups.length === 0) return <SymbolicValue />;
     return (
       <>
-        {termText(v.text)} {v.unit} ({slot.execution.text})
+        {groups.map((group, index) => {
+          const slot = group.resolution.kind === "resolved" ? group.resolution.value : null;
+          const snapshot = slot?.view.accepted;
+          const v = readBoundTermValue(t, group);
+          return (
+            <span
+              key={`${group.experimentId}/${group.instanceSlot}`}
+              data-inspector-value={t.termId}
+              data-experiment-id={group.experimentId}
+              data-instance-slot={group.instanceSlot}
+              data-instance-id={snapshot?.instanceId}
+              data-run-id={snapshot?.runId}
+              data-snapshot-version={snapshot?.snapshotVersion}
+              data-input-revision={slot?.view.requested?.revisions.input}
+              data-accepted-input-revision={snapshot?.revisions.input}
+              data-pending={String(slot?.view.pending ?? false)}
+              data-execution-label={slot?.execution.label ?? "unavailable"}
+              data-value-kind={v.kind}
+            >
+              {index > 0 ? <br /> : null}
+              {valueGroups.length > 1 ? <strong>{group.label}: </strong> : null}
+              {v.kind === "value" && slot ? (
+                <>
+                  {termText(v.text)} {v.unit} ({slot.execution.text})
+                </>
+              ) : group.resolution.kind === "unresolved" ? (
+                <>
+                  {v.text}{" "}
+                  <a href={`/lab/${group.experimentId}/`}>
+                    Open {group.experimentId.toUpperCase()}
+                  </a>
+                  .
+                </>
+              ) : (
+                v.text
+              )}
+              {slot && (slot.view.pending || slot.view.status !== "accepted") ? (
+                <> {retainedState(slot)}</>
+              ) : null}
+            </span>
+          );
+        })}
       </>
     );
   }
@@ -534,62 +561,90 @@ export function SemanticEquation({
           </p>
         </section>
       ) : null}
-      <div
-        className="equation-values"
-        data-equation-values
-        data-instance-id={snapshot?.instanceId}
-        data-instance-slot={slot?.slot}
-        data-run-id={snapshot?.runId}
-        data-snapshot-version={snapshot?.snapshotVersion}
-        data-input-revision={slot?.view.requested?.revisions.input}
-        data-accepted-input-revision={snapshot?.revisions.input}
-        data-pending={String(slot?.view.pending ?? false)}
-        data-execution-label={slot?.execution.label ?? "unavailable"}
-      >
-        <p className="fine">
-          <strong>{slot?.execution.text ?? "No live values"}</strong>
-        </p>
-        {slot ? (
-          <p className="fine" data-retained-state>
-            {retainedState(slot)}
-          </p>
-        ) : (
+      {valueGroups.length === 0 ? (
+        <div
+          className="equation-values"
+          data-equation-values
+          data-pending="false"
+          data-execution-label="unavailable"
+        >
           <p className="fine">
-            {resolution && resolution.kind !== "resolved"
-              ? resolution.message
-              : "This equation states a relation. No instrument on this page computes its terms."}
+            <strong>No live values</strong>
           </p>
-        )}
-        {/* Values exist only with a laboratory slot. Without one, every term read "No accepted
-            value is available here.", three and four times in a row, under a line that already
-            said the equation is symbolic. */}
-        {slot ? (
-          <dl className="equation-value-list">
-            {equation.terms.map((t) => {
-              const b = equation.bindings.find((b) => b.termId === t.termId),
-                v = readTermValue(t, b ? slot : null);
-              return (
-                <div key={t.termId} data-quantity-id={t.quantityId} className="equation-quantity">
-                  <dt>
-                    {t.quantity.name}
-                    {(t.scale.num !== 1 || t.scale.den !== 1) &&
-                      ` (shown × ${t.scale.num}/${t.scale.den})`}
-                  </dt>
-                  <dd data-term-value={t.termId} data-value-kind={v.kind}>
-                    {v.kind === "value" ? (
-                      <>
-                        {termText(v.text)} <span>{v.unit}</span>
-                      </>
-                    ) : (
-                      v.text
-                    )}
-                  </dd>
-                </div>
-              );
-            })}
-          </dl>
-        ) : null}
-      </div>
+          <p className="fine">
+            This equation states a relation. No instrument on this page computes its terms.
+          </p>
+        </div>
+      ) : (
+        valueGroups.map((group) => {
+          const slot = group.resolution.kind === "resolved" ? group.resolution.value : null;
+          const snapshot = slot?.view.accepted;
+          const terms =
+            valueGroups.length === 1
+              ? equation.terms
+              : equation.terms.filter((term) =>
+                  group.bindings.some((binding) => binding.termId === term.termId),
+                );
+          return (
+            <div
+              key={`${group.experimentId}/${group.instanceSlot}`}
+              className="equation-values"
+              data-equation-values
+              data-experiment-id={group.experimentId}
+              data-instance-id={snapshot?.instanceId}
+              data-instance-slot={group.instanceSlot}
+              data-run-id={snapshot?.runId}
+              data-snapshot-version={snapshot?.snapshotVersion}
+              data-input-revision={slot?.view.requested?.revisions.input}
+              data-accepted-input-revision={snapshot?.revisions.input}
+              data-pending={String(slot?.view.pending ?? false)}
+              data-execution-label={slot?.execution.label ?? "unavailable"}
+            >
+              <p className="fine">
+                {valueGroups.length > 1 ? <strong>{group.label}. </strong> : null}
+                <strong>{slot?.execution.text ?? "No live values"}</strong>
+              </p>
+              {slot ? (
+                <p className="fine" data-retained-state>
+                  {retainedState(slot)}
+                </p>
+              ) : group.resolution.kind !== "resolved" ? (
+                <p className="fine">{group.resolution.message}</p>
+              ) : null}
+              {/* Explain a missing trial once. A second mounted trial never fills its gap. */}
+              {slot ? (
+                <dl className="equation-value-list">
+                  {terms.map((t) => {
+                    const v = readBoundTermValue(t, group);
+                    return (
+                      <div
+                        key={t.termId}
+                        data-quantity-id={t.quantityId}
+                        className="equation-quantity"
+                      >
+                        <dt>
+                          {t.quantity.name}
+                          {(t.scale.num !== 1 || t.scale.den !== 1) &&
+                            ` (shown × ${t.scale.num}/${t.scale.den})`}
+                        </dt>
+                        <dd data-term-value={t.termId} data-value-kind={v.kind}>
+                          {v.kind === "value" ? (
+                            <>
+                              {termText(v.text)} <span>{v.unit}</span>
+                            </>
+                          ) : (
+                            v.text
+                          )}
+                        </dd>
+                      </div>
+                    );
+                  })}
+                </dl>
+              ) : null}
+            </div>
+          );
+        })
+      )}
       <details>
         <summary>Read the equation aloud in words</summary>
         <p>{equation.spoken}</p>
