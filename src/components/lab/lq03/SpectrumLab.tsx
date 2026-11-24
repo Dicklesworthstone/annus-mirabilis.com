@@ -36,6 +36,7 @@ import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { LQ03_READER_WEAVE } from "../../../reader/weave/spectrumPassages.ts";
@@ -49,6 +50,7 @@ import { ShowTheCode } from "../ShowTheCode.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { SpectrumPlot } from "./SpectrumPlot.tsx";
+import { TemperatureComparison } from "./TemperatureComparison.tsx";
 
 const LQ03_PROMPTS = PREDICT_PROMPTS["lq-03"] ?? [];
 
@@ -529,6 +531,11 @@ export function SpectrumLab({
             )}{" "}
             The worked numbers in the explanations below use modern SI constants.
           </p>
+          <TemperatureComparison
+            session={session}
+            sourceDigest={example?.sourceDigest ?? labDigests["lq-03"]}
+            enabled={gate.open && !view.pending}
+          />
           <SpectrumPlot
             spectrum={spectrum}
             shown={{ planck: p.showPlanck, wien: p.showWien, classical: p.showClassical }}

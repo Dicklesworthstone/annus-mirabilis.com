@@ -65,3 +65,8 @@
 .lq03-peak {
   fill: var(--ink);
 }
+
+/* The held temperature is distinguishable without color; its peak also uses a square. */
+.lq03-curve-reference {
+  stroke-dasharray: 7 4;
+}

@@ -82,8 +82,11 @@ export function SpectrumPlot({
   spectrum,
   shown,
   titleId,
+  reference,
 }: {
   spectrum: Lq03Spectrum;
+  /** Optional held Planck spectrum; the owner projection gives both curves identical axes. */
+  reference?: Lq03Spectrum;
   shown: Readonly<Record<Lq03SpectrumLaw, boolean>>;
   titleId: string;
 }) {
@@ -105,10 +108,10 @@ export function SpectrumPlot({
   };
 
   const laws = (["planck", "wien", "classical"] as const).filter((law) => shown[law]);
-  const paths = laws.map((law) => {
+  function pathFor(points: Lq03Spectrum["points"], law: Lq03SpectrumLaw) {
     let d = "";
     let pen = false;
-    for (const point of spectrum.points) {
+    for (const point of points) {
       const y = point.log10Density[law];
       if (y === null) {
         pen = false;
@@ -123,8 +126,10 @@ export function SpectrumPlot({
       d += `${pen ? "L" : "M"}${X.toFixed(1)} ${Y.toFixed(1)}`;
       pen = true;
     }
-    return { law, d };
-  });
+    return d;
+  }
+  const paths = laws.map((law) => ({ law, d: pathFor(spectrum.points, law) }));
+  const referencePath = reference ? pathFor(reference.points, "planck") : null;
 
   // Linear ticks share one power of ten, stated once in the axis title: in a 300-unit drawing,
   // "2.0 × 10⁻⁶" on every tick ran into its neighbours.
@@ -152,7 +157,9 @@ export function SpectrumPlot({
     ? `${xQuantity} (${unitX})`
     : `${xQuantity} (${powerOfTen(tickExponent)} ${unitX})`;
   const scaleWord = spectrum.axisScale === "logarithmic" ? "logarithmic" : "linear";
-  const description = `The spectrum at T = ${spectrum.temperature} K: energy density ${plainSubscripts(
+  const description = reference
+    ? `Two Planck spectra on the same ${scaleWord} axes: the dashed baseline at ${reference.temperature} K and the solid variant at ${spectrum.temperature} K. Both show energy density ${plainSubscripts(CONVENTION_PHRASE[spectrum.convention])} against ${spectrum.coordinate}. The fixed band and probe apply to both. Accepted band energies and the two distinct density peaks are in the comparison table.`
+    : `The spectrum at T = ${spectrum.temperature} K: energy density ${plainSubscripts(
     CONVENTION_PHRASE[spectrum.convention],
   )}, against ${spectrum.coordinate}, on ${scaleWord} axes. Planck's curve peaks at ${
     peak ? `${sci(10 ** peak.log10X, 2)} ${unitX}` : "a point outside the drawn range"
@@ -197,6 +204,18 @@ export function SpectrumPlot({
           </text>
         </g>
         <g clipPath={`url(#${clipId})`}>
+          {referencePath && (
+            <path className="lq03-curve lq03-curve-reference" data-spectrum-reference d={referencePath} />
+          )}
+          {reference?.peak && (
+            <rect
+              className="lq03-peak"
+              x={px(reference.peak.log10X) - 3}
+              y={py(reference.peak.log10Density) - 3}
+              width={6}
+              height={6}
+            />
+          )}
           {paths.map(({ law, d }) => (
             <path key={law} className={CURVE_CLASS[law]} d={d} />
           ))}
@@ -219,7 +238,7 @@ export function SpectrumPlot({
             y={Math.max(PAD.top + 12, py(peak.log10Density) - 10)}
             textAnchor="middle"
           >
-            peak
+            {reference ? "variant peak" : "peak"}
           </text>
         )}
         {probeInFrame && (
@@ -233,12 +252,22 @@ export function SpectrumPlot({
         )}
       </svg>
       <ul className="lq03-legend">
+        {reference && (
+          <li>
+            <svg viewBox="0 0 26 8" aria-hidden="true">
+              <line className="lq03-curve lq03-curve-reference" x1={0} y1={4} x2={26} y2={4} />
+            </svg>
+            Baseline Planck spectrum: {reference.temperature} K (dashed; square at peak)
+          </li>
+        )}
         {laws.map((law) => (
           <li key={`legend-${law}`}>
             <svg viewBox="0 0 26 8" aria-hidden="true">
               <line className={CURVE_CLASS[law]} x1={0} y1={4} x2={26} y2={4} />
             </svg>
-            {LAW_LABEL[law]}
+            {reference && law === "planck"
+              ? `Variant Planck spectrum: ${spectrum.temperature} K (solid; circle at peak)`
+              : LAW_LABEL[law]}
           </li>
         ))}
       </ul>
