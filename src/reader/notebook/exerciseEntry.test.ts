@@ -264,7 +264,7 @@ describe("private exercise responses in the reading notebook", () => {
 
   test("notebook-migration-version: the exercise upgrade requires version 2 and an entry array (teachBack.ts:69)", () => {
     expect(migrateExerciseNotebook({ ...emptyNotebook(), schemaVersion: 2 })).toEqual(
-      emptyNotebook(),
+      { ...emptyNotebook(), schemaVersion: 3 },
     );
     for (const input of [emptyNotebook(), { ...emptyNotebook(), schemaVersion: 2, entries: {} }]) {
       assert.throws(() => migrateExerciseNotebook(input), {
@@ -274,7 +274,7 @@ describe("private exercise responses in the reading notebook", () => {
     }
   });
 
-  test("notebook-migration-entry: fake legacy exercise entries and sparse arrays are refused unchanged (teachBack.ts:80)", () => {
+  test("notebook-migration-entry: fake legacy exercise entries and sparse arrays are refused unchanged (teachBack.ts:82)", () => {
     for (const entries of [[entry()], Array(1)]) {
       const document = { ...emptyNotebook(), schemaVersion: 2, entries };
       const original = JSON.stringify(document);

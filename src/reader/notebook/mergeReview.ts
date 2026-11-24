@@ -127,6 +127,7 @@ export function planNotebookMerge(
       "replay",
       "teachBack",
       "exercise",
+      "recording",
     ];
     const left = existing as unknown as Record<string, unknown>;
     const right = entry as unknown as Record<string, unknown>;

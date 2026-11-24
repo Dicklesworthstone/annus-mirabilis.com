@@ -37,6 +37,7 @@ export const NOTEBOOK_KIND_LABELS = {
   capstone: "Capstone reconstruction",
   teachBack: "Teach-back explanation",
   exercise: "Exercise response",
+  recording: "Experiment recording",
 } as const;
 export type NotebookDraft = Readonly<{ frame: NotebookFrame; title: string }>;
 /** The names the rest of the site uses (/papers/, the home plates), not the route slugs. */
@@ -523,7 +524,7 @@ export function mountNotebookPanel(
     }
   });
   function add(
-    kind: Exclude<NotebookEntry["kind"], "replay" | "capstone" | "teachBack" | "exercise">,
+    kind: Exclude<NotebookEntry["kind"], "replay" | "capstone" | "teachBack" | "exercise" | "recording">,
     frame: NotebookFrame,
     title: string,
     text: string,

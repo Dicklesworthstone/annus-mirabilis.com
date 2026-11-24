@@ -3,12 +3,13 @@ import { portableClarification } from "../stack/portableTargets.ts";
 import { type CapstoneCapture, parseCapstoneCapture } from "./capstoneEntry.ts";
 import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
 import { type ExerciseCapture, parseExerciseCapture } from "./exerciseEntry.ts";
+import { type NotebookRecording, parseNotebookRecording } from "./recordingEntry.ts";
 import { type ComparisonReplay, parseComparisonReplay, REPLAY_LIMITS } from "./replayEntry.ts";
 import { parseTeachBackCapture, type TeachBackCapture } from "./teachBackEntry.ts";
 /** Local reader work, never a publication record or an assessment of its author. */
 export const NOTEBOOK_KEY = "am:notebook:v1";
 export const NOTEBOOK_FORMAT = "annus-reading-notebook";
-export const NOTEBOOK_SCHEMA_VERSION = 3;
+export const NOTEBOOK_SCHEMA_VERSION = 4;
 export const NOTEBOOK_LIMITS = Object.freeze({ entries: 500, text: 4000, title: 240, recap: 2000 });
 export const NOTEBOOK_PAPERS = [
   "brownian-motion",
@@ -27,6 +28,7 @@ export const NOTEBOOK_KINDS = [
   "capstone",
   "teachBack",
   "exercise",
+  "recording",
 ] as const;
 export type NotebookKind = (typeof NOTEBOOK_KINDS)[number];
 export const NOTEBOOK_VIEWS = [
@@ -56,7 +58,7 @@ type NotebookEntryBase = Readonly<{
   createdAt: string;
 }>;
 export type NotebookTextEntry = NotebookEntryBase &
-  Readonly<{ kind: Exclude<NotebookKind, "replay" | "capstone" | "teachBack" | "exercise"> }>;
+  Readonly<{ kind: Exclude<NotebookKind, "replay" | "capstone" | "teachBack" | "exercise" | "recording"> }>;
 export type NotebookReplayEntry = NotebookEntryBase &
   Readonly<{ kind: "replay"; replay: ComparisonReplay }>;
 export type NotebookCapstoneEntry = NotebookEntryBase &
@@ -65,12 +67,15 @@ export type NotebookTeachBackEntry = NotebookEntryBase &
   Readonly<{ kind: "teachBack"; teachBack: TeachBackCapture }>;
 export type NotebookExerciseEntry = NotebookEntryBase &
   Readonly<{ kind: "exercise"; exercise: ExerciseCapture }>;
+export type NotebookRecordingEntry = NotebookEntryBase &
+  Readonly<{ kind: "recording"; recording: NotebookRecording }>;
 export type NotebookEntry =
   | NotebookTextEntry
   | NotebookReplayEntry
   | NotebookCapstoneEntry
   | NotebookTeachBackEntry
-  | NotebookExerciseEntry;
+  | NotebookExerciseEntry
+  | NotebookRecordingEntry;
 export type LastPlace = Readonly<{
   frame: NotebookFrame;
   title: string;
@@ -150,6 +155,7 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
   const isCapstone = kind === "capstone";
   const isTeachBack = kind === "teachBack";
   const isExercise = kind === "exercise";
+  const isRecording = kind === "recording";
   const e = record(input, [
     "id",
     "kind",
@@ -165,7 +171,9 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
           ? ["teachBack"]
           : isExercise
             ? ["exercise"]
-            : []),
+            : isRecording
+              ? ["recording"]
+              : []),
   ]);
   const id = text(e.id, 80),
     createdAt = text(e.createdAt, 32);
@@ -184,7 +192,7 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
     text: text(
       e.text,
       isReplay ? REPLAY_LIMITS.text : NOTEBOOK_LIMITS.text,
-      isReplay || isCapstone,
+      isReplay || isCapstone || isRecording,
     ),
     createdAt,
   };
@@ -208,7 +216,13 @@ export function parseNotebookEntry(input: unknown): NotebookEntry {
               kind: "exercise",
               exercise: parseExerciseCapture(e.exercise, common.frame.paper, common.text),
             })
-          : Object.freeze({ ...common, kind: e.kind as NotebookTextEntry["kind"] });
+          : isRecording
+            ? Object.freeze({
+                ...common,
+                kind: "recording",
+                recording: parseNotebookRecording(e.recording, common.frame.paper),
+              })
+            : Object.freeze({ ...common, kind: e.kind as NotebookTextEntry["kind"] });
   if (isReplay && new TextEncoder().encode(JSON.stringify(entry)).length > REPLAY_LIMITS.bytes)
     throw new TypeError("A complete replay entry must fit within 64 KiB. Nothing was truncated.");
   if (
