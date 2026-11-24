@@ -124,10 +124,9 @@ export const QUERY_BINDINGS: Readonly<Record<string, QuerySettingsBinding>> = Ob
  * `parameterValues` and DROPS a boolean silently, so the key would vanish rather than fail. Measured:
  * the validated preset then reports `gridEnabled: undefined`.
  *
- * So the 0 or 1 the manifest declares is read as the boolean the laboratory's own default declares, and
- * only where that default IS a boolean. Every other value is passed through untouched and the
- * laboratory refuses it, which is the point: this converts a spelling the content layer cannot write,
- * it does not widen what an instrument accepts.
+ * The manifest's 0/1 spelling and BM-07's exact "true"/"false" strings are read as booleans only
+ * where the laboratory's own default is a boolean. Other values pass through untouched for the
+ * laboratory to validate. This converts the content spelling without widening the owner's contract.
  */
 export function settingsForLab(
   defaults: Readonly<Record<string, unknown>>,
@@ -136,7 +135,10 @@ export function settingsForLab(
   const out: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(values))
     out[key] =
-      typeof defaults[key] === "boolean" && (value === 0 || value === 1) ? value === 1 : value;
+      typeof defaults[key] === "boolean" &&
+      (value === 0 || value === 1 || value === "false" || value === "true")
+        ? value === 1 || value === "true"
+        : value;
   return out;
 }
 

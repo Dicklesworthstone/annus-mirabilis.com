@@ -36,6 +36,7 @@ import { fileURLToPath } from "node:url";
 import { loadTeachingTapes, loadWireTeachingTapes } from "../src/content/teachingTapes.ts";
 import { loadWalkthroughCatalogue } from "../src/content/walkthroughs.ts";
 import { BM01_DRAFT_TAPE } from "../src/experiments/bm01/draftTape.ts";
+import { BM03_TAPE } from "../src/experiments/bm03/tape.ts";
 import { BM04_DRAFT_TAPE } from "../src/experiments/bm04/draftTape.ts";
 import { BM05_DRAFT_TAPE } from "../src/experiments/bm05/draftTape.ts";
 import { BM07_DRAFT_TAPE } from "../src/experiments/bm07/draftTape.ts";
@@ -86,6 +87,7 @@ import { SR13_TAPE } from "../src/experiments/sr13/tape.ts";
 export type TapeLinkKind = "session" | "form";
 
 export const SESSION_BINDINGS: Readonly<Record<string, LabTapeBinding>> = Object.freeze({
+  "bm-03": BM03_TAPE,
   "lq-03": LQ03_TAPE,
   "lq-04": LQ04_TAPE,
   "lq-05": LQ05_TAPE,

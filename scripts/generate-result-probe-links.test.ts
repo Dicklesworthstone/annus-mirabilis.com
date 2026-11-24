@@ -4,9 +4,10 @@ import { test } from "node:test";
 import { strictParse } from "../src/content/schemas/strictParse.ts";
 import { experimentSelectionKey } from "../src/discovery/capstone/experimentLaunch.ts";
 import { decodeTapePermalink } from "../src/experiments/permalink/codec.ts";
-import { CAPSTONE_PAPERS, buildPresetLaunch } from "./generate-capstone-links.ts";
+import { buildPresetLaunch, CAPSTONE_PAPERS, declaredPreset } from "./generate-capstone-links.ts";
 import { QUERY_BINDINGS, settingsForLab } from "./generate-misconception-links.ts";
 import { buildResultProbeLinks } from "./generate-result-probe-links.ts";
+import { DRAFT_BINDINGS, SESSION_BINDINGS } from "./generate-tape-links.ts";
 
 test("result probes carry every declared preset setting through the real laboratory decoder", () => {
   const built = buildResultProbeLinks();
@@ -66,12 +67,18 @@ test("result probes carry every declared preset setting through the real laborat
           assert.deepEqual(decoded.tape.events, [], "a preset is an opening setup, not a replay");
           parameters = decoded.tape.initialConditions;
         }
-        for (const [name, value] of Object.entries(expected.parameterValues)) {
-          const wanted = query
-            ? settingsForLab(query.defaults, { [name]: value as number | string | boolean })[name]
-            : typeof value === "boolean"
-              ? String(value)
-              : value;
+        const defaults = (
+          query ??
+          SESSION_BINDINGS[probe.instrument] ??
+          DRAFT_BINDINGS[probe.instrument]
+        )?.defaults;
+        assert.ok(defaults);
+        const normalized = settingsForLab(
+          defaults,
+          expected.parameterValues as Readonly<Record<string, number | string | boolean>>,
+        );
+        for (const [name, value] of Object.entries(normalized)) {
+          const wanted = !query && typeof value === "boolean" ? String(value) : value;
           assert.deepEqual(parameters[name], wanted, `${probe.preset}.${name}`);
         }
       }
@@ -98,5 +105,36 @@ test("Brownian query presets preserve the point limit and refuse unknown or inva
   assert.equal(parameters.gridEnabled, false);
   for (const settings of [{ missingControl: 2 }, { t: -1 }, { gridEnabled: 2 }, {}]) {
     assert.equal(buildPresetLaunch("bm-06", settings).status, "unavailable");
+  }
+});
+
+test("the configuration and identifiability probes reach their existing Brownian settings loaders", () => {
+  const cases = [
+    {
+      instrumentId: "bm-03",
+      presetId: "bm-03-pressure-matches-bm-02",
+      kind: "session",
+      expected: { Np: 1000, volumeRatio: 1, V0: 1000000, T: 293.15, model: "independent" },
+    },
+    {
+      instrumentId: "bm-07",
+      presetId: "bm-07-identifiability",
+      kind: "form",
+      expected: { radiusKnown: "false" },
+    },
+  ] as const;
+  for (const selection of cases) {
+    const launch = declaredPreset(selection, process.cwd());
+    assert.ok(launch.status === "ready", JSON.stringify(launch));
+    assert.equal(launch.kind, selection.kind);
+    const decoded = decodeTapePermalink(launch.href);
+    assert.ok(decoded.kind === "success", JSON.stringify(decoded));
+    assert.equal(decoded.tape.experimentId, selection.instrumentId);
+    assert.deepEqual(decoded.tape.events, []);
+    for (const [name, value] of Object.entries(selection.expected))
+      assert.equal(decoded.tape.initialConditions[name], value, `${selection.presetId}.${name}`);
+  }
+  for (const radiusKnown of ["False", "0", "", 2]) {
+    assert.equal(buildPresetLaunch("bm-07", { radiusKnown }).status, "unavailable");
   }
 });
