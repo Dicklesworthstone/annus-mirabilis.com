@@ -121,6 +121,21 @@ parameters:
     role: independent
     commandClass: measurement-change
 outputs:
+  - id: escapeWork
+    quantityId: escapeWork
+    allowedStatuses:
+      - value
+    primary: false
+  - id: planckConstant
+    quantityId: planckConstant
+    allowedStatuses:
+      - value
+    primary: false
+  - id: elementaryCharge
+    quantityId: elementaryCharge
+    allowedStatuses:
+      - value
+    primary: false
   - id: quantumEnergy
     quantityId: quantumEnergy
     allowedStatuses:
@@ -188,6 +203,10 @@ owner:
     - displayRole: reference-implementation
       language: ts
       module: "src/physics/reference/photoelectric.ts"
+      exportName: "kMax"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/photoelectric.ts"
       exportName: "stoppingPotentialMagnitude"
     # The lab reaches this through thresholdFrequencyFromEv, a unit wrapper; this is the function that
     # computes the quantity, and lq-08 DISPLAYS thresholdFrequency as one of its outputs (am-1nnj).
@@ -196,12 +215,35 @@ owner:
       module: "src/physics/reference/photoelectric.ts"
       exportName: "thresholdFrequency"
   identifierBindings:
+    - kernelFunction: "kMax"
+      identifier: "nu"
+      quantityId: "frequency"
+      termIds:
+        - eq-model-lq-photoelectric-maximum.t.frequency
+    - kernelFunction: "kMax"
+      identifier: "workFunctionJoules"
+      quantityId: "escapeWork"
+      termIds:
+        - eq-model-lq-photoelectric-maximum.t.escapeWork
+    - kernelFunction: "kMax"
+      identifier: "h"
+      quantityId: "planckConstant"
+      termIds:
+        - eq-model-lq-photoelectric-maximum.t.planck
+        - eq-model-lq-stopping-energy.t.planck
+    - kernelFunction: "kMax"
+      identifier: "kMax"
+      quantityId: "maxKineticEnergy"
+      termIds:
+        - eq-model-lq-photoelectric-maximum.t.maxKineticEnergy
     - kernelFunction: "stoppingPotentialMagnitude"
       identifier: "nu"
       quantityId: "frequency"
     - kernelFunction: "stoppingPotentialMagnitude"
       identifier: "workFunctionJoules"
-      quantityId: "workFunction"
+      quantityId: "escapeWork"
+      termIds:
+        - eq-model-lq-stopping-energy.t.escapeWork
     - kernelFunction: "stoppingPotentialMagnitude"
       identifier: "e"
       quantityId: "elementaryCharge"
@@ -220,7 +262,22 @@ owner:
     - kernelFunction: "thresholdFrequency"
       identifier: "h"
       quantityId: "planckConstant"
+    - kernelFunction: "thresholdFrequency"
+      identifier: "workFunctionJoules"
+      quantityId: "escapeWork"
+      termIds:
+        - eq-model-lq-threshold-frequency.t.escapeWork
 views:
+  - id: lq-08-accepted-equations
+    kind: text
+    consumes:
+      - frequency
+      - escapeWork
+      - planckConstant
+      - elementaryCharge
+      - maxKineticEnergy
+      - stoppingPotentialMagnitude
+      - thresholdFrequency
   - id: lq-08-energy-diagram
     kind: svg
     consumes:

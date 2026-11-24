@@ -49,7 +49,7 @@
           "argument": {
             "kind": "symbol",
             "termId": "eq-model-lq-photoelectric-maximum.t.escapeWork",
-            "quantityId": "workFunction"
+            "quantityId": "escapeWork"
           }
         }
       ]
@@ -87,7 +87,36 @@
       "foundation": "work-energy"
     }
   ],
-  "bindings": [],
+  "bindings": [
+    {
+      "termId": "eq-model-lq-photoelectric-maximum.t.maxKineticEnergy",
+      "quantityId": "maxKineticEnergy",
+      "experimentId": "lq-08",
+      "outputId": "maxKineticEnergy",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-photoelectric-maximum.t.planck",
+      "quantityId": "planckConstant",
+      "experimentId": "lq-08",
+      "outputId": "planckConstant",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-photoelectric-maximum.t.frequency",
+      "quantityId": "frequency",
+      "experimentId": "lq-08",
+      "outputId": "frequency",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-photoelectric-maximum.t.escapeWork",
+      "quantityId": "escapeWork",
+      "experimentId": "lq-08",
+      "outputId": "escapeWork",
+      "instanceSlot": "primary"
+    }
+  ],
   "sentence": [
     {
       "text": "The largest kinetic energy",

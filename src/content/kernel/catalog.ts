@@ -1704,6 +1704,31 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
   // registered and is what the laboratory shows: what is bound is what a reader can see coloured.
   {
     instrumentId: "lq-08",
+    kernel: tsRef("src/physics/reference/photoelectric.ts", "kMax"),
+    words: {
+      r0: "The fastest electron keeps the energy of one absorbed quantum after paying the escape work.",
+      r1: "K_max = h nu - Phi in the complete-transfer model. The function receives the escape work in joules and uses Planck's constant from the declared constant set. Lamp power is absent: it changes the rate of arriving quanta, not the energy in each one.",
+      r2: "A quantum with less energy than the escape work emits no electron in this model, so the result is not-applicable rather than a negative or zero kinetic energy. Equality gives zero maximum kinetic energy and does not guarantee a measurable current. Partial transfer is a separate reference option that returns an upper bound; the laboratory's accepted energy balance uses complete transfer.",
+    },
+    equationId: "eq-model-lq-photoelectric-maximum",
+    liveTerms: ["frequency", "escapeWork", "planckConstant", "maxKineticEnergy"],
+    identifierBindings: [
+      bind("kMax", "nu", "frequency", ["eq-model-lq-photoelectric-maximum.t.frequency"]),
+      bind("kMax", "workFunctionJoules", "escapeWork", [
+        "eq-model-lq-photoelectric-maximum.t.escapeWork",
+      ]),
+      bind("kMax", "h", "planckConstant", [
+        "eq-model-lq-photoelectric-maximum.t.planck",
+        "eq-model-lq-stopping-energy.t.planck",
+      ]),
+      bind("kMax", "kMax", "maxKineticEnergy", [
+        "eq-model-lq-photoelectric-maximum.t.maxKineticEnergy",
+      ]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-08",
     kernel: tsRef("src/physics/reference/photoelectric.ts", "stoppingPotentialMagnitude"),
     words: {
       r0: "The voltage that just stops the fastest electron: its maximum kinetic energy divided by the charge it carries.",
@@ -1711,12 +1736,12 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       r2: "Four outcomes under one formula, and the differences between them are the whole of the typed-result discipline. Below the threshold the answer is NOT zero: it is not-applicable, with the reason that there is no emitted electron in this model, where a zero would have claimed an electron came out with nothing left over. EXACTLY at the threshold there is a value, zero volts, carrying its own note that a zero maximum kinetic energy does not guarantee a measurable current; one part in 10^15 below that frequency the status flips to not-applicable, which is the boundary drawn as sharply as a double allows. Under partial transfer the answer is underdetermined: the printed relation is cited as an upper bound, and the missing information is named as the single-quantum transfer fraction rather than guessed at. A nonpositive frequency or a negative work function is outside-domain before any of that. The part of this easiest to get wrong is the part this function does itself: in the underdetermined case it divides the upper bound AND both ends of the interval by the charge, so a bound labelled volts is in volts and not in joules.",
     },
     equationId: "eq-model-lq-stopping-energy",
-    liveTerms: ["frequency", "workFunction", "maxKineticEnergy", "elementaryCharge"],
+    liveTerms: ["frequency", "escapeWork", "maxKineticEnergy", "elementaryCharge"],
     identifierBindings: [
       bind("stoppingPotentialMagnitude", "nu", "frequency", [
         "eq-model-lq-stopping-energy.t.frequency",
       ]),
-      bind("stoppingPotentialMagnitude", "workFunctionJoules", "workFunction", [
+      bind("stoppingPotentialMagnitude", "workFunctionJoules", "escapeWork", [
         "eq-model-lq-stopping-energy.t.escapeWork",
       ]),
       bind("stoppingPotentialMagnitude", "kResult", "maxKineticEnergy", [
@@ -1746,9 +1771,9 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       r3: "Einstein does not write this formula. Section 8 gives the stopping potential relation, and the threshold is its consequence at zero kinetic energy; the explicit nu sub 0 belongs to the later textbook presentation. Millikan's 1916 measurements are what settled the linear relation and its slope, and they are later evidence, labelled as such wherever this instrument shows them.",
     },
     equationId: "eq-model-lq-threshold-frequency",
-    liveTerms: ["thresholdFrequency", "workFunction", "planckConstant"],
+    liveTerms: ["thresholdFrequency", "escapeWork", "planckConstant"],
     identifierBindings: [
-      bind("thresholdFrequency", "workFunctionJoules", "workFunction", [
+      bind("thresholdFrequency", "workFunctionJoules", "escapeWork", [
         "eq-model-lq-threshold-frequency.t.escapeWork",
       ]),
       bind("thresholdFrequency", "h", "planckConstant", [

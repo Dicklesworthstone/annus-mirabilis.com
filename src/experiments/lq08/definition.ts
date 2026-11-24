@@ -39,9 +39,12 @@ const c = (
   Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
 
 export const LQ08_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
+  planckConstant: c("J s", "planck-constant", "lq08.acceptedConstants"),
+  elementaryCharge: c("C", "elementary-charge-magnitude", "lq08.acceptedConstants"),
   incidentPower: c("W", "radiant-power", "lq08.acceptedInputs"),
   frequency: c("Hz", "monochromatic-frequency", "lq08.acceptedInputs"),
   workFunction: c("eV", "work-function", "lq08.acceptedInputs"),
+  escapeWork: c("J", "work-function", "lq08.acceptedInputs"),
   quantumEfficiency: c("1", "quantum-efficiency", "lq08.acceptedInputs"),
   collectorPotential: c("V", "collector-potential", "lq08.acceptedInputs"),
   quantumEnergy: c("J", "quantum-energy", "photoelectric.quantumEnergy"),

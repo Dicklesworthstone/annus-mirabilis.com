@@ -29,7 +29,7 @@
       "numerator": {
         "kind": "symbol",
         "termId": "eq-model-lq-threshold-frequency.t.escapeWork",
-        "quantityId": "workFunction"
+        "quantityId": "escapeWork"
       },
       "denominator": {
         "kind": "symbol",
@@ -64,7 +64,29 @@
       "foundation": "functions-graphs"
     }
   ],
-  "bindings": [],
+  "bindings": [
+    {
+      "termId": "eq-model-lq-threshold-frequency.t.threshold",
+      "quantityId": "thresholdFrequency",
+      "experimentId": "lq-08",
+      "outputId": "thresholdFrequency",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-threshold-frequency.t.escapeWork",
+      "quantityId": "escapeWork",
+      "experimentId": "lq-08",
+      "outputId": "escapeWork",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-threshold-frequency.t.planck",
+      "quantityId": "planckConstant",
+      "experimentId": "lq-08",
+      "outputId": "planckConstant",
+      "instanceSlot": "primary"
+    }
+  ],
   "sentence": [
     {
       "text": "The threshold frequency",

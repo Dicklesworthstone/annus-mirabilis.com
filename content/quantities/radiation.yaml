@@ -264,6 +264,20 @@
   frame: not-applicable
   colorRole: energy
 
+- id: escapeWork
+  name: Escape work per photoelectron in the SI energy budget
+  description: >
+    The energy a photoelectron spends leaving the surface in the single-quantum
+    model, expressed in joules for the accepted energy balance. LQ-08 obtains it
+    from its accepted workFunction control in electron-volts using the elementary
+    charge in the same declared constant set as its numerical reference owner.
+    The legacy workFunction output keeps its electron-volt value and identity.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
 - id: maxKineticEnergy
   name: Maximum photoelectron kinetic energy
   description: The maximum kinetic energy of an emitted photoelectron.

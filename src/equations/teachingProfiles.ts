@@ -1,4 +1,5 @@
 import { BM01_OUTPUTS } from "../experiments/bm01/definition.ts";
+import { LQ08_OUTPUTS } from "../experiments/lq08/definition.ts";
 import { ME02_OUTPUTS } from "../experiments/me02/definition.ts";
 import { SR05_OUTPUTS } from "../experiments/sr05/definition.ts";
 import type { OutputContract } from "../experiments/store/instanceStore.ts";
@@ -18,7 +19,7 @@ export type TeachingPaper =
    * an argument, it is always reading-only (live: false), and it has its own colours.
    */
   | "foundations";
-export type TeachingExperiment = "bm-01" | "me-02" | "sr-05";
+export type TeachingExperiment = "bm-01" | "lq-08" | "me-02" | "sr-05";
 export type TeachingProfile = Readonly<{
   argumentPrefix: string;
   quantities: QuantityRegistry;
@@ -36,13 +37,11 @@ const profiles: Readonly<Record<TeachingPaper, TeachingProfile>> = Object.freeze
     quantities: MASS_ENERGY_QUANTITIES,
     outputs: Object.freeze({ "me-02": ME02_OUTPUTS }),
   }),
-  /* Admitted 2026-09-22 so the explanation face's formulas can be coloured by quantity (the
-     owner's ruling). No laboratory output is bound: these records are symbolic until an
-     instrument's contract is admitted here the way bm-01 and me-02 were. */
+  // Only the photoelectric apparatus supplies live values for the modern SI energy relations.
   "light-quanta": Object.freeze({
     argumentPrefix: "arg-lq-",
     quantities: LIGHT_QUANTA_QUANTITIES,
-    outputs: Object.freeze({}),
+    outputs: Object.freeze({ "lq-08": LQ08_OUTPUTS }),
   }),
   "special-relativity": Object.freeze({
     argumentPrefix: "arg-sr-",

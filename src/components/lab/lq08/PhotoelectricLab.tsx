@@ -37,6 +37,7 @@ import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
+import { Lq08LiveEquations } from "./Lq08LiveEquations.tsx";
 import { MillikanFigure6Panel } from "./MillikanFigure6Panel.tsx";
 import { PhotoelectricControlledComparison } from "./PhotoelectricControlledComparison.tsx";
 import {
@@ -201,14 +202,13 @@ export function PhotoelectricLab({
   const accepted = view.accepted;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation; no example, no earned label.
-  const executionKind = executionStateKindFromHostLabel(
-    deriveHostExecution(
-      view,
-      LQ08_OUTPUTS,
-      example?.sourceDigest ?? "",
-      accepted !== undefined && accepted === session.getServerSnapshot().accepted,
-    ).label,
+  const execution = deriveHostExecution(
+    view,
+    LQ08_OUTPUTS,
+    example?.sourceDigest ?? preparedLq08Example.sourceDigest,
+    accepted !== undefined && accepted === session.getServerSnapshot().accepted,
   );
+  const executionKind = executionStateKindFromHostLabel(execution.label);
   const params = (accepted?.parameters ??
     example?.parameters ?? {
       incidentPower: 0.001,
@@ -520,6 +520,10 @@ export function PhotoelectricLab({
             </tbody>
           </table>
         </section>
+      </div>
+
+      <div {...gate.response}>
+        <Lq08LiveEquations view={view} execution={execution} />
       </div>
 
       {showComparison && (

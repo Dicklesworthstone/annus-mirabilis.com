@@ -434,6 +434,25 @@ await writeFile(
     2,
   )}\n`,
 );
+// The apparatus needs its three live energy relations, not every light-quanta teaching equation.
+const lq08Equations = explainedEquations.filter(
+  (equation) =>
+    equation.paper === "light-quanta" &&
+    equation.bindings.some((binding) => binding.experimentId === "lq-08"),
+);
+await writeFile(
+  "src/generated/lq08-equations.json",
+  `${JSON.stringify(
+    {
+      schemaVersion: 1,
+      rendererDigest,
+      equations: lq08Equations,
+      foundationTitles: lessonTitles(lq08Equations),
+    },
+    null,
+    2,
+  )}\n`,
+);
 /*
   ONE COLOUR PER QUANTITY, PER PAPER (owner's ruling, 2026-09-22). The map is computed from the
   paper's records together, because a colour is only unique relative to the other quantities in

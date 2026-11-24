@@ -377,12 +377,13 @@ export function SemanticEquation({
         <p key={form ?? "one"} className="equation-sentence" data-notation-form={form}>
           {/* The decoder: each phrase bound to a quantity is a button that lights and pins it,
               disabled until hydration so that without JavaScript it reads as the sentence. */}
-          {sentence.map((f) => {
+          {sentence.map((f, index) => {
             const quantityId = quantityOfTerm(f.nodeId);
             return quantityId ? (
               <button
                 type="button"
-                key={`${f.nodeId ?? "frag"}-${f.text}`}
+                // biome-ignore lint/suspicious/noArrayIndexKey: a fixed sentence; fragments never reorder
+                key={`${f.nodeId ?? "frag"}-${index}`}
                 className="equation-quantity term-phrase"
                 data-quantity-id={quantityId}
                 data-selected={String(!!selectedNode(f.nodeId))}
@@ -393,7 +394,8 @@ export function SemanticEquation({
                 {f.text}
               </button>
             ) : (
-              <span key={`${f.nodeId ?? "frag"}-${f.text}`}>{f.text}</span>
+              // biome-ignore lint/suspicious/noArrayIndexKey: a fixed sentence; fragments never reorder
+              <span key={`${f.nodeId ?? "frag"}-${index}`}>{f.text}</span>
             );
           })}
         </p>

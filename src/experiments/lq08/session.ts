@@ -1,3 +1,4 @@
+import { constantValue, getConstantSet } from "../../physics/reference/constants.ts";
 import {
   emissionRate,
   kMax,
@@ -11,7 +12,7 @@ import {
 import { parseResult } from "../results/codec.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
-import { LQ08_CLASSES, LQ08_OUTPUTS, type Lq08Parameters } from "./definition.ts";
+import { LQ08_CLASSES, LQ08_MODEL, LQ08_OUTPUTS, type Lq08Parameters } from "./definition.ts";
 import { validateLq08Parameters } from "./parameters.ts";
 
 export type PreparedLq08Example = Readonly<{
@@ -23,26 +24,58 @@ export type PreparedLq08Example = Readonly<{
 }>;
 
 export function evaluateLq08(p: Lq08Parameters): ScientificResult[] {
-  const qeRes = quantumEnergy(p.frequency);
-  const tfRes = thresholdFrequencyFromEv(p.workFunction);
-  const kmRes = kMax(p.frequency, p.workFunction * 1.602176634e-19);
-  const spRes = stoppingPotentialFromEv(p.frequency, p.workFunction);
-  const qrRes = quantumRate(p.incidentPower, p.frequency);
+  const constants = getConstantSet(LQ08_MODEL.constantSetId);
+  const planckConstant = constantValue(constants, "planckConstant").value;
+  const elementaryCharge = constantValue(constants, "elementaryCharge").value;
+  const workFunctionJoules = p.workFunction * elementaryCharge;
+  const qeRes = quantumEnergy(p.frequency, constants);
+  const tfRes = thresholdFrequencyFromEv(p.workFunction, constants);
+  const kmRes = kMax(p.frequency, workFunctionJoules, constants);
+  const spRes = stoppingPotentialFromEv(p.frequency, p.workFunction, constants);
+  const qrRes = quantumRate(p.incidentPower, p.frequency, constants);
   const erRes = emissionRate(
     p.incidentPower,
     p.frequency,
-    p.workFunction * 1.602176634e-19,
+    workFunctionJoules,
     p.quantumEfficiency,
+    constants,
   );
   const pcRes = photocurrent(
     p.incidentPower,
     p.frequency,
-    p.workFunction * 1.602176634e-19,
+    workFunctionJoules,
     p.quantumEfficiency,
     p.collectorPotential,
+    constants,
   );
 
   const outputs: ScientificResult[] = [
+    // The controls and legacy workFunction output retain eV. The equation consumes this
+    // separately identified SI escape work from the same accepted input and constant set.
+    {
+      quantityId: "escapeWork",
+      unit: "J",
+      semanticKind: "work-function",
+      ownerId: "lq08.acceptedInputs",
+      status: "value",
+      value: workFunctionJoules,
+    },
+    {
+      quantityId: "planckConstant",
+      unit: "J s",
+      semanticKind: "planck-constant",
+      ownerId: "lq08.acceptedConstants",
+      status: "value",
+      value: planckConstant,
+    },
+    {
+      quantityId: "elementaryCharge",
+      unit: "C",
+      semanticKind: "elementary-charge-magnitude",
+      ownerId: "lq08.acceptedConstants",
+      status: "value",
+      value: elementaryCharge,
+    },
     {
       quantityId: "incidentPower",
       unit: "W",

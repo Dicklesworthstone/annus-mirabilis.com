@@ -71,7 +71,7 @@
           "argument": {
             "kind": "symbol",
             "termId": "eq-model-lq-stopping-energy.t.escapeWork",
-            "quantityId": "workFunction"
+            "quantityId": "escapeWork"
           }
         }
       ]
@@ -127,7 +127,50 @@
       "foundation": "functions-graphs"
     }
   ],
-  "bindings": [],
+  "bindings": [
+    {
+      "termId": "eq-model-lq-stopping-energy.t.charge",
+      "quantityId": "elementaryCharge",
+      "experimentId": "lq-08",
+      "outputId": "elementaryCharge",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-stopping-energy.t.stopping",
+      "quantityId": "stoppingPotentialMagnitude",
+      "experimentId": "lq-08",
+      "outputId": "stoppingPotentialMagnitude",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-stopping-energy.t.maxKineticEnergy",
+      "quantityId": "maxKineticEnergy",
+      "experimentId": "lq-08",
+      "outputId": "maxKineticEnergy",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-stopping-energy.t.planck",
+      "quantityId": "planckConstant",
+      "experimentId": "lq-08",
+      "outputId": "planckConstant",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-stopping-energy.t.frequency",
+      "quantityId": "frequency",
+      "experimentId": "lq-08",
+      "outputId": "frequency",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-stopping-energy.t.escapeWork",
+      "quantityId": "escapeWork",
+      "experimentId": "lq-08",
+      "outputId": "escapeWork",
+      "instanceSlot": "primary"
+    }
+  ],
   "sentence": [
     {
       "text": "The charge",
