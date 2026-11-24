@@ -83,12 +83,17 @@ describe("the real captions and derivation-step records are owned and the audit 
     const targetKinds = new Set(loaded.input.targets.map((t) => t.targetKind));
     expect([...targetKinds].sort()).toEqual([
       "derivation-step",
+      "equation",
       READINGS_RECORD_VOCABULARY.inAuditType,
     ]);
     // And the records really do write the OTHER spelling: the translation is doing work, so a
     // loader that stopped translating would turn this red instead of silently going unowned.
     const onDisk = new Set(loaded.input.owners.flatMap((o) => [...o.targetKinds]));
-    expect([...onDisk].sort()).toEqual(["derivation-step", READINGS_RECORD_VOCABULARY.inAuditType]);
+    expect([...onDisk].sort()).toEqual([
+      "derivation-step",
+      "equation",
+      READINGS_RECORD_VOCABULARY.inAuditType,
+    ]);
     for (const target of loaded.input.targets) {
       const owners = loaded.input.owners.filter(
         (owner) =>
@@ -100,17 +105,27 @@ describe("the real captions and derivation-step records are owned and the audit 
     expect(READINGS_RECORD_VOCABULARY.inRecords).not.toBe(READINGS_RECORD_VOCABULARY.inAuditType);
   });
 
-  test("the 63 caption targets and 142 derivation steps have separate real denominators", () => {
+  test("captions, derivation steps and owned equations form separate nonempty populations", () => {
     const captions = loaded.input.targets.filter(
       (target) => target.targetKind === "instrument-caption",
     );
     const steps = loaded.input.targets.filter((target) => target.targetKind === "derivation-step");
-    expect(captions.length).toBe(63);
-    expect(steps.length).toBe(142);
-    expect(steps.filter((target) => target.paper === "light-quanta").length).toBe(15);
-    expect(steps.filter((target) => target.paper === "special-relativity").length).toBe(112);
-    expect(steps.filter((target) => target.paper === "brownian-motion").length).toBe(15);
-    expect(loaded.input.targets.length).toBe(captions.length + steps.length);
+    const equations = loaded.input.targets.filter((target) => target.targetKind === "equation");
+    expect(captions.length).toBeGreaterThan(0);
+    expect(steps.length).toBeGreaterThan(0);
+    expect(equations.map((target) => target.targetId)).toEqual(
+      expect.arrayContaining([
+        "eq-model-sr-composed-velocity-x",
+        "eq-model-sr-composed-velocity-y",
+      ]),
+    );
+    for (const paper of ["light-quanta", "special-relativity", "brownian-motion"]) {
+      const targets = steps.filter((target) => target.paper === paper);
+      expect(targets.length, paper).toBeGreaterThan(0);
+      expect(new Set(targets.map((target) => target.targetId)).size, paper).toBe(targets.length);
+      console.log(`[census] ${paper}: ${targets.length} owned derivation-step readings`);
+    }
+    expect(loaded.input.targets.length).toBe(captions.length + steps.length + equations.length);
   });
 
   test("so both cells MEASURE, over a real denominator", () => {

@@ -65,6 +65,37 @@ jobs:
           src/equations/InlineTermLighting.test.tsx
           src/search/SearchResults.test.tsx
 
+      - name: Verify completed radiation and relativity arguments
+        run: >-
+          bun test --isolate --timeout 60000
+          src/equations/derivations/srSimultaneity.test.ts
+          src/reader/SRSimultaneityDerivation.test.tsx
+          src/content/results/simultaneitySupport.test.tsx
+          src/equations/derivations/srCoordinateSourceProof.test.ts
+          src/reader/SRCoordinateDerivation.test.tsx
+          src/content/results/coordinateSupport.test.tsx
+          src/equations/derivations/lightQuantaFoundationsProof.test.ts
+          src/content/results/lightQuantaFoundationsSupport.test.tsx
+          src/reader/LightQuantaFoundationsDerivation.test.tsx
+          src/equations/derivations/exactExponentialSeries.test.ts
+          src/equations/derivations/lightQuantaPlanckProof.test.ts
+          src/content/results/lightQuantaPlanckSupport.test.tsx
+          src/reader/LightQuantaPlanckDerivation.test.tsx
+          src/content/results/resultDependencies.test.ts
+          src/reader/faces/results/ResultDependencies.test.tsx
+
+      - name: Verify exact series and existing low-speed limits
+        run: >-
+          node --experimental-strip-types --test
+          src/testing/exactSeries.test.mjs src/testing/massEnergyLowSpeed.test.mjs
+
+      - name: Verify owned readings for the expanded arguments
+        run: >-
+          bun test --isolate --timeout 60000
+          src/content/audits/readingsPopulations.test.ts
+          src/content/definitionOfDone/readingsCells.test.ts
+          src/equations/derivations/lightQuantaEntropy.test.ts
+
       - name: Verify result probes and exact equation bindings
         run: >-
           bun test --isolate --timeout 60000

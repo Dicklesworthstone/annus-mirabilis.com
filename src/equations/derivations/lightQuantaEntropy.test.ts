@@ -13,6 +13,7 @@ import {
 } from "../../physics/reference/radiation/entropy.ts";
 import { type Expression, walk } from "../ast.ts";
 import { parseEquationRecord } from "../record.ts";
+import { verifyLqCoefficientCorrespondence } from "./lightQuantaCoefficientProof.ts";
 import {
   lightQuantaDerivationMetadata,
   lightQuantaDisplayChain,
@@ -25,7 +26,6 @@ import {
   lqUnfixedConstantResult,
   lqWienEntropyDerivation,
 } from "./lightQuantaEntropy.ts";
-import { verifyLqCoefficientCorrespondence } from "./lightQuantaCoefficientProof.ts";
 import { verifyLqWienEntropy } from "./lightQuantaEntropyProof.ts";
 import { evaluateExpression } from "./spotCheck.ts";
 import type { DerivationChain, DerivationStep } from "./types.ts";
@@ -267,12 +267,15 @@ test("every displayed LQ step has synchronized owned R0–R3 readings that pass 
   ];
   const live = loadLiveReadingsInput(process.cwd(), { ownerBeadIds: owners });
   assert.deepEqual(live.unparseable, []);
-  assert.equal(live.input.targets.length, 15);
+  // These owners also hold the other LQ sections. Check the identity and reading
+  // of every step below, while allowing the shared owners to gain new derivations.
+  assert.ok(live.input.targets.length > 0);
   assert.deepEqual(auditReadings(live.input).findings, []);
   for (const [section, chain] of [
     ["s4", lqWienEntropyDerivation],
     ["s6", lqCoefficientCorrespondence],
   ] as const) {
+    assert.ok(chain.steps.length > 0, `${chain.id} must have displayed steps`);
     const owner = lightQuantaDerivationMetadata[section].ownerBeadId;
     const record = yaml.load(
       readFileSync(`content/editorial/readings-owners/${owner}.yaml`, "utf8"),
@@ -327,19 +330,20 @@ test("checked correspondence refuses lost domain conditions and altered coeffici
   }
   const wrongCoefficient: DerivationChain = {
     ...chain,
-    steps: chain.steps.map((entry): DerivationStep =>
-      entry.id === chain.targetStepId
-        ? {
-            ...entry,
-            to: {
-              ...lqEnergyPerElementEquation,
-              right: {
-                kind: "product",
-                args: [{ kind: "number", value: "2" }, lqEnergyPerElementResult],
+    steps: chain.steps.map(
+      (entry): DerivationStep =>
+        entry.id === chain.targetStepId
+          ? {
+              ...entry,
+              to: {
+                ...lqEnergyPerElementEquation,
+                right: {
+                  kind: "product",
+                  args: [{ kind: "number", value: "2" }, lqEnergyPerElementResult],
+                },
               },
-            },
-          }
-        : entry,
+            }
+          : entry,
     ),
   };
   assert.equal(verifyLqCoefficientCorrespondence(wrongCoefficient).passed, false);
@@ -353,19 +357,20 @@ test("altering either admitted entropy law breaks the coefficient correspondence
   for (const side of ["left", "right"] as const) {
     const changed: DerivationChain = {
       ...chain,
-      steps: chain.steps.map((entry): DerivationStep =>
-        entry.id === first.id
-          ? {
-              ...entry,
-              from: {
-                ...from,
-                [side]: {
-                  kind: "product",
-                  args: [{ kind: "number", value: "2" }, from[side]],
+      steps: chain.steps.map(
+        (entry): DerivationStep =>
+          entry.id === first.id
+            ? {
+                ...entry,
+                from: {
+                  ...from,
+                  [side]: {
+                    kind: "product",
+                    args: [{ kind: "number", value: "2" }, from[side]],
+                  },
                 },
-              },
-            }
-          : entry,
+              }
+            : entry,
       ),
     };
     assert.equal(verifyLqCoefficientCorrespondence(changed).passed, false);
@@ -384,14 +389,15 @@ test("the coefficient owner requires every producer and its actual consumer", ()
   const zero: Expression = { kind: "number", value: "0" };
   const unrelated: DerivationChain = {
     ...chain,
-    steps: chain.steps.map((entry): DerivationStep =>
-      entry.id === substitution.id
-        ? {
-            ...entry,
-            from: { kind: "product", args: [zero, entry.from] },
-            to: { kind: "product", args: [zero, entry.to] },
-          }
-        : entry,
+    steps: chain.steps.map(
+      (entry): DerivationStep =>
+        entry.id === substitution.id
+          ? {
+              ...entry,
+              from: { kind: "product", args: [zero, entry.from] },
+              to: { kind: "product", args: [zero, entry.to] },
+            }
+          : entry,
     ),
   };
   // Each local rewrite still passes, but this substitution no longer supplies the final equality.
