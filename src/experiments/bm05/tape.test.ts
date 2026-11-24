@@ -218,7 +218,8 @@ test("Gaussian engine fallback cannot restore a pinned trial but can explicitly 
   const accepted = lab.session.getSnapshot().accepted;
   const restored = await restoreWorkerTape(lab.binding, lab.session, stop.tape);
   expect(restored.kind).toBe("not-restored");
-  if (restored.kind === "not-restored") expect(restored.notice).toContain("pinned FrankenSim");
+  if (restored.kind === "not-restored")
+    expect(restored.notice).toContain("different calculation engine");
   expect(lab.session.getSnapshot().accepted).toBe(accepted);
   const target = createBm05WalkthroughTarget(lab.binding, lab.session, () => {});
   assert.ok(target.calculate);

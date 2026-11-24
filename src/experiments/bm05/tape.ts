@@ -5,6 +5,7 @@ import { createWorkerWalkthroughTarget } from "../permalink/workerWalkthrough.ts
 import type { Bm05Parameters } from "./definition.ts";
 import { BM05_DRAFT_TAPE } from "./draftTape.ts";
 import { createBm05Session, type PreparedBm05Example } from "./session.ts";
+import { captureBm05Tape } from "./tapeCapture.ts";
 import { validateBm05ScientificTape, verifyBm05ScientificCheckpoint } from "./tapeCheckpoint.ts";
 
 /** A shared link loads a draft; explicit playback verifies the recorded walks and results. */
@@ -12,19 +13,22 @@ export function createBm05TapeBinding(
   example: PreparedBm05Example,
   workerFactory: () => WorkerChannel,
 ): WorkerTapeBinding {
-  return Object.freeze({
+  const binding: WorkerTapeBinding = {
     ...BM05_DRAFT_TAPE,
     environment: Object.freeze({
       ...BM05_DRAFT_TAPE.environment,
       artifactDigest: example.sourceDigest.replace(/^source:/, "host:"),
     }),
     createSession: (instanceId: string) => createBm05Session(instanceId, example, workerFactory),
+    capture: (session, accepted) =>
+      captureBm05Tape(binding, session, accepted, example.sourceDigest),
     scientificReplay: {
       validate: (tape, states) => validateBm05ScientificTape(tape, states, example.sourceDigest),
       verify: (tape, publication) =>
         verifyBm05ScientificCheckpoint(tape, publication, example.sourceDigest),
     },
-  });
+  };
+  return Object.freeze(binding);
 }
 
 export function createBm05WalkthroughTarget(

@@ -1,3 +1,4 @@
+import { HOST_NORMAL_VERSION } from "../../physics/reference/philox.ts";
 import type { VerifiablePublication } from "../../workers/scheduler/verifiedChannel.ts";
 import { type DigestFields, scientificDigest } from "../digest/scientificDigest.ts";
 import { parseU64 } from "../identity/u64.ts";
@@ -8,6 +9,7 @@ import {
   BM01_CLASSES,
   BM01_DEFAULTS,
   BM01_FRANKENSIM_RECORDER_OWNER,
+  BM01_HOST_RECORDER_OWNER,
   type Bm01Parameters,
 } from "./definition.ts";
 import type { Bm01RecordingCheckpoint } from "./recordingCheckpoint.ts";
@@ -110,15 +112,15 @@ export async function bm01CheckpointDigest(
       kind: "not-restored",
       notice: "The Brownian worker did not supply a verified complete-trajectory checkpoint.",
     };
+  const wasm = recording.ownerId === BM01_FRANKENSIM_RECORDER_OWNER;
   if (
-    recording.ownerId !== BM01_FRANKENSIM_RECORDER_OWNER ||
-    recording.normalVersion !== FRANKENSIM_NORMAL_VERSION ||
-    recording.artifactDigest !== `sha256:${PINNED_ARTIFACT.wasmDigest}`
+    (!wasm && recording.ownerId !== BM01_HOST_RECORDER_OWNER) ||
+    recording.normalVersion !== (wasm ? FRANKENSIM_NORMAL_VERSION : HOST_NORMAL_VERSION) ||
+    recording.artifactDigest !== (wasm ? `sha256:${PINNED_ARTIFACT.wasmDigest}` : sourceDigest)
   )
     return {
       kind: "not-restored",
-      notice:
-        "This recorded trial requires the pinned FrankenSim Brownian engine. The host fallback uses a different normal transform; calculate a new run to use it.",
+      notice: "The Brownian checkpoint names an incompatible recording engine or normal transform.",
     };
   if (recording.sourceDigest !== sourceDigest)
     return {
@@ -135,6 +137,33 @@ export async function bm01CheckpointDigest(
     return {
       kind: "not-restored",
       notice: "The worker has not completed the checkpoint's full recording grid.",
+    };
+  const diffusion = publication.outputs.find(
+    (output) => output.quantityId === "diffusionCoefficient",
+  );
+  if (
+    recording.checkpointVersion !== 1 ||
+    recording.allocationId !== BM01_ALLOCATION.allocationId ||
+    recording.seed !== p.seed ||
+    recording.tracers !== p.M ||
+    recording.steps !== position.stepIndex ||
+    recording.baseSpacing !== p.h ||
+    diffusion?.status !== "value" ||
+    recording.diffusionCoefficient !== diffusion.value ||
+    recording.draws !==
+      p.M * BM01_ALLOCATION.axes * position.stepIndex * BM01_ALLOCATION.drawsPerStep ||
+    typeof recording.digest !== "string" ||
+    !/^host:sha256:[a-f0-9]{64}$/.test(recording.digest) ||
+    ["tracerPositions", "traceCoordinates", "recordingDraws"].some(
+      (id) =>
+        publication.outputs.find((output) => output.quantityId === id)?.ownerId !==
+        recording.ownerId,
+    )
+  )
+    return {
+      kind: "not-restored",
+      notice:
+        "The complete Brownian checkpoint belongs to another setup, stream or recording engine.",
     };
   const outputs = publication.outputs
     .filter((output) => output.quantityId !== "reusedRecording")
@@ -178,5 +207,5 @@ export async function verifyBm01ScientificCheckpoint(
   if (calculated.kind !== "digest") return calculated.notice;
   return calculated.digest === tape.acceptedCheckpoint.digest
     ? null
-    : "The worker's full trajectory and accepted scientific results do not match the recorded checkpoint. The previous accepted result has been kept.";
+    : "The worker's full trajectory and accepted scientific results do not match the recorded checkpoint. This can reflect a different normal transform or calculation engine. The previous accepted result has been kept; calculate a new run to use this engine.";
 }

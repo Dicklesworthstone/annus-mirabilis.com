@@ -1,5 +1,6 @@
 import { BM05_PROTOCOL, decodeLabHello, decodeLabResponse } from "../../workers/protocol/bm05.ts";
 import { LabProtocolError } from "../../workers/protocol/bm06.ts";
+import { createAcceptedPublicationReader } from "../../workers/scheduler/acceptedPublication.ts";
 import type { WorkerAdmission } from "../../workers/scheduler/admission.ts";
 import { createHostScheduler, type WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { createRecordingContinuity } from "../../workers/scheduler/recordingContinuity.ts";
@@ -81,6 +82,11 @@ export function createBm05Session(
   const schedulingPause = createSchedulingPause((paused) => scheduler?.setSchedulingPaused(paused));
   const verifiers = new WeakMap<RequestToken, PublicationVerifier>();
   const continuity = createRecordingContinuity(store);
+  const publication = createAcceptedPublicationReader(
+    store.getSnapshot,
+    "bm-05",
+    Object.keys(BM05_OUTPUTS),
+  );
   const ownerProtocol = {
     version: BM05_PROTOCOL,
     decodeHello: decodeLabHello,
@@ -142,6 +148,7 @@ export function createBm05Session(
         decodeResponse(message, token, digest) {
           const response = decodeLabResponse(message, token, digest);
           if (response.result.kind !== "accepted") return response;
+          publication.remember(token, response.result.data);
           const { outputs, stepIndex, simulationTime } = response.result.data;
           // Transport receipts are verified before the store publishes scientific outputs.
           return {
@@ -168,6 +175,7 @@ export function createBm05Session(
   }
   return Object.freeze({
     getSnapshot: store.getSnapshot,
+    acceptedPublication: publication.read,
     getServerSnapshot: () => serverSnapshot,
     subscribe: store.subscribe,
     apply: (input: unknown) => apply(input),

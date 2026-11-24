@@ -130,34 +130,31 @@ export async function bm05CheckpointDigest(
       kind: "not-restored",
       notice: "The worker has not completed the checkpoint's full recording grid.",
     };
-  const drawOwner = p.kernel === "gaussian" ? BM05_FRANKENSIM_DRAW_OWNER : HOST_WALK_DRAW_OWNER;
-  if (
-    ["walkPositions", "traceDisplacements", "recordingDraws"].some(
-      (id) => publication.outputs.find((output) => output.quantityId === id)?.ownerId !== drawOwner,
-    )
-  )
-    return {
-      kind: "not-restored",
-      notice:
-        p.kernel === "gaussian"
-          ? "This recorded Gaussian trial requires the pinned FrankenSim normal engine. The host fallback uses a different normal transform; calculate a new run to use it."
-          : "The worker's walk results were produced by another random-step engine.",
-    };
   const recording = publication.recordingCheckpoint as Bm05RecordingCheckpoint | undefined;
   if (!recording)
     return {
       kind: "not-restored",
       notice: "The walk worker did not supply a complete-trajectory checkpoint.",
     };
+  const drawOwner = recording.ownerId;
+  const moduleDraws = p.kernel === "gaussian" && drawOwner === BM05_FRANKENSIM_DRAW_OWNER;
+  if (
+    (!moduleDraws && drawOwner !== HOST_WALK_DRAW_OWNER) ||
+    ["walkPositions", "traceDisplacements", "recordingDraws"].some(
+      (id) => publication.outputs.find((output) => output.quantityId === id)?.ownerId !== drawOwner,
+    )
+  )
+    return {
+      kind: "not-restored",
+      notice: "The worker's walk results were produced by another random-step engine.",
+    };
   if (
     recording.checkpointVersion !== 1 ||
     recording.sourceDigest !== sourceDigest ||
     recording.modelId !== BM05_MODEL.id ||
-    recording.ownerId !== drawOwner ||
-    recording.normalVersion !==
-      (p.kernel === "gaussian" ? FRANKENSIM_NORMAL_VERSION : HOST_NORMAL_VERSION) ||
+    recording.normalVersion !== (moduleDraws ? FRANKENSIM_NORMAL_VERSION : HOST_NORMAL_VERSION) ||
     recording.artifactDigest !==
-      (p.kernel === "gaussian" ? `sha256:${PINNED_ARTIFACT.wasmDigest}` : sourceDigest) ||
+      (moduleDraws ? `sha256:${PINNED_ARTIFACT.wasmDigest}` : sourceDigest) ||
     recording.allocationId !== BM05_ALLOCATION.allocationId ||
     recording.streamKernelId !== BM05_ALLOCATION.streamKernelId ||
     recording.streamVersion !== BM05_ALLOCATION.streamVersion ||
@@ -211,8 +208,8 @@ export async function bm05CheckpointDigest(
       ownerId: drawOwner,
       ...(p.kernel === "gaussian"
         ? {
-            normalVersion: FRANKENSIM_NORMAL_VERSION,
-            artifactDigest: `sha256:${PINNED_ARTIFACT.wasmDigest}`,
+            normalVersion: recording.normalVersion,
+            artifactDigest: recording.artifactDigest,
           }
         : {}),
     },
