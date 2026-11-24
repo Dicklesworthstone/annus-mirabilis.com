@@ -9,6 +9,7 @@ import {
 import {
   createVerifiedWorkerChannel,
   type PublicationVerifier,
+  type VerifiablePublication,
 } from "../../workers/scheduler/verifiedChannel.ts";
 import { createSchedulingPause } from "../lifecycle/schedulingPause.ts";
 import { parseResult } from "../results/codec.ts";
@@ -16,6 +17,7 @@ import { executionOutcomeRegistry } from "../results/outcomes.ts";
 import { createInstanceStore, type RequestToken } from "../store/instanceStore.ts";
 import { BM07_CLASSES, BM07_OUTPUTS, type Bm07Parameters } from "./definition.ts";
 import { validateBm07Parameters } from "./parameters.ts";
+import type { Bm07RecordingCheckpoint } from "./recordingCheckpoint.ts";
 export type PreparedBm07Example = Readonly<{
   sourceDigest: string;
   parameters: Bm07Parameters;
@@ -62,6 +64,14 @@ export function createBm07Session(
   )
     throw new Error("Invalid prepared inference example.");
   const serverSnapshot = store.getSnapshot();
+  // Retain the protocol-validated receipt, not another copy of the trajectory or output buffers.
+  // The prepared example has no receipt and cannot become a reader's captured experiment.
+  let recordingReceipt: Readonly<{
+    token: RequestToken;
+    stepIndex: number;
+    simulationTime: number;
+    recordingCheckpoint: Bm07RecordingCheckpoint;
+  }> | null = null;
   let scheduler: ReturnType<typeof createHostScheduler> | null = null;
   const schedulingPause = createSchedulingPause((paused) => scheduler?.setSchedulingPaused(paused));
   const verifiers = new WeakMap<RequestToken, PublicationVerifier>();
@@ -125,7 +135,10 @@ export function createBm07Session(
         decodeResponse(message, token, digest) {
           const response = decodeLabResponse(message, token, digest);
           if (response.result.kind !== "accepted") return response;
-          const { outputs, stepIndex, simulationTime } = response.result.data;
+          const { outputs, stepIndex, simulationTime, recordingCheckpoint } = response.result.data;
+          recordingReceipt = recordingCheckpoint
+            ? { token, stepIndex, simulationTime, recordingCheckpoint: { ...recordingCheckpoint } }
+            : null;
           // Verification consumes transport metadata before the store publishes its declared
           // scientific outputs. A failed checksum leaves the prior accepted snapshot readable.
           return {
@@ -164,5 +177,57 @@ export function createBm07Session(
     },
     acceptedParameters: () =>
       (store.getSnapshot().accepted?.parameters ?? example.parameters) as Bm07Parameters,
+    acceptedPublication(): VerifiablePublication | null {
+      const view = store.getSnapshot();
+      const accepted = view.accepted;
+      const receipt = recordingReceipt;
+      if (
+        !accepted ||
+        !receipt ||
+        view.status !== "accepted" ||
+        view.pending ||
+        !accepted.final ||
+        accepted.parameters.observationSet !== "synthetic" ||
+        accepted.parameters.coverageTrials !== 0 ||
+        view.requested !== receipt.token
+      )
+        return null;
+      const request = receipt.token;
+      if (
+        accepted.experimentId !== request.experimentId ||
+        accepted.instanceId !== request.instanceId ||
+        accepted.runId !== request.runId ||
+        accepted.parentRunId !== request.parentRunId ||
+        accepted.actionIndex !== request.actionIndex ||
+        accepted.stepIndex !== receipt.stepIndex ||
+        accepted.simulationTime !== receipt.simulationTime ||
+        Object.entries(request.revisions).some(
+          ([key, value]) => accepted.revisions[key as keyof typeof request.revisions] !== value,
+        ) ||
+        Object.keys(accepted.parameters).length !== Object.keys(request.parameters).length ||
+        Object.entries(request.parameters).some(
+          ([key, value]) => !Object.is(accepted.parameters[key], value),
+        )
+      )
+        return null;
+      const quantities = new Set(accepted.outputs.map((output) => output.quantityId));
+      if (Object.keys(BM07_OUTPUTS).some((id) => !quantities.has(id))) return null;
+      return {
+        ...request,
+        parameters: { ...accepted.parameters },
+        revisions: { ...accepted.revisions },
+        stepIndex: accepted.stepIndex,
+        simulationTime: accepted.simulationTime,
+        final: true,
+        outputs: accepted.outputs.map((output) => {
+          if (output.status !== "value") return structuredClone(output);
+          return structuredClone({
+            ...output,
+            value: typeof output.value === "number" ? output.value : output.value.copy(),
+          });
+        }),
+        recordingCheckpoint: { ...receipt.recordingCheckpoint },
+      };
+    },
   });
 }
