@@ -16,10 +16,13 @@ import tracerExample from "../generated/bm01-example.json";
 export default function InlineTracerLab({
   session: sharedSession,
   example = tracerExample as PreparedBm01Example,
+  registerWitness = true,
 }: {
   /** An embedding may supply the actual owner, as WovenTracerLab and TracerLab allow. */
   session?: ReturnType<typeof createBm01Session>;
   example?: PreparedBm01Example;
+  /** A shared reader provider connects its owner even before the full controls open. */
+  registerWitness?: boolean;
 } = {}) {
   const id = useId();
   const [session] = useState(
@@ -27,11 +30,13 @@ export default function InlineTracerLab({
       sharedSession ?? createBm01Session(`reading-bm01-${id}`, example, createBm01BrowserChannel),
   );
   // The optional chapter workspace, result weave and controls read this one accepted owner.
-  // Construction and connection still happen only after the reader opens the lazy laboratory.
-  useInvestigationWitness("bm-01", session, example.sourceDigest);
+  // The shared provider connects its witness even when only the compact controls are open.
   // The paper reader is the site's own route, so its gate remembers the reader's answers.
   return (
     <>
+      {registerWitness ? (
+        <InlineWitness session={session} sourceDigest={example.sourceDigest} />
+      ) : null}
       <LocalPredictions />
       <TracerLab
         highlightPaper
@@ -43,4 +48,15 @@ export default function InlineTracerLab({
       />
     </>
   );
+}
+
+function InlineWitness({
+  session,
+  sourceDigest,
+}: {
+  session: ReturnType<typeof createBm01Session>;
+  sourceDigest: string;
+}) {
+  useInvestigationWitness("bm-01", session, sourceDigest);
+  return null;
 }

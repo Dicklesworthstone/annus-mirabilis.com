@@ -145,6 +145,22 @@ export function TracerLab({
     draftRevision.current++;
     setDraftState(next);
   }, []);
+  const acceptedDraft = useRef(toTracerDraft(p));
+  useEffect(() => {
+    if (!sharedSession || view.pending) return;
+    const previous = acceptedDraft.current;
+    const next = toTracerDraft(p);
+    acceptedDraft.current = next;
+    // Another view can apply this owner. Follow it only while the form still represents the
+    // previous accepted settings; never replace a newer draft or a submitted pending setup.
+    setDraftState((current) =>
+      (Object.keys(previous) as (keyof TracerDraft)[]).every(
+        (key) => current[key] === previous[key],
+      )
+        ? next
+        : current,
+    );
+  }, [p, sharedSession, view.pending]);
   const workerTape = useMemo(
     () => createBm01TapeBinding(example, workerFactory),
     [example, workerFactory],

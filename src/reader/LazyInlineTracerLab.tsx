@@ -11,14 +11,25 @@
  * behind an expansion loads on first expansion, with a real link for readers without JavaScript.
  *
  * HOW. The disclosure and its summary are in the HTML. Opening it the first time loads the
- * laboratory and its example as one lazy chunk and mounts the same TracerLab that /lab/bm-01/
- * renders. Once mounted it stays mounted: closing the disclosure only hides it, so a trial
+ * laboratory and its example and mounts the same TracerLab that /lab/bm-01/ renders. In the
+ * Brownian reader the companion and these full controls share the provider's one lazy owner.
+ * Once mounted it stays mounted: closing the disclosure only hides it, so a trial
  * survives a face change or an opened lesson, as it did before. Until then, and for a reader
  * without JavaScript, the disclosure holds a link to /lab/bm-01/, where the laboratory and its
  * worked example are part of the served page. The static worked case stays in
  * StickyLabRegion either way.
  */
-import { lazy, Suspense, type SyntheticEvent, useEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  type SyntheticEvent,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useBrownianLab } from "./BrownianLabContext.tsx";
 
 const InlineTracerLab = lazy(() => import("./InlineTracerLab.tsx"));
 
@@ -28,17 +39,25 @@ export function LazyInlineTracerLab({
   revealForAnchor?: string | undefined;
 } = {}) {
   const [opened, setOpened] = useState(false);
+  const shared = useBrownianLab();
+  const laboratory = shared?.laboratory;
+  const ensureLaboratory = shared?.ensureLaboratory;
+  const id = useId();
+  const session = useMemo(() => laboratory?.view(`inline-${id}`), [laboratory, id]);
   const disclosure = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
-    if (!revealForAnchor) return;
-    const target = `#${revealForAnchor}`;
+    if (opened && ensureLaboratory) void ensureLaboratory();
+  }, [opened, ensureLaboratory]);
+  useEffect(() => {
+    const targets = new Set(["#lab-bm-01"]);
+    if (revealForAnchor) targets.add(`#${revealForAnchor}`);
     function reveal() {
       if (!disclosure.current) return;
       disclosure.current.open = true;
       setOpened(true);
     }
     function followHash() {
-      if (window.location.hash === target) reveal();
+      if (targets.has(window.location.hash)) reveal();
     }
     function followLink(event: MouseEvent) {
       if (
@@ -52,7 +71,7 @@ export function LazyInlineTracerLab({
         return;
       const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
       // A second click on the same hash does not emit hashchange. It should still reopen the lab.
-      if (link?.getAttribute("href") === target) reveal();
+      if (targets.has(link?.getAttribute("href") ?? "")) reveal();
     }
     followHash();
     window.addEventListener("hashchange", followHash);
@@ -73,9 +92,33 @@ export function LazyInlineTracerLab({
       onToggle={mount}
     >
       <summary>Open the tracer ensemble in this reading</summary>
-      {opened ? (
+      {opened && shared && !laboratory ? (
+        shared.loadError ? (
+          <div className="notice" role="alert">
+            <p>{shared.loadError}</p>
+            <button type="button" onClick={() => void shared.ensureLaboratory()}>
+              Try loading the tracer controls again
+            </button>
+            <p>
+              <a href="/lab/bm-01/">Open the tracer laboratory</a>
+            </p>
+          </div>
+        ) : (
+          <p className="fine" role="status">
+            Loading the tracer ensemble…
+          </p>
+        )
+      ) : opened ? (
         <Suspense fallback={<p className="fine">Loading the tracer ensemble…</p>}>
-          <InlineTracerLab />
+          {laboratory && session ? (
+            <InlineTracerLab
+              session={session}
+              example={laboratory.example}
+              registerWitness={false}
+            />
+          ) : (
+            <InlineTracerLab />
+          )}
         </Suspense>
       ) : (
         <p className="fine">

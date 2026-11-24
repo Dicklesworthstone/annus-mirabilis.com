@@ -18,13 +18,14 @@ import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { ReadingBlocks } from "./Blocks";
+import { BrownianLabCompanion } from "./BrownianLabCompanion.tsx";
+import { BrownianLabProvider } from "./BrownianLabContext.tsx";
 import { BrownianPredictionDerivation } from "./BrownianPredictionDerivation.tsx";
 import {
   BrownianChapterPractice,
   BrownianReaderInvestigation,
 } from "./BrownianReaderInvestigation.tsx";
 import { LazyInlineTracerLab } from "./LazyInlineTracerLab.tsx";
-import { Companion } from "./layout/Companion.tsx";
 import { type CompanionKind, resolveCompanionKind } from "./layout/companionKind.ts";
 import { ReaderLayout } from "./layout/ReaderLayout.tsx";
 import { StickyLabRegion } from "./layout/StickyLabRegion.tsx";
@@ -35,8 +36,8 @@ import {
   LazyBrownianOsmoticDerivation,
 } from "./lazyIslands.tsx";
 import { loadPaperMargins } from "./marginRecords.ts";
-import { PaperMargins } from "./PaperMargins.tsx";
 import { PaperChapterInvestigation } from "./PaperChapterInvestigation.tsx";
+import { PaperMargins } from "./PaperMargins.tsx";
 import "./actions/kindRegistration.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
@@ -275,7 +276,7 @@ export async function PaperReader({
           </>
         }
         companion={
-          <Companion kind={companionKind}>
+          <BrownianLabCompanion>
             {companionKind === "original" ? (
               <>
                 <p>
@@ -355,11 +356,11 @@ export async function PaperReader({
                   </>
                 )}
                 <p>
-                  <a href="#lab-bm-01">Keep the tracer ensemble in view</a>
+                  <a href="#lab-bm-01">Open the full tracer controls below</a>
                 </p>
               </div>
             )}
-          </Companion>
+          </BrownianLabCompanion>
         }
       >
         <div className="reader-body">
@@ -799,7 +800,9 @@ export async function PaperReader({
   );
   return (
     <BrownianReaderInvestigation active={sections.some((s) => s.id === "s5")}>
-      {reading}
+      <BrownianLabProvider key={`brownian-motion/${section ?? "all"}`}>
+        {reading}
+      </BrownianLabProvider>
     </BrownianReaderInvestigation>
   );
 }

@@ -94,6 +94,9 @@ function PinnedCard({ store, slot }: { store: PinnedEquationStore; slot?: string
   );
 }
 
+/** A paper-specific companion can share the same pin card without duplicating its navigation. */
+export { PinnedCard as PinnedEquationCard };
+
 function AvailableCompanion({
   store,
   children,

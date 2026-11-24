@@ -1,0 +1,44 @@
+.brownian-companion-lab {
+  min-width: 0;
+}
+
+[data-brownian-companion] .reader-companion-nav button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.brownian-companion-lab h2 {
+  font-size: var(--type-lead);
+}
+
+.brownian-companion-lab form,
+.brownian-companion-readings {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.brownian-companion-lab input {
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
+}
+
+.brownian-companion-lab .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.brownian-companion-readings {
+  margin-block: 1rem;
+}
+
+.brownian-companion-readings dd {
+  margin-inline-start: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.brownian-companion-lab .equation-card {
+  min-width: 0;
+}

@@ -25,8 +25,11 @@ describe("LazyInlineTracerLab", () => {
     const staticImports = [...source.matchAll(/^import\s[^;]*?from\s+"([^"]+)";/gms)].map(
       (m) => m[1],
     );
-    expect(staticImports).toEqual(["react"]);
+    expect(staticImports).toEqual(["react", "./BrownianLabContext.tsx"]);
     expect(source).toMatch(/lazy\(\(\) => import\("\.\/InlineTracerLab\.tsx"\)\)/);
+    const provider = readFileSync(new URL("./BrownianLabContext.tsx", import.meta.url), "utf8");
+    expect(provider).toContain('import("./loadBrownianLab.ts")');
+    expect(provider).not.toMatch(/^import\s[^;]*?from\s+"[^"]*generated\//gms);
   });
 
   test("the Brownian reading serves the disclosure, not the laboratory", async () => {
