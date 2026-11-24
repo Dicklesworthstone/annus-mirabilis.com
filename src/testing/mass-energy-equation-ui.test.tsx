@@ -66,10 +66,21 @@ test("reader disclosures contain every equation exactly once, scoped to its own 
       ),
     ).size,
   ).toBe(equations.length);
-  expect(shell.querySelectorAll("[data-equation-id] math").length).toBe(equations.length);
+  // Each card carries modern MathML and, when declared, a separate printed-notation form.
+  expect(
+    shell.querySelectorAll(
+      '[data-equation-id] .equation-mathml:not([data-notation-form="printed"]) math',
+    ).length,
+  ).toBe(equations.length);
   for (const eq of equations) {
     const disclosure = shell.querySelector(`[data-argument-equations="${eq.argument}"]`)!;
-    expect(disclosure.querySelector(`[data-equation-id^="${eq.id}-"]`)).not.toBeNull();
+    const rendered = disclosure.querySelector(
+      `[data-equation-id="${eq.id}-reader-${eq.argument}"]`,
+    );
+    expect(rendered).not.toBeNull();
+    expect(rendered?.querySelectorAll('[data-notation-form="printed"] math').length).toBe(
+      eq.notationForm?.state === "printed" ? 1 : 0,
+    );
     for (const note of eq.notes) expect(disclosure.textContent).toContain(note.explanation);
   }
   expect(
@@ -85,7 +96,11 @@ test("the static normalized laboratory cannot print its values as SI and never h
   expect(shell.querySelector("[data-response]")?.hasAttribute("hidden")).toBe(false);
   expect(shell.querySelector(dropSelector)?.getAttribute("data-value-kind")).toBe("symbolic");
   expect(shell.querySelector(dropSelector)?.textContent).toContain("normalized units");
-  expect(shell.querySelectorAll("[data-coefficient-equations] math").length).toBe(5);
+  expect(
+    shell.querySelectorAll(
+      '[data-coefficient-equations] .equation-mathml:not([data-notation-form="printed"]) math',
+    ).length,
+  ).toBe(5);
   expect(
     shell.querySelectorAll('[data-coefficient-equations] [data-value-kind="value"]').length,
   ).toBe(0);

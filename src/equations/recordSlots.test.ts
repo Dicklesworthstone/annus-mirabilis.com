@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import source from "../../content/equations/brownian-motion/eq-model-bm-diffusivity.json";
 import { parseEquationRecord } from "./record.ts";
 import { compileEquation } from "./render.ts";
@@ -33,9 +34,9 @@ describe("named equation comparison slots (am-eq-live-bindings-2se)", () => {
   });
 
   test("a comparison cannot silently change the version-one contract", () => {
-    expect(() =>
-      parseEquationRecord({ ...comparison(), schemaVersion: 1 }, "old version"),
-    ).toThrow("Binding must resolve");
+    expect(() => parseEquationRecord({ ...comparison(), schemaVersion: 1 }, "old version")).toThrow(
+      "Binding must resolve",
+    );
     expect(() =>
       parseEquationRecord({ ...comparison(), schemaVersion: 3 }, "future version"),
     ).toThrow("Only registered modern teaching papers");
@@ -43,7 +44,9 @@ describe("named equation comparison slots (am-eq-live-bindings-2se)", () => {
 
   test("one term cannot select two outputs from the same experiment slot", () => {
     const record = comparison();
-    record.bindings.push({ ...record.bindings[0]! });
+    const first = record.bindings[0];
+    assert.ok(first);
+    record.bindings.push({ ...first });
     expect(() => parseEquationRecord(record, "duplicate binding")).toThrow("Binding must resolve");
   });
 
@@ -58,7 +61,9 @@ describe("named equation comparison slots (am-eq-live-bindings-2se)", () => {
       "a".repeat(33),
     ]) {
       const record = comparison();
-      record.bindings[0]!.instanceSlot = instanceSlot;
+      const first = record.bindings[0];
+      assert.ok(first);
+      first.instanceSlot = instanceSlot;
       expect(() => parseEquationRecord(record, "invalid slot")).toThrow("Binding must resolve");
     }
     for (const patch of [
@@ -68,8 +73,12 @@ describe("named equation comparison slots (am-eq-live-bindings-2se)", () => {
       { experimentId: "me-02" },
     ]) {
       const record = comparison();
-      record.bindings[0] = { ...record.bindings[0]!, ...patch };
-      expect(() => parseEquationRecord(record, "mismatched binding")).toThrow("Binding must resolve");
+      const first = record.bindings[0];
+      assert.ok(first);
+      record.bindings[0] = { ...first, ...patch };
+      expect(() => parseEquationRecord(record, "mismatched binding")).toThrow(
+        "Binding must resolve",
+      );
     }
   });
 });

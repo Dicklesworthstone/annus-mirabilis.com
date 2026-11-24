@@ -11,6 +11,11 @@ import { resolveVoiceContext } from "../../../content/checks/voice/contexts.ts";
 import { checkVoice } from "../../../content/checks/voice/index.ts";
 import { loadGermanSourceFace } from "../../../content/editions/germanSourceFace.ts";
 import { loadResultCards } from "../../../content/results/resultCards.ts";
+import {
+  type ExperimentLaunchIndex,
+  experimentSelectionKey,
+} from "../../../discovery/capstone/experimentLaunch.ts";
+import probeLinks from "../../../generated/result-probe-links.json";
 import { exportMarkup } from "../../../testing/exportMarkup.ts";
 import { PaperPage } from "../../PaperPage.tsx";
 
@@ -145,17 +150,52 @@ describe("light quanta's results face, as its route renders it", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("the modern layer is the compiled records, and each probe names its laboratory and preset", () => {
+  test("the modern layer uses compiled records and every probe reaches its declared setup", () => {
     const wrong: string[] = [];
     for (const c of cards) {
       const card = cardHtml(c.id);
       if (!card.includes(`data-equations="${c.equations.join(" ")}"`))
         wrong.push(`${c.id}: modern layer is not ${c.equations.join(" ")}`);
       for (const p of c.probes) {
-        if (!card.includes(`href="/lab/${p.instrumentId}/"`))
-          wrong.push(`${c.id}: no link to ${p.instrumentId}`);
-        if (p.preset && !card.includes(`Choose the preset “${markup(p.preset.label)}”`))
-          wrong.push(`${c.id}: preset ${p.preset.id} not named`);
+        const launch = p.preset
+          ? (probeLinks as ExperimentLaunchIndex)[
+              experimentSelectionKey({ instrumentId: p.instrumentId, presetId: p.preset.id })
+            ]
+          : undefined;
+        if (p.preset && !launch)
+          wrong.push(`${c.id}: preset ${p.preset.id} has no generated launch record`);
+        const href = launch?.status === "ready" ? launch.href : `/lab/${p.instrumentId}/`;
+        if (new URL(href, "https://annus-mirabilis.com").pathname !== `/lab/${p.instrumentId}/`)
+          wrong.push(`${c.id}: the launch points to a different laboratory`);
+        const renderedProbes =
+          card.match(/<p\b[^>]*data-probe-kind="instrument"[^>]*>[\s\S]*?<\/p>/g) ?? [];
+        const probe =
+          renderedProbes.find(
+            (part) =>
+              part.includes(`data-preset-id="${markup(p.preset?.id ?? "")}"`) &&
+              part.includes(`href="/lab/${p.instrumentId}/`),
+          ) ?? "";
+        if (!probe.includes(`href="${markup(href)}"`))
+          wrong.push(`${c.id}: ${p.preset?.id ?? p.instrumentId} has the wrong launch link`);
+        if (launch?.status === "ready" && p.preset) {
+          if (launch.instrumentId !== p.instrumentId)
+            wrong.push(`${c.id}: the generated launch belongs to a different laboratory`);
+          if (!probe.includes(`data-probe-launch="${launch.kind}"`))
+            wrong.push(`${c.id}: the launch does not name its form or session behavior`);
+          if (!probe.includes(`The settings for “${markup(p.preset.label)}”`))
+            wrong.push(`${c.id}: preset ${p.preset.id} not named`);
+          const notice =
+            launch.kind === "form"
+              ? "Apply them in the laboratory to calculate."
+              : "load when JavaScript is available.";
+          if (!probe.includes(notice) || probe.includes("Choose the preset"))
+            wrong.push(`${c.id}: the ready launch gives the wrong loading instructions`);
+        } else {
+          if (!probe.includes('data-probe-launch="default"'))
+            wrong.push(`${c.id}: the manual route is not identified`);
+          if (p.preset && !probe.includes(`Choose the preset “${markup(p.preset.label)}”`))
+            wrong.push(`${c.id}: preset ${p.preset.id} is missing from the manual route`);
+        }
       }
     }
     expect(wrong).toEqual([]);
@@ -167,7 +207,16 @@ describe("light quanta's results face, as its route renders it", () => {
     expect(html).not.toMatch(/pending am-/);
     expect(html).not.toContain("katex-error");
     const cardsText = cards.map((c) => cardHtml(c.id).replace(/<[^>]+>/g, " ")).join(" ");
-    expect(cardsText).not.toMatch(/\breview|not yet reviewed|machine draft/i);
+    const internalReviewWording = /\breview|not yet reviewed|machine draft/i;
+    // Millikan's source is a journal title, not the edition's internal review status.
+    // Keep the real citation visible and every other review-status trigger checked.
+    const withoutJournalTitle = (text: string) =>
+      text.replace(/\bPhysical Review\b/g, "[journal title]");
+    expect(cardsText).toContain("Physical Review (2), 7 (3), 355–388 (1916).");
+    expect(withoutJournalTitle(cardsText)).not.toMatch(internalReviewWording);
+    for (const wording of ["not yet reviewed", "review pending", "machine draft"]) {
+      expect(withoutJournalTitle(`Physical Review; ${wording}`)).toMatch(internalReviewWording);
+    }
   });
 });
 

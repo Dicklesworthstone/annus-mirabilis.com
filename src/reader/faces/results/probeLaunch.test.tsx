@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { ProbeLink } from "./ResultCard.tsx";
 import { resultCardsFor } from "./fromRecords.ts";
+import { ProbeLink } from "./ResultCard.tsx";
 import type { ProbeRef } from "./types.ts";
 
 const probe: Extract<ProbeRef, { kind: "instrument" }> = {
@@ -15,9 +15,9 @@ const probe: Extract<ProbeRef, { kind: "instrument" }> = {
 describe("a result's probe reaches its authored scientific question", () => {
   test("the production projection carries the resolved rest-frame launch", async () => {
     const cards = await resultCardsFor("mass-energy");
-    const selected = cards?.flatMap((card) => card.probes).find(
-      (item) => item.kind === "instrument" && item.presetOrModeId === probe.presetOrModeId,
-    );
+    const selected = cards
+      ?.flatMap((card) => card.probes)
+      .find((item) => item.kind === "instrument" && item.presetOrModeId === probe.presetOrModeId);
     expect(selected?.kind).toBe("instrument");
     if (selected?.kind !== "instrument") return;
     expect(selected.launch?.status).toBe("ready");

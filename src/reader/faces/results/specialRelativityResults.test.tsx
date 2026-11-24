@@ -7,6 +7,11 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadResultCards } from "../../../content/results/resultCards.ts";
+import {
+  type ExperimentLaunchIndex,
+  experimentSelectionKey,
+} from "../../../discovery/capstone/experimentLaunch.ts";
+import probeLinks from "../../../generated/result-probe-links.json";
 import { exportMarkup } from "../../../testing/exportMarkup.ts";
 import { FaceFallback } from "../../FaceFallback.tsx";
 import { PaperPage } from "../../PaperPage.tsx";
@@ -83,16 +88,51 @@ describe("relativity's results face, static", () => {
     expect(html).not.toContain("data-equation-placeholder");
   });
 
-  test("each probe links its laboratory and names the manifest's preset, with no preset in the URL", () => {
+  test("each probe opens its authored settings or names the preset to choose manually", () => {
     const probes = records.flatMap((r) => r.probes.map((p) => ({ id: r.id, ...p })));
     expect(probes.length).toBeGreaterThan(0);
     const wrong: string[] = [];
     for (const p of probes) {
       const card = cardHtml(p.id);
-      if (!card.includes(`href="/lab/${p.instrumentId}/"`))
-        wrong.push(`${p.id}: no link to ${p.instrumentId}`);
-      if (p.preset && !card.includes(`Choose the preset “${markup(p.preset.label)}”`))
-        wrong.push(`${p.id}: preset ${p.preset.id} not named`);
+      const launch = p.preset
+        ? (probeLinks as ExperimentLaunchIndex)[
+            experimentSelectionKey({ instrumentId: p.instrumentId, presetId: p.preset.id })
+          ]
+        : undefined;
+      if (p.preset && !launch)
+        wrong.push(`${p.id}: preset ${p.preset.id} has no generated launch record`);
+      const href = launch?.status === "ready" ? launch.href : `/lab/${p.instrumentId}/`;
+      if (new URL(href, "https://annus-mirabilis.com").pathname !== `/lab/${p.instrumentId}/`)
+        wrong.push(`${p.id}: the launch points to a different laboratory`);
+      const renderedProbes =
+        card.match(/<p\b[^>]*data-probe-kind="instrument"[^>]*>[\s\S]*?<\/p>/g) ?? [];
+      const probe =
+        renderedProbes.find(
+          (part) =>
+            part.includes(`data-preset-id="${markup(p.preset?.id ?? "")}"`) &&
+            part.includes(`href="/lab/${p.instrumentId}/`),
+        ) ?? "";
+      if (!probe.includes(`href="${markup(href)}"`))
+        wrong.push(`${p.id}: ${p.preset?.id ?? p.instrumentId} has the wrong launch link`);
+      if (launch?.status === "ready" && p.preset) {
+        if (launch.instrumentId !== p.instrumentId)
+          wrong.push(`${p.id}: the generated launch belongs to a different laboratory`);
+        if (!probe.includes(`data-probe-launch="${launch.kind}"`))
+          wrong.push(`${p.id}: the launch does not name its form or session behavior`);
+        if (!probe.includes(`The settings for “${markup(p.preset.label)}”`))
+          wrong.push(`${p.id}: preset ${p.preset.id} not named`);
+        const notice =
+          launch.kind === "form"
+            ? "Apply them in the laboratory to calculate."
+            : "load when JavaScript is available.";
+        if (!probe.includes(notice) || probe.includes("Choose the preset"))
+          wrong.push(`${p.id}: the ready launch gives the wrong loading instructions`);
+      } else {
+        if (!probe.includes('data-probe-launch="default"'))
+          wrong.push(`${p.id}: the manual route is not identified`);
+        if (p.preset && !probe.includes(`Choose the preset “${markup(p.preset.label)}”`))
+          wrong.push(`${p.id}: preset ${p.preset.id} is missing from the manual route`);
+      }
     }
     expect(wrong).toEqual([]);
     expect(html).not.toContain("?preset=");

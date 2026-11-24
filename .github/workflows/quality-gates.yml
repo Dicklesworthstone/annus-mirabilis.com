@@ -50,6 +50,27 @@ jobs:
       - name: Prepare the real equation corpus
         run: bun scripts/prepare-lane.ts
 
+      - name: Verify result probes and exact equation bindings
+        run: >-
+          bun test --isolate --timeout 60000
+          scripts/generate-capstone-links.test.ts
+          scripts/generate-result-probe-links.test.ts
+          src/reader/faces/results/probeLaunch.test.tsx
+          src/reader/faces/results/brownianMotionResults.test.tsx
+          src/reader/faces/results/lightQuantaResults.test.tsx
+          src/reader/faces/results/specialRelativityResults.test.tsx
+          src/reader/faces/results/massEnergyResultsFace.test.tsx
+          src/equations/recordSlots.test.ts
+          src/equations/live/bindings.test.tsx
+          src/equations/SemanticEquation.test.tsx
+          src/testing/mass-energy-equation-ui.test.tsx
+          src/testing/bm03/bm03.tape.test.ts
+
+      - name: Verify accepted equation output ownership
+        run: >-
+          node --experimental-strip-types --test
+          src/testing/equationLive.test.mjs src/testing/mass-energy-equation-live.test.mjs
+
       - name: Verify printed equation semantics and interaction
         run: >-
           bun test --isolate --timeout 60000
