@@ -3,10 +3,15 @@ import {
   collectorSweep,
   type PhotoelectricResult,
   photocurrent,
-  stoppingPotentialFromEv,
 } from "../../physics/reference/photoelectric.ts";
 import type { AcceptedSnapshot } from "../store/instanceStore.ts";
-import { LQ08_MODEL, type Lq08Distribution, type Lq08Parameters } from "./definition.ts";
+import {
+  LQ08_MODEL,
+  type Lq08Distribution,
+  type Lq08Parameters,
+  type Lq08TransferModel,
+} from "./definition.ts";
+import { frozenPhotoelectricResult, type Lq08EnergyBudget } from "./energyBudget.ts";
 
 export type Lq08CurrentSample = Readonly<{
   collectorPotential: number;
@@ -19,9 +24,10 @@ export type Lq08CollectorSweep = Readonly<{
   runId: string;
   snapshotVersion: number;
   actionIndex: number;
-  ownerId: "photoelectric.collectorSweep";
+  ownerId: "photoelectric.collectorSweep" | "photoelectric.photocurrent";
   constantSetId: string;
   distributionModel: Lq08Distribution;
+  transferModel: Lq08TransferModel;
   domain: Readonly<{ min: number; max: number }>;
   saturationCurrent: number;
   operatingPoint: Lq08CurrentSample;
@@ -41,16 +47,6 @@ export type Lq08CollectorSweep = Readonly<{
   }>[];
 }>;
 
-function frozenResult(result: PhotoelectricResult<number>): PhotoelectricResult<number> {
-  if (result.status !== "underdetermined") return result;
-  return Object.freeze({
-    ...result,
-    ...(result.bounds
-      ? { bounds: Object.freeze([...result.bounds]) as readonly [number, number] }
-      : {}),
-  });
-}
-
 /**
  * An accepted owner's curve, including the model's discontinuities and missing information.
  * Every ordinate and enclosure comes from the photoelectric reference evaluator. The segment
@@ -59,34 +55,49 @@ function frozenResult(result: PhotoelectricResult<number>): PhotoelectricResult<
 export function acceptedLq08CollectorSweep(
   accepted: AcceptedSnapshot,
   parameters: Lq08Parameters,
+  budget: Lq08EnergyBudget,
 ): Lq08CollectorSweep | null {
+  if (
+    budget.instanceId !== accepted.instanceId ||
+    budget.runId !== accepted.runId ||
+    budget.snapshotVersion !== accepted.snapshotVersion ||
+    budget.actionIndex !== accepted.actionIndex ||
+    budget.transferModel !== parameters.transferModel
+  )
+    return null;
   const constants = getConstantSet(LQ08_MODEL.constantSetId);
   const workFunctionJoules =
     parameters.workFunction * constantValue(constants, "elementaryCharge").value;
   const at = (collectorPotential: number): Lq08CurrentSample =>
     Object.freeze({
       collectorPotential,
-      result: frozenResult(
+      result: frozenPhotoelectricResult(
         photocurrent(
-          parameters.incidentPower,
-          parameters.frequency,
-          workFunctionJoules,
-          parameters.quantumEfficiency,
-          collectorPotential,
+          {
+            incidentPowerWatts: parameters.incidentPower,
+            nu: parameters.frequency,
+            workFunctionJoules,
+            quantumEfficiency: parameters.quantumEfficiency,
+            collectorPotential,
+            distributionModel: parameters.distributionModel,
+            transferModel: parameters.transferModel,
+          },
           constants,
-          parameters.distributionModel,
         ),
       ),
     });
-  const stopping = stoppingPotentialFromEv(
-    parameters.frequency,
-    parameters.workFunction,
-    constants,
-  );
+  const stopping = budget.stoppingPotentialMagnitude;
+  if (stopping.status === "outside-domain") return null;
+  let maximumStopping = 0;
+  if (stopping.status === "value") maximumStopping = stopping.value;
+  else if (stopping.status === "underdetermined") {
+    if (stopping.upperBound === undefined) return null;
+    maximumStopping = stopping.upperBound;
+  }
   const saturation = at(0);
   if (saturation.result.status !== "value") return null;
   const saturationCurrent = saturation.result.value;
-  const cutoff = stopping.status === "value" ? -stopping.value : 0;
+  const cutoff = -maximumStopping;
   const domain = Object.freeze({
     min: Math.min(-3, parameters.collectorPotential, cutoff),
     max: Math.max(3, parameters.collectorPotential),
@@ -94,20 +105,25 @@ export function acceptedLq08CollectorSweep(
   const zeroSide = at(domain.min);
   if (zeroSide.result.status !== "value") return null;
   const zeroCurrent = zeroSide.result.value;
-  const sampled = collectorSweep(
-    parameters.incidentPower,
-    parameters.frequency,
-    workFunctionJoules,
-    parameters.quantumEfficiency,
-    { ...domain, steps: 61 },
-    constants,
-    parameters.distributionModel,
-  );
+  const sampled =
+    parameters.transferModel === "partial"
+      ? Array.from({ length: 61 }, (_, index) =>
+          at(domain.min + ((domain.max - domain.min) * index) / 60),
+        )
+      : collectorSweep(
+          parameters.incidentPower,
+          parameters.frequency,
+          workFunctionJoules,
+          parameters.quantumEfficiency,
+          { ...domain, steps: 61 },
+          constants,
+          parameters.distributionModel,
+        );
   // Exact regime boundaries and the actual operating point accompany the bounded regular grid.
   const sampleMap = new Map<number, Lq08CurrentSample>(
     sampled.map((sample) => [
       sample.collectorPotential,
-      Object.freeze({ ...sample, result: frozenResult(sample.result) }),
+      Object.freeze({ ...sample, result: frozenPhotoelectricResult(sample.result) }),
     ]),
   );
   for (const potential of [cutoff, 0, parameters.collectorPotential]) {
@@ -133,12 +149,18 @@ export function acceptedLq08CollectorSweep(
     // At the threshold the ideal collection rule has a jump at zero bias.
     segments.push(segment([point(domain.min, zeroCurrent), point(0, zeroCurrent)], true, false));
     segments.push(segment([point(0, saturationCurrent), point(domain.max, saturationCurrent)]));
-  } else if (parameters.distributionModel === "all-at-kmax") {
+  } else if (
+    parameters.transferModel === "complete" &&
+    parameters.distributionModel === "all-at-kmax"
+  ) {
     segments.push(segment([point(domain.min, zeroCurrent), point(cutoff, zeroCurrent)]));
     segments.push(
       segment([point(cutoff, saturationCurrent), point(domain.max, saturationCurrent)], false),
     );
-  } else if (parameters.distributionModel === "uniform") {
+  } else if (
+    parameters.transferModel === "complete" &&
+    parameters.distributionModel === "uniform"
+  ) {
     const points = samples.flatMap((sample) =>
       sample.result.status === "value"
         ? [point(sample.collectorPotential, sample.result.value)]
@@ -169,9 +191,13 @@ export function acceptedLq08CollectorSweep(
     runId: accepted.runId,
     snapshotVersion: accepted.snapshotVersion,
     actionIndex: accepted.actionIndex,
-    ownerId: "photoelectric.collectorSweep",
+    ownerId:
+      parameters.transferModel === "partial"
+        ? "photoelectric.photocurrent"
+        : "photoelectric.collectorSweep",
     constantSetId: LQ08_MODEL.constantSetId,
     distributionModel: parameters.distributionModel,
+    transferModel: parameters.transferModel,
     domain,
     saturationCurrent,
     operatingPoint: at(parameters.collectorPotential),

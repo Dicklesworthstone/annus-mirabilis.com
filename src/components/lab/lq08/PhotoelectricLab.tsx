@@ -142,10 +142,12 @@ function ValueCell({
   out,
   unit,
   scale = 1,
+  upperBound,
 }: {
   out: PublishedResult | undefined;
   unit: string;
   scale?: number | undefined;
+  upperBound?: number | undefined;
 }) {
   if (!out) return <>Not reported</>;
   if (out.status === "value" && typeof out.value === "number") {
@@ -159,6 +161,14 @@ function ValueCell({
     return (
       <>
         {text} {unit}
+      </>
+    );
+  }
+  if (out.status === "underdetermined" && upperBound !== undefined) {
+    return (
+      <>
+        At most <Sci value={upperBound / scale} digits={3} /> {unit}; the actual value is not
+        determined.
       </>
     );
   }
@@ -228,6 +238,17 @@ export function PhotoelectricLab({
   const vsVal = vsRes?.status === "value" ? (vsRes.value as number) : null;
   const tfVal = tfRes?.status === "value" ? (tfRes.value as number) : 0;
   const qRateVal = qRateRes?.status === "value" ? (qRateRes.value as number) : null;
+  const partial = params.transferModel === "partial";
+  const budget = view.energyBudget;
+  const kMaxBound =
+    budget?.maxKineticEnergy.status === "underdetermined"
+      ? budget.maxKineticEnergy.upperBound
+      : undefined;
+  const stoppingBound =
+    budget?.stoppingPotentialMagnitude.status === "underdetermined"
+      ? budget.stoppingPotentialMagnitude.upperBound
+      : undefined;
+  const kMaxUpperBoundEv = kMaxBound === undefined ? null : kMaxBound / 1.602176634e-19;
   // One sentence for the status line, from the accepted outputs: what a quantum carries against
   // the work function, and what that leaves the fastest electron.
   const frequencyThz = fixed(params.frequency / 1e12, 1);
@@ -235,11 +256,13 @@ export function PhotoelectricLab({
   const statusSummary =
     qRateVal === 0
       ? `${quantum}, but the lamp power is zero, so no quanta arrive and no electrons are freed.`
-      : kMaxEv === null || vsVal === null
-        ? `${quantum}, less than the ${fixed(params.workFunction, 2)} eV work function, so no electron is freed.`
-        : kMaxEv === 0
-          ? `${quantum}, exactly the work function: the energy budget reaches the emission threshold with no kinetic energy left over.`
-          : `${quantum}, more than the ${fixed(params.workFunction, 2)} eV work function, so the most energetic electrons could leave with ${fixed(kMaxEv, 2)} eV and a stopping potential of ${fixed(vsVal, 2)} V would hold them back.`;
+      : partial && kMaxUpperBoundEv !== null
+        ? `${quantum}. The unknown transferred share leaves an upper limit of ${fixed(kMaxUpperBoundEv, 3)} eV for an emitted electron; its actual largest energy and emission onset are not determined.`
+        : kMaxEv === null || vsVal === null
+          ? `${quantum}, less than the ${fixed(params.workFunction, 2)} eV work function, so no electron is freed.`
+          : kMaxEv === 0
+            ? `${quantum}, exactly the work function: the energy budget reaches the emission threshold with no kinetic energy left over.`
+            : `${quantum}, more than the ${fixed(params.workFunction, 2)} eV work function, so the most energetic electrons could leave with ${fixed(kMaxEv, 2)} eV and a stopping potential of ${fixed(vsVal, 2)} V would hold them back.`;
 
   function apply(patch: Partial<Lq08Parameters>, preserveDraftFeedback = false) {
     // applyFailure() keeps the refusal whole. The previous line read
@@ -371,7 +394,7 @@ export function PhotoelectricLab({
           </fieldset>
 
           <ExperimentSettings
-            contents={`work function, quantum efficiency, collector potential, electron energies${millikan?.kind === "plottable" ? ", Millikan’s 1916 data" : ""}`}
+            contents={`work function, quantum efficiency, energy transfer, collector potential, electron energies${millikan?.kind === "plottable" ? ", Millikan’s 1916 data" : ""}`}
           >
             <SliderField
               {...field("workFunction")}
@@ -399,6 +422,27 @@ export function PhotoelectricLab({
               step={0.05}
             />
             <div className="input-field">
+              <label htmlFor={`${instanceId}-transferModel`}>Energy from one quantum</label>
+              <select
+                id={`${instanceId}-transferModel`}
+                value={params.transferModel}
+                aria-describedby={`${instanceId}-transfer-help`}
+                onChange={(event) => {
+                  const transferModel = event.currentTarget.value;
+                  if (transferModel === "complete" || transferModel === "partial")
+                    apply({ transferModel }, Object.keys(drafts).length > 0);
+                }}
+              >
+                <option value="complete">The whole quantum</option>
+                <option value="partial">An unknown share</option>
+              </select>
+              <p id={`${instanceId}-transfer-help`} className="fine">
+                Whole transfer gives the complete-transfer energy budget. An unknown share gives
+                only upper limits on electron energy and stopping potential. Quantum efficiency
+                remains a prescribed ideal emission yield; it is not derived from that share.
+              </p>
+            </div>
+            <div className="input-field">
               <label htmlFor={`${instanceId}-distributionModel`}>Emitted electron energies</label>
               <select
                 id={`${instanceId}-distributionModel`}
@@ -424,6 +468,8 @@ export function PhotoelectricLab({
               <p id={`${instanceId}-distribution-help`} className="fine">
                 This choice sets a teaching model for the emitted electron energies. Real materials
                 require measured energy distributions and collector geometry.
+                {partial &&
+                  " An unknown transferred share still leaves the partly retarded current undetermined, even with this distribution selected."}
               </p>
             </div>
             {millikan?.kind === "plottable" && (
@@ -489,13 +535,15 @@ export function PhotoelectricLab({
               workFunction={params.workFunction}
               quantumEnergyEv={qEnergyEv}
               kMaxEv={kMaxEv}
+              kMaxUpperBoundEv={kMaxUpperBoundEv}
+              kineticEnergyStatus={budget?.maxKineticEnergy.status}
+              transferModel={params.transferModel}
               thresholdFrequency={tfVal}
               response={gate.response}
             />
             <StoppingPotentialPlot
               currentFrequency={params.frequency}
-              currentWorkFunction={params.workFunction}
-              currentStoppingPotential={vsVal}
+              budget={budget}
               millikanData={millikan}
               response={gate.response}
             />
@@ -520,9 +568,28 @@ export function PhotoelectricLab({
             <tbody>
               {VALUE_ROWS.map((row) => (
                 <tr key={row.id} data-quantity-id={row.id}>
-                  <th scope="row">{row.label}</th>
-                  <td data-output={row.id}>
-                    <ValueCell out={find(row.id)} unit={row.unit} scale={row.scale} />
+                  <th scope="row">
+                    {partial && row.id === "thresholdFrequency"
+                      ? "Necessary energy-budget frequency limit, Φ/h"
+                      : partial && row.id === "maxKineticEnergy"
+                        ? "Upper limit on largest electron energy"
+                        : partial && row.id === "stoppingPotentialMagnitude"
+                          ? "Upper limit on stopping potential"
+                          : row.label}
+                  </th>
+                  <td data-output={row.id} data-result-status={find(row.id)?.status}>
+                    <ValueCell
+                      out={find(row.id)}
+                      unit={row.unit}
+                      scale={row.scale}
+                      upperBound={
+                        row.id === "maxKineticEnergy"
+                          ? kMaxBound
+                          : row.id === "stoppingPotentialMagnitude"
+                            ? stoppingBound
+                            : undefined
+                      }
+                    />
                   </td>
                 </tr>
               ))}
@@ -559,6 +626,12 @@ export function PhotoelectricLab({
           children of the lab root, which labShell.css's detail rules select. */}
       {readings && (
         <>
+          {partial && (
+            <p className="fine" data-lq08-reading-assumption>
+              The four readings below explain the complete-transfer model. This trial relaxes that
+              assumption, so its electron energy and stopping potential are bounded as shown above.
+            </p>
+          )}
           <p data-detail="0">
             <noscript>
               <b className="reading-label">In one breath</b>
@@ -606,14 +679,20 @@ export function PhotoelectricLab({
             <strong>At these settings:</strong> ν = {(params.frequency / 1e12).toFixed(1)} THz gives
             hν = {fixed(qEnergyEv, 3)} eV; with the hypothetical Φ ={" "}
             {params.workFunction.toFixed(2)} eV the stopping potential is{" "}
-            {vsVal === null ? "not defined, since no electron escapes" : `${fixed(vsVal, 3)} V`}.
+            {stoppingBound !== undefined
+              ? `at most ${fixed(stoppingBound, 3)} V; its actual value is not determined under unknown transfer`
+              : vsVal === null
+                ? "not defined, since no electron escapes"
+                : `${fixed(vsVal, 3)} V`}
+            .
           </p>
         </div>
         <div className="not-modeled">
           <h3>What this model leaves out</h3>
           <p>
-            It follows Einstein’s 1905 rule that one absorbed quantum gives its energy to one
-            electron, which spends Φ escaping. It does not model:
+            It treats an electron as receiving{" "}
+            {partial ? "an unknown share of" : "the whole energy of"} one absorbed quantum and
+            spending Φ escaping. The emission yield is prescribed separately. It does not model:
           </p>
           <ul>
             {LQ08_NOT_MODELED.map((item) => (

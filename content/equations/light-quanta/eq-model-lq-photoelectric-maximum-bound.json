@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-photoelectric-maximum-bound",
+  "paper": "light-quanta",
+  "argument": "arg-lq-photoelectric-energy",
+  "title": "An upper limit on an electron's kinetic energy",
+  "spoken": "The largest kinetic energy is no greater than h times the frequency, less the escape work.",
+  "explanation": "When an electron receives an unknown share of one quantum, the energy budget gives an upper limit. Paying the escape work leaves at most the stated energy for motion. The transfer fraction and further losses are not supplied, so neither the largest energy actually reached nor the occurrence of emission follows from this limit.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "An electron receives an unknown share, at most the whole, of one quantum; energy from additional quanta is excluded.",
+    "The escape work is nonnegative, and any further energy loss inside the metal is nonnegative.",
+    "Planck's constant and frequency are positive. The bound applies to an emitted electron when the quantum energy is at least the escape work; below that budget there is no emitted electron in this model.",
+    "An upper limit need not be attained. Equality at the energy-budget threshold does not guarantee emission or a measurable current.",
+    "These are modern teaching inequalities in SI notation, not a transcription of the printed section 8."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-photoelectric-maximum-bound.op.relation",
+    "operator": "le",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-photoelectric-maximum-bound.t.maxKineticEnergy",
+      "quantityId": "maxKineticEnergy"
+    },
+    "right": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "product",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-lq-photoelectric-maximum-bound.t.planck",
+              "quantityId": "planckConstant"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-lq-photoelectric-maximum-bound.t.frequency",
+              "quantityId": "frequency"
+            }
+          ]
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-photoelectric-maximum-bound.t.escapeWork",
+            "quantityId": "escapeWork"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-photoelectric-maximum-bound.t.maxKineticEnergy",
+      "title": "Largest kinetic energy",
+      "explanation": "The energy of motion of the fastest emitted electron. An unknown transfer fraction leaves this value undetermined; the right side supplies an upper limit, not its measured or inferred value.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-photoelectric-maximum-bound.t.planck",
+      "title": "Planck's constant",
+      "explanation": "Multiplied by the frequency it gives one quantum's energy. The 1905 paper writes the same quantum as R beta nu over N.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-lq-photoelectric-maximum-bound.t.frequency",
+      "title": "Frequency of the light",
+      "explanation": "The frequency fixes the energy available in one quantum. Raising it raises the budget's upper limit; without the transfer fraction it does not determine the emitted electron's actual energy.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-photoelectric-maximum-bound.t.escapeWork",
+      "title": "Escape work",
+      "explanation": "The energy spent getting out of the metal, subtracted from the quantum. Einstein's section 8 calls it P.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-photoelectric-maximum-bound.op.relation",
+      "title": "A bound from the available energy",
+      "explanation": "The electron cannot keep more energy than one whole quantum supplies after escape work is paid. Unknown transfer and further losses can make its energy smaller. The less-than-or-equal sign preserves that missing information.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [
+    {
+      "termId": "eq-model-lq-photoelectric-maximum-bound.t.maxKineticEnergy",
+      "quantityId": "maxKineticEnergy",
+      "experimentId": "lq-08",
+      "outputId": "maxKineticEnergy",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-photoelectric-maximum-bound.t.planck",
+      "quantityId": "planckConstant",
+      "experimentId": "lq-08",
+      "outputId": "planckConstant",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-photoelectric-maximum-bound.t.frequency",
+      "quantityId": "frequency",
+      "experimentId": "lq-08",
+      "outputId": "frequency",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-photoelectric-maximum-bound.t.escapeWork",
+      "quantityId": "escapeWork",
+      "experimentId": "lq-08",
+      "outputId": "escapeWork",
+      "instanceSlot": "primary"
+    }
+  ],
+  "sentence": [
+    {
+      "text": "The largest kinetic energy",
+      "nodeId": "eq-model-lq-photoelectric-maximum-bound.t.maxKineticEnergy"
+    },
+    {
+      "text": " is no greater than "
+    },
+    {
+      "text": "h",
+      "nodeId": "eq-model-lq-photoelectric-maximum-bound.t.planck"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-lq-photoelectric-maximum-bound.t.frequency"
+    },
+    {
+      "text": ", less "
+    },
+    {
+      "text": "the escape work",
+      "nodeId": "eq-model-lq-photoelectric-maximum-bound.t.escapeWork"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

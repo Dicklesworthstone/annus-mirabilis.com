@@ -29,7 +29,7 @@ export const LQ08_LIVE_WEAVE_PREDICATES: readonly WeavePredicate[] = Object.free
     meaning: "assumption-active" as const,
     targets: Object.freeze(["s8-p7-s2"]),
     pointerText:
-      "The model assumes that light quanta transfer energy independently. Its accepted rates use that assumption; one trial does not demonstrate intensity independence. Compare powers at fixed frequency, work function and quantum efficiency. This model gives only the maximum electron energy, not the full velocity distribution described in the sentence.",
+      "The model assumes that light quanta transfer energy independently. Its accepted rates also use a prescribed quantum efficiency; one trial does not demonstrate intensity independence. Compare powers at fixed frequency, work function, quantum efficiency and transfer assumption. Complete transfer determines the maximum electron energy; an unknown transferred share gives only an upper limit. Neither case supplies a measured electron velocity distribution.",
     conditions: Object.freeze([
       Object.freeze({
         kind: "threshold" as const,

@@ -28,6 +28,23 @@ export const LQ08_WEAVE_CONTEXT: readonly WeaveContextField[] = Object.freeze([
   Object.freeze({ parameterId: "incidentPower", label: "Incident power", unit: "W" }),
   Object.freeze({ parameterId: "quantumEfficiency", label: "Quantum efficiency" }),
   Object.freeze({ parameterId: "collectorPotential", label: "Collector potential", unit: "V" }),
+  Object.freeze({
+    parameterId: "distributionModel",
+    label: "Declared electron energy distribution",
+    values: Object.freeze({
+      none: "Not declared",
+      "all-at-kmax": "All emitted electrons at the largest energy",
+      uniform: "Uniform from zero to the largest energy",
+    }),
+  }),
+  Object.freeze({
+    parameterId: "transferModel",
+    label: "Single-quantum energy transfer",
+    values: Object.freeze({
+      complete: "Complete transfer",
+      partial: "Unspecified partial transfer",
+    }),
+  }),
 ]);
 
 export const LQ08_READER_WEAVE: ReaderWeaveBinding = Object.freeze({

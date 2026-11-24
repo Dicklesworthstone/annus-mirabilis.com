@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-stopping-bound",
+  "paper": "light-quanta",
+  "argument": "arg-lq-stopping-and-losses",
+  "title": "An upper limit on the stopping potential",
+  "spoken": "The charge times the stopping potential is no greater than h times the frequency, less the escape work.",
+  "explanation": "The stopping potential is the nonnegative retarding magnitude that would stop the fastest emitted electron. Its energy cost is the elementary charge times that magnitude. Unknown energy transfer therefore gives an upper limit on the stopping potential, not a known value of it. A sufficiently strong retarding field can still be known to stop every electron.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "An electron receives an unknown share, at most the whole, of one quantum; energy from additional quanta is excluded.",
+    "The escape work is nonnegative, and any further energy loss inside the metal is nonnegative.",
+    "Planck's constant and frequency are positive. The bound applies to an emitted electron when the quantum energy is at least the escape work; below that budget there is no emitted electron in this model.",
+    "An upper limit need not be attained. Equality at the energy-budget threshold does not guarantee emission or a measurable current.",
+    "These are modern teaching inequalities in SI notation, not a transcription of the printed section 8."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-stopping-bound.op.relation",
+    "operator": "le",
+    "left": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-stopping-bound.t.charge",
+          "quantityId": "elementaryCharge"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-stopping-bound.t.stopping",
+          "quantityId": "stoppingPotentialMagnitude"
+        }
+      ]
+    },
+    "right": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "product",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-lq-stopping-bound.t.planck",
+              "quantityId": "planckConstant"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-lq-stopping-bound.t.frequency",
+              "quantityId": "frequency"
+            }
+          ]
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-stopping-bound.t.escapeWork",
+            "quantityId": "escapeWork"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-stopping-bound.t.charge",
+      "title": "Elementary charge",
+      "explanation": "The positive magnitude of the electron's charge. Multiplying it by a potential difference gives an energy cost.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-bound.t.stopping",
+      "title": "Stopping-potential magnitude",
+      "explanation": "The nonnegative magnitude of a retarding potential that just stops the fastest emitted electron. Its actual value remains undetermined when the energy transferred to that electron is unknown.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-bound.t.planck",
+      "title": "Planck's constant",
+      "explanation": "Multiplied by the frequency it gives one quantum's energy. The 1905 paper writes the same quantum as R beta nu over N.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-bound.t.frequency",
+      "title": "Frequency of the light",
+      "explanation": "The frequency fixes the energy available in one quantum. Raising it raises the budget's upper limit; without the transfer fraction it does not determine the emitted electron's actual energy.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-bound.t.escapeWork",
+      "title": "Escape work",
+      "explanation": "The energy spent getting out of the metal, subtracted from the quantum. Einstein's section 8 calls it P.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-bound.op.relation",
+      "title": "A bound from the available energy",
+      "explanation": "The electron cannot keep more energy than one whole quantum supplies after escape work is paid. Unknown transfer and further losses can make its energy smaller. The less-than-or-equal sign preserves that missing information.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [
+    {
+      "termId": "eq-model-lq-stopping-bound.t.charge",
+      "quantityId": "elementaryCharge",
+      "experimentId": "lq-08",
+      "outputId": "elementaryCharge",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-stopping-bound.t.stopping",
+      "quantityId": "stoppingPotentialMagnitude",
+      "experimentId": "lq-08",
+      "outputId": "stoppingPotentialMagnitude",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-stopping-bound.t.planck",
+      "quantityId": "planckConstant",
+      "experimentId": "lq-08",
+      "outputId": "planckConstant",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-stopping-bound.t.frequency",
+      "quantityId": "frequency",
+      "experimentId": "lq-08",
+      "outputId": "frequency",
+      "instanceSlot": "primary"
+    },
+    {
+      "termId": "eq-model-lq-stopping-bound.t.escapeWork",
+      "quantityId": "escapeWork",
+      "experimentId": "lq-08",
+      "outputId": "escapeWork",
+      "instanceSlot": "primary"
+    }
+  ],
+  "sentence": [
+    {
+      "text": "The charge",
+      "nodeId": "eq-model-lq-stopping-bound.t.charge"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the stopping potential",
+      "nodeId": "eq-model-lq-stopping-bound.t.stopping"
+    },
+    {
+      "text": " is no greater than "
+    },
+    {
+      "text": "h",
+      "nodeId": "eq-model-lq-stopping-bound.t.planck"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-lq-stopping-bound.t.frequency"
+    },
+    {
+      "text": ", less "
+    },
+    {
+      "text": "the escape work",
+      "nodeId": "eq-model-lq-stopping-bound.t.escapeWork"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

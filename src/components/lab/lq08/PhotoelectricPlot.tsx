@@ -1,4 +1,5 @@
 import type { Lq08CollectorSweep } from "../../../experiments/lq08/collectorSweep.ts";
+import type { Lq08EnergyBudget } from "../../../experiments/lq08/energyBudget.ts";
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import { visibleColor } from "../../../experiments/lq08/session.ts";
 import { AwaitingNote, placeholderOf } from "../predictPlaceholder.tsx";
@@ -15,7 +16,10 @@ export type EnergyLadderProps = Readonly<{
   frequency: number; // Hz
   workFunction: number; // eV
   quantumEnergyEv: number; // eV
-  kMaxEv: number | null; // eV or null if sub-threshold
+  kMaxEv: number | null; // eV only for a determined maximum
+  kMaxUpperBoundEv: number | null;
+  kineticEnergyStatus: Lq08EnergyBudget["maxKineticEnergy"]["status"] | undefined;
+  transferModel: Lq08EnergyBudget["transferModel"];
   thresholdFrequency: number; // Hz
   response?: PredictResponse;
 }>;
@@ -25,6 +29,9 @@ export function EnergyLadderPlot({
   workFunction,
   quantumEnergyEv,
   kMaxEv,
+  kMaxUpperBoundEv,
+  kineticEnergyStatus,
+  transferModel,
   thresholdFrequency,
   response,
 }: EnergyLadderProps) {
@@ -67,7 +74,9 @@ export function EnergyLadderPlot({
           color: "var(--ink)",
         }}
       >
-        Where one quantum’s energy goes
+        {transferModel === "partial"
+          ? "An energy ceiling from one quantum"
+          : "Where one quantum’s energy goes"}
       </h3>
       <p className="fine" style={{ margin: "0 0 0.5rem" }}>
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
@@ -77,7 +86,8 @@ export function EnergyLadderPlot({
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
           {workFunction.toFixed(2)} eV
         </span>{" "}
-        , threshold &nu;<sub>0</sub> ={" "}
+        , {transferModel === "partial" ? "necessary frequency limit" : "threshold"} &nu;<sub>0</sub>{" "}
+        ={" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
           {(thresholdFrequency / 1e12).toFixed(1)} THz
         </span>
@@ -176,12 +186,12 @@ export function EnergyLadderPlot({
           fontFamily="var(--font-mono, monospace)"
           fill={photonColour}
         >
-          +h&nu; = {quantumEnergyEv.toFixed(2)} eV
+          {transferModel === "partial" ? "available " : "+"}h&nu; = {quantumEnergyEv.toFixed(2)} eV
         </text>
 
         {/* Emitted state or below threshold: the energy the first prompt asks about, so it waits. */}
         <g {...response}>
-          {kMaxEv !== null && kMaxEv >= 0 ? (
+          {kineticEnergyStatus === "value" && kMaxEv !== null && kMaxEv >= 0 ? (
             <>
               <line
                 x1={width / 2 + 10}
@@ -208,6 +218,33 @@ export function EnergyLadderPlot({
                 = {fixed(kMaxEv, 3)} eV
               </text>
             </>
+          ) : kineticEnergyStatus === "underdetermined" && kMaxUpperBoundEv !== null ? (
+            <g data-lq08-energy-bound data-upper-energy-ev={kMaxUpperBoundEv}>
+              <rect
+                x={width / 2 + 6}
+                y={scaleY(kMaxUpperBoundEv)}
+                width={10}
+                height={scaleY(0) - scaleY(kMaxUpperBoundEv)}
+                fill="var(--accent)"
+                fillOpacity="0.15"
+              />
+              <line
+                x1={width / 2 - 2}
+                x2={width / 2 + 22}
+                y1={scaleY(kMaxUpperBoundEv)}
+                y2={scaleY(kMaxUpperBoundEv)}
+                stroke="var(--accent)"
+                strokeDasharray="4 3"
+                strokeWidth="2"
+              />
+              <text x={width / 2 + 22} y={scaleY(kMaxUpperBoundEv) - 8} fill="var(--accent)">
+                K
+                <tspan baselineShift="sub" fontSize="75%">
+                  max
+                </tspan>{" "}
+                ≤ {sentenceNumber(kMaxUpperBoundEv, 4)} eV
+              </text>
+            </g>
           ) : (
             <text
               x={width / 2 + 20}
@@ -217,7 +254,9 @@ export function EnergyLadderPlot({
               fill="var(--muted)"
               fontWeight="500"
             >
-              h&nu; &lt; &Phi;: no electron escapes
+              {kineticEnergyStatus === "not-applicable"
+                ? "hν < Φ: no electron escapes"
+                : "Electron energy is not determined"}
             </text>
           )}
         </g>
@@ -237,61 +276,78 @@ const MEASURED_NOTE_STYLE = {
 } as const;
 
 export type StoppingPlotProps = Readonly<{
-  currentFrequency: number; // Hz
-  currentWorkFunction: number; // eV
-  currentStoppingPotential: number | null; // V
-  /**
-   * Built on the server from the record's plot verdict. Only a withheld result is noted here; a
-   * plottable one is drawn on its own scale by MillikanFigure6Panel, never on this model's axis.
-   */
+  currentFrequency: number; // Hz, from the same accepted parameters as the budget
+  budget: Lq08EnergyBudget | null;
+  /** Dated measured points have their own scale; this plot is the accepted model calculation. */
   millikanData?: MillikanOverlayResult | undefined;
   response?: PredictResponse;
 }>;
 
 export function StoppingPotentialPlot({
   currentFrequency,
-  currentWorkFunction,
-  currentStoppingPotential,
+  budget,
   millikanData,
   response,
 }: StoppingPlotProps) {
+  if (!budget)
+    return (
+      <div data-view-id="lq-08-stopping-plot">
+        <h3>Stopping potential against frequency</h3>
+        <p className="fine" {...response}>
+          The energy budget is available after the settings are accepted.
+        </p>
+      </div>
+    );
+  const partial = budget.transferModel === "partial";
+  const { min, max } = budget.stoppingSweep.domain;
+  const samples = budget.stoppingSweep.samples;
+  const known = samples.flatMap((sample) =>
+    sample.result.status === "value"
+      ? [{ frequency: sample.frequency, value: sample.result.value }]
+      : [],
+  );
+  const bounded = samples.flatMap((sample) =>
+    sample.result.status === "underdetermined" && sample.result.bounds
+      ? [
+          {
+            frequency: sample.frequency,
+            lower: sample.result.bounds[0],
+            upper: sample.result.bounds[1],
+          },
+        ]
+      : [],
+  );
   const width = 420;
-  // 272 tall with a 53-unit bottom margin (it was 260 and 45). At the lab's SVG text size (15.84
-  // units, a 21-unit line box) the "400" tick's box met the "0.0" tick's in the corner by 9 × 5
-  // units; the tick labels are lowered 6 units and the title keeps its room below them.
   const height = 272;
   const padding = { top: 30, right: 30, bottom: 53, left: 65 };
-
-  // Frequency range: 400 THz to 1200 THz (0.4 to 1.2 PHz)
-  const minNu = 4.0e14;
-  const maxNu = 1.2e15;
-  const minV = 0.0;
-  const maxV = 3.5;
-
-  const scaleX = (nu: number) =>
-    padding.left + ((nu - minNu) / (maxNu - minNu)) * (width - padding.left - padding.right);
-  const scaleY = (v: number) =>
-    height -
-    padding.bottom -
-    ((v - minV) / (maxV - minV)) * (height - padding.top - padding.bottom);
-
-  // Theoretical line: V_s = (h/e)*nu - Phi
-  const hOverE = 4.135667696e-15; // V s
-  const nu0 = currentWorkFunction / hOverE; // Hz
-  const xStartNu = Math.max(minNu, nu0);
-  const x1 = scaleX(xStartNu);
-  const y1 = scaleY(Math.max(0, hOverE * xStartNu - currentWorkFunction));
-  const x2 = scaleX(maxNu);
-  const y2 = scaleY(Math.max(0, hOverE * maxNu - currentWorkFunction));
+  const maxV =
+    Math.max(1, ...known.map((point) => point.value), ...bounded.map((point) => point.upper)) * 1.1;
+  const scaleX = (frequency: number) =>
+    padding.left + ((frequency - min) / (max - min)) * (width - padding.left - padding.right);
+  const scaleY = (voltage: number) =>
+    height - padding.bottom - (voltage / maxV) * (height - padding.top - padding.bottom);
+  const line = (points: readonly { frequency: number; value: number }[]) =>
+    points
+      .map(
+        (point, index) =>
+          `${index === 0 ? "M" : "L"} ${scaleX(point.frequency)} ${scaleY(point.value)}`,
+      )
+      .join(" ");
+  const upperPoints = bounded.map((point) => ({ frequency: point.frequency, value: point.upper }));
+  const lowerPoints = [...bounded]
+    .reverse()
+    .map((point) => ({ frequency: point.frequency, value: point.lower }));
+  const current = budget.stoppingPotentialMagnitude;
 
   return (
     <div
       data-view-id="lq-08-stopping-plot"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "0.5rem",
-      }}
+      data-transfer-model={budget.transferModel}
+      data-instance-id={budget.instanceId}
+      data-run-id={budget.runId}
+      data-snapshot-version={budget.snapshotVersion}
+      data-action-index={budget.actionIndex}
+      style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
     >
       <h3
         style={{
@@ -301,17 +357,23 @@ export function StoppingPotentialPlot({
           color: "var(--ink)",
         }}
       >
-        Stopping potential against frequency
+        {partial
+          ? "Stopping-potential upper limit against frequency"
+          : "Stopping potential against frequency"}
       </h3>
-      {/* The slope for every metal is the third prompt's answer, so the sentence waits. */}
-      <p {...response} className="fine" style={{ margin: "0 0 0.5rem" }}>
-        In the model the slope is h/e = <Sci value={4.1357e-15} digits={3} /> V&middot;s for every
-        metal.
+      <p {...response} className="fine" data-lq08-stopping-explanation>
+        {partial
+          ? "The dashed boundary gives an upper limit. Shading shows allowed stopping magnitudes; the actual stopping curve is undetermined when the transferred share is unknown."
+          : "In the model the slope is h/e for every metal, under the complete-transfer assumption."}
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label="Plot of stopping potential versus optical frequency"
+        aria-label={
+          partial
+            ? "Upper limits on stopping potential versus optical frequency"
+            : "Plot of stopping potential versus optical frequency"
+        }
         style={{
           width: "100%",
           height: "auto",
@@ -321,12 +383,11 @@ export function StoppingPotentialPlot({
         }}
       >
         <AwaitingNote placeholder={placeholderOf(response)} x={210} y={120} />
-        {/* Axes */}
         <line
           x1={padding.left}
-          y1={height - padding.bottom}
+          y1={scaleY(0)}
           x2={width - padding.right}
-          y2={height - padding.bottom}
+          y2={scaleY(0)}
           stroke="var(--line)"
           strokeWidth="1.5"
         />
@@ -334,64 +395,47 @@ export function StoppingPotentialPlot({
           x1={padding.left}
           y1={padding.top}
           x2={padding.left}
-          y2={height - padding.bottom}
+          y2={scaleY(0)}
           stroke="var(--line)"
           strokeWidth="1.5"
         />
-
-        {/* X Ticks & Labels (Frequency in THz) */}
-        {[400, 600, 800, 1000, 1200].map((thz) => {
-          const x = scaleX(thz * 1e12);
+        {[0, 1, 2, 3, 4].map((index) => {
+          const frequency = min + ((max - min) * index) / 4;
           return (
-            <g key={thz}>
+            <g key={frequency}>
               <line
-                x1={x}
-                y1={height - padding.bottom}
-                x2={x}
-                y2={height - padding.bottom + 4}
+                x1={scaleX(frequency)}
+                y1={scaleY(0)}
+                x2={scaleX(frequency)}
+                y2={scaleY(0) + 4}
                 stroke="var(--line)"
               />
               <text
-                x={x}
-                y={height - padding.bottom + 22}
+                x={scaleX(frequency)}
+                y={scaleY(0) + 22}
                 textAnchor="middle"
-                fontSize="10"
                 fill="var(--muted)"
-                fontFamily="var(--font-mono, monospace)"
               >
-                {thz}
+                {fixed(frequency / 1e12, 1)}
               </text>
             </g>
           );
         })}
-        <text
-          x={width / 2}
-          y={height - 5}
-          textAnchor="middle"
-          fontSize="11"
-          fill="var(--ink)"
-          fontWeight="500"
-        >
-          Frequency &nu; (THz)
+        <text x={width / 2} y={height - 5} textAnchor="middle" fill="var(--ink)">
+          Frequency ν (THz)
         </text>
-
-        {/* Y Ticks & Labels (Stopping Potential in V) */}
-        {[0, 1, 2, 3].map((v) => {
-          const y = scaleY(v);
+        {[0, 1, 2, 3].map((index) => {
+          const voltage = (maxV * index) / 3;
           return (
-            <g key={v}>
-              <line x1={padding.left - 4} y1={y} x2={padding.left} y2={y} stroke="var(--line)" />
-              <text
-                x={padding.left - 8}
-                y={y + 3}
-                textAnchor="end"
-                fontSize="10"
-                fill="var(--muted)"
-                fontFamily="var(--font-mono, monospace)"
-              >
-                {v.toFixed(1)}
-              </text>
-            </g>
+            <text
+              key={voltage}
+              x={padding.left - 8}
+              y={scaleY(voltage) + 3}
+              textAnchor="end"
+              fill="var(--muted)"
+            >
+              {fixed(voltage, 2)}
+            </text>
           );
         })}
         <text
@@ -399,68 +443,114 @@ export function StoppingPotentialPlot({
           y={height / 2}
           textAnchor="middle"
           transform={`rotate(-90 18 ${height / 2})`}
-          fontSize="11"
           fill="var(--ink)"
-          fontWeight="500"
         >
-          Stopping potential (V)
+          {partial ? "Upper limit (V)" : "Stopping potential (V)"}
         </text>
-
-        {/* Theoretical line */}
-        {xStartNu < maxNu && (
-          <line
-            {...response}
-            x1={x1}
-            y1={y1}
-            x2={x2}
-            y2={y2}
-            stroke="var(--plot)"
-            strokeWidth="2.5"
-          />
-        )}
-
-        {/* Threshold frequency vertical dashed mark */}
-        {nu0 >= minNu && nu0 <= maxNu && (
-          <g>
-            <line
-              x1={scaleX(nu0)}
-              y1={padding.top}
-              x2={scaleX(nu0)}
-              y2={height - padding.bottom}
-              stroke="var(--accent)"
-              strokeDasharray="3 3"
+        <g {...response} data-lq08-stopping-response>
+          {known.length > 0 && (
+            <path
+              data-lq08-stopping-values
+              d={line(known)}
+              fill="none"
+              stroke="var(--plot)"
+              strokeWidth="2.5"
+            />
+          )}
+          {bounded.length > 0 && (
+            <>
+              <path
+                data-lq08-stopping-band
+                d={`${line(upperPoints)} ${line(lowerPoints).replace(/^M/, "L")} Z`}
+                fill="var(--accent)"
+                fillOpacity="0.12"
+                stroke="none"
+              />
+              <path
+                data-lq08-stopping-ceiling
+                d={line(upperPoints)}
+                fill="none"
+                stroke="var(--accent)"
+                strokeWidth="2.5"
+                strokeDasharray="5 3"
+              />
+            </>
+          )}
+          {current.status === "value" && (
+            <circle
+              data-lq08-stopping-point
+              data-voltage={current.value}
+              cx={scaleX(currentFrequency)}
+              cy={scaleY(current.value)}
+              r="5"
+              fill="var(--plot)"
+              stroke="var(--panel)"
               strokeWidth="1.5"
             />
-            <text
-              x={scaleX(nu0)}
-              y={padding.top - 6}
-              textAnchor="middle"
-              fontSize="10"
-              fill="var(--accent)"
-              fontFamily="var(--font-mono, monospace)"
-              fontWeight="600"
+          )}
+          {current.status === "underdetermined" && current.bounds && (
+            <g
+              data-lq08-stopping-range
+              data-lower-voltage={current.bounds[0]}
+              data-upper-voltage={current.bounds[1]}
+              stroke="var(--accent)"
+              strokeWidth="3"
             >
-              &nu;₀ = {(nu0 / 1e12).toFixed(1)} THz
-            </text>
-          </g>
-        )}
-
-        {/* Current Operating Point */}
-        {currentStoppingPotential !== null &&
-          currentFrequency >= minNu &&
-          currentFrequency <= maxNu && (
-            <g {...response}>
-              <circle
-                cx={scaleX(currentFrequency)}
-                cy={scaleY(currentStoppingPotential)}
-                r="6"
-                fill="var(--plot)"
-                stroke="var(--panel)"
-                strokeWidth="2"
+              <line
+                x1={scaleX(currentFrequency)}
+                x2={scaleX(currentFrequency)}
+                y1={scaleY(current.bounds[0])}
+                y2={scaleY(current.bounds[1])}
               />
+              {[
+                { side: "lower", value: current.bounds[0] },
+                { side: "upper", value: current.bounds[1] },
+              ].map((bound) => (
+                <line
+                  key={bound.side}
+                  x1={scaleX(currentFrequency) - 5}
+                  x2={scaleX(currentFrequency) + 5}
+                  y1={scaleY(bound.value)}
+                  y2={scaleY(bound.value)}
+                />
+              ))}
             </g>
           )}
+        </g>
       </svg>
+      <details {...response} data-lq08-stopping-table>
+        <summary>Inspect the accepted frequency sweep</summary>
+        <div className="table-scroll">
+          <table className="data-table" aria-label="Accepted stopping-potential frequency sweep">
+            <thead>
+              <tr>
+                <th scope="col">Frequency (THz)</th>
+                <th scope="col">Stopping potential or bound (V)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {samples.map((sample) => (
+                <tr key={sample.frequency} data-lq08-stopping-frequency={sample.frequency}>
+                  <th scope="row">{sentenceNumber(sample.frequency / 1e12, 6)}</th>
+                  <td data-result-status={sample.result.status}>
+                    {sample.result.status === "value" ? (
+                      <Sci value={sample.result.value} digits={3} />
+                    ) : sample.result.status === "underdetermined" &&
+                      sample.result.upperBound !== undefined ? (
+                      <>
+                        At most <Sci value={sample.result.upperBound} digits={3} />; actual value
+                        undetermined.
+                      </>
+                    ) : (
+                      sample.result.reason
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
       {millikanData?.kind === "withheld" && (
         <div style={MEASURED_NOTE_STYLE} data-testid="millikan-withheld">
           <p style={{ fontWeight: 600, margin: "0 0 0.25rem" }}>
@@ -543,6 +633,7 @@ export function CurrentVoltagePlot({ sweep, response }: CurrentVoltageProps) {
     <div
       data-view-id="lq-08-iv-curve"
       data-distribution-model={sweep.distributionModel}
+      data-transfer-model={sweep.transferModel}
       data-instance-id={sweep.instanceId}
       data-run-id={sweep.runId}
       data-snapshot-version={sweep.snapshotVersion}
@@ -564,8 +655,11 @@ export function CurrentVoltagePlot({ sweep, response }: CurrentVoltageProps) {
         Current against collector potential
       </h3>
       <p {...response} className="fine" data-lq08-distribution-explanation>
-        {DISTRIBUTION_EXPLANATIONS[sweep.distributionModel]} These teaching assumptions do not
-        establish a universal current–voltage curve for real materials.
+        {sweep.transferModel === "partial"
+          ? "The transferred share is unknown. Even with an electron-energy distribution selected, the partly retarded current is only bounded. Saturation uses the separately prescribed ideal emission yield."
+          : DISTRIBUTION_EXPLANATIONS[sweep.distributionModel]}{" "}
+        These teaching assumptions do not establish a universal current–voltage curve for real
+        materials.
       </p>
       <p {...response} className="fine" data-lq08-operating-reading>
         At collector potential {sentenceNumber(operating.collectorPotential, 6)} V:{" "}
@@ -578,7 +672,7 @@ export function CurrentVoltagePlot({ sweep, response }: CurrentVoltageProps) {
       <svg
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label="Current against collector potential. Lines show determined currents; shading shows allowed currents when the distribution is unknown."
+        aria-label="Current against collector potential. Lines show determined currents; shading shows allowed currents when the assumptions leave the current undetermined."
         style={{
           width: "100%",
           height: "auto",

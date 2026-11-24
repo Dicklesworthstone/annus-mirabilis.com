@@ -4,10 +4,15 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PhotoelectricLab } from "../components/lab/lq08/PhotoelectricLab.tsx";
-import type { Lq08Distribution } from "../experiments/lq08/definition.ts";
-import { createLq08Session } from "../experiments/lq08/session.ts";
+import {
+  LQ08_DEFAULTS,
+  type Lq08Distribution,
+  type Lq08TransferModel,
+} from "../experiments/lq08/definition.ts";
+import { createLq08Session, evaluateLq08 } from "../experiments/lq08/session.ts";
 import { lq08TapeFor } from "../experiments/lq08/tape.ts";
 import { encodeTapePermalink } from "../experiments/permalink/codec.ts";
+import { encodeResult } from "../experiments/results/codec.ts";
 import type { AcceptedSnapshot } from "../experiments/store/instanceStore.ts";
 import example from "../generated/lq08-example.json";
 import { PinnedEquationDock } from "../reader/layout/PinnedEquationCompanion.tsx";
@@ -139,6 +144,8 @@ describe("the photoelectric equations follow the accepted apparatus", () => {
   const maximum = "eq-model-lq-photoelectric-maximum";
   const stopping = "eq-model-lq-stopping-energy";
   const threshold = "eq-model-lq-threshold-frequency";
+  const maximumBound = "eq-model-lq-photoelectric-maximum-bound";
+  const stoppingBound = "eq-model-lq-stopping-bound";
   let container: HTMLElement;
   let root: Root | null = null;
   let session: ReturnType<typeof createLq08Session>;
@@ -296,13 +303,27 @@ describe("the photoelectric equations follow the accepted apparatus", () => {
     );
     expect(currentPlot().getAttribute("data-action-index")).toBe(String(accepted.actionIndex));
     expect(currentPlot().getAttribute("data-constant-set-id")).toBe("modern-si-2019");
-    expect(currentPlot().getAttribute("data-owner-id")).toBe("photoelectric.collectorSweep");
+    expect(currentPlot().getAttribute("data-owner-id")).toBe(currentSweep().ownerId);
   }
 
   async function chooseDistribution(value: Lq08Distribution) {
     const control = required<HTMLSelectElement>(container, 'select[id$="-distributionModel"]');
     // Happy DOM's select proxy hides this property from Object.keys. The sibling input exposes
     // the same renderer key, which addresses the actual select's handler record.
+    const key = Object.keys(field("frequency")).find((name) => name.startsWith("__reactProps$"));
+    assert(key);
+    const change = (
+      control as unknown as Record<string, Readonly<Record<string, (event: unknown) => void>>>
+    )[key]?.onChange;
+    assert(change);
+    await act(async () => {
+      control.value = value;
+      change({ target: control, currentTarget: control });
+    });
+  }
+
+  async function chooseTransfer(value: Lq08TransferModel) {
+    const control = required<HTMLSelectElement>(container, 'select[id$="-transferModel"]');
     const key = Object.keys(field("frequency")).find((name) => name.startsWith("__reactProps$"));
     assert(key);
     const change = (
@@ -504,6 +525,9 @@ describe("the photoelectric equations follow the accepted apparatus", () => {
     await edit("frequency", "450");
     await apply("frequency");
     expect(term(card(), `${stopping}.t.stopping`).getAttribute("data-value-kind")).toBe("status");
+    expectValue(companion, `${stopping}.t.stopping`, "1.1085 V");
+    expectIdentity(companion, other);
+    await chooseTransfer("partial");
     expectValue(companion, `${stopping}.t.stopping`, "1.1085 V");
     expectIdentity(companion, other);
     expect(other.getSnapshot()).toBe(otherBefore);
@@ -804,6 +828,253 @@ describe("the photoelectric equations follow the accepted apparatus", () => {
       expectCurrentIdentity();
     } finally {
       window.history.replaceState(null, "", "/");
+    }
+  });
+  test("unknown energy transfer binds the two inequalities to unknown left sides and accepted SI budgets", async () => {
+    await mount();
+    const before = session.getSnapshot().accepted;
+    assert(before);
+    const energyCeiling = getNumericValue(before, "maxKineticEnergy");
+    const voltageCeiling = getNumericValue(before, "stoppingPotentialMagnitude");
+    await chooseTransfer("partial");
+    const after = session.getSnapshot().accepted;
+    const budget = session.getSnapshot().energyBudget;
+    assert(after && budget);
+    expect(after.runId).not.toBe(before.runId);
+    expect(card().getAttribute("data-transfer-model")).toBe("partial");
+    expect(card().querySelectorAll("[data-equation-id]")).toHaveLength(3);
+    expect(
+      card().querySelector('[data-pin-equation="eq-model-lq-photoelectric-maximum"]'),
+    ).toBeNull();
+    expect(card().querySelector('[data-pin-equation="eq-model-lq-stopping-energy"]')).toBeNull();
+    for (const id of [`${maximumBound}.t.maxKineticEnergy`, `${stoppingBound}.t.stopping`]) {
+      expect(term(card(), id).getAttribute("data-value-kind")).toBe("status");
+    }
+    expectValue(card(), `${maximumBound}.t.planck`, "6.6261 × 10−34 J s");
+    expectValue(card(), `${maximumBound}.t.escapeWork`, "3.5248 × 10−19 J");
+    expectValue(card(), `${stoppingBound}.t.charge`, "1.6022 × 10−19 C");
+    assert(budget.maxKineticEnergy.status === "underdetermined");
+    assert(budget.stoppingPotentialMagnitude.status === "underdetermined");
+    expect(budget.maxKineticEnergy.upperBound).toBe(energyCeiling);
+    expect(budget.stoppingPotentialMagnitude.upperBound).toBe(voltageCeiling);
+    expect(
+      required(container, '[data-output="maxKineticEnergy"]').getAttribute("data-result-status"),
+    ).toBe("underdetermined");
+    expect(required(container, '[data-output="maxKineticEnergy"]').textContent).toContain(
+      "At most",
+    );
+    expect(required(container, '[data-output="stoppingPotentialMagnitude"]').textContent).toContain(
+      "actual value is not determined",
+    );
+    const ladder = required(container, '[data-view-id="lq-08-energy-diagram"]');
+    expect(ladder.querySelector("[data-lq08-energy-bound]")).not.toBeNull();
+    expect(ladder.querySelector("circle")).toBeNull();
+    const stoppingPlot = required(container, '[data-view-id="lq-08-stopping-plot"]');
+    expect(stoppingPlot.querySelector("[data-lq08-stopping-point]")).toBeNull();
+    expect(stoppingPlot.querySelector("[data-lq08-stopping-ceiling]")).not.toBeNull();
+    expect(
+      Number(
+        required(stoppingPlot, "[data-lq08-stopping-range]").getAttribute("data-upper-voltage"),
+      ),
+    ).toBe(voltageCeiling);
+    expect(card().textContent).toContain("necessary");
+    expect(card().textContent).toContain("does not guarantee emission");
+    expect(required(container, '[data-quantity-id="thresholdFrequency"]').textContent).toContain(
+      "Necessary energy-budget frequency limit",
+    );
+    expect(card().textContent).toContain("prescribed quantum efficiency");
+    expectIdentity(card());
+    expectCurrentIdentity();
+  });
+
+  test("a declared distribution cannot replace the missing transfer share in a retarding measurement", async () => {
+    await mount();
+    await chooseDistribution("uniform");
+    await edit("collectorPotential", "-0.1");
+    await apply("collectorPotential");
+    expect(currentSweep().operatingPoint.result.status).toBe("value");
+    await chooseTransfer("partial");
+    expect(session.acceptedParameters().distributionModel).toBe("uniform");
+    expect(currentSweep().operatingPoint.result.status).toBe("underdetermined");
+    expect(currentPlot().querySelector("[data-lq08-operating-point]")).toBeNull();
+    expect(currentPlot().querySelector("[data-lq08-operating-range]")).not.toBeNull();
+    expect(currentPlot().textContent).toContain("separately prescribed ideal emission yield");
+    await chooseDistribution("all-at-kmax");
+    expect(currentSweep().operatingPoint.result.status).toBe("underdetermined");
+    expect(currentPlot().querySelector("[data-lq08-current-band]")).not.toBeNull();
+    await chooseTransfer("complete");
+    expect(session.acceptedParameters().collectorPotential).toBe(-0.1);
+    expect(getNumericValue(session.getSnapshot().accepted, "photocurrent")).toBe(
+      currentSweep().saturationCurrent,
+    );
+    expect(currentPlot().querySelector("[data-lq08-operating-range]")).toBeNull();
+    expect(
+      card().querySelector('[data-pin-equation="eq-model-lq-photoelectric-maximum"]'),
+    ).not.toBeNull();
+    expectCurrentIdentity();
+  });
+
+  test("changing transfer assumptions unpins only obsolete relations and retains the explicitly qualified threshold", async () => {
+    await mount();
+    await pin(card(), maximum);
+    await chooseTransfer("partial");
+    expect(container.querySelector("[data-pinned-equation]")).toBeNull();
+    expect(required(container, "[data-lq08-pin-change]").textContent).toContain(
+      "different energy-transfer assumption",
+    );
+    await pin(card(), maximumBound);
+    await chooseTransfer("complete");
+    expect(container.querySelector("[data-pinned-equation]")).toBeNull();
+    const thresholdPin = await pin(card(), threshold);
+    await chooseTransfer("partial");
+    expect(required(container, "[data-pinned-equation]")).toBe(thresholdPin);
+    expect(thresholdPin.textContent).toContain("complete-transfer threshold");
+    expectIdentity(thresholdPin);
+    await chooseTransfer("complete");
+    expect(required(container, "[data-pinned-equation]")).toBe(thresholdPin);
+    expectIdentity(thresholdPin);
+  });
+
+  test("an unknown transferred share keeps even the exact zero ceiling distinct from attained zero and from no emission", async () => {
+    await mount();
+    const thresholdFrequency = getNumericValue(
+      session.getSnapshot().accepted,
+      "thresholdFrequency",
+    );
+    await chooseTransfer("partial");
+    await edit("frequency", String(thresholdFrequency / 1e12));
+    await apply("frequency");
+    const zero = session.getSnapshot().energyBudget;
+    assert(zero);
+    for (const result of [zero.maxKineticEnergy, zero.stoppingPotentialMagnitude]) {
+      expect(result.status).toBe("underdetermined");
+      assert(result.status === "underdetermined");
+      expect(result.bounds).toEqual([0, 0]);
+    }
+    expect(term(card(), `${maximumBound}.t.maxKineticEnergy`).getAttribute("data-value-kind")).toBe(
+      "status",
+    );
+    expect(
+      Number(required(container, "[data-lq08-energy-bound]").getAttribute("data-upper-energy-ev")),
+    ).toBe(0);
+    expect(
+      Number(required(container, "[data-lq08-stopping-range]").getAttribute("data-upper-voltage")),
+    ).toBe(0);
+    expect(container.querySelector("[data-lq08-stopping-point]")).toBeNull();
+    expect(required(container, '[data-output="maxKineticEnergy"]').textContent).toContain(
+      "actual value is not determined",
+    );
+    await edit("frequency", "450");
+    await apply("frequency");
+    expect(session.getSnapshot().energyBudget?.maxKineticEnergy.status).toBe("not-applicable");
+    expect(container.querySelector("[data-lq08-energy-bound]")).toBeNull();
+    expect(container.querySelector("[data-lq08-stopping-range]")).toBeNull();
+    expect(required(container, '[data-output="maxKineticEnergy"]').textContent).toContain(
+      "no emitted electron",
+    );
+    await edit("frequency", String(thresholdFrequency / 1e12));
+    await apply("frequency");
+    await chooseTransfer("complete");
+    expectValue(card(), `${maximum}.t.maxKineticEnergy`, "0 J");
+    expectValue(card(), `${stopping}.t.stopping`, "0 V");
+  });
+
+  test("transfer selection uses accepted settings while retaining a numeric draft and its refusal feedback", async () => {
+    await mount();
+    const ceiling = getNumericValue(session.getSnapshot().accepted, "maxKineticEnergy");
+    await edit("frequency", "800");
+    await chooseTransfer("partial");
+    expect(field("frequency").value).toBe("800");
+    expect(session.acceptedParameters().frequency).toBe(6e14);
+    const budget = session.getSnapshot().energyBudget;
+    assert(budget?.maxKineticEnergy.status === "underdetermined");
+    expect(budget.maxKineticEnergy.upperBound).toBe(ceiling);
+    await edit("frequency", "-10");
+    await apply("frequency");
+    const refusal = required(container, '[role="alert"]').textContent;
+    const accepted = session.getSnapshot().accepted;
+    await chooseTransfer("complete");
+    expect(field("frequency").value).toBe("-10");
+    expect(required(container, '[role="alert"]').textContent).toBe(refusal);
+    expect(session.getSnapshot().accepted?.parameters.frequency).toBe(
+      accepted?.parameters.frequency,
+    );
+    expectValue(card(), `${stopping}.t.stopping`, "0.2814 V");
+  });
+
+  test("a shared partial-transfer apparatus restores unknown energy and current without inventing equalities", async () => {
+    const saved = createLq08Session("saved-partial-current");
+    expect(
+      saved.apply({
+        transferModel: "partial",
+        distributionModel: "uniform",
+        collectorPotential: -0.1,
+      }).kind,
+    ).toBe("accepted");
+    const tape = lq08TapeFor(saved.acceptedParameters());
+    assert(tape);
+    window.history.replaceState(null, "", `/lab/lq-08/?tape=${encodeTapePermalink(tape)}`);
+    root = createRoot(container);
+    try {
+      await act(async () => {
+        root?.render(
+          <PhotoelectricLab
+            session={session}
+            predict={false}
+            readings={false}
+            showComparison={false}
+          />,
+        );
+      });
+      for (
+        let attempt = 0;
+        attempt < 50 && session.acceptedParameters().transferModel !== "partial";
+        attempt++
+      ) {
+        await act(async () => {
+          await new Promise<void>((resolve) => setTimeout(resolve, 10));
+        });
+      }
+      expect(container.querySelector("[data-tape-notice]")).toBeNull();
+      expect(session.acceptedParameters()).toEqual(saved.acceptedParameters());
+      expect(required<HTMLSelectElement>(container, 'select[id$="-transferModel"]').value).toBe(
+        "partial",
+      );
+      expect(card().getAttribute("data-transfer-model")).toBe("partial");
+      expect(currentSweep().operatingPoint.result.status).toBe("underdetermined");
+      expect(currentPlot().querySelector("[data-lq08-operating-point]")).toBeNull();
+      expect(currentPlot().querySelector("[data-lq08-operating-range]")).not.toBeNull();
+      expect(term(card(), `${stoppingBound}.t.stopping`).getAttribute("data-value-kind")).toBe(
+        "status",
+      );
+      expectIdentity(card());
+    } finally {
+      window.history.replaceState(null, "", "/");
+    }
+  });
+
+  test("a genuine partial worked example renders its inequalities, bounds and assumptions without JavaScript", () => {
+    const parameters = { ...LQ08_DEFAULTS, transferModel: "partial" as const };
+    const prepared = {
+      ...example,
+      parameters,
+      results: evaluateLq08(parameters).map(encodeResult),
+    };
+    container.innerHTML = renderToStaticMarkup(
+      <PhotoelectricLab example={prepared} predict={false} linked={false} showComparison={false} />,
+    );
+    expect(card().querySelectorAll(".equation-visual .katex")).toHaveLength(3);
+    const maths = [...card().querySelectorAll("annotation")].map((node) => node.textContent);
+    expect(maths.some((text) => text?.includes("\\le"))).toBe(true);
+    expect(term(card(), `${maximumBound}.t.maxKineticEnergy`).getAttribute("data-value-kind")).toBe(
+      "status",
+    );
+    expect(required(container, "[data-lq08-energy-bound]")).not.toBeNull();
+    expect(required(container, "[data-lq08-stopping-ceiling]")).not.toBeNull();
+    expect(card().textContent).toContain("necessary");
+    expect(card().textContent).toContain("prescribed quantum efficiency");
+    for (const group of card().querySelectorAll("[data-equation-values]")) {
+      expect(group.getAttribute("data-execution-label")).toBe("static");
     }
   });
 });

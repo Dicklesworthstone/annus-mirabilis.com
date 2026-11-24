@@ -13,6 +13,7 @@ import {
   weaveOutputs,
 } from "../../experiments/weave/sessionSource.ts";
 import { validateWeavePredicate } from "../../experiments/weave/validate.ts";
+import { weaveContext } from "./context.ts";
 import { LQ08_READER_WEAVE } from "./photoelectricPassages.ts";
 
 const LINE = "lq08-s8-linear-frequency";
@@ -123,9 +124,50 @@ test("retarding current stays undetermined without a velocity distribution", () 
   expect(current.derived.flags[LINE]?.lit).toBe(true);
   expect(current.derived.flags[INDEPENDENCE]?.lit).toBe(true);
   expect(current.derived.flags[INDEPENDENCE]?.pointerText).toContain(
-    "only the maximum electron energy",
+    "an unknown transferred share gives only an upper limit",
   );
   expect(current.derived.flags[INDEPENDENCE]?.meaning).toBe("assumption-active");
+});
+
+test("partial transfer keeps reader claims and context aligned with the unknown accepted energies", () => {
+  const session = createLq08Session("partial-photoelectric-weave");
+  const source = createSessionWeave(session, LQ08_READER_WEAVE);
+  expect(
+    session.apply({
+      ...LQ08_PRESETS.historicalCheck.parameters,
+      transferModel: "partial",
+      distributionModel: "uniform",
+    }).kind,
+  ).toBe("accepted");
+  const partial = ready(source.getSnapshot());
+  expect(partial.accepted).toBe(session.getSnapshot().accepted);
+  for (const id of [LINE, HISTORICAL]) {
+    expect(partial.derived.flags[id]?.lit).toBe(false);
+    expect(partial.derived.flags[id]?.state).toBe("not-evaluable");
+  }
+  const rates = partial.derived.flags[INDEPENDENCE];
+  expect(rates?.lit).toBe(true);
+  expect(rates?.meaning).toBe("assumption-active");
+  expect(rates?.pointerText).toContain("prescribed quantum efficiency");
+  expect(rates?.pointerText).toContain("an unknown transferred share gives only an upper limit");
+  const fields = LQ08_READER_WEAVE.contextFields;
+  assert.ok(fields);
+  const context = weaveContext(partial.accepted, fields);
+  expect(context.find((field) => field.id === "transferModel")?.value).toBe(
+    "Unspecified partial transfer",
+  );
+  expect(context.find((field) => field.id === "distributionModel")?.value).toBe(
+    "Uniform from zero to the largest energy",
+  );
+  expect(session.apply({ transferModel: "complete" }).kind).toBe("accepted");
+  const complete = ready(source.getSnapshot());
+  expect(complete.derived.flags[LINE]?.lit).toBe(true);
+  expect(complete.derived.flags[HISTORICAL]?.lit).toBe(true);
+  expect(
+    weaveContext(complete.accepted, fields).find((field) => field.id === "transferModel")?.value,
+  ).toBe("Complete transfer");
+  // The saved earlier context still describes the earlier accepted assumption.
+  expect(weaveContext(partial.accepted, fields)).toEqual(context);
 });
 
 test("missing, duplicate or nonfinite evidence cannot borrow plausible accepted parameters", () => {

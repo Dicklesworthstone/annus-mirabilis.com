@@ -23,31 +23,33 @@ import {
   LQ08_DEFAULTS,
   LQ08_MODEL,
   LQ08_OUTPUTS,
-  type Lq08LegacyParameters,
+  type Lq08CompatibleParameters,
   type Lq08Parameters,
 } from "./definition.ts";
+import { acceptedLq08EnergyBudget, type Lq08EnergyBudget } from "./energyBudget.ts";
 import { validateLq08Parameters } from "./parameters.ts";
 
 export type PreparedLq08Example = Readonly<{
   sourceDigest: string;
-  parameters: Lq08Parameters | Lq08LegacyParameters;
+  parameters: Lq08CompatibleParameters;
   results: readonly string[];
   stepIndex: number;
   simulationTime: number;
 }>;
 
 export type Lq08ExperimentView = ExperimentView &
-  Readonly<{ collectorSweep: Lq08CollectorSweep | null }>;
+  Readonly<{ collectorSweep: Lq08CollectorSweep | null; energyBudget: Lq08EnergyBudget | null }>;
 
-export function evaluateLq08(p: Lq08Parameters | Lq08LegacyParameters): ScientificResult[] {
+export function evaluateLq08(p: Lq08CompatibleParameters): ScientificResult[] {
   const constants = getConstantSet(LQ08_MODEL.constantSetId);
+  const transferModel = "transferModel" in p ? p.transferModel : "complete";
   const planckConstant = constantValue(constants, "planckConstant").value;
   const elementaryCharge = constantValue(constants, "elementaryCharge").value;
   const workFunctionJoules = p.workFunction * elementaryCharge;
   const qeRes = quantumEnergy(p.frequency, constants);
   const tfRes = thresholdFrequencyFromEv(p.workFunction, constants);
-  const kmRes = kMax(p.frequency, workFunctionJoules, constants);
-  const spRes = stoppingPotentialFromEv(p.frequency, p.workFunction, constants);
+  const kmRes = kMax(p.frequency, workFunctionJoules, constants, transferModel);
+  const spRes = stoppingPotentialFromEv(p.frequency, p.workFunction, constants, transferModel);
   const qrRes = quantumRate(p.incidentPower, p.frequency, constants);
   const erRes = emissionRate(
     p.incidentPower,
@@ -57,13 +59,16 @@ export function evaluateLq08(p: Lq08Parameters | Lq08LegacyParameters): Scientif
     constants,
   );
   const pcRes = photocurrent(
-    p.incidentPower,
-    p.frequency,
-    workFunctionJoules,
-    p.quantumEfficiency,
-    p.collectorPotential,
+    {
+      incidentPowerWatts: p.incidentPower,
+      nu: p.frequency,
+      workFunctionJoules,
+      quantumEfficiency: p.quantumEfficiency,
+      collectorPotentialVolts: p.collectorPotential,
+      distributionModel: "distributionModel" in p ? p.distributionModel : "none",
+      transferModel,
+    },
     constants,
-    "distributionModel" in p ? p.distributionModel : "none",
   );
 
   const outputs: ScientificResult[] = [
@@ -166,6 +171,16 @@ export function evaluateLq08(p: Lq08Parameters | Lq08LegacyParameters): Scientif
       status: "value",
       value: kmRes.value,
     });
+  } else if (kmRes.status === "underdetermined") {
+    outputs.push({
+      quantityId: "maxKineticEnergy",
+      unit: "J",
+      semanticKind: "max-kinetic-energy",
+      ownerId: "photoelectric.kMax",
+      status: "underdetermined",
+      compatibleFamily: kmRes.compatibleFamily,
+      neededInformation: kmRes.neededInformation,
+    });
   } else if (kmRes.status === "not-applicable") {
     outputs.push({
       quantityId: "maxKineticEnergy",
@@ -185,6 +200,16 @@ export function evaluateLq08(p: Lq08Parameters | Lq08LegacyParameters): Scientif
       ownerId: "photoelectric.stoppingPotentialMagnitude",
       status: "value",
       value: spRes.value,
+    });
+  } else if (spRes.status === "underdetermined") {
+    outputs.push({
+      quantityId: "stoppingPotentialMagnitude",
+      unit: "V",
+      semanticKind: "stopping-potential",
+      ownerId: "photoelectric.stoppingPotentialMagnitude",
+      status: "underdetermined",
+      compatibleFamily: spRes.compatibleFamily,
+      neededInformation: spRes.neededInformation,
     });
   } else if (spRes.status === "not-applicable") {
     outputs.push({
@@ -273,20 +298,27 @@ export function createLq08Session(instanceId: string, example?: PreparedLq08Exam
 
   const views = new WeakMap<ExperimentView, Lq08ExperimentView>();
   const sweeps = new WeakMap<AcceptedSnapshot, Lq08CollectorSweep | null>();
+  const budgets = new WeakMap<AcceptedSnapshot, Lq08EnergyBudget | null>();
   function withCollectorSweep(view: ExperimentView): Lq08ExperimentView {
     const cached = views.get(view);
     if (cached) return cached;
     const accepted = view.accepted;
     if (accepted && !sweeps.has(accepted)) {
       const checked = validateLq08Parameters(accepted.parameters);
+      const budget =
+        checked.kind === "accepted" ? acceptedLq08EnergyBudget(accepted, checked.data) : null;
+      budgets.set(accepted, budget);
       sweeps.set(
         accepted,
-        checked.kind === "accepted" ? acceptedLq08CollectorSweep(accepted, checked.data) : null,
+        checked.kind === "accepted" && budget
+          ? acceptedLq08CollectorSweep(accepted, checked.data, budget)
+          : null,
       );
     }
     const extended = Object.freeze({
       ...view,
       collectorSweep: accepted ? (sweeps.get(accepted) ?? null) : null,
+      energyBudget: accepted ? (budgets.get(accepted) ?? null) : null,
     });
     views.set(view, extended);
     return extended;

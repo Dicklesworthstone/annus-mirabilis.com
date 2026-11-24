@@ -29,7 +29,8 @@ describe("LQ-08 asks before it shows what its prompts ask about", () => {
     expect(html).toMatch(/<g data-predict-response="awaiting"><line[^>]*><\/line><circle/);
     // Stopping potential: the sentence naming one slope for every metal, and the line itself.
     expect(html).toMatch(/<p data-predict-response="awaiting"[^>]*>In the model the slope is h\/e/);
-    expect(html).toMatch(/<line data-predict-response="awaiting"[^>]*stroke="var\(--plot\)"/);
+    expect(html).toMatch(/<g data-predict-response="awaiting"[^>]*data-lq08-stopping-response/);
+    expect(html).toMatch(/<details data-predict-response="awaiting"[^>]*data-lq08-stopping-table/);
     // Current against potential: its accepted readout, known segments, allowed region and table.
     expect(html).toMatch(/<p data-predict-response="awaiting"[^>]*data-lq08-operating-reading/);
     expect(html).toMatch(/<g data-predict-response="awaiting"[^>]*data-lq08-current-response/);

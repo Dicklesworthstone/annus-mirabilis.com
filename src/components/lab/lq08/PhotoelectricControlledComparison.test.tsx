@@ -236,6 +236,43 @@ test("below-threshold comparisons retain unavailable energies and genuine zero r
   );
 });
 
+test("a partial-transfer comparison retains its necessary-limit and prescribed-yield context with the pinned baseline", async () => {
+  expect(
+    owner.apply({
+      transferModel: "partial",
+      distributionModel: "uniform",
+      collectorPotential: -0.1,
+    }).kind,
+  ).toBe("accepted");
+  await mount();
+  await click("Pin accepted settings for comparison");
+  const caveat = required("[data-lq08-comparison-partial]");
+  expect(caveat.textContent).toContain("not the actual emission onset");
+  expect(caveat.textContent).toContain("prescribed ideal quantum efficiency");
+  expect(caveat.textContent).toContain("fixed in both columns");
+  await change('input[name="comparison-value"]', "2");
+  await submit();
+  for (const quantity of ["maxKineticEnergy", "stoppingPotentialMagnitude", "photocurrent"]) {
+    expect(
+      outputRow(quantity).querySelectorAll('[data-result-status="underdetermined"]'),
+    ).toHaveLength(2);
+    expect(required("[data-comparison-ratio]", outputRow(quantity)).textContent).toContain(
+      "finite numeric values",
+    );
+  }
+  const baseline = required("[data-comparison-results]").getAttribute("data-baseline-snapshot");
+  await act(async () => {
+    owner.apply({ transferModel: "complete" });
+  });
+  expect(required("[data-lq08-comparison-partial]")).toBe(caveat);
+  expect(required("[data-comparison-results]").getAttribute("data-baseline-snapshot")).toBe(
+    baseline,
+  );
+  expect(
+    outputRow("maxKineticEnergy").querySelectorAll('[data-result-status="underdetermined"]'),
+  ).toHaveLength(2);
+});
+
 test("retarding-collector comparisons show the owner's undetermined current instead of a fabricated zero", async () => {
   owner.apply({ collectorPotential: -0.1 });
   await mount();

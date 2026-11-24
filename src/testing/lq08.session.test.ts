@@ -8,7 +8,12 @@ import {
 import { validateLq08Parameters } from "../experiments/lq08/parameters.ts";
 import { createLq08Session } from "../experiments/lq08/session.ts";
 import { constantValue, getConstantSet } from "../physics/reference/constants.ts";
-import { photocurrent } from "../physics/reference/photoelectric.ts";
+import {
+  kMax,
+  photocurrent,
+  stoppingPotentialFromEv,
+  stoppingPotentialMagnitude,
+} from "../physics/reference/photoelectric.ts";
 
 describe("LQ-08 Session Management (am-lq-08-photoelectric-va5a)", () => {
   it("initializes an instance store and publishes initial accepted outputs", () => {
@@ -249,7 +254,7 @@ function acceptedSweep(session: ReturnType<typeof createLq08Session>) {
 
 describe("LQ-08 declared electron distributions", () => {
   it("upgrades only complete legacy settings to the undeclared-distribution model", () => {
-    const { distributionModel: _model, ...legacy } = LQ08_DEFAULTS;
+    const { distributionModel: _model, transferModel: _transfer, ...legacy } = LQ08_DEFAULTS;
     expect(validateLq08Parameters(legacy)).toEqual({ kind: "accepted", data: LQ08_DEFAULTS });
     for (const distributionModel of [undefined, null, "uniform-0-kmax", "measured", 0]) {
       expect(validateLq08Parameters({ ...legacy, distributionModel }).kind).toBe("refused");
@@ -482,5 +487,259 @@ describe("LQ-08 declared electron distributions", () => {
     expect(restored.collectorSweep?.actionIndex).toBe(restored.accepted?.actionIndex);
     expect(target.getSnapshot()).toBe(restored);
     expect(before.collectorSweep?.distributionModel).toBe("none");
+  });
+});
+
+function acceptedEnergyBudget(session: ReturnType<typeof createLq08Session>) {
+  const budget = session.getSnapshot().energyBudget;
+  expect(budget).not.toBeNull();
+  if (!budget) throw new Error("Expected the accepted photoelectric energy budget.");
+  return budget;
+}
+
+describe("LQ-08 unspecified partial energy transfer", () => {
+  it("admits both older settings shapes with complete transfer and rejects unknown transfer choices", () => {
+    const { transferModel: _transfer, ...sixFields } = LQ08_DEFAULTS;
+    const sixWithDistribution = { ...sixFields, distributionModel: "uniform" as const };
+    expect(validateLq08Parameters(sixWithDistribution)).toEqual({
+      kind: "accepted",
+      data: { ...sixWithDistribution, transferModel: "complete" },
+    });
+    const { distributionModel: _distribution, ...fiveFields } = sixFields;
+    expect(validateLq08Parameters(fiveFields)).toEqual({ kind: "accepted", data: LQ08_DEFAULTS });
+    for (const transferModel of [undefined, null, "measured", 0]) {
+      expect(validateLq08Parameters({ ...LQ08_DEFAULTS, transferModel }).kind).toBe("refused");
+    }
+    const session = createLq08Session("lq08-legacy-transfer");
+    expect(session.apply({ transferModel: "partial" }).kind).toBe("accepted");
+    expect(session.apply(sixWithDistribution).kind).toBe("accepted");
+    expect(session.acceptedParameters().transferModel).toBe("complete");
+    expect(session.acceptedParameters().distributionModel).toBe("uniform");
+    const before = session.getSnapshot();
+    expect(session.apply({ transferModel: "unknown-fraction-value" }).kind).toBe("refused");
+    expect(session.getSnapshot()).toBe(before);
+  });
+
+  it("retains the complete result only as an upper bound and restores equality when complete transfer returns", () => {
+    const session = createLq08Session("lq08-energy-bound");
+    const completeEnergy = acceptedNumber(session, "maxKineticEnergy");
+    const completeStopping = acceptedNumber(session, "stoppingPotentialMagnitude");
+    const completeThreshold = acceptedNumber(session, "thresholdFrequency");
+    expect(session.apply({ transferModel: "partial" }).kind).toBe("accepted");
+    const view = session.getSnapshot();
+    const budget = acceptedEnergyBudget(session);
+    for (const id of ["maxKineticEnergy", "stoppingPotentialMagnitude"] as const) {
+      const output = view.accepted?.outputs.find((value) => value.quantityId === id);
+      expect(output?.status).toBe("underdetermined");
+      expect(output && "value" in output).toBe(false);
+      expect(output && "upperBound" in output).toBe(false);
+      if (output?.status === "underdetermined") {
+        expect(output.neededInformation).toContain("single-quantum-transfer-fraction");
+      }
+    }
+    expect(budget.maxKineticEnergy).toMatchObject({
+      status: "underdetermined",
+      upperBound: completeEnergy,
+      bounds: [0, completeEnergy],
+      unit: "J",
+    });
+    expect(budget.stoppingPotentialMagnitude).toMatchObject({
+      status: "underdetermined",
+      upperBound: completeStopping,
+      bounds: [0, completeStopping],
+      unit: "V",
+    });
+    expect(budget).toMatchObject({
+      instanceId: view.accepted?.instanceId,
+      runId: view.accepted?.runId,
+      snapshotVersion: view.accepted?.snapshotVersion,
+      actionIndex: view.accepted?.actionIndex,
+      transferModel: "partial",
+      constantSetId: LQ08_MODEL.constantSetId,
+    });
+    if (budget.maxKineticEnergy.status === "underdetermined") {
+      expect(Object.isFrozen(budget.maxKineticEnergy.bounds)).toBe(true);
+    }
+    expect(acceptedNumber(session, "thresholdFrequency")).toBe(completeThreshold);
+    expect(session.apply({ transferModel: "complete" }).kind).toBe("accepted");
+    expect(acceptedNumber(session, "maxKineticEnergy")).toBe(completeEnergy);
+    expect(acceptedNumber(session, "stoppingPotentialMagnitude")).toBe(completeStopping);
+  });
+
+  it("keeps exact-threshold partial transfer as a zero-width bound in the reference and published owner", () => {
+    const constants = getConstantSet(LQ08_MODEL.constantSetId);
+    const h = constantValue(constants, "planckConstant").value;
+    const e = constantValue(constants, "elementaryCharge").value;
+    const nu = LQ08_DEFAULTS.frequency;
+    const workFunctionJoules = h * nu;
+    const workFunction = workFunctionJoules / e;
+    expect(workFunction * e).toBe(h * nu);
+    expect(kMax(nu, workFunctionJoules, constants, "partial")).toMatchObject({
+      status: "underdetermined",
+      upperBound: 0,
+      bounds: [0, 0],
+      unit: "J",
+    });
+    expect(stoppingPotentialMagnitude(nu, workFunctionJoules, constants, "partial")).toMatchObject({
+      status: "underdetermined",
+      upperBound: 0,
+      bounds: [0, 0],
+      unit: "V",
+    });
+    expect(kMax(nu, workFunctionJoules, constants, "complete")).toMatchObject({
+      status: "value",
+      value: 0,
+    });
+    expect(stoppingPotentialMagnitude(nu, workFunctionJoules, constants, "complete")).toMatchObject(
+      { status: "value", value: 0 },
+    );
+    const session = createLq08Session("lq08-zero-width-bound");
+    expect(session.apply({ transferModel: "partial", workFunction }).kind).toBe("accepted");
+    for (const id of ["maxKineticEnergy", "stoppingPotentialMagnitude"]) {
+      expect(
+        session.getSnapshot().accepted?.outputs.find((output) => output.quantityId === id)?.status,
+      ).toBe("underdetermined");
+    }
+    expect(acceptedEnergyBudget(session).maxKineticEnergy).toMatchObject({
+      status: "underdetermined",
+      upperBound: 0,
+    });
+    expect(acceptedEnergyBudget(session).stoppingPotentialMagnitude).toMatchObject({
+      status: "underdetermined",
+      upperBound: 0,
+    });
+    expect(session.apply({ frequency: 4e14 }).kind).toBe("accepted");
+    expect(acceptedEnergyBudget(session).maxKineticEnergy.status).toBe("not-applicable");
+    expect(acceptedEnergyBudget(session).stoppingPotentialMagnitude.status).toBe("not-applicable");
+    expect(acceptedNumber(session, "photocurrent")).toBe(0);
+  });
+
+  it("leaves partial retarding current unknown for every declared distribution", () => {
+    const session = createLq08Session("lq08-partial-current");
+    const cutoff = -acceptedNumber(session, "stoppingPotentialMagnitude");
+    for (const distributionModel of LQ08_DISTRIBUTIONS) {
+      expect(
+        session.apply({
+          distributionModel,
+          transferModel: "partial",
+          collectorPotential: cutoff / 2,
+        }).kind,
+      ).toBe("accepted");
+      const sweep = acceptedSweep(session);
+      expect(sweep.transferModel).toBe("partial");
+      expect(sweep.ownerId).toBe("photoelectric.photocurrent");
+      expect(sweep.operatingPoint.result).toMatchObject({
+        status: "underdetermined",
+        bounds: [0, sweep.saturationCurrent],
+      });
+      if (sweep.operatingPoint.result.status === "underdetermined") {
+        expect(sweep.operatingPoint.result.neededInformation).toContain(
+          "single-quantum-transfer-fraction",
+        );
+      }
+      expect(sweep.underdetermined).toEqual([
+        {
+          minPotential: cutoff,
+          maxPotential: 0,
+          lowerCurrent: 0,
+          upperCurrent: sweep.saturationCurrent,
+          includeMin: false,
+          includeMax: false,
+        },
+      ]);
+      for (const segment of sweep.segments) {
+        expect(
+          segment.points.every(
+            (point) => point.collectorPotential <= cutoff || point.collectorPotential >= 0,
+          ),
+        ).toBe(true);
+      }
+      expect(session.apply({ collectorPotential: cutoff }).kind).toBe("accepted");
+      expect(acceptedNumber(session, "photocurrent")).toBe(0);
+      expect(session.apply({ collectorPotential: 0 }).kind).toBe("accepted");
+      expect(acceptedNumber(session, "photocurrent")).toBe(sweep.saturationCurrent);
+    }
+    expect(session.apply({ incidentPower: 0, collectorPotential: cutoff / 2 }).kind).toBe(
+      "accepted",
+    );
+    expect(acceptedNumber(session, "photocurrent")).toBe(0);
+    expect(acceptedSweep(session).underdetermined).toEqual([]);
+    expect(acceptedEnergyBudget(session).maxKineticEnergy.status).toBe("underdetermined");
+  });
+
+  it("publishes the stopping-frequency envelope as bounded reference results, including actual accepted frequency", () => {
+    const session = createLq08Session("lq08-stopping-envelope");
+    const constants = getConstantSet(LQ08_MODEL.constantSetId);
+    for (const transferModel of ["complete", "partial"] as const) {
+      expect(session.apply({ transferModel, frequency: 1.8e15 }).kind).toBe("accepted");
+      const parameters = session.acceptedParameters();
+      const budget = acceptedEnergyBudget(session);
+      expect(budget.stoppingSweep.samples.length).toBeGreaterThan(0);
+      expect(budget.stoppingSweep.domain.max).toBeGreaterThanOrEqual(parameters.frequency);
+      const current = budget.stoppingSweep.samples.find(
+        (sample) => sample.frequency === parameters.frequency,
+      );
+      expect(current?.result).toEqual(budget.stoppingPotentialMagnitude);
+      const necessaryFrequency = acceptedNumber(session, "thresholdFrequency");
+      expect(
+        budget.stoppingSweep.samples.some((sample) => sample.frequency === necessaryFrequency),
+      ).toBe(true);
+      for (const sample of budget.stoppingSweep.samples) {
+        expect(sample.result).toEqual(
+          stoppingPotentialFromEv(
+            sample.frequency,
+            parameters.workFunction,
+            constants,
+            transferModel,
+          ),
+        );
+        if (transferModel === "partial" && sample.result.status !== "not-applicable") {
+          expect(sample.result.status).toBe("underdetermined");
+        }
+      }
+    }
+    expect(session.apply({ workFunction: 0 }).kind).toBe("accepted");
+    expect(
+      acceptedEnergyBudget(session).stoppingSweep.samples.every((sample) => sample.frequency > 0),
+    ).toBe(true);
+  });
+
+  it("keeps energy and current evidence on the same accepted snapshot through refusal, pending and restore", () => {
+    const session = createLq08Session("lq08-partial-evidence");
+    const before = session.getSnapshot();
+    expect(session.getSnapshot()).toBe(before);
+    expect(session.getSnapshot().energyBudget).toBe(before.energyBudget);
+    const pending: ReturnType<typeof session.getSnapshot>[] = [];
+    const off = session.subscribe(() => {
+      const view = session.getSnapshot();
+      if (view.pending) pending.push(view);
+    });
+    expect(
+      session.apply({
+        transferModel: "partial",
+        distributionModel: "uniform",
+        collectorPotential: -0.1,
+      }).kind,
+    ).toBe("accepted");
+    off();
+    expect(pending.length).toBeGreaterThan(0);
+    for (const view of pending) {
+      expect(view.energyBudget).toBe(before.energyBudget);
+      expect(view.collectorSweep).toBe(before.collectorSweep);
+    }
+    const partial = session.getSnapshot();
+    expect(partial.energyBudget).not.toBe(before.energyBudget);
+    expect(partial.energyBudget?.snapshotVersion).toBe(partial.accepted?.snapshotVersion);
+    expect(partial.collectorSweep?.snapshotVersion).toBe(partial.energyBudget?.snapshotVersion);
+    expect(partial.collectorSweep?.actionIndex).toBe(partial.energyBudget?.actionIndex);
+    expect(session.apply({ transferModel: "unavailable" }).kind).toBe("refused");
+    expect(session.getSnapshot()).toBe(partial);
+    const checkpoint = session.exportCheckpoint();
+    expect(checkpoint).not.toBeNull();
+    const restored = createLq08Session("lq08-partial-evidence");
+    expect(restored.restoreCheckpoint(checkpoint).kind).toBe("restored");
+    expect(restored.getSnapshot().energyBudget).toEqual(partial.energyBudget);
+    expect(restored.getSnapshot().collectorSweep).toEqual(partial.collectorSweep);
+    expect(before.energyBudget?.transferModel).toBe("complete");
   });
 });

@@ -12,6 +12,7 @@ import {
 } from "../../content/schemas/experiment.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
 import { evaluateMillikanOverlay, type MillikanSlopeFit } from "../../experiments/lq08/millikan.ts";
+import { createLq08Session } from "../../experiments/lq08/session.ts";
 import { projectReception } from "../../reader/faces/results/resultsProjection.ts";
 import { createLinearProjector } from "../../visuals/kit/coordinates.ts";
 import { DatasetEvidenceReveal } from "../../visuals/overlays/DatasetEvidenceReveal.tsx";
@@ -106,12 +107,13 @@ const overlayOf = (dataset: HistoricalDataset) =>
 /** What LQ-08 draws for a record: the model's stopping plot, and the panel when there are points. */
 const plotOf = (dataset: HistoricalDataset) => {
   const overlay = overlayOf(dataset);
+  const session = createLq08Session("dataset-withheld-photoelectric");
+  expect(session.apply({ frequency: 6e14, workFunction: 2 }).kind).toBe("accepted");
   return renderToStaticMarkup(
     <>
       <StoppingPotentialPlot
-        currentFrequency={6e14}
-        currentWorkFunction={2}
-        currentStoppingPotential={0.48}
+        currentFrequency={session.acceptedParameters().frequency}
+        budget={session.getSnapshot().energyBudget}
         millikanData={overlay}
       />
       {overlay.kind === "plottable" && <MillikanFigure6Panel data={overlay} />}

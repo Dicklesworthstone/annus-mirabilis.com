@@ -38,6 +38,7 @@ const SHARED: Lq08Parameters = Object.freeze({
   quantumEfficiency: 0.25,
   collectorPotential: -0.5,
   distributionModel: "none",
+  transferModel: "complete",
 });
 
 /** The tape for these settings; every settings object in this file can travel in one. */
@@ -51,6 +52,45 @@ const url = (tape: TapeV2) =>
   `https://annus-mirabilis.com/lab/lq-08/?tape=${encodeTapePermalink(tape)}`;
 
 describe("an LQ-08 tape restores the settings it was recorded with", () => {
+  test("partial transfer restores bounds and the retained distribution through the real URL codec", async () => {
+    const parameters: Lq08Parameters = {
+      ...SHARED,
+      distributionModel: "uniform",
+      transferModel: "partial",
+    };
+    const tape = lq08TapeFor(parameters);
+    expect(tape.initialConditions.transferModel).toBe("partial");
+    expect(tape.initialConditions.distributionModel).toBe("uniform");
+    const session = createLq08Session("lq08-partial-tape");
+    expect(await restoreLq08FromUrl(session, url(tape))).toEqual({ kind: "restored" });
+    expect(session.acceptedParameters()).toEqual(parameters);
+    const view = session.getSnapshot();
+    expect(view.energyBudget?.transferModel).toBe("partial");
+    expect(view.energyBudget?.maxKineticEnergy.status).toBe("underdetermined");
+    expect(view.energyBudget?.stoppingPotentialMagnitude.status).toBe("underdetermined");
+    expect(view.collectorSweep?.operatingPoint.result.status).toBe("underdetermined");
+    expect(view.energyBudget?.snapshotVersion).toBe(view.accepted?.snapshotVersion);
+    expect(view.collectorSweep?.snapshotVersion).toBe(view.energyBudget?.snapshotVersion);
+    expect(
+      view.accepted?.outputs.find((output) => output.quantityId === "maxKineticEnergy")?.status,
+    ).toBe("underdetermined");
+  });
+
+  test("previous distribution settings explicitly record complete transfer when shared again", async () => {
+    const { transferModel: _transfer, ...sixFields } = {
+      ...SHARED,
+      distributionModel: "uniform" as const,
+    };
+    const tape = lq08TapeOrNull(sixFields);
+    expect(tape).not.toBeNull();
+    if (!tape) throw new Error("Expected admitted six-field distribution settings.");
+    expect(tape.initialConditions).toEqual({ ...sixFields, transferModel: "complete" });
+    const session = createLq08Session("lq08-complete-six-field-tape");
+    expect(await restoreLq08FromUrl(session, url(tape))).toEqual({ kind: "restored" });
+    expect(session.acceptedParameters()).toEqual({ ...sixFields, transferModel: "complete" });
+    expect(session.getSnapshot().energyBudget?.maxKineticEnergy.status).toBe("value");
+  });
+
   test("every declared distribution restores its own accepted current and curve", async () => {
     for (const distributionModel of LQ08_DISTRIBUTIONS) {
       const parameters = { ...SHARED, distributionModel };
@@ -83,7 +123,7 @@ describe("an LQ-08 tape restores the settings it was recorded with", () => {
   });
 
   test("a newly shared legacy settings record declares none without rewriting an old artifact", () => {
-    const { distributionModel: _model, ...legacy } = SHARED;
+    const { distributionModel: _model, transferModel: _transfer, ...legacy } = SHARED;
     const tape = lq08TapeOrNull(legacy);
     expect(tape).not.toBeNull();
     if (!tape) throw new Error("Expected an admitted legacy settings record.");

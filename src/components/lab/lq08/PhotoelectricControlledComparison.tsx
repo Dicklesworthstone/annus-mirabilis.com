@@ -104,6 +104,15 @@ function Comparison({ controller, onClose }: { controller: Controller; onClose()
         below affect only the variant here. Exploring the main apparatus does not replace either
         column.
       </p>
+      {state.baseline.parameters.transferModel === "partial" && (
+        <p className="fine" data-lq08-comparison-partial>
+          These columns assume an unknown transferred share. The frequency Φ/h is only a necessary
+          energy-budget lower limit, not the actual emission onset. Electron energy and stopping
+          potential remain undetermined at or above that limit. The electron count follows the
+          separately prescribed ideal quantum efficiency. Transfer and electron-distribution
+          assumptions stay fixed in both columns.
+        </p>
+      )}
       <p role="status" aria-live="polite" aria-atomic="true">
         {state.pending || state.error
           ? state.message
@@ -151,9 +160,9 @@ function Comparison({ controller, onClose }: { controller: Controller; onClose()
             ))}
           </select>
           <p className="fine">
-            Quantum efficiency and collector potential stay fixed. After changing an input, pin the
-            accepted variant as a new baseline or return to the pinned baseline before choosing a
-            different input.
+            Quantum efficiency, collector potential, energy transfer and electron distribution stay
+            fixed. After changing an input, pin the accepted variant as a new baseline or return to
+            the pinned baseline before choosing a different input.
           </p>
           <label htmlFor={uid + "-value"}>
             Variant {field?.label.toLowerCase()}

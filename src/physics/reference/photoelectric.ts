@@ -243,13 +243,6 @@ export function kMax(
     return notApplicable("no emitted electron in this model", { quantityId: "maxKineticEnergy" });
   }
 
-  if (eq === workFunctionJoules) {
-    return ok(0, "J", {
-      note: "zero maximum kinetic energy does not guarantee a measurable current",
-      quantityId: "maxKineticEnergy",
-    });
-  }
-
   if (transferModel === "partial") {
     return underdetermined("partial-energy-transfer-bound", ["single-quantum-transfer-fraction"], {
       upperBound: eq - workFunctionJoules,
@@ -258,6 +251,13 @@ export function kMax(
       reason:
         "a quantum may give only part of its energy to an electron; the printed relation is an upper bound",
       bounds: [0, eq - workFunctionJoules],
+      quantityId: "maxKineticEnergy",
+    });
+  }
+
+  if (eq === workFunctionJoules) {
+    return ok(0, "J", {
+      note: "zero maximum kinetic energy does not guarantee a measurable current",
       quantityId: "maxKineticEnergy",
     });
   }

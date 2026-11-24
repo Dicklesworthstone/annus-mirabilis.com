@@ -83,7 +83,7 @@ parameters:
   - id: quantumEfficiency
     label: "Quantum Efficiency"
     accessibleName: "Cathode quantum efficiency"
-    accessibleDescription: "Ratio of emitted electrons to incident photons"
+    accessibleDescription: "Prescribed ideal ratio of emitted electrons to incident photons; this yield is an independent assumption, not inferred from an unspecified energy-transfer fraction"
     quantityId: quantumEfficiency
     displayUnit: ""
     modelDomain:
@@ -140,6 +140,25 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: transferModel
+    label: "Single-quantum energy transfer"
+    accessibleName: "Single-quantum energy transfer assumption"
+    accessibleDescription: "Complete transfer gives the ideal largest electron energy; unspecified partial transfer gives only upper bounds on electron energy and stopping potential."
+    quantityId: maxKineticEnergy
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - complete
+        - partial
+      reason: "An unknown transferred fraction leaves a bounded family; it cannot supply an attained maximum energy or an actual emission onset."
+    visualRange:
+      min: 0
+      max: 1
+    default: complete
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: escapeWork
     quantityId: escapeWork
@@ -172,6 +191,7 @@ outputs:
     quantityId: maxKineticEnergy
     allowedStatuses:
       - value
+      - underdetermined
       - not-applicable
       - outside-domain
     primary: true
@@ -179,6 +199,7 @@ outputs:
     quantityId: stoppingPotentialMagnitude
     allowedStatuses:
       - value
+      - underdetermined
       - not-applicable
       - outside-domain
     primary: true
@@ -203,10 +224,12 @@ outputs:
     primary: false
 assumptions:
   - "Light energy is transferred to electrons in discrete quanta of magnitude E = h*nu."
-  - "One absorbed light quantum transfers its full energy to at most one photoelectron."
+  - "One absorbed quantum acts on at most one photoelectron; complete transfer supplies its full energy, while unspecified partial transfer supplies only an upper energy bound."
   - "Electrons expend a characteristic surface escape work Phi leaving the cathode material."
-  - "The fastest photoelectrons originate at the Fermi surface and undergo no inelastic collisions before escape."
+  - "The complete-transfer equality assumes the fastest photoelectrons can escape without additional energy losses."
   - "The collector uses the explicitly selected ideal electron energy distribution; no distribution leaves intermediate retarding currents underdetermined."
+  - "Under partial transfer, the frequency Phi/h is a necessary energy-budget limit only; the actual emission onset and transfer fraction remain unspecified."
+  - "Quantum efficiency is an independently prescribed ideal emission yield, not a prediction from the unknown transferred energy fraction."
 admittedDomain: "Monochromatic light on clean metallic cathode in vacuum under single-photon photoelectric regime"
 notModeled:
   - "Real-material electron energy distributions and yields"
@@ -285,33 +308,43 @@ owner:
       quantityId: "frequency"
       termIds:
         - eq-model-lq-photoelectric-maximum.t.frequency
+        - eq-model-lq-photoelectric-maximum-bound.t.frequency
     - kernelFunction: "kMax"
       identifier: "workFunctionJoules"
       quantityId: "escapeWork"
       termIds:
         - eq-model-lq-photoelectric-maximum.t.escapeWork
+        - eq-model-lq-photoelectric-maximum-bound.t.escapeWork
     - kernelFunction: "kMax"
       identifier: "h"
       quantityId: "planckConstant"
       termIds:
         - eq-model-lq-photoelectric-maximum.t.planck
+        - eq-model-lq-photoelectric-maximum-bound.t.planck
+        - eq-model-lq-stopping-bound.t.planck
         - eq-model-lq-stopping-energy.t.planck
     - kernelFunction: "kMax"
       identifier: "kMax"
       quantityId: "maxKineticEnergy"
       termIds:
         - eq-model-lq-photoelectric-maximum.t.maxKineticEnergy
+        - eq-model-lq-photoelectric-maximum-bound.t.maxKineticEnergy
     - kernelFunction: "stoppingPotentialMagnitude"
       identifier: "nu"
       quantityId: "frequency"
+      termIds:
+        - eq-model-lq-stopping-bound.t.frequency
     - kernelFunction: "stoppingPotentialMagnitude"
       identifier: "workFunctionJoules"
       quantityId: "escapeWork"
       termIds:
         - eq-model-lq-stopping-energy.t.escapeWork
+        - eq-model-lq-stopping-bound.t.escapeWork
     - kernelFunction: "stoppingPotentialMagnitude"
       identifier: "e"
       quantityId: "elementaryCharge"
+      termIds:
+        - eq-model-lq-stopping-bound.t.charge
     - kernelFunction: "stoppingPotentialMagnitude"
       identifier: "kResult"
       quantityId: "maxKineticEnergy"
@@ -321,6 +354,8 @@ owner:
     - kernelFunction: "stoppingPotentialMagnitude"
       identifier: "stoppingPotentialMagnitude"
       quantityId: "stoppingPotentialMagnitude"
+      termIds:
+        - eq-model-lq-stopping-bound.t.stopping
     - kernelFunction: "thresholdFrequency"
       identifier: "thresholdFrequency"
       quantityId: "thresholdFrequency"

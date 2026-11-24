@@ -4,15 +4,16 @@
   "id": "eq-model-lq-threshold-frequency",
   "paper": "light-quanta",
   "argument": "arg-lq-photoelectric-energy",
-  "title": "The frequency below which no electron escapes",
+  "title": "The complete-transfer threshold frequency",
   "spoken": "The threshold frequency equals the escape work divided by h.",
-  "explanation": "Setting the largest kinetic energy to zero gives the frequency whose quantum only just pays the escape work. Below it the model emits nothing, however bright the light.",
+  "explanation": "With complete transfer, setting the largest kinetic energy to zero gives the frequency whose whole quantum only just pays the escape work. Below it the one-quantum budget cannot emit an electron, however bright the light. With an unknown transferred share, the same frequency is only a necessary lower limit: meeting it does not determine the actual onset of emission.",
   "review": "draft",
   "notation": "modern-pedagogical",
   "unitSystem": "si",
   "assumptions": [
     "One electron receives the whole of one quantum, h times the frequency, and nothing from a second quantum.",
     "Escaping costs the electron at least the escape work; any further loss on the way out is not negative.",
+    "When the transferred share is unknown, this complete-transfer threshold is only a necessary energy-budget lower limit, not a prediction of the actual emission onset.",
     "These are modern teaching equations in SI notation, not a transcription of the printed section 8."
   ],
   "tree": {
@@ -42,7 +43,7 @@
     {
       "nodeId": "eq-model-lq-threshold-frequency.t.threshold",
       "title": "Threshold frequency",
-      "explanation": "The lowest frequency at which one quantum can free an electron. It depends on the metal, through the escape work, and on nothing about the light but its frequency.",
+      "explanation": "The lowest frequency whose whole quantum can pay the escape work. Under unknown partial transfer this value is only a necessary lower limit; the share received by an electron may still be too small to free it.",
       "foundation": "functions-graphs"
     },
     {

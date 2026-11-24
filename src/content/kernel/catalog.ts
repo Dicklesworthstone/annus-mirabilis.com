@@ -1708,21 +1708,28 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     words: {
       r0: "The fastest electron keeps the energy of one absorbed quantum after paying the escape work.",
       r1: "K_max = h nu - Phi in the complete-transfer model. The function receives the escape work in joules and uses Planck's constant from the declared constant set. Lamp power is absent: it changes the rate of arriving quanta, not the energy in each one.",
-      r2: "A quantum with less energy than the escape work emits no electron in this model, so the result is not-applicable rather than a negative or zero kinetic energy. Equality gives zero maximum kinetic energy and does not guarantee a measurable current. Partial transfer is a separate reference option that returns an upper bound; the laboratory's accepted energy balance uses complete transfer.",
+      r2: "A quantum with less energy than the escape work emits no electron in this model, so the result is not-applicable rather than a negative or zero kinetic energy. Complete-transfer equality gives zero maximum kinetic energy and does not guarantee a measurable current; partial transfer retains a zero-width upper bound at that same frequency. The accepted laboratory can choose complete or unspecified partial transfer. Partial transfer retains the upper bound and missing fraction without presenting an attained energy.",
     },
     equationId: "eq-model-lq-photoelectric-maximum",
     liveTerms: ["frequency", "escapeWork", "planckConstant", "maxKineticEnergy"],
     identifierBindings: [
-      bind("kMax", "nu", "frequency", ["eq-model-lq-photoelectric-maximum.t.frequency"]),
+      bind("kMax", "nu", "frequency", [
+        "eq-model-lq-photoelectric-maximum.t.frequency",
+        "eq-model-lq-photoelectric-maximum-bound.t.frequency",
+      ]),
       bind("kMax", "workFunctionJoules", "escapeWork", [
         "eq-model-lq-photoelectric-maximum.t.escapeWork",
+        "eq-model-lq-photoelectric-maximum-bound.t.escapeWork",
       ]),
       bind("kMax", "h", "planckConstant", [
         "eq-model-lq-photoelectric-maximum.t.planck",
+        "eq-model-lq-photoelectric-maximum-bound.t.planck",
+        "eq-model-lq-stopping-bound.t.planck",
         "eq-model-lq-stopping-energy.t.planck",
       ]),
       bind("kMax", "kMax", "maxKineticEnergy", [
         "eq-model-lq-photoelectric-maximum.t.maxKineticEnergy",
+        "eq-model-lq-photoelectric-maximum-bound.t.maxKineticEnergy",
       ]),
     ],
     independentReferences: [],
@@ -1732,23 +1739,26 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     kernel: tsRef("src/physics/reference/photoelectric.ts", "stoppingPotentialMagnitude"),
     words: {
       r0: "The voltage that just stops the fastest electron: its maximum kinetic energy divided by the charge it carries.",
-      r1: "V_s = K_max / e = (h nu - Phi) / e. The physics is in kMax, which this calls; what this function does is ask for the maximum kinetic energy in joules and divide by the elementary charge to put it in volts. Measured at 10^15 Hz against a 2.0 eV work function: 2.135667696923859 V.",
-      r2: "Four outcomes under one formula, and the differences between them are the whole of the typed-result discipline. Below the threshold the answer is NOT zero: it is not-applicable, with the reason that there is no emitted electron in this model, where a zero would have claimed an electron came out with nothing left over. EXACTLY at the threshold there is a value, zero volts, carrying its own note that a zero maximum kinetic energy does not guarantee a measurable current; one part in 10^15 below that frequency the status flips to not-applicable, which is the boundary drawn as sharply as a double allows. Under partial transfer the answer is underdetermined: the printed relation is cited as an upper bound, and the missing information is named as the single-quantum transfer fraction rather than guessed at. A nonpositive frequency or a negative work function is outside-domain before any of that. The part of this easiest to get wrong is the part this function does itself: in the underdetermined case it divides the upper bound AND both ends of the interval by the charge, so a bound labelled volts is in volts and not in joules.",
+      r1: "Under complete transfer, V_s = K_max / e = (h nu - Phi) / e. The physics is in kMax, which this calls; what this function does is ask for the maximum kinetic energy in joules and divide by the elementary charge to put it in volts. Calculated at 10^15 Hz against a 2.0 eV work function: 2.135667696923859 V.",
+      r2: "Four outcomes under one formula, and the differences between them are the whole of the typed-result discipline. Below the threshold the answer is NOT zero: it is not-applicable, with the reason that there is no emitted electron in this model, where a zero would have claimed an electron came out with nothing left over. Under complete transfer, EXACTLY at the threshold there is a value, zero volts, carrying its own note that a zero maximum kinetic energy does not guarantee a measurable current; one part in 10^15 below that frequency the status flips to not-applicable, which is the boundary drawn as sharply as a double allows. Under partial transfer the answer is underdetermined: the printed relation is cited as an upper bound, and the missing information is named as the single-quantum transfer fraction rather than guessed at. A nonpositive frequency or a negative work function is outside-domain before any of that. The part of this easiest to get wrong is the part this function does itself: in the underdetermined case it divides the upper bound AND both ends of the interval by the charge, so a bound labelled volts is in volts and not in joules.",
     },
     equationId: "eq-model-lq-stopping-energy",
     liveTerms: ["frequency", "escapeWork", "maxKineticEnergy", "elementaryCharge"],
     identifierBindings: [
       bind("stoppingPotentialMagnitude", "nu", "frequency", [
         "eq-model-lq-stopping-energy.t.frequency",
+        "eq-model-lq-stopping-bound.t.frequency",
       ]),
       bind("stoppingPotentialMagnitude", "workFunctionJoules", "escapeWork", [
         "eq-model-lq-stopping-energy.t.escapeWork",
+        "eq-model-lq-stopping-bound.t.escapeWork",
       ]),
       bind("stoppingPotentialMagnitude", "kResult", "maxKineticEnergy", [
         "eq-model-lq-stopping-energy.t.maxKineticEnergy",
       ]),
       bind("stoppingPotentialMagnitude", "e", "elementaryCharge", [
         "eq-model-lq-stopping-energy.t.charge",
+        "eq-model-lq-stopping-bound.t.charge",
       ]),
       // The output itself, through the function's own name, which is the only identifier standing for
       // it: the potential is returned inline as kResult.value over e (am-1nnj, 2026-10-06).
@@ -1756,7 +1766,7 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
         "stoppingPotentialMagnitude",
         "stoppingPotentialMagnitude",
         "stoppingPotentialMagnitude",
-        ["eq-model-lq-stopping-energy.t.stopping"],
+        ["eq-model-lq-stopping-energy.t.stopping", "eq-model-lq-stopping-bound.t.stopping"],
       ),
     ],
     independentReferences: [],
@@ -1790,7 +1800,7 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     instrumentId: "lq-08",
     kernel: tsRef("src/physics/reference/photoelectric.ts", "photocurrent"),
     words: words(
-      "The collection current follows the declared electron energy distribution. A retarding potential between zero and the stopping cutoff leaves a family of compatible currents when no distribution is supplied; all-at-maximum and uniform distributions give different, explicit ideal curves.",
+      "The collection current follows the declared electron energy distribution. A retarding potential between zero and the stopping cutoff leaves a family of compatible currents when no distribution is supplied; under complete transfer, all-at-maximum and uniform distributions give different, explicit ideal curves. An unspecified partial transfer leaves the intermediate current underdetermined for every distribution until the transferred fraction is supplied.",
     ),
     liveTerms: [
       "incidentPower",
@@ -1814,7 +1824,7 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     instrumentId: "lq-08",
     kernel: tsRef("src/physics/reference/photoelectric.ts", "collectorSweep"),
     words: words(
-      "Sweep the collector potential through a bounded grid using the same current evaluator and selected electron distribution as the operating point. Every point retains its value or underdetermined status; a missing distribution does not become a guessed curve.",
+      "For complete energy transfer, sweep the collector potential through a bounded grid using the same current evaluator and selected electron distribution as the operating point. Every point retains its value or underdetermined status; a missing distribution does not become a guessed curve.",
     ),
     liveTerms: [
       "incidentPower",

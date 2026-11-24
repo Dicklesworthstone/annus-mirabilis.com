@@ -9,8 +9,10 @@ import { makeRefusal } from "../results/refusals.ts";
 import {
   LQ08_DEFAULTS,
   LQ08_DISTRIBUTIONS,
+  LQ08_TRANSFER_MODELS,
   type Lq08Distribution,
   type Lq08Parameters,
+  type Lq08TransferModel,
 } from "./definition.ts";
 
 /** What each typed field is called on the page, with the unit it is entered in. */
@@ -41,11 +43,18 @@ function validateLq08Fields(input: unknown): Computation<Lq08Parameters> {
   }
 
   const keys = Object.keys(LQ08_DEFAULTS);
-  const numericKeys = keys.filter((key) => key !== "distributionModel");
-  // A complete old five-field record means exactly the model the old owner used: none.
-  // Unknown fields and malformed explicitly supplied model choices still fail closed.
-  const required = Object.hasOwn(input, "distributionModel") ? keys : numericKeys;
+  const numericKeys = keys.filter((key) => key !== "distributionModel" && key !== "transferModel");
+  // Both historical parameter shapes retain their actual assumptions: five fields meant no
+  // declared distribution, and neither the five- nor six-field shape admitted partial transfer.
+  const hasDistribution = Object.hasOwn(input, "distributionModel");
+  const hasTransfer = Object.hasOwn(input, "transferModel");
+  const required = [
+    ...numericKeys,
+    ...(hasDistribution ? ["distributionModel"] : []),
+    ...(hasTransfer ? ["transferModel"] : []),
+  ];
   if (
+    (hasTransfer && !hasDistribution) ||
     Reflect.ownKeys(input).length !== required.length ||
     Reflect.ownKeys(input).some((k) => typeof k !== "string" || !keys.includes(k)) ||
     required.some((k) => {
@@ -74,11 +83,18 @@ function validateLq08Fields(input: unknown): Computation<Lq08Parameters> {
     );
   }
 
+  const transferModel = hasTransfer ? p.transferModel : "complete";
+  if (!LQ08_TRANSFER_MODELS.includes(transferModel as Lq08TransferModel)) {
+    return bad(
+      "Choose complete energy transfer or an unspecified partial transfer from a single quantum.",
+    );
+  }
+
   // Every range is the manifest's, checked once by withinDeclaredDomain below. These checks named
   // other ranges (a collector potential to ±100 V where the manifest declares ±10 V), so a value
   // between the two was refused with a range it had already met.
 
-  return { kind: "accepted", data: Object.freeze({ ...p, distributionModel }) };
+  return { kind: "accepted", data: Object.freeze({ ...p, distributionModel, transferModel }) };
 }
 
 /** Each declared setting as the form names it, in the form's units. */

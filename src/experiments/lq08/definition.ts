@@ -2,6 +2,8 @@ import { notModeledFor } from "../notModeled.ts";
 import type { OutputContract, ParameterClass } from "../store/instanceStore.ts";
 export const LQ08_DISTRIBUTIONS = ["none", "all-at-kmax", "uniform"] as const;
 export type Lq08Distribution = (typeof LQ08_DISTRIBUTIONS)[number];
+export const LQ08_TRANSFER_MODELS = ["complete", "partial"] as const;
+export type Lq08TransferModel = (typeof LQ08_TRANSFER_MODELS)[number];
 export type Lq08Parameters = Readonly<{
   incidentPower: number;
   frequency: number;
@@ -9,10 +11,17 @@ export type Lq08Parameters = Readonly<{
   quantumEfficiency: number;
   collectorPotential: number;
   distributionModel: Lq08Distribution;
+  transferModel: Lq08TransferModel;
 }>;
 
 /** Settings saved before the distribution control used the undeclared-distribution model. */
-export type Lq08LegacyParameters = Omit<Lq08Parameters, "distributionModel">;
+export type Lq08LegacyParameters = Omit<Lq08Parameters, "distributionModel" | "transferModel">;
+/** The first distribution-enabled settings still assumed complete quantum energy transfer. */
+export type Lq08DistributionParameters = Omit<Lq08Parameters, "transferModel">;
+export type Lq08CompatibleParameters =
+  | Lq08Parameters
+  | Lq08DistributionParameters
+  | Lq08LegacyParameters;
 
 export const LQ08_DEFAULTS: Lq08Parameters = Object.freeze({
   incidentPower: 0.001, // 1 mW in Watts
@@ -21,6 +30,7 @@ export const LQ08_DEFAULTS: Lq08Parameters = Object.freeze({
   quantumEfficiency: 0.1, // 10%
   collectorPotential: 0.0, // 0 V
   distributionModel: "none",
+  transferModel: "complete",
 });
 
 export const LQ08_CLASSES: Readonly<Record<keyof Lq08Parameters, ParameterClass>> = Object.freeze({
@@ -30,6 +40,7 @@ export const LQ08_CLASSES: Readonly<Record<keyof Lq08Parameters, ParameterClass>
   quantumEfficiency: "input",
   collectorPotential: "measurement",
   distributionModel: "input",
+  transferModel: "input",
 });
 
 export const LQ08_MODEL = Object.freeze({
@@ -59,6 +70,7 @@ export const LQ08_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   thresholdFrequency: c("Hz", "threshold-frequency", "photoelectric.thresholdFrequency"),
   maxKineticEnergy: c("J", "max-kinetic-energy", "photoelectric.kMax", [
     "value",
+    "underdetermined",
     "not-applicable",
     "outside-domain",
   ]),
@@ -66,7 +78,7 @@ export const LQ08_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "V",
     "stopping-potential",
     "photoelectric.stoppingPotentialMagnitude",
-    ["value", "not-applicable", "outside-domain"],
+    ["value", "underdetermined", "not-applicable", "outside-domain"],
   ),
   quantumRate: c("s^-1", "quantum-rate", "photoelectric.quantumRate"),
   emissionRate: c("s^-1", "emission-rate", "photoelectric.emissionRate"),
@@ -91,6 +103,7 @@ export const LQ08_PRESETS = Object.freeze({
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
       distributionModel: "none" as const,
+      transferModel: "complete" as const,
     }),
   }),
   historicalCheck: Object.freeze({
@@ -104,6 +117,7 @@ export const LQ08_PRESETS = Object.freeze({
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
       distributionModel: "none" as const,
+      transferModel: "complete" as const,
     }),
   }),
   twoMetals: Object.freeze({
@@ -117,6 +131,7 @@ export const LQ08_PRESETS = Object.freeze({
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
       distributionModel: "none" as const,
+      transferModel: "complete" as const,
     }),
   }),
   // Aliases for backwards compatibility
@@ -131,6 +146,7 @@ export const LQ08_PRESETS = Object.freeze({
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
       distributionModel: "none" as const,
+      transferModel: "complete" as const,
     }),
   }),
   subThreshold: Object.freeze({
@@ -144,6 +160,7 @@ export const LQ08_PRESETS = Object.freeze({
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
       distributionModel: "none" as const,
+      transferModel: "complete" as const,
     }),
   }),
 });

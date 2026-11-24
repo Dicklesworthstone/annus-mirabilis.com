@@ -19,9 +19,10 @@ const fields: Readonly<Record<keyof Lq08Parameters, readonly [string, string, nu
   quantumEfficiency: ["Quantum efficiency", "", 1],
   collectorPotential: ["Collector potential", "V", 1],
   distributionModel: ["Declared electron energy distribution", "", 1],
+  transferModel: ["Single-quantum energy transfer assumption", "", 1],
 };
 
-/** One physical input may vary; collection, conversion efficiency and distribution stay fixed. */
+/** One physical input may vary; collection, efficiency, distribution and transfer stay fixed. */
 export const LQ08_COMPARISON: ComparisonContract = Object.freeze({
   experimentId: "lq-08",
   inputs: Object.freeze(
