@@ -1,6 +1,8 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { LaboratoryEquations } from "../../../equations/live/LaboratoryEquations.tsx";
+import type { CompiledEquation } from "../../../equations/viewTypes.ts";
 import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -29,6 +31,7 @@ import { createReaderCheckpointBinding } from "../../../experiments/store/reader
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import equationPayload from "../../../generated/sr09-equations.json";
 import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { SR09_READER_WEAVE } from "../../../reader/weave/wavePassages.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
@@ -226,14 +229,13 @@ export function DopplerAberrationLab({
       : "the moving frame's angle and frequency are outside the model's domain for these settings.";
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
-  const executionKind = executionStateKindFromHostLabel(
-    deriveHostExecution(
-      view,
-      SR09_OUTPUTS,
-      example.sourceDigest,
-      snapshot === session.getServerSnapshot().accepted,
-    ).label,
+  const execution = deriveHostExecution(
+    view,
+    SR09_OUTPUTS,
+    example.sourceDigest,
+    snapshot === session.getServerSnapshot().accepted,
   );
+  const executionKind = executionStateKindFromHostLabel(execution.label);
   return (
     <section
       className="laboratory"
@@ -531,6 +533,16 @@ export function DopplerAberrationLab({
           ready={ready}
           announcementsEnabled={gate.open && refusal === null}
           onSelectEvent={selectEvent}
+        />
+        <LaboratoryEquations
+          experimentId="sr-09"
+          view={view}
+          execution={execution}
+          payload={{
+            ...equationPayload,
+            equations: equationPayload.equations as readonly CompiledEquation[],
+          }}
+          validationRefusal={refusal}
         />
       </div>
       {/* The caption's readings follow the instrument (dispatch 263). Above the predict gate they

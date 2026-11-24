@@ -1,6 +1,8 @@
 "use client";
 import { type FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
+import { LaboratoryEquations } from "../../equations/live/LaboratoryEquations.tsx";
+import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import { createBm06BrowserChannel } from "../../experiments/bm06/browser.ts";
 import {
   BM06_FIELDS as fields,
@@ -43,6 +45,7 @@ import {
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { useRetainedSession } from "../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../experiments/store/useExperimentSnapshot.ts";
+import bm06Equations from "../../generated/bm06-equations.json";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import { BM06_READER_WEAVE } from "../../reader/weave/spreadingPassages.ts";
@@ -113,10 +116,13 @@ export function BrownianLab({
   const snapshot = view.accepted ?? serverAccepted;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time worked example every reader
   // first sees is a static worked example; only an accepted recalculation is a host calculation.
-  const executionKind = executionStateKindFromHostLabel(
-    deriveHostExecution(view, BM06_OUTPUTS, example.sourceDigest, snapshot === serverAccepted)
-      .label,
+  const execution = deriveHostExecution(
+    view,
+    BM06_OUTPUTS,
+    example.sourceDigest,
+    snapshot === serverAccepted,
   );
+  const executionKind = executionStateKindFromHostLabel(execution.label);
   // The grid's own label, earned by whoever this snapshot names as its stepper: the instrument
   // label above describes the analytic density, which is always a host calculation.
   const gridKind = gridExecutionKind(snapshot.outputs, snapshot === serverAccepted);
@@ -773,6 +779,16 @@ export function BrownianLab({
         </div>
       )}
       <div {...gate.response}>
+        <LaboratoryEquations
+          experimentId="bm-06"
+          view={view}
+          execution={execution}
+          payload={{
+            ...bm06Equations,
+            equations: bm06Equations.equations as readonly CompiledEquation[],
+          }}
+          validationRefusal={failure?.kind === "refused" ? failure.refusal : null}
+        />
         <SessionResultWeave
           session={session}
           binding={BM06_READER_WEAVE}

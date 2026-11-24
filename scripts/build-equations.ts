@@ -18,6 +18,7 @@ import { citedLessonTitles } from "../src/equations/citedLessonTitles.ts";
 import { buildMassEnergyElimination } from "../src/equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergyLowSpeed.ts";
 import { renderLowSpeedProof } from "../src/equations/derivations/renderLowSpeed.ts";
+import { laboratoryEquationRecords } from "../src/equations/live/laboratoryRecords.ts";
 import { notationNoteTarget } from "../src/equations/notationNoteTarget.ts";
 import {
   assertExplanationsPublishable,
@@ -233,8 +234,12 @@ const sourcePaths = [
   "src/equations/massEnergyQuantities.ts",
   "src/equations/lightQuantaQuantities.ts",
   "src/equations/teachingProfiles.ts",
+  "src/equations/live/laboratoryOutputs.ts",
+  "src/equations/live/laboratoryRecords.ts",
   "src/equations/quantityColours.ts",
   "src/experiments/bm01/definition.ts",
+  "src/experiments/bm06/definition.ts",
+  "src/experiments/sr09/definition.ts",
   "src/experiments/me02/definition.ts",
   "src/equations/navigation.ts",
   "src/equations/derivations/exactPolynomial.ts",
@@ -434,6 +439,33 @@ await writeFile(
     2,
   )}\n`,
 );
+// Contextual laboratory bindings never replace the paper's own records (BM-01 and BM-06 share
+// the RMS tree). Each client receives only the authored equations its accepted outputs can serve.
+for (const experimentId of ["bm-06", "sr-09"] as const) {
+  const laboratoryEquations = laboratoryEquationRecords(
+    result.papers.flatMap((paper) => paper.equations),
+    experimentId,
+  ).map((record) => {
+    const contextual = compileEquation(record);
+    const shared = explainedEquations.find((equation) => equation.id === record.id);
+    return shared
+      ? { ...shared, bindings: contextual.bindings, treeDigest: contextual.treeDigest }
+      : contextual;
+  });
+  await writeFile(
+    `src/generated/${experimentId.replace("-", "")}-equations.json`,
+    `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        rendererDigest,
+        equations: laboratoryEquations,
+        foundationTitles: lessonTitles(laboratoryEquations),
+      },
+      null,
+      2,
+    )}\n`,
+  );
+}
 // The apparatus needs its three live energy relations, not every light-quanta teaching equation.
 const lq08Equations = explainedEquations.filter(
   (equation) =>
