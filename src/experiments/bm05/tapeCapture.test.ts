@@ -6,6 +6,7 @@ import {
 } from "../../physics/reference/diffusion/walks.ts";
 import { HOST_NORMAL_VERSION } from "../../physics/reference/philox.ts";
 import { bm05Laboratory, bm05ReplayFixture } from "../../testing/bm05ReplayHarness.ts";
+import { LabProtocolError } from "../../workers/protocol/bm06.ts";
 import { decodeTapePermalink, encodeTapePermalink } from "../permalink/codec.ts";
 import {
   captureRecordedStop,
@@ -25,6 +26,7 @@ import {
 import { FRANKENSIM_NORMAL_VERSION, PINNED_ARTIFACT } from "../provenance/pinnedFrankenSim.ts";
 import { BM05_DEFAULTS, BM05_FRANKENSIM_DRAW_OWNER, type Bm05Parameters } from "./definition.ts";
 import type { Bm05RecordingCheckpoint } from "./recordingCheckpoint.ts";
+import { createBm05Session } from "./session.ts";
 import { createBm05WalkthroughTarget } from "./tape.ts";
 import {
   bm05CheckpointDigest,
@@ -63,6 +65,30 @@ async function capture(lab: ReturnType<typeof laboratory>, settings = parameters
   assert.ok(result.kind === "captured", JSON.stringify(result));
   return result.tape;
 }
+
+test("(session.ts:47) malformed-response rejects invalid prepared walk settings and accepts the owner-produced example", () => {
+  const lab = laboratory();
+  const before = lab.session.getSnapshot();
+  expect(before.status).toBe("accepted");
+  expect(before.accepted?.parameters).toEqual(fixture.example.parameters);
+  assert.throws(
+    () =>
+      createBm05Session(
+        "invalid-prepared-walk",
+        {
+          ...fixture.example,
+          parameters: { ...fixture.example.parameters, walkers: 0 },
+        },
+        lab.factory,
+      ),
+    (error: unknown) =>
+      error instanceof LabProtocolError &&
+      error.code === "malformed-response" &&
+      error.message === "Invalid prepared walk settings.",
+  );
+  expect(lab.channels).toHaveLength(0);
+  expect(lab.session.getSnapshot()).toBe(before);
+});
 
 test("the displayed walk example cannot be saved as a calculated scientific trial", async () => {
   const lab = laboratory();

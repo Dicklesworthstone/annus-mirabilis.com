@@ -96,9 +96,11 @@ import {
   verifyChain,
 } from "../../equations/derivations/verifyChain.ts";
 import type { EquationRecord } from "../../equations/record.ts";
+import { checkedClosingSupport } from "./closingSupport.ts";
 import { checkedFieldCovarianceSupport } from "./fieldCovarianceSupport.ts";
 import { checkedGaussianSupport } from "./gaussianSupport.ts";
 import { checkedKernelSupport } from "./kernelSupport.ts";
+import { checkedOsmoticSupport } from "./osmoticSupport.ts";
 import { checkedPredictionSupport } from "./predictionSupport.ts";
 import { ResultCardsError } from "./printedChecks.ts";
 import type { ResultCardRecord } from "./resultCards.ts";
@@ -110,6 +112,9 @@ type DerivationProofId = Exclude<
   | "bm-gaussian-displacement"
   | "bm-kernel-diffusion"
   | "bm-historical-displacement"
+  | "bm-osmotic-volume"
+  | "lq-fluorescence-energy"
+  | "lq-ionization-energy-count"
 >;
 type ProofRecord = Readonly<{
   id: string;
@@ -624,6 +629,9 @@ export function checkedSupportFor(
       `${card.id}: ${declaration.conclusion} is not an equation of this card's argument.`,
     );
 
+  if (declaration.proofId === "bm-osmotic-volume")
+    return checkedOsmoticSupport(card.id, declaration, conclusion, equations);
+
   if (declaration.proofId === "sr-field-covariance")
     return checkedFieldCovarianceSupport(card.id, declaration, conclusion, equations);
 
@@ -635,6 +643,12 @@ export function checkedSupportFor(
 
   if (declaration.proofId === "bm-historical-displacement")
     return checkedPredictionSupport(card.id, declaration, conclusion, equations);
+
+  if (
+    declaration.proofId === "lq-fluorescence-energy" ||
+    declaration.proofId === "lq-ionization-energy-count"
+  )
+    return checkedClosingSupport(card.id, declaration, conclusion, equations);
 
   if (Object.hasOwn(DERIVATION_PROOFS, declaration.proofId))
     return checkedDerivationSupport(

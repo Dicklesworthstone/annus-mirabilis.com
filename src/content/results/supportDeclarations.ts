@@ -1,5 +1,6 @@
 /** A result names its supporting calculation, or records why no checked proof is available. */
 export const RESULT_PROOF_IDS = [
+  "bm-osmotic-volume",
   "bm-equilibrium-diffusivity",
   "bm-gaussian-displacement",
   "bm-kernel-diffusion",
@@ -8,6 +9,8 @@ export const RESULT_PROOF_IDS = [
   "lq-wien-entropy-volume",
   "lq-entropy-energy-scale",
   "lq-photoelectric-energy",
+  "lq-fluorescence-energy",
+  "lq-ionization-energy-count",
   "me-ledger-elimination",
   "me-low-speed-coefficient",
   "sr-moving-clock",

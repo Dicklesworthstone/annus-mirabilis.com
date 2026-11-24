@@ -282,8 +282,10 @@ cards:
 
   - id: lq-stokes-rule
     support:
-      kind: "no-checked-proof"
-      reason: "This conditional consequence uses the light-quantum hypothesis; no checked derivation record covers the energy budget."
+      kind: "checked-proof"
+      proofId: "lq-fluorescence-energy"
+      conclusion: "eq-model-lq-fluorescence-bound"
+      scope: "The calculation checks the energy and frequency bounds for one absorbed quantum acting alone, with no extra energy from the body and nonnegative energy in other channels. A separate fixed-yield account checks the brightness relation. These physical premises remain admitted; the bound predicts neither the emission spectrum nor the yield, and it does not cover pooled quanta or additional energy sources."
     title: "Stokes's rule"
     section: s7
     arguments: [arg-lq-fluorescence-budget]
@@ -376,8 +378,10 @@ cards:
 
   - id: lq-ionization
     support:
-      kind: "no-checked-proof"
-      reason: "The ionization bounds are conditional on the stated energy-transfer model; no checked derivation record covers them."
+      kind: "checked-proof"
+      proofId: "lq-ionization-energy-count"
+      conclusion: "eq-model-lq-ion-count-bound"
+      scope: "The calculation checks a necessary energy threshold and an upper ion-count bound for monochromatic absorbed energy, one-quantum primary ionizations and an independent yield between zero and one. The source's count equality additionally requires full yield and the stated molecular-number convention. These remain physical premises: enough energy does not establish that ionization occurs, and the calculation is not an experimental count or a prediction of yield."
     title: "Ionisation of gases by ultraviolet light"
     section: s9
     arguments: [arg-lq-ionization-and-counts]

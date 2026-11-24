@@ -69,6 +69,30 @@ export const BROWNIAN_QUANTITIES: Readonly<Record<string, Quantity>> = Object.fr
   Object.fromEntries(
     [
       q(
+        "osmoticPressure",
+        "Osmotic pressure",
+        "\\Pi",
+        ["-1", "1", "-2", "0", "0", "0"],
+        "Pa",
+        "Pa",
+        0,
+        "osmotic-pressure",
+        "result",
+        "The equilibrium pressure on a wall that confines the suspended particles while admitting the solvent, under the dilute independent-particle model.",
+      ),
+      q(
+        "numberDensity",
+        "Particle number density",
+        "\\nu",
+        ["-3", "0", "0", "0", "0", "0"],
+        "1/m3",
+        "m⁻³",
+        0,
+        "particle-number-density",
+        "input",
+        "The number of independently placed particles per unit volume, not a total particle count or an amount of substance.",
+      ),
+      q(
         "diffusionCoefficient",
         "Diffusion coefficient",
         "D",

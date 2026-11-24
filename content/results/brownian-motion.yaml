@@ -24,8 +24,10 @@ review: draft
 cards:
   - id: bm-osmotic-pressure
     support:
-      kind: "no-checked-proof"
-      reason: "The osmotic-pressure argument is explained in the linked passages; no checked derivation record covers this result."
+      kind: "checked-proof"
+      proofId: "bm-osmotic-volume"
+      conclusion: "eq-model-bm-osmotic-pressure"
+      scope: "The checked cancellation and volume derivative give the dilute osmotic law, conditional on the statistical free-energy relation, independent placements, a volume-independent remaining factor, and equilibrium work at fixed temperature and particle count. The calculation does not prove those physical premises or a pressure law for an interacting suspension."
     title: "The osmotic pressure of suspended particles"
     section: s1
     arguments: [arg-bm-osmotic-suspended, arg-bm-kinetic-justification]
@@ -34,7 +36,7 @@ cards:
         sentences: [2, 3, 4]
       - anchor: s2-p8
         sentences: [1]
-    equations: []
+    equations: [eq-model-bm-osmotic-pressure]
     oneSentence: "By the molecular-kinetic theory of heat, \\(n\\) suspended particles held in a volume \\(V^*\\) press on the wall that holds them with the osmotic pressure \\(p = \\frac{RT}{V^*}\\frac{n}{N}\\), as the same number of dissolved molecules would, provided the particles are far enough apart; classical thermodynamics expects no such force."
     decoder:
       - symbol: "\\(p\\)"

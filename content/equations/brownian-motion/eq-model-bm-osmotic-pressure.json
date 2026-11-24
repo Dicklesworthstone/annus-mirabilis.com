@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-osmotic-pressure",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-kinetic-justification",
+  "title": "Osmotic pressure from independently placed particles",
+  "spoken": "Pi equals R times T divided by N sub A, times the particle number density n.",
+  "explanation": "Under the dilute independent-particle assumptions, differentiating the configurational free-energy difference gives pressure equal to the thermal energy per particle times the particle number density.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The statistical free-energy relation and equilibrium pressure-work relation are admitted physical premises.",
+    "The particles are independent, dilute and uniformly placed, and the remaining configuration factor is independent of the confining volume.",
+    "Temperature and particle count are held fixed during the volume derivative. Temperature, volume, the reference volume, R and N are positive.",
+    "This is a modern teaching equation. Einstein writes p for pressure, nu for number density, and N for the number of molecules in a gram-molecule."
+  ],
+  "tree": {
+    "kind": "relation",
+    "operator": "=",
+    "opId": "eq-model-bm-osmotic-pressure.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-osmotic-pressure.t.pressure",
+      "quantityId": "osmoticPressure"
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-bm-osmotic-pressure.op.pressure",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-bm-osmotic-pressure.op.thermal",
+          "numerator": {
+            "kind": "product",
+            "opId": "eq-model-bm-osmotic-pressure.op.molar",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-bm-osmotic-pressure.t.gas",
+                "quantityId": "molarGasConstant"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-bm-osmotic-pressure.t.temperature",
+                "quantityId": "temperature"
+              }
+            ]
+          },
+          "denominator": {
+            "kind": "symbol",
+            "termId": "eq-model-bm-osmotic-pressure.t.avogadro",
+            "quantityId": "avogadroConstant"
+          }
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-osmotic-pressure.t.density",
+          "quantityId": "numberDensity"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-osmotic-pressure.op.relation",
+      "title": "The conditional osmotic law",
+      "explanation": "The equality follows from the statistical volume argument and the equilibrium work relation, under the stated dilution and independence assumptions.",
+      "foundation": "free-energy-osmotic-pressure"
+    },
+    {
+      "nodeId": "eq-model-bm-osmotic-pressure.t.pressure",
+      "title": "Osmotic pressure",
+      "explanation": "The pressure on the particle-confining wall, found as minus the free-energy derivative with respect to volume.",
+      "foundation": "free-energy-osmotic-pressure"
+    },
+    {
+      "nodeId": "eq-model-bm-osmotic-pressure.op.pressure",
+      "title": "Energy per particle times particles per volume",
+      "explanation": "Multiplying the thermal energy scale by number density gives energy per volume, the dimensions of pressure.",
+      "foundation": "quantities-units"
+    },
+    {
+      "nodeId": "eq-model-bm-osmotic-pressure.op.thermal",
+      "title": "From a mole to one particle",
+      "explanation": "Divide RT by Avogadro's constant. The amount dimension cancels and the result is an energy per particle.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-osmotic-pressure.op.molar",
+      "title": "The molar thermal scale",
+      "explanation": "The gas constant multiplied by absolute temperature has energy-per-amount dimensions.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-bm-osmotic-pressure.t.gas",
+      "title": "The gas constant",
+      "explanation": "The molar gas constant R supplies the energy-per-amount-per-temperature scale.",
+      "foundation": "temperature-thermal-energy"
+    },
+    {
+      "nodeId": "eq-model-bm-osmotic-pressure.t.temperature",
+      "title": "Absolute temperature held fixed",
+      "explanation": "Temperature is held fixed while the confining volume changes. Differentiating along a temperature change would be a different calculation.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-bm-osmotic-pressure.t.avogadro",
+      "title": "Avogadro's constant",
+      "explanation": "The number of particles per mole converts the molar thermal scale into a per-particle scale; it is not the number of suspended particles.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-bm-osmotic-pressure.t.density",
+      "title": "Particles per volume",
+      "explanation": "Number density is total particle count divided by the accessible volume. It counts independent placements in the dilute model.",
+      "foundation": "probability-independence"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    { "text": "The osmotic pressure", "nodeId": "eq-model-bm-osmotic-pressure.t.pressure" },
+    { "text": " equals " },
+    {
+      "text": "the thermal energy per particle",
+      "nodeId": "eq-model-bm-osmotic-pressure.op.thermal"
+    },
+    { "text": " times " },
+    { "text": "the particle number density", "nodeId": "eq-model-bm-osmotic-pressure.t.density" },
+    { "text": ", under the dilute independent-particle assumptions." }
+  ],
+  "printedGlyphs": { "avogadroConstant": "N_A", "numberDensity": "n" }
+}
