@@ -3,6 +3,7 @@ import { createElement } from "react";
 import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { createModalCloseButton, makeDismissible } from "../../a11y/modal/dismiss.ts";
+import { openQuantityTerm } from "../../equations/termNavigation.ts";
 import { RetainedSessionProvider } from "../../experiments/store/retainedSession.tsx";
 import { createSessionRetention } from "../../experiments/store/sessionRetention.ts";
 import { Compass } from "./Compass.tsx";
@@ -13,6 +14,7 @@ import {
   resolveOpenParam,
   serializeStackState,
 } from "./history.ts";
+import type { TermTarget } from "./kinds.ts";
 import { EMPTY_STACK_STATE, type LabReference, type StackFrame, topFrame } from "./stackStore.ts";
 
 const DIALOG_ATTR = "data-instrument-clarification-dialog";
@@ -220,8 +222,18 @@ export function openFromSearch(doc: Document, search: string): boolean {
   const resolved = resolveOpenParam(params.get("open"));
   if (!resolved) return false;
   if (!resolved.definition.descends) {
+    if (
+      resolved.kind === "term" &&
+      openQuantityTerm(
+        doc.querySelector<HTMLElement>("[data-reader-root]") ?? doc.body,
+        resolved.parsedId as TermTarget,
+      )
+    )
+      return true;
     const anchorId = resolved.definition.staticHref(resolved.parsedId).replace(/^#/, "");
-    doc.getElementById(anchorId)?.scrollIntoView();
+    const target = doc.getElementById(anchorId);
+    if (!target) return false;
+    target.scrollIntoView();
     return true;
   }
   const renderKind = resolved.definition.render,
@@ -235,7 +247,10 @@ export function openFromSearch(doc: Document, search: string): boolean {
       ? saved
       : {
           anchor: decodeAnchor(win.location.hash),
-          face: doc.documentElement.dataset.view ?? "reading",
+          face:
+            doc.querySelector<HTMLElement>("[data-reader-root]")?.dataset.view ??
+            doc.documentElement.dataset.view ??
+            "reading",
           detail: Number(doc.documentElement.dataset.detail ?? 1),
           perspective: params.get("lens"),
           notation: params.get("notation"),

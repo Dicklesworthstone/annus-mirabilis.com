@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { TERM_OPEN_EVENT, TERM_READY_EVENT } from "./termNavigation.ts";
 
 /**
  * TERMS AS TARGETS (dispatch 144: the owner asked for equations like the donor site's, "with
@@ -79,6 +80,21 @@ export function TermHighlight({ children, as, ...attributes }: TermHighlightProp
   const [pinned, setPinned] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
+  useEffect(() => {
+    const element = root.current;
+    if (!element) return;
+    const open = (event: Event) => {
+      if (event.defaultPrevented) return;
+      const id = quantityAt(element, event.target);
+      if (id === null) return;
+      setPointed(null);
+      setPinned(id);
+      event.preventDefault();
+    };
+    element.addEventListener(TERM_OPEN_EVENT, open);
+    element.dispatchEvent(new Event(TERM_READY_EVENT, { bubbles: true }));
+    return () => element.removeEventListener(TERM_OPEN_EVENT, open);
+  }, []);
   const state = useMemo<TermHighlightState>(
     () => ({ pinned, pin: setPinned, ready }),
     [pinned, ready],

@@ -37,6 +37,7 @@ import { createPortal } from "react-dom";
 import { elementsOfQuantity } from "./TermHighlight.tsx";
 import { SymbolicValue, TermInspector } from "./TermInspector.tsx";
 import type { TermFacts } from "./termFacts.ts";
+import { TERM_OPEN_EVENT, TERM_READY_EVENT } from "./termNavigation.ts";
 
 export type InlineQuantity = Readonly<{
   name: string;
@@ -201,11 +202,23 @@ export function attachInlineLighting(
     hoveredOwnBlock = null;
     pin(null);
   };
+  const onOpen = (event: Event) => {
+    if (event.defaultPrevented) return;
+    const mark = markAt(paper, event.target);
+    if (!mark?.quantityId) return;
+    hovered = null;
+    hoveredOwnBlock = null;
+    pin(mark);
+    event.preventDefault();
+  };
+  root.addEventListener(TERM_OPEN_EVENT, onOpen);
   root.addEventListener("pointerover", onOver);
   root.addEventListener("pointerleave", onLeave);
   root.addEventListener("click", onClick);
   owner.addEventListener("keydown", onKey);
+  root.dispatchEvent(new Event(TERM_READY_EVENT, { bubbles: true }));
   return () => {
+    root.removeEventListener(TERM_OPEN_EVENT, onOpen);
     root.removeEventListener("pointerover", onOver);
     root.removeEventListener("pointerleave", onLeave);
     root.removeEventListener("click", onClick);

@@ -31,6 +31,7 @@ import { FaceSwitchAnchor } from "./faces/FaceSwitchAnchor.tsx";
 import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
 import { faceTabList } from "./faceTabs.ts";
 import { faceLinkHref } from "./paperRoutes.ts";
+import { SourceClarificationController } from "./SourceClarificationController.tsx";
 
 export function FaceChooser({
   paperId,
@@ -65,6 +66,9 @@ export function FaceChooser({
       {/* Carry the reader's exact unit between faces, or land on its nearest published source
           ancestor. Only manifest IDs cross into the island; the links remain usable without JS. */}
       <FaceSwitchAnchor structureIndex={structureIndex} />
+      {current && current !== "reading" ? (
+        <SourceClarificationController key={`${paperId}:${section ?? ""}:${current}`} />
+      ) : null}
       <div className="face-tabs">
         <a
           href={faceLinkHref(paperId, "reading", section)}

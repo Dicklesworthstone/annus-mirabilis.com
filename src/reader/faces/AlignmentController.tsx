@@ -205,6 +205,8 @@ export function AlignmentController({
 
     function handleKeyDown(e: KeyboardEvent) {
       if (e.defaultPrevented) return;
+      // A clarification is above this source face. Its controls own their keys and focus.
+      if (e.target instanceof Element && e.target.closest("dialog[open]")) return;
       // Sentence navigation keys: 'j' or ArrowDown (down/next), 'k' or ArrowUp (up/prev)
       if (e.key === "j" || e.key === "ArrowDown") {
         e.preventDefault();
