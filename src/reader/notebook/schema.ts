@@ -1,4 +1,5 @@
 import { sectionAnchorOf } from "../../content/anchors.ts";
+import { portableClarification } from "../stack/portableTargets.ts";
 import { type CapstoneCapture, parseCapstoneCapture } from "./capstoneEntry.ts";
 import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
 import { type ExerciseCapture, parseExerciseCapture } from "./exerciseEntry.ts";
@@ -44,7 +45,7 @@ export type NotebookFrame = Readonly<{
   view: (typeof NOTEBOOK_VIEWS)[number];
   detail: 0 | 1 | 2;
   lens: "paper" | "modern";
-  /** Only the existing reader's portable foundation clarification, not instance/run ids. */
+  /** A public foundation, instrument or term address; no instance, run or tape is restored. */
   open: string;
 }>;
 type NotebookEntryBase = Readonly<{
@@ -129,7 +130,7 @@ export function parseNotebookFrame(input: unknown): NotebookFrame {
   if (!/^[a-zA-Z][a-zA-Z0-9_.:-]*$/u.test(anchor))
     throw new TypeError("A stable content anchor is required.");
   const open = text(f.open, 180, true);
-  if (open !== "" && !/^foundation:[a-z][a-z0-9-]*$/u.test(open))
+  if (portableClarification(open) === null)
     throw new TypeError("Unsupported notebook clarification.");
   return Object.freeze({
     paper: f.paper,

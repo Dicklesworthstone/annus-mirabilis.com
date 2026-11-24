@@ -1,3 +1,4 @@
+import { portableClarificationFromSearch } from "../stack/portableTargets.ts";
 import {
   type LastPlace,
   NOTEBOOK_PAPERS,
@@ -38,7 +39,7 @@ export function frameForPassage(
         document.documentElement.dataset.lens === "modern" || query.get("lens") === "modern"
           ? "modern"
           : "paper",
-      open: "",
+      open: portableClarificationFromSearch(location.search),
     });
   } catch {
     return null;

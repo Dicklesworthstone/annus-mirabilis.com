@@ -227,7 +227,7 @@ export function mountReaderNotebook(
   function save(
     kind: "question" | "example" | "nextStep" | "note",
     passage: HTMLElement,
-    open = "",
+    open?: string,
   ) {
     const frame = frameForPassage(passage, readingLocation(), passage);
     const title = passageTitle(passage);
@@ -239,7 +239,8 @@ export function mountReaderNotebook(
       message("This passage cannot be saved yet: it has no fixed address to come back to.");
       return;
     }
-    const target: NotebookFrame = { ...frame, open };
+    // Explicit "Save example" chooses its foundation; other saves retain the open public target.
+    const target: NotebookFrame = { ...frame, open: open ?? frame.open };
     const text = kind === "example" ? `Worked example: ${question}` : question;
     // Saved before 2026-09-22 under "Authored example for: ", which is still the same example.
     const earlier = kind === "example" ? `Authored example for: ${question}` : question;
@@ -354,13 +355,8 @@ export function mountReaderNotebook(
     if (!passage) return;
     const frame = frameForPassage(passage, readingLocation(), passage);
     if (!frame) return;
-    // The existing reader serializes its active foundation to ?open=. It is the only
-    // clarification we store until the other kinds expose equally portable locations.
-    const open = new URLSearchParams(readingLocation().search).get("open");
-    const place = authoredLastPlace(passage, {
-      ...frame,
-      open: open?.startsWith("foundation:") ? open : "",
-    });
+    // The frame retains the public clarification address, not a simulation snapshot or tape.
+    const place = authoredLastPlace(passage, frame);
     if (place) store.remember(place);
   }
   function schedule() {

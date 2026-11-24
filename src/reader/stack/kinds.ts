@@ -11,11 +11,18 @@ import { createElement, type ReactNode } from "react";
 import {
   type CatalogueId,
   catalogueLabel,
-  parseCatalogueAddress,
   resolveCatalogueAddress,
 } from "../../experiments/catalogue.ts";
 import { ExperimentDispatch, type ViewLoaders } from "../../experiments/dispatch.tsx";
 import { READER_VIEW_LOADERS } from "../../experiments/views/readerViewLoaders.ts";
+import {
+  type InstrumentViewTarget,
+  parseInstrumentViewId,
+  parseTermId,
+  type TermTarget,
+} from "./portableTargets.ts";
+
+export type { InstrumentViewTarget, TermTarget } from "./portableTargets.ts";
 
 /**
  * `viewLoaders` is optional and specific to `instrument-view`'s render, threaded through here
@@ -96,17 +103,6 @@ export function __resetClarificationKindsForTesting(): void {
 // open. Only ill-formed grammar (which the kinds contract calls "an id that fails its parser") is
 // refused at parseId and never opened at all.
 
-export type InstrumentViewTarget = Readonly<{ raw: string }>;
-
-function parseInstrumentViewId(raw: string): InstrumentViewTarget | null {
-  try {
-    parseCatalogueAddress(raw);
-  } catch {
-    return null;
-  }
-  return Object.freeze({ raw });
-}
-
 function instrumentViewHref(parsed: InstrumentViewTarget): string {
   const resolved = resolveCatalogueAddress(parsed.raw);
   if ("error" in resolved) return `/lab/${encodeURIComponent(parsed.raw)}`;
@@ -126,26 +122,6 @@ function instrumentViewTitle(parsed: InstrumentViewTarget): string {
 // bead does not import or render. Opening the deep link scrolls to it, sets the selection
 // attribute am-eq-colorized-component-1z8 publishes, and expands the card; that side effect is
 // focus.ts's job, driven by this kind's parsed { routeSlug, termId }, not a mounted subtree.
-
-export type TermTarget = Readonly<{ routeSlug: string | null; termId: string }>;
-
-const TERM_ID_PATTERN = /^[a-z][a-zA-Z0-9]*$/;
-const ROUTE_SLUG_PATTERN = /^[a-z][a-z0-9-]*$/;
-
-function parseTermId(raw: string): TermTarget | null {
-  const parts = raw.split("/");
-  if (parts.length === 1) {
-    const termId = parts[0] ?? "";
-    return TERM_ID_PATTERN.test(termId) ? Object.freeze({ routeSlug: null, termId }) : null;
-  }
-  if (parts.length === 2) {
-    const [routeSlug, termId] = parts as [string, string];
-    return ROUTE_SLUG_PATTERN.test(routeSlug) && TERM_ID_PATTERN.test(termId)
-      ? Object.freeze({ routeSlug, termId })
-      : null;
-  }
-  return null;
-}
 
 function termStaticHref(parsed: TermTarget): string {
   return `#${parsed.routeSlug ? `${parsed.routeSlug}-${parsed.termId}` : parsed.termId}`;
