@@ -77,7 +77,7 @@ export function SRSimultaneityDerivation({
         Modern γ and <i>c</i> are the paper’s β and <i>V</i>. A time coordinate in k is not
         generally the proper time of a single clock.
       </p>
-      <details className="step-local-steps">
+      <details className="local-steps">
         <summary>What this calculation takes as given</summary>
         <dl>
           {srSimultaneityAssumptions.map((assumption) => (
@@ -145,7 +145,7 @@ export function SRSimultaneityDerivation({
         that number is not a simultaneous rod length in k. A camera’s received light is a separate
         question again.
       </p>
-      <details className="step-local-steps">
+      <details className="local-steps">
         <summary>When does the time difference vanish?</summary>
         <p>
           At zero relative speed, or zero separation along the motion, the offset is zero. The

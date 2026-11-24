@@ -19,6 +19,7 @@ export const RESULT_PROOF_IDS = [
   "sr-simultaneous-length",
   "sr-synchronization-midpoint",
   "sr-simultaneity-offset",
+  "sr-coordinate-construction",
   "sr-spherical-wave-compatibility",
   "sr-velocity-composition",
   "sr-doppler-phase",

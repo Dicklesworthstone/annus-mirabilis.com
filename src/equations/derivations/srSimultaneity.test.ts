@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import yaml from "js-yaml";
 import { auditReadings } from "../../content/audits/readings.ts";
@@ -135,12 +136,21 @@ test("changed canonical map, Lorentz branch or offset refuses at the production 
   ) as (keyof typeof SR_SIMULTANEITY_RECORDS)[]) {
     const original = SR_SIMULTANEITY_RECORDS[key];
     const wrongTree: Expression = { kind: "number", value: "1" };
-    expect(() =>
-      createSRSimultaneitySetup({
-        ...SR_SIMULTANEITY_RECORDS,
-        [key]: { ...original, tree: wrongTree },
-      }),
-    ).toThrow(SRSimultaneityError);
+    assert.throws(
+      () =>
+        createSRSimultaneitySetup({
+          ...SR_SIMULTANEITY_RECORDS,
+          [key]: { ...original, tree: wrongTree },
+        }),
+      (error) => {
+        expect(error).toBeInstanceOf(SRSimultaneityError);
+        expect(error).toMatchObject({
+          code: "sr-simultaneity-canonical-mismatch",
+          path: original.id,
+        });
+        return true;
+      },
+    );
     expect(() =>
       createSRSimultaneitySetup({
         ...SR_SIMULTANEITY_RECORDS,
@@ -148,13 +158,22 @@ test("changed canonical map, Lorentz branch or offset refuses at the production 
       }),
     ).toThrow(SRSimultaneityError);
   }
-  expect(() =>
-    presentSRSimultaneityExpression({
-      kind: "symbol",
-      termId: "unknown",
-      quantityId: "unknown",
-    }),
-  ).toThrow(SRSimultaneityError);
+  assert.throws(
+    () =>
+      presentSRSimultaneityExpression({
+        kind: "symbol",
+        termId: "unknown",
+        quantityId: "unknown",
+      }),
+    (error) => {
+      expect(error).toBeInstanceOf(SRSimultaneityError);
+      expect(error).toMatchObject({
+        code: "sr-simultaneity-missing-glyph",
+        path: "sr-simultaneity.presentation",
+      });
+      return true;
+    },
+  );
 });
 
 function value<T>(result: KinematicResult<T>): T {

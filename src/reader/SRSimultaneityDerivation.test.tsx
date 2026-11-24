@@ -22,6 +22,8 @@ test("the complete conditional teaching route and its sources are readable witho
   expect(html).toContain('data-route-kind="pedagogical-reconstruction"');
   expect(html).toContain("<math");
   expect(html).toContain("<details");
+  expect(html).toContain('<details class="local-steps"');
+  expect(html).not.toContain('<details class="step-local-steps"><summary>The assumptions');
   expect(html).not.toContain("katex-error");
   expect([...html.matchAll(/data-step-id=/g)]).toHaveLength(srSimultaneityChain.steps.length);
   expect([...html.matchAll(/data-is-move="true"/g)]).toHaveLength(1);

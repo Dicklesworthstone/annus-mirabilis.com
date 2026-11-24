@@ -71,6 +71,12 @@ import {
   srClocksAndLengths,
 } from "../../equations/derivations/srClocksAndLengths.ts";
 import { verifySRClocksAndLengths } from "../../equations/derivations/srClocksAndLengthsProof.ts";
+import {
+  srCoordinateConstructionChains,
+  srCoordinateConstructionPremises,
+  verifySRCoordinateConstruction,
+  verifySRCoordinateSource,
+} from "../../equations/derivations/srCoordinateSourceProof.ts";
 import { srDopplerAssumptions, srDopplerChains } from "../../equations/derivations/srDoppler.ts";
 import { verifySRDoppler } from "../../equations/derivations/srDopplerProof.ts";
 import {
@@ -141,6 +147,7 @@ type DerivationProof = Readonly<{
   chains: readonly DerivationChain[];
   premises?: CheckedResultSupport["assumptions"];
   verify?: (chain: DerivationChain) => ChainVerificationReport;
+  verifyRoute?: (chains: readonly DerivationChain[]) => Readonly<{ passed: boolean }>;
 }>;
 
 /**
@@ -150,6 +157,17 @@ type DerivationProof = Readonly<{
  * for authored, unchecked calculus is not a checked proof.
  */
 const DERIVATION_PROOFS: Readonly<Record<DerivationProofId, DerivationProof>> = {
+  "sr-coordinate-construction": {
+    paper: "special-relativity",
+    conclusion: velocityTimeRecord.id,
+    title: "Construct the coordinate map from synchronization and symmetry",
+    href: "/papers/special-relativity/s3/#sr-coordinate-construction-check",
+    records: [velocityTimeRecord, velocityPositionRecord, factorRecord],
+    chains: srCoordinateConstructionChains,
+    verify: verifySRCoordinateSource,
+    verifyRoute: verifySRCoordinateConstruction,
+    premises: srCoordinateConstructionPremises,
+  },
   "sr-simultaneity-offset": {
     paper: "special-relativity",
     conclusion: simultaneityOffsetRecord.id,
@@ -599,11 +617,13 @@ function checkedDerivationSupport(
     return actual;
   });
 
+  const routePassed = proof.verifyRoute?.(proof.chains).passed ?? true;
   for (const chain of proof.chains) {
     const report = proof.verify
       ? proof.verify(chain)
       : verifyChain(chain, { isPublicationGate: true });
     if (
+      !routePassed ||
       !report.passed ||
       !report.isPublicationReady ||
       report.stepReports.length !== chain.steps.length ||

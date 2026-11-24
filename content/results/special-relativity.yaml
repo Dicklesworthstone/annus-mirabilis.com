@@ -215,8 +215,10 @@ cards:
 
   - id: sr-transformation-equations
     support:
-      kind: "no-checked-proof"
-      reason: "The transformation is explained from synchronization and the stated symmetry premises; no checked source-order derivation record covers all components."
+      kind: "checked-proof"
+      proofId: "sr-coordinate-construction"
+      conclusion: "eq-model-sr-map-time"
+      scope: "All four coordinates through the 42 steps of the source-order construction: moving-clock synchronization, independent transverse light paths, the surviving common scale, its spherical-wave consistency check, reciprocity, isotropy and the positive identity branch. Derivative and integration statements are checked only within the admitted linear ansatz. The resulting map allows arbitrary real event coordinates and v = 0; the selected positive flight and nonzero coefficient comparisons do not restrict that event domain. Linearity and the physical postulates remain assumptions. The modern linear reconstruction is a separate route; these algebraic checks do not establish historical fidelity."
     title: "The transformation equations"
     section: s3
     arguments: [arg-sr-lorentz-map, arg-sr-transverse-and-inverse]

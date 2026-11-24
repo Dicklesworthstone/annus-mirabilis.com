@@ -120,7 +120,11 @@ describe("navigation through actual checked result routes", () => {
       href: "/papers/special-relativity/#arg-sr-lorentz-map",
       resultId: null,
     });
-    expect(node(nodes, "sr-transformation-equations").support).toBeNull();
+    expect(node(nodes, "sr-two-postulates").support).toBeNull();
+    const transformation = node(nodes, "sr-transformation-equations");
+    expect(transformation.support?.proofId).toBe("sr-coordinate-construction");
+    expect(transformation.routes.some((route) => route.kind === "source-order")).toBe(true);
+    expect(transformation.support?.scope).toContain("only within the admitted linear ansatz");
     const energy = node(nodes, "sr-electron-kinetic-energy");
     expect(
       energy.routes

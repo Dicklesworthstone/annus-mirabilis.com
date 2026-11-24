@@ -3,15 +3,90 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
+  srCoordinateConstructionPremises,
+  verifySRCoordinateConstruction,
+} from "../equations/derivations/srCoordinateSourceProof.ts";
+import {
   srCoordinateChains,
   srCoordinateCrossRouteLinks,
   srCoordinateSourceLinks,
+  srCoordinateSourceStages,
 } from "../equations/derivations/srCoordinates.ts";
 import {
   srSphericalWavePremises,
   verifySRSphericalWave,
 } from "../equations/derivations/srSphericalWaveProof.ts";
 import { SRCoordinateDerivation } from "./SRCoordinateDerivation.tsx";
+
+test("all source-construction checks and their assumptions reach native disclosures and real steps", () => {
+  const report = verifySRCoordinateConstruction();
+  assert.equal(report.passed, true);
+  const html = renderToStaticMarkup(
+    <SRCoordinateDerivation
+      constructionProof={{ report, premises: srCoordinateConstructionPremises }}
+    />,
+  );
+  assert.ok(html.includes('id="sr-coordinate-construction-check" class="local-steps"'));
+  assert.ok(html.includes('data-coordinate-proof="checked"'));
+  assert.ok(
+    html.includes("All 42 source-route steps pass exact checks within the admitted linear ansatz."),
+  );
+  assert.ok(html.includes("including zero positions and negative times"));
+  assert.ok(html.includes("The modern linear reconstruction below is a separate route."));
+  assert.ok(html.includes('data-review="draft"'));
+  for (const premise of srCoordinateConstructionPremises) assert.ok(html.includes(premise.label));
+  for (const { chain } of srCoordinateSourceStages) {
+    assert.ok(html.includes(`href="#${chain.steps[0]!.id}"`));
+    for (const step of chain.steps) assert.ok(html.includes(`id="${step.id}"`));
+  }
+  assert.ok(!html.includes("katex-error"));
+});
+
+test("failed, truncated or mismatched construction evidence never promotes the source route", () => {
+  const valid = verifySRCoordinateConstruction();
+  assert.ok(
+    !renderToStaticMarkup(<SRCoordinateDerivation />).includes('data-coordinate-proof="checked"'),
+  );
+  for (const report of [
+    { ...valid, passed: false },
+    { ...valid, errors: ["A missing physical condition."] },
+    { ...valid, reports: valid.reports.slice(1) },
+    {
+      ...valid,
+      reports: valid.reports.map((stage, index) =>
+        index === 0 ? { ...stage, routeKind: "pedagogical-reconstruction" as const } : stage,
+      ),
+    },
+    {
+      ...valid,
+      reports: valid.reports.map((stage, index) =>
+        index === 0 ? { ...stage, stepReports: stage.stepReports.slice(1) } : stage,
+      ),
+    },
+    {
+      ...valid,
+      reports: valid.reports.map((stage, index) =>
+        index === 0
+          ? {
+              ...stage,
+              stepReports: stage.stepReports.map((step, position) =>
+                position === 0 ? { ...step, passed: false } : step,
+              ),
+            }
+          : stage,
+      ),
+    },
+  ]) {
+    const html = renderToStaticMarkup(
+      <SRCoordinateDerivation
+        constructionProof={{ report, premises: srCoordinateConstructionPremises }}
+      />,
+    );
+    assert.ok(html.includes('data-coordinate-proof="not-checked"'));
+    assert.ok(!html.includes("All 42 source-route steps pass exact checks"));
+    assert.ok(html.includes('id="sr-coordinate-source-final-time"'));
+  }
+});
 
 test("SR §3 renders both complete routes and their native disclosures before hydration", () => {
   const html = renderToStaticMarkup(<SRCoordinateDerivation />);

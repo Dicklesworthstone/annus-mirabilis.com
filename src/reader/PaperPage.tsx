@@ -14,6 +14,10 @@ import { loadConcordanceForPaper } from "../content/notation/loader.ts";
 import { hasResultCards } from "../content/results/resultCards.ts";
 import { getModalityClasses } from "../content/schemas/glossConventions.ts";
 import { loadPaper } from "../content/server.ts";
+import {
+  srCoordinateConstructionPremises,
+  verifySRCoordinateConstruction,
+} from "../equations/derivations/srCoordinateSourceProof.ts";
 import { verifySRFieldCovariance } from "../equations/derivations/srFieldCovariance.ts";
 import { verifySRSimultaneity } from "../equations/derivations/srSimultaneityProof.ts";
 import {
@@ -958,6 +962,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                         a.id === "arg-sr-lorentz-map" &&
                         (sectionId ? (
                           <LazySRCoordinateDerivation
+                            constructionProof={{
+                              report: verifySRCoordinateConstruction(),
+                              premises: srCoordinateConstructionPremises,
+                            }}
                             sphericalWaveProof={{
                               report: verifySRSphericalWave(),
                               premises: srSphericalWavePremises,
