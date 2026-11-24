@@ -11,6 +11,8 @@ import {
   useSyncExternalStore,
 } from "react";
 import { type BrownianCompanionMode, useBrownianLab } from "./BrownianLabContext.tsx";
+import { useBrownianSource } from "./BrownianSourceContext.tsx";
+import { BrownianSourcePanel } from "./BrownianSourcePanel.tsx";
 import { readingPlace } from "./holdPlace.ts";
 import { type Place, scrollToKeep } from "./keepPlace.ts";
 import { PinnedEquationCard } from "./layout/PinnedEquationCompanion.tsx";
@@ -30,6 +32,7 @@ export function BrownianLabCompanion({
   slot?: "column" | "sheet" | undefined;
 }) {
   const lab = useBrownianLab();
+  const source = useBrownianSource();
   const pins = usePinnedEquations();
   const pin = useSyncExternalStore(
     pins?.subscribe ?? noSubscription,
@@ -61,6 +64,7 @@ export function BrownianLabCompanion({
     rememberPlace(next);
     pins?.showPinned(false);
     lab?.showMode(next);
+    if (next === "original") source?.reveal();
   }
   return (
     <div
@@ -81,6 +85,17 @@ export function BrownianLabCompanion({
           >
             Notes
           </button>
+          {source ? (
+            <button
+              type="button"
+              className="secondary"
+              aria-pressed={mode === "original"}
+              disabled={!ready}
+              onClick={() => show("original")}
+            >
+              Original
+            </button>
+          ) : null}
           <button
             type="button"
             className="secondary"
@@ -108,6 +123,11 @@ export function BrownianLabCompanion({
       <div hidden={mode !== "notes"} data-brownian-companion-notes>
         {children}
       </div>
+      {source ? (
+        <div hidden={mode !== "original"} data-brownian-companion-original>
+          <BrownianSourcePanel active={mode === "original"} slot={slot} />
+        </div>
+      ) : null}
       {lab ? (
         <div hidden={mode !== "laboratory"} data-brownian-companion-laboratory>
           {lab.laboratory ? (

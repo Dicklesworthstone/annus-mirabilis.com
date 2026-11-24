@@ -25,6 +25,8 @@ import {
   BrownianChapterPractice,
   BrownianReaderInvestigation,
 } from "./BrownianReaderInvestigation.tsx";
+import { BrownianSourceAction } from "./BrownianSourceAction.tsx";
+import { BrownianSourceProvider } from "./BrownianSourceContext.tsx";
 import { LazyInlineTracerLab } from "./LazyInlineTracerLab.tsx";
 import { type CompanionKind, resolveCompanionKind } from "./layout/companionKind.ts";
 import { ReaderLayout } from "./layout/ReaderLayout.tsx";
@@ -38,6 +40,7 @@ import {
 import { loadPaperMargins } from "./marginRecords.ts";
 import { PaperChapterInvestigation } from "./PaperChapterInvestigation.tsx";
 import { PaperMargins } from "./PaperMargins.tsx";
+import type { SourceCompanionPassage } from "./sourceCompanion.ts";
 import "./actions/kindRegistration.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
@@ -106,6 +109,28 @@ export async function PaperReader({
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   if (!sections.length) throw new Error("Section is not in the compiled outline.");
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
+  // The bindings can cross section boundaries and name footnotes. Use the canonical projection
+  // graph for both languages rather than infer a source paragraph from the explanation's section.
+  const sourcePassages: readonly SourceCompanionPassage[] = args.map((argument) => ({
+    id: argument.id,
+    title: argument.title,
+    targets: boundParagraphs
+      .filter((binding) => binding.passages.includes(argument.id))
+      .flatMap((binding) => {
+        const projection = projections.bySourceBlock[binding.unit];
+        const german = projection?.german.find((link) => link.href.endsWith(`#${binding.unit}`));
+        return german
+          ? [
+              {
+                id: binding.unit,
+                label: binding.label,
+                germanHref: german.href,
+                english: projection?.english ?? [],
+              },
+            ]
+          : [];
+      }),
+  }));
   const osmoticReport = section === "s2" ? verifyBrownianOsmotic() : undefined;
   const gaussianReport = section === "s4" ? verifyBrownianGaussian() : undefined;
   const kernelReport = section === "s4" ? verifyBrownianKernel() : undefined;
@@ -214,6 +239,7 @@ export async function PaperReader({
       </noscript>
       <ReaderLayout
         readerId={`${paper.id}/${section ?? "all"}`}
+        companionTitle="Notes, original and laboratory"
         outline={
           <>
             <h2>Follow the argument</h2>
@@ -399,6 +425,7 @@ export async function PaperReader({
                       paperId={paper.id}
                       bindings={boundParagraphs.filter((b) => b.passages.includes(a.id))}
                     />
+                    <BrownianSourceAction passageId={a.id} />
                     <div data-face-reading>
                       {(["overview", "full"] as const).map((reading, i) => (
                         <div
@@ -801,7 +828,7 @@ export async function PaperReader({
   return (
     <BrownianReaderInvestigation active={sections.some((s) => s.id === "s5")}>
       <BrownianLabProvider key={`brownian-motion/${section ?? "all"}`}>
-        {reading}
+        <BrownianSourceProvider passages={sourcePassages}>{reading}</BrownianSourceProvider>
       </BrownianLabProvider>
     </BrownianReaderInvestigation>
   );

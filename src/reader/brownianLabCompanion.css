@@ -42,3 +42,52 @@
 .brownian-companion-lab .equation-card {
   min-width: 0;
 }
+
+.brownian-companion-source {
+  min-width: 0;
+}
+
+.brownian-companion-source h2 {
+  font-size: var(--type-lead);
+}
+
+.brownian-companion-source label,
+.brownian-companion-source select {
+  display: block;
+  max-width: 100%;
+}
+
+.brownian-companion-source select {
+  box-sizing: border-box;
+  width: 100%;
+  margin-block: 0.25rem 0.75rem;
+}
+
+.brownian-source-links {
+  display: grid;
+  gap: 0.5rem;
+  font-size: var(--type-fine);
+}
+
+.brownian-original-fragment {
+  border-block-start: 1px solid var(--line);
+  margin-block-start: 1rem;
+  overflow-wrap: break-word;
+}
+
+.brownian-original-fragment .source-paragraph,
+.brownian-original-fragment .footnote-body {
+  hyphens: auto;
+}
+
+.brownian-original-fragment .katex:not(.katex-display > .katex) {
+  font-size: 1.05em;
+}
+
+.brownian-original-fragment span.term-chip {
+  cursor: default;
+}
+
+.brownian-source-action {
+  font-size: var(--type-fine);
+}

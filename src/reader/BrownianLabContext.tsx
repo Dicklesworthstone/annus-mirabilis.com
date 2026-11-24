@@ -23,7 +23,7 @@ import type { AcceptedSnapshot } from "../experiments/store/instanceStore.ts";
 import { useInstrumentView } from "../experiments/store/useExperimentSnapshot.ts";
 import type { SharedBrownianLab } from "./brownianLabSession.ts";
 
-export type BrownianCompanionMode = "notes" | "laboratory";
+export type BrownianCompanionMode = "notes" | "original" | "laboratory";
 export type BrownianCompanionDraft = Readonly<{ a: string; interval: string }>;
 export type BrownianLabContextValue = Readonly<{
   laboratory: SharedBrownianLab | null;
