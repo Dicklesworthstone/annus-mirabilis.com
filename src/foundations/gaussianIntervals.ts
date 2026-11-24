@@ -1,7 +1,7 @@
 import {
+  type Evaluation,
   gaussianPropagator,
   intervalProbability,
-  type Evaluation,
 } from "../physics/reference/diffusion/distributions.ts";
 
 /** A bounded view of the existing zero-mean, one-coordinate Gaussian owner, in micrometres. */
@@ -64,7 +64,11 @@ const TAIL_WIDTHS = 40;
 
 function finiteValue(evaluation: Evaluation): number | null {
   const result = evaluation.result;
-  return result.status === "value" && Number.isFinite(result.value) ? result.value : null;
+  return result.status === "value" &&
+    typeof result.value === "number" &&
+    Number.isFinite(result.value)
+    ? result.value
+    : null;
 }
 
 function samples(
@@ -217,7 +221,11 @@ function readNumber(
     !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/u.test(token) ||
     !Number.isFinite(Number(token))
   )
-    return { kind: "refused", field, message: "Enter a finite number without units or expressions." };
+    return {
+      kind: "refused",
+      field,
+      message: "Enter a finite number without units or expressions.",
+    };
   const value = Number(token);
   if (value === 0 && /[1-9]/u.test(token.split(/[eE]/u)[0] ?? ""))
     return {
@@ -243,7 +251,10 @@ export function readGaussianInterval(
 }
 
 /** Apply the entered width and a symmetric interval in one accepted calculation. */
-export function readGaussianBand(width: string, widths: GaussianWidthCount): GaussianIntervalResult {
+export function readGaussianBand(
+  width: string,
+  widths: GaussianWidthCount,
+): GaussianIntervalResult {
   const parsed = readNumber(width, "width");
   if (parsed.kind === "refused") return parsed;
   return gaussianInterval(parsed.value, -widths * parsed.value, widths * parsed.value);

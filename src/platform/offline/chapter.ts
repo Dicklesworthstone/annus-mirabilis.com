@@ -326,7 +326,7 @@ export function packageOfflineChapter(
       const example = foundation.exampleTitle
         ? `Worked example: ${e(foundation.exampleTitle)}`
         : "One worked example";
-      return `<section id="foundation-${id(foundation.id)}" tabindex="-1"><h3>${e(foundation.title)}</h3><h4 class="question">${e(foundation.question)}</h4>${blocks(foundation.explanation)}<h4>${example}</h4>${blocks(foundation.example)}<h4>Where this lesson stops</h4><p>${e(foundation.stoppingPoint)}</p>${prerequisites.length > 0 ? `<h4>This lesson builds on</h4><ul>${prerequisites.join("")}</ul>` : ""}<a href="#${section.id}">Return to the chapter</a></section>`;
+      return `<section id="foundation-${id(foundation.id)}" tabindex="-1"><h3>${e(foundation.title)}</h3><h4 class="question">${e(foundation.question)}</h4>${blocks(foundation.explanation)}<h4>${example}</h4>${blocks(foundation.example)}<h4>Where this lesson stops</h4><p>${e(foundation.stoppingPoint)}</p>${prerequisites.length > 0 ? `<h4>This lesson builds on</h4><ul>${prerequisites.join("")}</ul>` : ""}<a href="#${explanationAnchor}">Return to the chapter</a></section>`;
     })
     .join("\n");
   const worked = [...instrumentIds]

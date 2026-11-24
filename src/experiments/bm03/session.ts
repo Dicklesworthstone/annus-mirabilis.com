@@ -6,6 +6,8 @@ import {
   lockedClusterPressure,
   type RouteAEvaluation,
 } from "../../physics/reference/diffusion.ts";
+import type { ScientificResult } from "../results/types.ts";
+import { rejectCalculation } from "../store/calculationSession.ts";
 import type {
   AcceptedSnapshot,
   ExperimentView,
@@ -20,9 +22,9 @@ export type Bm03Evaluation = Readonly<{
   deltaF: RouteAEvaluation;
   pressure: RouteAEvaluation;
   lockedClusterPressure: RouteAEvaluation;
-  volumeIndependentFactor: PublishedResult;
-  momentumIntegrals: PublishedResult;
-  freeEnergyOffset: PublishedResult;
+  volumeIndependentFactor: ScientificResult;
+  momentumIntegrals: ScientificResult;
+  freeEnergyOffset: ScientificResult;
   log10Exponent: number;
   naturalLogExponent: number;
   exactDecimalString?: string;
@@ -124,9 +126,9 @@ export function evaluateBm03(
   const pressure: RouteAEvaluation =
     "pressure" in termRes ? termRes.pressure : (termRes as RouteAEvaluation);
 
-  const volumeIndependentFactor: PublishedResult =
+  const volumeIndependentFactor: ScientificResult =
     "volumeIndependentFactor" in termRes
-      ? (termRes.volumeIndependentFactor as PublishedResult)
+      ? termRes.volumeIndependentFactor
       : {
           quantityId: "freeEnergy",
           unit: "1",
@@ -137,9 +139,9 @@ export function evaluateBm03(
           unspecifiedSymbols: ["J"],
         };
 
-  const momentumIntegrals: PublishedResult =
+  const momentumIntegrals: ScientificResult =
     "momentumIntegrals" in termRes
-      ? (termRes.momentumIntegrals as PublishedResult)
+      ? termRes.momentumIntegrals
       : {
           quantityId: "freeEnergy",
           unit: "1",
@@ -150,9 +152,9 @@ export function evaluateBm03(
           unspecifiedSymbols: ["p"],
         };
 
-  const freeEnergyOffset: PublishedResult =
+  const freeEnergyOffset: ScientificResult =
     "freeEnergyOffset" in termRes
-      ? (termRes.freeEnergyOffset as PublishedResult)
+      ? termRes.freeEnergyOffset
       : {
           quantityId: "freeEnergy",
           unit: "J",
@@ -217,15 +219,21 @@ function snapshotFromEvaluation(
   parentRunId: string | null,
   evaluation: Bm03Evaluation,
 ): AcceptedSnapshot {
-  function publish(id: keyof typeof BM03_OUTPUTS, result: PublishedResult): PublishedResult {
+  function publish(id: keyof typeof BM03_OUTPUTS, result: ScientificResult): PublishedResult {
     const contract = BM03_OUTPUTS[id];
-    return Object.freeze({
+    const output = {
       ...result,
       quantityId: id,
       unit: contract.unit,
       semanticKind: contract.semanticKind,
       ownerId: contract.ownerId,
-    });
+    };
+    if (output.status !== "value") return Object.freeze(output);
+    // This algebraic instrument publishes scalar readings. A mutable owner buffer cannot
+    // masquerade as the result store's protected NumericView.
+    if (typeof output.value !== "number")
+      rejectCalculation("BM-03 requires scalar numeric results.");
+    return Object.freeze({ ...output, value: output.value });
   }
   const ratio = evaluation.factorRatio;
   const factorIdentity = {
@@ -234,7 +242,7 @@ function snapshotFromEvaluation(
     semanticKind: "volume-arrangement-ratio",
     ownerId: "diffusion.configurationFactorRatio",
   };
-  const factorResult: PublishedResult =
+  const factorResult: ScientificResult =
     "representableDouble" in ratio
       ? ratio.representableDouble !== null
         ? { ...factorIdentity, status: "value", value: ratio.representableDouble }
