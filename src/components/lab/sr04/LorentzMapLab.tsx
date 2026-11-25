@@ -33,6 +33,8 @@ import { instrumentRootAttributes } from "../../../experiments/store/identityAtt
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { SR04_READER_WEAVE } from "../../../reader/weave/constructionPassages.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
@@ -115,12 +117,14 @@ function fractionText(
 export function LorentzMapLab({
   instanceId,
   restoreFromLocation = true,
+  highlightPaper = false,
   example,
   title = "Construct the Lorentz map",
 }: {
   example?: PreparedSr04Example | undefined;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean | undefined;
+  highlightPaper?: boolean | undefined;
   title?: string | undefined;
 }) {
   const id = useId();
@@ -559,6 +563,16 @@ export function LorentzMapLab({
       {/* The permalink to these settings, after the instrument it links to (dispatch 263). In
           the status row it made that line 267px tall at 1440. */}
       <LabTapeLink link={withPredictions(tapeLink, gate)} />
+
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={SR04_READER_WEAVE}
+          suspended={failure !== null}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}

@@ -382,6 +382,11 @@ presets:
 tapeModel:
   modelId: sr-01-clock-sync-host
   modelVersion: 1
+weavePredicates:
+  - sr01-s1-midpoint-definition
+  - sr01-s1-clock-criterion
+  - sr01-s1-round-trip-postulate
+  - sr01-s2-moving-pair
 predictMode:
   enabled: true
   prompts:

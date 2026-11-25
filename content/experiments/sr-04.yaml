@@ -345,7 +345,10 @@ modes:
     notModeledAdditions:
       - "Only Galilean velocity subtraction; the later construction and comparison views are absent"
       - "Light speeds are declared dimensionless ratios, with no numeric light-speed constant"
-weavePredicates: []
+weavePredicates:
+  - sr04-s3-unfixed-scale
+  - sr04-s3-longitudinal-map
+  - sr04-s3-candidate-comparison
 historicalOverlays: []
 realRate:
   natural: false

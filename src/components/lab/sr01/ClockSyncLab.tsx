@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -36,6 +36,8 @@ import "../showTheCode.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { useInstrumentView } from "../../../experiments/store/useExperimentSnapshot.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { SessionResultWeave } from "../../../reader/weave/SessionResultWeave.tsx";
+import { SR01_READER_WEAVE } from "../../../reader/weave/synchronizationPassages.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
@@ -68,11 +70,13 @@ export function ClockSyncLab({
   example,
   instanceId,
   restoreFromLocation = false,
+  highlightPaper = false,
   title = "Clock synchronization with the event ledger",
 }: {
   example?: PreparedSr01Example | undefined;
   instanceId?: string | undefined;
   restoreFromLocation?: boolean;
+  highlightPaper?: boolean | undefined;
   title?: string | undefined;
 }) {
   const id = useId();
@@ -473,6 +477,16 @@ export function ClockSyncLab({
         summary={statusSummary}
         response={gate.response}
       />
+
+      <div {...gate.response}>
+        <SessionResultWeave
+          session={session}
+          binding={SR01_READER_WEAVE}
+          suspended={refusal !== null || error.length > 0}
+          announcementsEnabled={gate.open}
+          highlightPaper={highlightPaper}
+        />
+      </div>
 
       <details className="show-the-code">
         <summary>Show the reference code &amp; kernel bindings</summary>

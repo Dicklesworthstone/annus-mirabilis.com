@@ -12,5 +12,12 @@ const example = {
 };
 
 export default function Sr04ClarificationView({ instanceId }: ExperimentViewProps) {
-  return <LorentzMapLab example={example} instanceId={instanceId} restoreFromLocation={false} />;
+  return (
+    <LorentzMapLab
+      example={example}
+      instanceId={instanceId}
+      restoreFromLocation={false}
+      highlightPaper
+    />
+  );
 }
