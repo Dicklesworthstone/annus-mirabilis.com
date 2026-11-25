@@ -1,4 +1,4 @@
-import { SR09_MODEL } from "../../experiments/sr09/definition.ts";
+import { SR09_EVENTS, SR09_MODEL } from "../../experiments/sr09/definition.ts";
 import { SR09_LIVE_WEAVE_PREDICATES } from "../../experiments/sr09/liveWeave.ts";
 import { SR10_MODEL } from "../../experiments/sr10/definition.ts";
 import { SR10_LIVE_WEAVE_PREDICATES } from "../../experiments/sr10/liveWeave.ts";
@@ -16,6 +16,11 @@ export const SR09_WEAVE_PASSAGES: Readonly<Record<string, WeavePassage>> = Objec
     title: "The same ray's direction in another frame",
     sentenceId: "s7-p5-s2",
     pointerText: SR09_LIVE_WEAVE_PREDICATES[1]?.pointerText ?? "",
+  }),
+  "sr09-phase-invariance": Object.freeze({
+    title: "The same wave phase at the same event",
+    sentenceId: "s7-p2-s2",
+    pointerText: SR09_LIVE_WEAVE_PREDICATES[2]?.pointerText ?? "",
   }),
 });
 
@@ -46,6 +51,11 @@ export const SR09_READER_WEAVE: ReaderWeaveBinding = Object.freeze({
   contextFields: Object.freeze([
     ...WAVE_CONTEXT,
     Object.freeze({ parameterId: "frequencyTHz", label: "Frequency in K", unit: "THz" }),
+    Object.freeze({
+      parameterId: "selectedEventId",
+      label: "Phase query",
+      values: Object.freeze(Object.fromEntries(SR09_EVENTS.map(({ id, label }) => [id, label]))),
+    }),
   ]),
 });
 

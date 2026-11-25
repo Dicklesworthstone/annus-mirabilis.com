@@ -113,7 +113,11 @@ function expectCleared(nodes: readonly Element[]) {
 }
 
 for (const fixture of [
-  { id: "sr-09", View: Sr09ClarificationView, sentences: ["s7-p3-s1", "s7-p5-s2"] },
+  {
+    id: "sr-09",
+    View: Sr09ClarificationView,
+    sentences: ["s7-p3-s1", "s7-p5-s2", "s7-p2-s2"],
+  },
   { id: "sr-10", View: Sr10ClarificationView, sentences: ["s8-p5-s1", "s8-p2-s2"] },
 ] as const) {
   test(`${fixture.id} reader pointers follow accepted inputs, honor prediction, and clear on refusal and unmount`, async () => {
@@ -130,7 +134,12 @@ for (const fixture of [
     assert.ok(laboratory);
     const runId = laboratory.getAttribute("data-run-id");
     for (const node of nodes) {
-      expect(node.getAttribute("data-live-weave-meaning")).toBe("quantity-compared");
+      expect(node.getAttribute("data-live-weave-meaning")).toBe(
+        (node.getAttribute("data-sentence-id") ?? node.getAttribute("data-translation-unit-id")) ===
+          "s7-p2-s2"
+          ? "agreement-within-stated-bound"
+          : "quantity-compared",
+      );
     }
     expectCleared([unrelated]);
     expect(nodes.map((node) => node.textContent)).toEqual(originalText);
@@ -174,7 +183,10 @@ for (const fixture of [
 
 test("both standalone labs retain their prepared source links without JavaScript", () => {
   for (const [view, ids] of [
-    [<DopplerAberrationLab key="wave" example={waveExample} />, ["s7-p3-s1", "s7-p5-s2"]],
+    [
+      <DopplerAberrationLab key="wave" example={waveExample} />,
+      ["s7-p3-s1", "s7-p5-s2", "s7-p2-s2"],
+    ],
     [<LightComplexLab key="complex" example={complexExample} />, ["s8-p5-s1", "s8-p2-s2"]],
   ] as const) {
     const html = renderToStaticMarkup(view);
@@ -185,4 +197,33 @@ test("both standalone labs retain their prepared source links without JavaScript
       expect(html).toContain(`/view/english/#${id}`);
     }
   }
+});
+
+test("the phase pointer and its evidence follow the reader's named event while retaining the run", async () => {
+  const target = sentence("s7-p2-s2", "german");
+  const panel = await mount(
+    <Sr09ClarificationView
+      instanceId="phase-selection-reader"
+      mode={null}
+      presentation="standard"
+    />,
+  );
+  const laboratory = host.querySelector('[data-instrument-id="sr-09"]');
+  assert.ok(laboratory);
+  const runId = laboratory.getAttribute("data-run-id");
+  expect(target.getAttribute("data-live-weave-meaning")).toBe("agreement-within-stated-bound");
+  expect(panel.querySelector('[data-weave-context="selectedEventId"]')?.textContent).toContain(
+    "Origin cycle tick",
+  );
+  const offset = host.querySelector<HTMLInputElement>('input[value="sr-09-event-offset"]');
+  assert.ok(offset);
+  await act(async () => offset.click());
+  expect(laboratory.getAttribute("data-run-id")).toBe(runId);
+  expect(panel.querySelector('[data-weave-context="selectedEventId"]')?.textContent).toContain(
+    "Offset downstream event",
+  );
+  expect(panel.querySelector('[data-weave-row="sr09-phase-invariance"]')?.textContent).toContain(
+    "10⁻¹² radians",
+  );
+  expect(target.getAttribute("data-live-weave-meaning")).toBe("agreement-within-stated-bound");
 });

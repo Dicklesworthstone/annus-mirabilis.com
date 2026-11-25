@@ -43,6 +43,7 @@ export function snapshotOutputs(p: Sr09Parameters): ScientificResult[] {
     return { quantityId, ...identity, status: "value", value };
   }
   const events = SR09_EVENTS.map(({ id }) => snap.events.find((event) => event.id === id));
+  const selectedEvent = snap.events.find((event) => event.id === p.selectedEventId);
   const projected = [
     ...snap.results,
     output("detectorCrossings", snap.detectorCrossings),
@@ -85,6 +86,12 @@ export function snapshotOutputs(p: Sr09Parameters): ScientificResult[] {
       Float64Array.from(events, (event) =>
         event?.phasesAgree === true ? 1 : event?.phasesAgree === false ? 0 : NaN,
       ),
+    ),
+    output("selectedEventPhaseK", selectedEvent?.phaseK ?? NaN),
+    output("selectedEventPhaseMoving", selectedEvent?.phase_k ?? NaN),
+    output(
+      "selectedEventPhaseAgreement",
+      selectedEvent?.phasesAgree === true ? 1 : selectedEvent?.phasesAgree === false ? 0 : NaN,
     ),
   ];
   // A frequency past about 10^296 THz is infinite in hertz; say so per output instead of letting the

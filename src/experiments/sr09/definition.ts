@@ -97,4 +97,9 @@ export const SR09_OUTPUTS = Object.freeze({
   // [phase in K, phase in k]; no reduction modulo a full turn is made.
   namedEventPhases: c("rad", "angle", "waves", ["value", "outside-domain"]),
   namedEventPhaseAgreement: c("1", "comparison-flag", "waves", ["value", "outside-domain"]),
+  // Scalar projections of the selected named event, for accepted-result consumers that must
+  // never infer a scalar from an array's first entry or recalculate the owner's comparison.
+  selectedEventPhaseK: c("rad", "angle", "waves", ["value", "outside-domain"]),
+  selectedEventPhaseMoving: c("rad", "angle", "waves", ["value", "outside-domain"]),
+  selectedEventPhaseAgreement: c("1", "comparison-flag", "waves", ["value", "outside-domain"]),
 } satisfies Readonly<Record<string, OutputContract>>);

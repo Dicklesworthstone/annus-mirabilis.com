@@ -232,6 +232,9 @@ describe("SR-09 session store and parameter validation", () => {
     expect(vector(before, "namedEventPositionsK")).toEqual([0, 0, 0, 3e-7, 0, 0]);
     expect(vector(before, "namedEventPhases")[0]).toBeCloseTo(-Math.PI, 12);
     expect(vector(before, "namedEventPhaseAgreement")).toEqual([1, 1]);
+    expect(scalar(before, "selectedEventPhaseK")).toBe(vector(before, "namedEventPhases")[0]);
+    expect(scalar(before, "selectedEventPhaseMoving")).toBe(vector(before, "namedEventPhases")[1]);
+    expect(scalar(before, "selectedEventPhaseAgreement")).toBe(1);
     expect(
       session.apply({ ...session.acceptedParameters(), selectedEventId: offsetEvent.id }).kind,
     ).toBe("accepted");
@@ -240,6 +243,11 @@ describe("SR-09 session store and parameter validation", () => {
     expect(selected.runId).toBe(before.runId);
     expect(selected.revisions).toEqual(before.revisions);
     expect(vector(selected, "namedEventPhases")).toEqual(vector(before, "namedEventPhases"));
+    expect(scalar(selected, "selectedEventPhaseK")).toBe(vector(selected, "namedEventPhases")[2]);
+    expect(scalar(selected, "selectedEventPhaseMoving")).toBe(
+      vector(selected, "namedEventPhases")[3],
+    );
+    expect(scalar(selected, "selectedEventPhaseK")).not.toBe(scalar(before, "selectedEventPhaseK"));
 
     expect(session.apply({ ...session.acceptedParameters(), beta: 0.8 }).kind).toBe("accepted");
     const moved = session.getSnapshot().accepted;
@@ -264,6 +272,9 @@ describe("SR-09 session store and parameter validation", () => {
     expect(phases[2]).toBeCloseTo(offsetMoving, 12);
     expect(phases[0]).toBe(vector(before, "namedEventPhases")[0]);
     expect(phases[2]).toBe(vector(before, "namedEventPhases")[2]);
+    expect(scalar(moved, "selectedEventPhaseK")).toBe(phases[2]);
+    expect(scalar(moved, "selectedEventPhaseMoving")).toBe(phases[3]);
+    expect(scalar(moved, "selectedEventPhaseAgreement")).toBe(1);
   });
 
   test("a fixed custom detector's published readings survive observer changes", () => {
@@ -292,7 +303,14 @@ describe("SR-09 session store and parameter validation", () => {
 
   test("unavailable phase evaluations do not become zero or a passing comparison", () => {
     const outputs = snapshotOutputs({ ...SR09_DEFAULTS, frequencyTHz: 1e300 });
-    for (const id of ["wavePhase", "namedEventPhases", "namedEventPhaseAgreement"])
+    for (const id of [
+      "wavePhase",
+      "namedEventPhases",
+      "namedEventPhaseAgreement",
+      "selectedEventPhaseK",
+      "selectedEventPhaseMoving",
+      "selectedEventPhaseAgreement",
+    ])
       expect(outputs.find((output) => output.quantityId === id)?.status).toBe("outside-domain");
     const forbiddenObserver = snapshotOutputs({ ...SR09_DEFAULTS, beta: 1 });
     expect(forbiddenObserver).toHaveLength(Object.keys(SR09_OUTPUTS).length);

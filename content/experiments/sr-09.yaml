@@ -256,6 +256,18 @@ outputs:
     quantityId: wavePhaseAgreement
     allowedStatuses: [value, outside-domain]
     primary: false
+  - id: selectedEventPhaseK
+    quantityId: wavePhase
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: selectedEventPhaseMoving
+    quantityId: wavePhase
+    allowedStatuses: [value, outside-domain]
+    primary: false
+  - id: selectedEventPhaseAgreement
+    quantityId: wavePhaseAgreement
+    allowedStatuses: [value, outside-domain]
+    primary: false
   - id: earthOrbitAberrationArcsec
     quantityId: propagationAngleMoving
     allowedStatuses:

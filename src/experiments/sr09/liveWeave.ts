@@ -3,7 +3,8 @@ import type { WeavePredicate } from "../weave/types.ts";
 /**
  * These are pointers to the quantities being compared, not independent tests of the
  * wave transformation. Every condition reads the accepted owner's finite outputs;
- * an unrepresentable frequency must not borrow a valid-looking form value.
+ * an unrepresentable frequency must not borrow a valid-looking form value. The phase
+ * pointer reads the owner's comparison verdict for the reader's selected fixed event.
  */
 export const SR09_LIVE_WEAVE_PREDICATES: readonly WeavePredicate[] = Object.freeze([
   Object.freeze({
@@ -43,5 +44,29 @@ export const SR09_LIVE_WEAVE_PREDICATES: readonly WeavePredicate[] = Object.free
         }),
       ),
     ),
+  }),
+  Object.freeze({
+    id: "sr09-phase-invariance",
+    instrumentId: "sr-09",
+    meaning: "agreement-within-stated-bound" as const,
+    targets: Object.freeze(["s7-p2-s2"]),
+    pointerText:
+      "For the selected named event, the accepted phases in K and k agree within the numerical owner's absolute tolerance of 10⁻¹² radians. This points to the passage transforming the same wave and coordinates together. The laboratory uses k·x − ωt, the opposite sign to Einstein's printed phase, consistently in both frames. This numerical consistency check is not an independent observation of light.",
+    conditions: Object.freeze([
+      ...["selectedEventPhaseK", "selectedEventPhaseMoving"].map((quantityId) =>
+        Object.freeze({
+          kind: "threshold" as const,
+          quantityId,
+          direction: "at-least" as const,
+          enter: -Number.MAX_VALUE,
+          exit: -Number.MAX_VALUE,
+        }),
+      ),
+      Object.freeze({
+        kind: "regime" as const,
+        on: "selectedEventPhaseAgreement",
+        equals: "1",
+      }),
+    ]),
   }),
 ]);
