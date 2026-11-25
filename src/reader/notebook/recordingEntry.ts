@@ -1,3 +1,6 @@
+import { BM06_DEFAULTS } from "../../experiments/bm06/definition.ts";
+import { validateBm06Parameters } from "../../experiments/bm06/parameters.ts";
+import { validateBm06ScientificTape } from "../../experiments/bm06/tapeCheckpoint.ts";
 import { tapePayloadBytes } from "../../experiments/permalink/codecCore.ts";
 import {
   RECORDING_LIMITS,
@@ -6,11 +9,9 @@ import {
   readRecordedExperiment,
 } from "../../experiments/permalink/recordedExperiments.ts";
 import { validateTapeV2 } from "../../experiments/permalink/schema.ts";
+import { settingsFromTape } from "../../experiments/permalink/sessionTape.ts";
 
-import {
-  type NotebookRecordingExperiment,
-  recordingLaboratory,
-} from "./recordingLaboratories.ts";
+import { type NotebookRecordingExperiment, recordingLaboratory } from "./recordingLaboratories.ts";
 
 export { type NotebookRecordingExperiment, recordingLaboratory } from "./recordingLaboratories.ts";
 
@@ -209,7 +210,7 @@ function admitRecording(input: unknown, paper?: string): RecordedExperiment {
   if (!laboratory)
     throw new NotebookRecordingError(
       "notebook-recording-instrument",
-      "Notebook recordings currently support Brownian tracers, random walks, synthetic inference and camera trials.",
+      "Notebook recordings currently support Brownian tracers, random walks, spreading probability, synthetic inference and camera trials.",
     );
   if (paper !== undefined && paper !== laboratory.paper)
     throw new NotebookRecordingError(
@@ -219,7 +220,27 @@ function admitRecording(input: unknown, paper?: string): RecordedExperiment {
   const admitted = readRecordedExperiment(source, laboratory.experimentId, validateTapeV2);
   if (admitted.kind !== "accepted")
     throw new NotebookRecordingError("notebook-recording-envelope", admitted.notice);
-  if (laboratory.requiresScientificCheckpoint) {
+  if (laboratory.experimentId === "bm-06") {
+    for (const stop of admitted.value.stops) {
+      const sourceIdentity = stop.tape.modelIdentity.artifactDigest;
+      // Import preserves the recorded evaluator identity, including an older edition. The live
+      // owner checks source compatibility and every output before publishing a restored result.
+      // Here the deterministic receipt must be complete; a settings-only tape or random-stream
+      // receipt cannot stand in for a calculated density and interval probability.
+      if (
+        !sourceIdentity ||
+        !/^host:sha256:[a-f0-9]{64}$/.test(sourceIdentity) ||
+        validateBm06ScientificTape(stop.tape, [], sourceIdentity.replace(/^host:/, "source:")) !==
+          null ||
+        validateBm06Parameters(settingsFromTape(stop.tape.initialConditions, BM06_DEFAULTS))
+          .kind !== "accepted"
+      )
+        throw new NotebookRecordingError(
+          "notebook-recording-probability-checkpoint",
+          "A spreading-probability recording needs complete calculation settings and a deterministic scientific checkpoint. Calculate the trial before saving.",
+        );
+    }
+  } else if (laboratory.requiresScientificCheckpoint) {
     for (const stop of admitted.value.stops) {
       if (
         !stop.tape.acceptedCheckpoint.scientificState ||
