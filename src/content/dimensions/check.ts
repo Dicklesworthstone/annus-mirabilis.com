@@ -451,6 +451,16 @@ export function checkDimensions(
       }
 
       case "relation": {
+        // A literal zero fixes no unit: z = 0 is a zero length and dE/dt = 0 is a
+        // zero power. Check the other side in full before inheriting its dimension.
+        // This applies only to an actual zero literal, never to a calculated zero
+        // whose operands may have incompatible dimensions or unknown quantities.
+        const left = node.left as Record<string, unknown> | undefined;
+        const right = node.right as Record<string, unknown> | undefined;
+        if (left?.kind === "number" && (left.value === "0" || left.value === 0))
+          return visit(node.right, depth + 1);
+        if (right?.kind === "number" && (right.value === "0" || right.value === 0))
+          return visit(node.left, depth + 1);
         return equal(n, node.left, node.right);
       }
 
