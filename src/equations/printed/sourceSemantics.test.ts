@@ -179,7 +179,7 @@ describe("exact dimensions and scientific limitations", () => {
     ]);
   });
 
-  test("an inconsistent unit and an unsupported dimension stop publication (sourceSemantics.ts:412)", () => {
+  test("an inconsistent unit and an unsupported dimension stop publication (sourceSemantics.ts:481)", () => {
     const d = display("eq-s0-d7");
     const q = quantities.get("speedOfLight");
     if (!q) throw new Error("The canonical speed of light must exist.");
@@ -242,7 +242,7 @@ describe("source rendering with safe operation markers", () => {
       );
   });
 
-  test("crossing, duplicate and injected markers cannot enter trust (sourceSemantics.ts:189)", () => {
+  test("crossing, duplicate and injected markers cannot enter trust (sourceSemantics.ts:201)", () => {
     const mark = { start: 0, end: 4, id: "operation.one", kind: "op" as const };
     for (const marks of [
       [mark, { ...mark, start: 2, end: 6, id: "operation.two" }],
@@ -253,7 +253,7 @@ describe("source rendering with safe operation markers", () => {
     expect(markSourceOperations("abcdef", [mark])).toContain("operation.one");
   });
 
-  test("an extra binding is refused, other papers stay disabled (sourceSemantics.ts:369)", () => {
+  test("an extra binding is refused, other papers stay disabled (sourceSemantics.ts:396)", () => {
     const d = display("eq-s0-d7");
     const first = d.terms[0];
     if (!first) throw new Error("The source fixture must contain terms.");
@@ -300,7 +300,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(parseSourceExpression(d).rows).toHaveLength(2);
   });
 
-  test("an unknown display has no invented operation guide (sourceSemantics.ts:315)", () => {
+  test("an unknown display has no invented operation guide (sourceSemantics.ts:338)", () => {
     const d = display("eq-s0-d7");
     expect(
       refuses(
@@ -316,7 +316,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(compile(d).semantics.operations.some((operation) => operation.primary)).toBe(true);
   });
 
-  test("a guide bound to a different expression is refused (sourceSemantics.ts:400)", () => {
+  test("a guide bound to a different expression is refused (sourceSemantics.ts:469)", () => {
     const d = display("eq-s0-d7");
     expect(
       refuses(
@@ -332,7 +332,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("a changed power cannot keep the authored square explanation (sourceSemantics.ts:485)", () => {
+  test("a changed power cannot keep the authored square explanation (sourceSemantics.ts:557)", () => {
     const d = display("eq-s0-d1");
     // The radicand remains dimensionless and all quantity bindings retain their offsets,
     // so this reaches the authored-reading check rather than an earlier dimension refusal.
@@ -346,7 +346,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("consistent non-energy equalities cannot masquerade as the source ledger (sourceSemantics.ts:437)", () => {
+  test("consistent non-energy equalities cannot masquerade as the source ledger (sourceSemantics.ts:500)", () => {
     const d = display("eq-s0-d2");
     const altered = new Map(quantities);
     for (const id of ["bodyEnergyRestBefore", "bodyEnergyRestAfter", "emittedEnergyRestFrame"]) {
@@ -367,7 +367,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     expect(compile(d).semantics.dimension).toBe("length² × mass × time⁻²");
   });
 
-  test("actual rendered HTML must retain every expected operation marker (sourceSemantics.ts:232)", () => {
+  test("actual rendered HTML must retain every expected operation marker (sourceSemantics.ts:244)", () => {
     const d = display("eq-s0-d7");
     const original = compilePrintedDisplay(d);
     const built = compile(d);
@@ -389,7 +389,7 @@ describe("every publication guard has an actual reject and accept case", () => {
     );
   });
 
-  test("a malformed visual cannot replace a source display (sourceSemantics.ts:240)", () => {
+  test("a malformed visual cannot replace a source display (sourceSemantics.ts:252)", () => {
     const d = display("eq-s0-d7");
     const original = compilePrintedDisplay(d);
     const built = compile(d);

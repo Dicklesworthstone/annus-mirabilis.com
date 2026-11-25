@@ -4,7 +4,9 @@ import { getQuantityRegistry } from "../../content/quantities/registry.ts";
 import { walk } from "../ast.ts";
 import { type CheckedDisplay, compilePrintedDisplay } from "./displayTerms.ts";
 import { LIGHT_QUANTA_BUDGET_GUIDES } from "./lightQuantaBudgetOperations.ts";
+import { LIGHT_QUANTA_ENTROPY_GUIDES } from "./lightQuantaEntropyOperations.ts";
 import { LIGHT_QUANTA_OPERATION_GUIDES } from "./lightQuantaOperations.ts";
+import { LIGHT_QUANTA_RADIATION_GUIDES } from "./lightQuantaRadiationOperations.ts";
 import { checkPaperDisplays, printedDisplays } from "./paperDisplays.ts";
 import { parseSourceExpression, sourceNodes } from "./sourceExpression.ts";
 import {
@@ -68,11 +70,16 @@ const exact = (dimension: readonly { num: bigint; den: bigint }[]) =>
   dimension.map(({ num, den }) => (den === 1n ? String(num) : `${num}/${den}`));
 
 describe("the printed light-quanta energy budgets", () => {
-  test("only the nine authored budgets join the nine entropy displays; the unit-bearing numeric check stays unchanged", async () => {
+  test("only explicitly authored source guides publish operations; the unit-bearing numeric check stays unchanged", async () => {
     expect(Object.keys(LIGHT_QUANTA_BUDGET_GUIDES).sort()).toEqual([...IDS].sort());
     const published = await printedDisplays(process.cwd(), ["light-quanta"], []);
     expect(published.problems).toEqual([]);
-    const admitted = [...IDS, ...Object.keys(LIGHT_QUANTA_OPERATION_GUIDES)].sort();
+    const admitted = [
+      ...IDS,
+      ...Object.keys(LIGHT_QUANTA_OPERATION_GUIDES),
+      ...Object.keys(LIGHT_QUANTA_RADIATION_GUIDES),
+      ...Object.keys(LIGHT_QUANTA_ENTROPY_GUIDES),
+    ].sort();
     expect(
       published.displays
         .filter((d) => d.semantics)
@@ -169,7 +176,7 @@ describe("the printed light-quanta energy budgets", () => {
 });
 
 describe("exact relation and dimension contracts", () => {
-  test("bounds keep their authored direction even when reversed bounds remain dimensionally consistent (sourceSemantics.ts:342)", () => {
+  test("bounds keep their authored direction even when reversed bounds remain dimensionally consistent (sourceSemantics.ts:369)", () => {
     for (const [id, expected] of Object.entries(EXPECTED)) {
       const original = display(id);
       const tree = compile(original).semantics.rows[0];
@@ -192,7 +199,7 @@ describe("exact relation and dimension contracts", () => {
     }
   });
 
-  test("old equalities cannot become standalone expressions or bounds, and the standalone source cannot gain an equality (sourceSemantics.ts:342)", async () => {
+  test("old equalities cannot become standalone expressions or bounds, and the standalone source cannot gain an equality (sourceSemantics.ts:369)", async () => {
     const mass = await checkPaperDisplays(process.cwd(), "mass-energy");
     const energy = mass?.displays.find((d) => d.display === "eq-s0-d2");
     if (!energy) throw new Error("The real mass-energy equality must exist.");
@@ -242,7 +249,7 @@ describe("exact relation and dimension contracts", () => {
     }
   });
 
-  test("the electrical check uses EMU dimensions and refuses missing or corrupted EMU data without falling back (sourceSemantics.ts:412)", () => {
+  test("the electrical check uses EMU dimensions and refuses missing or corrupted EMU data without falling back (sourceSemantics.ts:481)", () => {
     const d = display("eq-s8-d2");
     const charge = quantities.get("elementaryCharge");
     if (!charge) throw new Error("The source charge must be registered.");
@@ -260,7 +267,7 @@ describe("exact relation and dimension contracts", () => {
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("a consistent dimensionless rewrite cannot masquerade as the printed amount j (sourceSemantics.ts:437)", () => {
+  test("a consistent dimensionless rewrite cannot masquerade as the printed amount j (sourceSemantics.ts:500)", () => {
     const d = display("eq-s9-d3");
     const altered = new Map(quantities);
     for (const id of ["molarGasConstant", "ionizedGramMolecules"]) {
