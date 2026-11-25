@@ -1,5 +1,6 @@
 import { useId } from "react";
 import { crossings, FLUX_SECONDS, netChange } from "../../foundations/bridgeFigures.ts";
+import { FluxBalanceWorkbench } from "./FluxBalanceWorkbench.tsx";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
 /**
@@ -180,6 +181,8 @@ export function CrossingABoundary({ headingLevel = 3 }: { readonly headingLevel?
         {crossings(second)} particles crossed a boundary and the count inside did not move. A steady
         count is not a still one.
       </p>
+
+      <FluxBalanceWorkbench headingLevel={headingLevel} />
 
       <div className="construction-text-equivalent">
         <Sub>What it shows, in words</Sub>

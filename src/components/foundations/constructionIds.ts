@@ -50,9 +50,8 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "bridge-equals-sign-relationship",
   "bridge-probability-notation",
   "bridge-squaring-square-roots",
-  // Not a bridge, and the first entry here that is not (dispatch 418). foundation:flux-continuity
-  // had 22 rendered formulas and no picture of the region its subject is about. Static, with no
-  // control, so it is not in CONSTRUCTIONS_WITH_CONTROLS either.
+  // Its original figures keep the two worked seconds. The counting workbench beside them lets
+  // a reader choose a boundary and compare concentration with transport through its edges.
   "flux-continuity",
   "diffusion-equation",
   "random-walks",
@@ -105,6 +104,7 @@ export const CONSTRUCTIONS_WITH_CONTROLS: readonly FoundationConstructionId[] = 
   "random-walks",
   "gaussian-distributions",
   "diffusion-equation",
+  "flux-continuity",
 ];
 
 /** The construction id for a foundation, with or without its `foundation:` prefix, or null. */
