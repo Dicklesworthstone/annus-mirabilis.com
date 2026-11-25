@@ -7,6 +7,7 @@ import {
   SYNC,
   signalSpeed,
 } from "../../foundations/bridgeFigures.ts";
+import { ClockSynchronizationWorkbench } from "./ClockSynchronizationWorkbench.tsx";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
 /**
@@ -155,6 +156,8 @@ export function TwoClocksOneFlash({ headingLevel = 3 }: { readonly headingLevel?
         back {fastBy()} and the two agree. Nothing about the flash changed between the drawings;
         only what B's hands were showing.
       </p>
+
+      <ClockSynchronizationWorkbench headingLevel={headingLevel} />
 
       <div className="construction-text-equivalent">
         <Sub>What it shows, in words</Sub>

@@ -1,0 +1,43 @@
+.clock-synchronization fieldset {
+  min-inline-size: 0;
+}
+
+.clock-synchronization-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.clock-synchronization-fields label {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+}
+
+.clock-synchronization-fields input {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+}
+
+.clock-synchronization .data-table th,
+.clock-synchronization .data-table td {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .clock-synchronization-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .clock-synchronization .construction-display {
+    padding-inline: 0.5rem;
+  }
+}
+
+@media print {
+  .clock-synchronization .construction-controls {
+    display: none;
+  }
+}

@@ -105,6 +105,7 @@ export const CONSTRUCTIONS_WITH_CONTROLS: readonly FoundationConstructionId[] = 
   "gaussian-distributions",
   "diffusion-equation",
   "flux-continuity",
+  "frames-events",
 ];
 
 /** The construction id for a foundation, with or without its `foundation:` prefix, or null. */
