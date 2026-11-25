@@ -13,6 +13,7 @@ import type { OutputContract } from "../store/instanceStore.ts";
 const contract = (unit: string, semanticKind: string, ownerId: string): OutputContract =>
   Object.freeze({ unit, semanticKind, ownerId, statuses: ["value", "outside-domain"] as const });
 export const SR08_FORCE_LEDGER_OUTPUTS = Object.freeze({
+  chargeAtRestMoving: contract("1", "charge-rest-state-moving", "fields.transformVelocity3D"),
   electricForceStationary: contract("N", "electric-force-stationary", "fields.lorentzForce"),
   electricForceMoving: contract("N", "electric-force-moving", "fields.lorentzForce"),
   magneticForceStationary: contract("N", "magnetic-force-stationary", "fields.lorentzForce"),
@@ -99,6 +100,8 @@ export function forceLedgerOutputs(input: Sr08Input, snapshot: Sr08Snapshot): Sc
     value: data,
   });
   const outputs = [
+    // Classify the complete admitted velocity, not a rounded display or a vanishing force.
+    value("chargeAtRestMoving", up.x === 0 && up.y === 0 && up.z === 0 ? 1 : 0),
     value("electricForceStationary", vector(lorentzForce(input.testCharge, E, zero, u))),
     value("electricForceMoving", vector(lorentzForce(input.testCharge, Ep, zero, up))),
     value("magneticForceStationary", vector(lorentzForce(input.testCharge, zero, B, u))),

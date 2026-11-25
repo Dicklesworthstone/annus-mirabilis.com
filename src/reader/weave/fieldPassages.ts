@@ -23,6 +23,11 @@ export const SR08_WEAVE_PASSAGES: Readonly<Record<string, WeavePassage>> = Objec
     sentenceId: "s6-p5-s2",
     pointerText: SR08_LIVE_WEAVE_PREDICATES[0]?.pointerText ?? "",
   }),
+  "sr08-new-manner-expression": Object.freeze({
+    title: "The electric force in the charge's rest frame",
+    sentenceId: "s6-p10-s1",
+    pointerText: SR08_LIVE_WEAVE_PREDICATES[1]?.pointerText ?? "",
+  }),
 });
 
 export const SR07_READER_WEAVE: ReaderWeaveBinding = Object.freeze({

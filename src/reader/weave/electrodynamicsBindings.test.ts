@@ -133,12 +133,74 @@ test("field pointers preserve vectors, signed boosts, and SI context", () => {
       status: "value",
     });
     expect(current.derived.flags["sr08-field-transformation"]?.lit).toBe(true);
-    expect(current.derived.flags["sr08-new-manner-expression"]).toBeUndefined();
+    expect(current.derived.flags["sr08-new-manner-expression"]?.lit).toBe(beta === 0);
     expect(weaveContext(current.accepted, SR08_READER_WEAVE.contextFields)).toContainEqual({
       id: "boost",
       label: "Signed observer speed along x",
       value: `${beta * C_SI} m/s`,
     });
+  }
+});
+
+test("the new-manner pointer requires the charge's complete accepted rest state", () => {
+  const session = createSr08Session("charge-rest-pointers");
+  const source = createSessionWeave(session, SR08_READER_WEAVE);
+  for (const beta of [0.6, -0.6, 0]) {
+    for (const testCharge of [SR08_DEFAULTS.testCharge, -SR08_DEFAULTS.testCharge, 0]) {
+      const parameters = { ...SR08_DEFAULTS, boost: beta * C_SI, testCharge };
+      expect(session.apply({ ...parameters, chargeVelocityX: parameters.boost }).kind).toBe(
+        "accepted",
+      );
+      const atRest = source.getSnapshot();
+      assert.equal(atRest.kind, "ready");
+      if (atRest.kind !== "ready") continue;
+      expect(weaveOutputs(atRest.accepted).chargeAtRestMoving?.value).toBe(1);
+      expect(atRest.derived.flags["sr08-new-manner-expression"]?.lit).toBe(true);
+
+      // Even a tiny transverse speed is motion. With q = 0 every force vanishes, which
+      // must not substitute for the velocity criterion or borrow a display-rounded zero.
+      expect(
+        session.apply({
+          ...parameters,
+          chargeVelocityX: parameters.boost,
+          chargeVelocityY: 1e-8,
+        }).kind,
+      ).toBe("accepted");
+      const moving = source.getSnapshot();
+      assert.equal(moving.kind, "ready");
+      if (moving.kind !== "ready") continue;
+      expect(weaveOutputs(moving.accepted).chargeAtRestMoving?.value).toBe(0);
+      expect(moving.derived.flags["sr08-new-manner-expression"]?.lit).toBe(false);
+      expect(moving.derived.flags["sr08-field-transformation"]?.lit).toBe(true);
+    }
+  }
+});
+
+test("the rest-frame pointer withdraws when its classification or force readings are absent", () => {
+  const session = createSr08Session("missing-rest-state");
+  expect(session.apply({ ...SR08_DEFAULTS, chargeVelocityX: SR08_DEFAULTS.boost }).kind).toBe(
+    "accepted",
+  );
+  const accepted = session.getSnapshot().accepted;
+  assert.ok(accepted);
+  for (const quantity of [
+    "chargeAtRestMoving",
+    "chargeVelocityMoving",
+    "electricForceMoving",
+    "magneticForceMoving",
+    "transverseForceComoving",
+  ]) {
+    const target = accepted.outputs.find((output) => output.quantityId === quantity);
+    assert.ok(target);
+    for (const outputs of [
+      accepted.outputs.filter((output) => output !== target),
+      [...accepted.outputs, target],
+    ]) {
+      const derived = flags({ ...accepted, outputs }, SR08_READER_WEAVE);
+      expect(derived["sr08-new-manner-expression"]?.lit).toBe(false);
+      expect(derived["sr08-new-manner-expression"]?.state).toBe("not-evaluable");
+      expect(derived["sr08-field-transformation"]?.lit).toBe(true);
+    }
   }
 });
 

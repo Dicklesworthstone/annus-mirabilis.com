@@ -137,6 +137,20 @@
   frame: stationary-system
   colorRole: space-geometry
 
+- id: chargeAtRestMoving
+  name: Charge at rest in the moving system
+  description: >
+    An indicator from the accepted chargeVelocityMoving: one only when all three finite
+    components are exactly zero, zero when any component is nonzero. An unavailable velocity
+    has no indicator value. A zero charge or vanishing magnetic force does not establish rest.
+    This classifies the computed frame description and is not an independent observation.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: pure-number
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: space-geometry
+
 - id: waveFrequencyStationary
   name: Wave frequency (stationary system)
   description: A plane light wave's cyclic frequency as measured in the stationary system K.

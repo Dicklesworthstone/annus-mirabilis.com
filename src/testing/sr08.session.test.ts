@@ -134,6 +134,37 @@ describe("SR-08 session store and parameter validation", () => {
     expect(eMoving?.status).toBe("value");
   });
 
+  test("the rest-state indicator uses all transformed velocity components, not zero force", () => {
+    for (const boost of [-0.6 * C_SI, 0, 0.6 * C_SI]) {
+      for (const testCharge of [SR08_DEFAULTS.testCharge, 0]) {
+        const atRest = { ...SR08_DEFAULTS, boost, testCharge, chargeVelocityX: boost };
+        for (const [change, expected] of [
+          [{}, 1],
+          [{ chargeVelocityX: boost + 1 }, 0],
+          [{ chargeVelocityY: 1e-8 }, 0],
+          [{ chargeVelocityZ: -1e-8 }, 0],
+        ] as const) {
+          const outputs = snapshotOutputs({ ...atRest, ...change });
+          const indicator = outputs.find((output) => output.quantityId === "chargeAtRestMoving");
+          expect(indicator?.status).toBe("value");
+          if (indicator?.status === "value") expect(indicator.value).toBe(expected);
+          if (expected !== 1) continue;
+          const moving = outputs.find((output) => output.quantityId === "chargeVelocityMoving");
+          expect(moving?.status).toBe("value");
+          if (moving?.status === "value") expect(moving.value).toEqual(new Float64Array([0, 0, 0]));
+          const electric = outputs.find((output) => output.quantityId === "electricForceMoving");
+          const total = outputs.find((output) => output.quantityId === "transverseForceComoving");
+          if (electric?.status === "value" && total?.status === "value")
+            expect(total.value).toEqual(electric.value);
+        }
+      }
+    }
+    const unavailable = snapshotOutputs({ ...SR08_DEFAULTS, boost: C_SI });
+    expect(unavailable.find((output) => output.quantityId === "chargeAtRestMoving")?.status).toBe(
+      "outside-domain",
+    );
+  });
+
   describe("numeric fields: blank is not zero", () => {
     test("explicit numeric zero is accepted", () => {
       const checked = validateSr08Parameters({

@@ -254,10 +254,45 @@ test("standalone fields do not opt into paper highlighting", async () => {
   expectCleared([node]);
 });
 
+test("the new-manner passage follows the accepted charge rest frame and clears after a refusal", async () => {
+  const nodes = [sentence("s6-p10-s1", "german"), sentence("s6-p10-s1", "english")];
+  const panel = await mount(
+    <Sr08ClarificationView instanceId="charge-rest-reader" mode={null} presentation="standard" />,
+    true,
+  );
+  expectCleared(nodes);
+  const rest = [...host.querySelectorAll("button")].find(
+    (button) => button.textContent?.trim() === "Charge at rest in k",
+  );
+  assert.ok(rest);
+  await act(async () => rest.click());
+  for (const node of nodes)
+    expect(node.getAttribute("data-live-weave-meaning")).toBe("quantity-compared");
+  expect(
+    panel.querySelector('[data-weave-row="sr08-new-manner-expression"]')?.textContent,
+  ).toContain("exactly zero in all three components");
+  const laboratory = host.querySelector('[data-instrument-id="sr-08"]');
+  assert.ok(laboratory);
+  const runId = laboratory.getAttribute("data-run-id");
+
+  await typeField("boost", "-0.6");
+  expect(nodes[0]?.hasAttribute("data-live-weave-owner")).toBe(true);
+  await submit();
+  expect(laboratory.getAttribute("data-run-id")).toBe(runId);
+  expectCleared(nodes);
+
+  await act(async () => rest.click());
+  expect(nodes[0]?.hasAttribute("data-live-weave-owner")).toBe(true);
+  await typeField("boost", "1.5");
+  await submit();
+  expect(panel.querySelector('[data-weave-inactive="refused"]')).not.toBeNull();
+  expectCleared(nodes);
+});
+
 test("standalone labs retain prepared German and English links without JavaScript", () => {
   for (const [view, ids] of [
     [<FieldEquationsLab key="equations" example={equationsExample} />, ["s6-p2-s1", "s6-p5-s2"]],
-    [<FieldFrameChangeLab key="fields" example={fieldsExample} />, ["s6-p5-s2"]],
+    [<FieldFrameChangeLab key="fields" example={fieldsExample} />, ["s6-p5-s2", "s6-p10-s1"]],
     [<ChargeCurrentLab key="charge" example={chargeExample} />, ["s9-p2-s1", "s9-p3-s1"]],
   ] as const) {
     const html = renderToStaticMarkup(view);

@@ -303,6 +303,12 @@ outputs:
       - value
       - outside-domain
     primary: false
+  - id: chargeAtRestMoving
+    quantityId: chargeAtRestMoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
   - id: transverseForceLaboratory
     quantityId: transverseForceLaboratory
     allowedStatuses:
