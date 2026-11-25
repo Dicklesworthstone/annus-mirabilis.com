@@ -18,6 +18,7 @@ import logarithms from "../../../content/foundations/logarithms.json";
 import rms from "../../../content/foundations/mean-variance-rms.json";
 import partialDerivatives from "../../../content/foundations/partial-derivatives.json";
 import independence from "../../../content/foundations/probability-independence.json";
+import units from "../../../content/foundations/quantities-units.json";
 import taylor from "../../../content/foundations/taylor-expansion.json";
 import historicalUnits from "../../../content/foundations/unit-system-1905.json";
 import viscosity from "../../../content/foundations/viscosity-stokes-drag.json";
@@ -37,6 +38,11 @@ import {
   LIGHT_QUANTA_BUDGET_ARITHMETIC,
   LIGHT_QUANTA_BUDGET_GUIDES,
 } from "./lightQuantaBudgetOperations.ts";
+import {
+  LIGHT_QUANTA_ENTROPY_ARITHMETIC,
+  LIGHT_QUANTA_ENTROPY_FUNCTIONS,
+  LIGHT_QUANTA_ENTROPY_GUIDES,
+} from "./lightQuantaEntropyOperations.ts";
 import { LIGHT_QUANTA_ARITHMETIC, LIGHT_QUANTA_OPERATION_GUIDES } from "./lightQuantaOperations.ts";
 import {
   LIGHT_QUANTA_RADIATION_ARITHMETIC,
@@ -282,6 +288,7 @@ const FOUNDATION_TITLES = new Map(
     gaussians,
     integration,
     partialDerivatives,
+    units,
   ].map(({ id, title }) => [id, title]),
 );
 
@@ -301,6 +308,8 @@ export function compilePrintedSourceSemantics(
     display.paper === "light-quanta" ? LIGHT_QUANTA_BUDGET_GUIDES[display.display] : undefined;
   const radiation =
     display.paper === "light-quanta" ? LIGHT_QUANTA_RADIATION_GUIDES[display.display] : undefined;
+  const spectralEntropy =
+    display.paper === "light-quanta" ? LIGHT_QUANTA_ENTROPY_GUIDES[display.display] : undefined;
   const brownian =
     display.paper === "brownian-motion" ? BROWNIAN_OPERATION_GUIDES[display.display] : undefined;
   const relativity =
@@ -312,6 +321,7 @@ export function compilePrintedSourceSemantics(
     !lightQuanta &&
     !budget &&
     !radiation &&
+    !spectralEntropy &&
     !brownian &&
     !relativity
   )
@@ -321,6 +331,7 @@ export function compilePrintedSourceSemantics(
     brownian ??
     budget ??
     radiation ??
+    spectralEntropy ??
     lightQuanta ??
     MASS_ENERGY_OPERATION_GUIDES[display.display];
   if (!guide)
@@ -331,6 +342,7 @@ export function compilePrintedSourceSemantics(
     );
   const indices =
     relativity?.symbolIndices ?? brownian?.symbolIndices ?? lightQuanta?.symbolIndices ?? {};
+  const calculusGuide = brownian ?? spectralEntropy;
   const parsed = parseSourceExpression(
     display,
     indices,
@@ -342,9 +354,9 @@ export function compilePrintedSourceSemantics(
       ...(relativity?.functionQuantities
         ? { functionQuantities: relativity.functionQuantities }
         : {}),
-      ...(brownian?.functionArities ? { functionArities: brownian.functionArities } : {}),
-      allowCalculus: brownian?.allowCalculus ?? false,
-      allowExponentials: brownian?.allowExponentials ?? false,
+      ...(calculusGuide?.functionArities ? { functionArities: calculusGuide.functionArities } : {}),
+      allowCalculus: calculusGuide?.allowCalculus ?? false,
+      allowExponentials: calculusGuide?.allowExponentials ?? false,
     },
   );
   const expectedOperator =
@@ -390,13 +402,16 @@ export function compilePrintedSourceSemantics(
     const node = nodes.find((n) => n.path === path)?.node;
     const operands = node ? walk(node.tree) : [];
     const symbolIndex = relativity?.primary[path]?.symbolIndex;
-    const exponent = radiation?.primary[path]?.exponent;
-    const calculus = brownian?.primary[path];
+    const exponent = radiation?.primary[path]?.exponent ?? spectralEntropy?.primary[path]?.exponent;
+    const calculus = brownian?.primary[path] ?? spectralEntropy?.primary[path];
+    const functionName = spectralEntropy?.primary[path]?.functionName;
     const argumentsOfSymbol =
       node?.tree.kind === "symbol" ? (node.tree.args ?? (node.tree.at ? [node.tree.at] : [])) : [];
     if (
       !node ||
       node.tree.kind !== reading.kind ||
+      (functionName !== undefined &&
+        (node.tree.kind !== "function" || node.tree.name !== functionName)) ||
       (symbolIndex !== undefined &&
         (node.tree.kind !== "symbol" || node.tree.index !== symbolIndex)) ||
       (exponent !== undefined &&
@@ -416,6 +431,12 @@ export function compilePrintedSourceSemantics(
           node.tree.lower?.kind !== "negate" ||
           node.tree.lower.argument.kind !== "constant" ||
           node.tree.lower.argument.name !== "infinity" ||
+          node.tree.upper?.kind !== "constant" ||
+          node.tree.upper.name !== "infinity")) ||
+      (calculus?.integralBounds === "nonnegative" &&
+        (node.tree.kind !== "integral" ||
+          node.tree.lower?.kind !== "number" ||
+          node.tree.lower.value !== "0" ||
           node.tree.upper?.kind !== "constant" ||
           node.tree.upper.name !== "infinity")) ||
       (calculus?.functionArguments !== undefined &&
@@ -466,14 +487,8 @@ export function compilePrintedSourceSemantics(
     return { dimension: dimensionText(dimensionExponents), dimensionExponents };
   }
   const rowDimensions = parsed.rows.map(({ tree }) => dimensions(tree));
-  const expectedDimension = (brownian ?? budget ?? radiation ?? lightQuanta)?.expectedDimension ?? [
-    "2",
-    "1",
-    "-2",
-    "0",
-    "0",
-    "0",
-  ];
+  const expectedDimension = (brownian ?? budget ?? radiation ?? spectralEntropy ?? lightQuanta)
+    ?.expectedDimension ?? ["2", "1", "-2", "0", "0", "0"];
   const expectedRows =
     relativity?.expectedRowDimensions ?? parsed.rows.map(() => expectedDimension);
   if (
@@ -490,7 +505,7 @@ export function compilePrintedSourceSemantics(
           ? expectedRows
               .map((dimension, index) => `row ${index + 1}: ${dimensionText(dimension)}`)
               .join("; ")
-          : lightQuanta || budget || radiation || brownian
+          : lightQuanta || budget || radiation || spectralEntropy || brownian
             ? dimensionText(expectedDimension)
             : "energy") +
         " in the corresponding complete expression or relation sides.",
@@ -508,12 +523,18 @@ export function compilePrintedSourceSemantics(
           ? LIGHT_QUANTA_BUDGET_ARITHMETIC
           : radiation
             ? LIGHT_QUANTA_RADIATION_ARITHMETIC
-            : lightQuanta
-              ? LIGHT_QUANTA_ARITHMETIC
-              : MASS_ENERGY_ARITHMETIC;
+            : spectralEntropy
+              ? LIGHT_QUANTA_ENTROPY_ARITHMETIC
+              : lightQuanta
+                ? LIGHT_QUANTA_ARITHMETIC
+                : MASS_ENERGY_ARITHMETIC;
     const functionReading =
-      node.tree.kind === "function" && (relativity || brownian)
-        ? (relativity ?? brownian)?.functions?.[node.tree.name]
+      node.tree.kind === "function" && (relativity || brownian || spectralEntropy)
+        ? spectralEntropy
+          ? node.tree.name === "exp" || node.tree.name === "ln"
+            ? LIGHT_QUANTA_ENTROPY_FUNCTIONS[node.tree.name]
+            : undefined
+          : (relativity ?? brownian)?.functions?.[node.tree.name]
         : undefined;
     const reading = authored ?? functionReading ?? arithmetic[node.tree.kind];
     const foundationTitle = reading ? FOUNDATION_TITLES.get(reading.foundation) : undefined;
@@ -522,10 +543,13 @@ export function compilePrintedSourceSemantics(
       !reading ||
       !foundationTitle ||
       (node.tree.kind === "power" &&
-        (node.tree.exponent.num !== (radiation ? radiation.primary[path]?.exponent : 2) ||
+        (node.tree.exponent.num !==
+          (radiation || spectralEntropy
+            ? (radiation ?? spectralEntropy)?.primary[path]?.exponent
+            : 2) ||
           node.tree.exponent.den !== 1)) ||
       (node.tree.kind === "function" &&
-        (relativity || brownian
+        (relativity || brownian || spectralEntropy
           ? !functionReading
           : node.tree.name !==
             (lightQuanta ? "ln" : budget || radiation || brownian ? undefined : "cos")))
