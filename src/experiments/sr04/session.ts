@@ -23,13 +23,16 @@ import {
   solveCandidateFamily,
   speedOfLightMetresPerSecond,
 } from "../../physics/reference/kinematics.ts";
-import type {
-  AcceptedSnapshot,
-  ExperimentView,
-  PublishedResult,
-  RequestToken,
-} from "../store/instanceStore.ts";
-import { SR04_DEFAULTS, type Sr04Parameters, splitConstraints } from "./definition.ts";
+import type { ScientificResult } from "../results/types.ts";
+import { createCalculationSession, rejectCalculation } from "../store/calculationSession.ts";
+import {
+  ALL_CONSTRAINTS,
+  SR04_CLASSES,
+  SR04_DEFAULTS,
+  SR04_OUTPUTS,
+  type Sr04Parameters,
+  splitConstraints,
+} from "./definition.ts";
 import { validateSr04Parameters } from "./parameters.ts";
 
 export type LaterAids = Readonly<{
@@ -108,207 +111,129 @@ export type PreparedSr04Example = Readonly<{
   sourceDigest: string;
 }>;
 
-function toPublished(
-  id: string,
-  unit: string,
-  semanticKind: string,
-  ownerId: string,
-  result: KinematicResult<number>,
-): PublishedResult {
-  if (result.status === "value") {
-    return { quantityId: id, unit, semanticKind, ownerId, status: "value", value: result.value };
+function outputIdentity(quantityId: string) {
+  const contract = SR04_OUTPUTS[quantityId];
+  if (!contract) rejectCalculation(`SR-04: unknown output ${quantityId}.`);
+  return {
+    quantityId,
+    unit: contract.unit,
+    semanticKind: contract.semanticKind,
+    ownerId: contract.ownerId,
+  };
+}
+
+function result(quantityId: string, value: KinematicResult<number>): ScientificResult {
+  const identity = outputIdentity(quantityId);
+  if (value.status === "value") {
+    if (!Number.isFinite(value.value))
+      rejectCalculation(`SR-04 ${quantityId}: the owner returned a non-finite value.`);
+    return { ...identity, status: "value", value: value.value };
   }
   return {
-    quantityId: id,
-    unit,
-    semanticKind,
-    ownerId,
+    ...identity,
     status: "outside-domain",
-    condition: result.condition,
-    domainKind: result.domainKind,
-    reason: result.reason,
+    condition: value.condition,
+    domainKind: value.domainKind,
+    reason: value.reason,
     boundary: { alternativeModel: "Choose inputs within the stated domain." },
   };
 }
 
-export function buildSr04Snapshot(
-  instanceId: string,
-  runId: string,
-  parameters: Sr04Parameters,
-  inputRevision = 1,
-  actionIndex = 0,
-  parentRunId: string | null = null,
-): AcceptedSnapshot {
-  const evaluation = evaluateSr04(parameters);
-  const outputs: PublishedResult[] = [
-    toPublished(
-      "slowCaseGalilean",
-      "m/s",
-      "galilean-composed-velocity",
-      "kinematics.galileanVelocity",
-      evaluation.slowCaseGalilean,
+/** The strict publication and the detailed readout project one accepted owner evaluation. */
+function snapshotOutputs(evaluation: Sr04Evaluation): readonly ScientificResult[] {
+  const family = evaluation.family;
+  const c = speedOfLightMetresPerSecond();
+  let constraintFamily: ScientificResult;
+  if (family.status === "value") {
+    // Coefficients of x'/c = a(x/c - beta*t), t' = b*t + (c*d)(x/c), all dimensionless.
+    // The transverse scale is deliberately absent: a longitudinal solution does not fix it.
+    constraintFamily = {
+      ...outputIdentity("constraintFamily"),
+      status: "value",
+      value: Float64Array.of(family.value.a, family.value.b, c * family.value.d),
+    };
+  } else if (family.status === "underdetermined") {
+    constraintFamily = {
+      ...outputIdentity("constraintFamily"),
+      status: "underdetermined",
+      compatibleFamily: family.compatibleFamily,
+      neededInformation: family.neededInformation,
+    };
+  } else if (family.status === "outside-domain") {
+    constraintFamily = result("constraintFamily", family);
+  } else {
+    constraintFamily = {
+      ...outputIdentity("constraintFamily"),
+      status: "not-applicable",
+      reason:
+        "This reading tests a particular candidate. Enable construction requirements to infer an admissible family.",
+    };
+  }
+
+  let candidateResiduals: ScientificResult;
+  if (family.status === "residual-report") {
+    // Keep the declared unit honest: light residuals arrive in m/s; every other residual is
+    // dimensionless. The displayed table keeps the owner's original units and values.
+    const residuals = ALL_CONSTRAINTS.map((constraint) => {
+      const value = family.residuals[constraint];
+      if (value === undefined || !Number.isFinite(value))
+        rejectCalculation(`SR-04 ${constraint}: the candidate has no finite residual.`);
+      return constraint === "right-moving-light" || constraint === "left-moving-light"
+        ? value / c
+        : value;
+    });
+    candidateResiduals = {
+      ...outputIdentity("candidateResiduals"),
+      status: "value",
+      value: Float64Array.from(residuals),
+    };
+  } else {
+    candidateResiduals = {
+      ...outputIdentity("candidateResiduals"),
+      status: "not-applicable",
+      reason:
+        "The construction describes a family. Test a particular candidate to read its residuals.",
+    };
+  }
+
+  const deviation = evaluation.slowCaseDeviation;
+  return [
+    constraintFamily,
+    candidateResiduals,
+    result("slowCaseGalilean", evaluation.slowCaseGalilean),
+    result(
+      "slowCaseDeviation",
+      deviation.status === "value"
+        ? { status: "value", value: deviation.value.difference }
+        : deviation,
     ),
-    toPublished(
-      "rightRayFraction",
-      "1",
-      "galilean-transformed-light-speed-fraction",
-      "kinematics.galileanVelocity",
-      evaluation.rightRayFraction,
-    ),
-    toPublished(
-      "leftRayFraction",
-      "1",
-      "galilean-transformed-light-speed-fraction",
-      "kinematics.galileanVelocity",
-      evaluation.leftRayFraction,
-    ),
-    toPublished(
-      "lorentzFactor",
-      "1",
-      "lorentz-factor",
-      "kinematics.gamma",
-      evaluation.laterAids.gammaValue,
-    ),
-    toPublished(
-      "rapidity",
-      "1",
-      "rapidity",
-      "kinematics.rapidity",
-      evaluation.laterAids.rapidityValue,
-    ),
+    result("rightRayFraction", evaluation.rightRayFraction),
+    result("leftRayFraction", evaluation.leftRayFraction),
+    result("lorentzFactor", evaluation.laterAids.gammaValue),
+    result("rapidity", evaluation.laterAids.rapidityValue),
   ];
-  return Object.freeze({
-    experimentId: "sr-04",
-    instanceId,
-    runId,
-    parentRunId,
-    actionIndex,
-    revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
-    parameters: Object.freeze({ ...parameters }),
-    stepIndex: 0,
-    simulationTime: 0,
-    final: true,
-    snapshotVersion: inputRevision,
-    outputs: Object.freeze(outputs),
-  });
 }
 
 export function createSr04Session(
   instanceId = "sr04-default",
   initialParameters: Sr04Parameters = SR04_DEFAULTS,
 ) {
-  let currentParams = { ...initialParameters };
-  let currentRunId = `${instanceId}/run/1`;
-  let parentRunId: string | null = null;
-  let inputRevision = 1;
-  let actionIndex = 0;
-  let acceptedSnapshot = buildSr04Snapshot(
+  const session = createCalculationSession({
+    experimentId: "sr-04",
     instanceId,
-    currentRunId,
-    currentParams,
-    inputRevision,
-    actionIndex,
-    parentRunId,
-  );
-
-  const listeners = new Set<() => void>();
-  function notify() {
-    for (const listener of listeners) listener();
-  }
-
-  let view: ExperimentView = {
-    status: "accepted",
-    pending: false,
-    requested: {
-      experimentId: "sr-04",
-      instanceId,
-      runId: currentRunId,
-      parentRunId,
-      actionIndex,
-      revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
-      parameters: currentParams,
-    } as RequestToken,
-    accepted: acceptedSnapshot,
-    refusal: null,
-    outcome: null,
-  };
-
-  const serverView = view;
-  function apply(parameters: unknown, newRun = false) {
-    const validated = validateSr04Parameters(parameters);
-    if (validated.kind !== "accepted") {
-      if (validated.kind === "refused") {
-        view = { ...view, status: "refused", refusal: validated.refusal };
-        notify();
-      }
-      return validated;
-    }
-    actionIndex++;
-    const isSetupChange =
-      currentParams.vOverC !== validated.data.vOverC ||
-      currentParams.candidateA !== validated.data.candidateA ||
-      currentParams.candidateB !== validated.data.candidateB ||
-      currentParams.candidateD !== validated.data.candidateD;
-    if (newRun || isSetupChange) {
-      parentRunId = currentRunId;
-      inputRevision++;
-      currentRunId = `${instanceId}/run/${inputRevision}`;
-    }
-    currentParams = { ...validated.data };
-    acceptedSnapshot = buildSr04Snapshot(
-      instanceId,
-      currentRunId,
-      currentParams,
-      inputRevision,
-      actionIndex,
-      parentRunId,
-    );
-    view = {
-      status: "accepted",
-      pending: false,
-      requested: {
-        experimentId: "sr-04",
-        instanceId,
-        runId: currentRunId,
-        parentRunId,
-        actionIndex,
-        revisions: { input: inputRevision, observer: 0, measurement: 0, estimator: 0 },
-        parameters: currentParams,
-      } as RequestToken,
-      accepted: acceptedSnapshot,
-      refusal: null,
-      outcome: null,
-    };
-    notify();
-    return { kind: "accepted" as const, data: currentParams };
-  }
-
-  return {
-    subscribe(callback: () => void) {
-      listeners.add(callback);
-      return () => listeners.delete(callback);
-    },
-    getSnapshot(): ExperimentView {
-      return view;
-    },
-    // The view the page was built with, frozen, as React's server snapshot must be. It returned
-    // the live view, so the lab's "is this still the build's example" identity test held for every
-    // accepted run and the label stayed "Static worked example" over the reader's own results
-    // (BM-03's session had the same fault, measured on live).
-    getServerSnapshot(): ExperimentView {
-      return serverView;
-    },
-    acceptedParameters(): Sr04Parameters {
-      return currentParams;
-    },
-    apply: (input: unknown) => apply(input),
-    startNewRun: (input: unknown) => apply(input, true),
-    stop() {
-      // Synchronous calculation, no-op.
-    },
-    disconnect() {
-      listeners.clear();
-    },
+    initialParameters,
+    parameterClasses: SR04_CLASSES,
+    outputs: SR04_OUTPUTS,
+    validate: validateSr04Parameters,
+    evaluate: evaluateSr04,
+    results: snapshotOutputs,
+  });
+  const initialView = session.getServerSnapshot();
+  if (!initialView.accepted) rejectCalculation("SR-04: no accepted initial calculation.");
+  const serverSnapshot = Object.freeze({ ...initialView, accepted: initialView.accepted });
+  return Object.freeze({
+    ...session,
+    getServerSnapshot: () => serverSnapshot,
     defaults: SR04_DEFAULTS,
-  };
+  });
 }

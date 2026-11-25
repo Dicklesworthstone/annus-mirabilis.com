@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 318 quantities, 45 rejected spellings, 0 reserved spellings.
+Total: 348 quantities, 45 rejected spellings, 0 reserved spellings.
 
 ## Registered quantities
 
@@ -64,6 +64,8 @@ Total: 318 quantities, 45 rejected spellings, 0 reserved spellings.
 | coordinateTimeStationary | Coordinate time (stationary system) | 0,0,1,0,0,0 | stationary-system | scalar | coordinateTime |
 | currentDensityMoving | Current density (moving system) | -2,0,0,0,1,0 | moving-system | vector | currentDensity |
 | currentDensityStationary | Current density (stationary system) | -2,0,0,0,1,0 | stationary-system | vector | currentDensity |
+| detectorCrossings | Accumulated wave cycles at a detector | 0,0,0,0,0,0 | frame-independent | scalar | — |
+| detectorProperFrequency | Wave frequency on the detector's clock | 0,0,-1,0,0,0 | object-rest | scalar | — |
 | diffusionCoefficient | Diffusion coefficient | 2,0,-1,0,0,0 | not-applicable | scalar | — |
 | diffusionFlux | Diffusion flux | -2,0,-1,0,0,0 | not-applicable | scalar | — |
 | diffusionFluxComponent | Diffusion flux component | -2,0,-1,0,0,0 | not-applicable | vector-component | — |
@@ -99,13 +101,22 @@ Total: 318 quantities, 45 rejected spellings, 0 reserved spellings.
 | emittedEnergyRestFrame | Emitted energy (object rest frame) | 2,1,-2,0,0,0 | object-rest | scalar | emittedEnergyRest |
 | emittedFrequency | Emitted frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | emittedQuantumRate | Fluorescent emitted quantum rate | 0,0,-1,0,0,0 | not-applicable | scalar | — |
+| emittedRestEnergyFraction | Fraction of initial rest energy emitted | 0,0,0,0,0,0 | stationary-system | scalar | — |
+| emitterKineticEnergy | Emitter recoil kinetic energy | 2,1,-2,0,0,0 | stationary-system | scalar | — |
+| emitterMassChange | Modern emitter rest-mass change | 0,1,0,0,0,0 | not-applicable | scalar | — |
+| emitterMomentum | Remaining emitter x momentum | 1,1,-1,0,0,0 | stationary-system | scalar | — |
+| emitterRecoilVelocity | Remaining emitter x velocity | 1,0,-1,0,0,0 | stationary-system | scalar | — |
 | endpointSimultaneityOffset | Endpoint simultaneity offset | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | energyDensityBelowCutoff | Energy density below a cutoff frequency | -1,1,-2,0,0,0 | not-applicable | scalar | — |
+| energyEquivalentMass | Mass equivalent of a reported energy gain | 0,1,0,0,0,0 | not-applicable | scalar | — |
 | entropy | Entropy | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyDifference, entropyFunctionOfProbability |
 | entropyDensityConstant | Integration constant of the spectral entropy density | -1,1,-1,-1,0,0 | not-applicable | scalar | — |
 | entropyFromUnfixedConstant | Entropy an unfixed constant would add | 2,1,-2,-1,0,0 | not-applicable | scalar | — |
+| entropySlopeRelativeDiscrepancy | Relative discrepancy of the entropy slope | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | entropyVolumeCoefficient | Entropy-volume coefficient | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyCoefficient |
+| escapeWork | Escape work per photoelectron in the SI energy budget | 2,1,-2,0,0,0 | not-applicable | scalar | — |
 | eventSeparationSpatial | Spatial event separation | 1,0,0,0,0,0 | not-applicable | scalar | — |
+| eventSeparationSpatialMoving | Spatial event separation (moving system) | 1,0,0,0,0,0 | moving-system | scalar | — |
 | eventSeparationTemporal | Temporal event separation | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | eventSeparationTemporalMoving | Temporal event separation (moving system) | 0,0,1,0,0,0 | moving-system | scalar | — |
 | eventSeparationTemporalStationary | Temporal event separation (stationary system) | 0,0,1,0,0,0 | stationary-system | scalar | — |
@@ -139,10 +150,14 @@ Total: 318 quantities, 45 rejected spellings, 0 reserved spellings.
 | independentPointCount | Independent point count | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | inducedCircuitCurrent | Induced circuit current | 0,0,0,0,1,0 | not-applicable | scalar | — |
 | inertialMassDecrease | Inertial mass decrease | 0,1,0,0,0,0 | not-applicable | scalar | massLossCoefficient |
+| initialEmitterEnergy | Initial emitter energy | 2,1,-2,0,0,0 | stationary-system | scalar | — |
+| initialEmitterMass | Initial emitter rest mass in the modern emission model | 0,1,0,0,0,0 | not-applicable | scalar | — |
+| initialTrajectoryCurvature | Initial spatial trajectory curvature | -1,0,0,0,0,0 | stationary-system | scalar | — |
 | intensity | Intensity | 0,1,-3,0,0,0 | not-applicable | scalar | — |
 | interceptedPower | Intercepted power | 2,1,-3,0,0,0 | not-applicable | scalar | — |
 | intervalProbability | Interval probability | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | invariantMassSystem | Invariant mass of a system | 0,1,0,0,0,0 | not-applicable | scalar | — |
+| inverseTemperature | Inverse temperature | 0,0,0,-1,0,0 | not-applicable | scalar | — |
 | ionCount | Number of ionized molecules | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | ionizationEnergyPerMolecule | Ionization energy per molecule | 2,1,-2,0,0,0 | not-applicable | scalar | ionizationEnergy |
 | ionizationRate | Ionization event rate | 0,0,-1,0,0,0 | not-applicable | scalar | — |
@@ -201,6 +216,8 @@ Total: 318 quantities, 45 rejected spellings, 0 reserved spellings.
 | molesPerVolume | Moles per volume | -3,0,0,0,0,1 | not-applicable | scalar | — |
 | mostLikelyRadius2d | Most likely radius (two dimensions) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | naiveGammaMinusOne | Naive Lorentz-factor excess | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| normalizedCandidateConstraintResiduals | Normalized candidate-map constraint residuals | 0,0,0,0,0,0 | not-applicable | vector | — |
+| normalizedLorentzMapCoefficients | Normalized longitudinal coordinate-map coefficients | 0,0,0,0,0,0 | not-applicable | vector | — |
 | numberDensity | Number density | -3,0,0,0,0,0 | not-applicable | scalar | — |
 | observationInterval | Observation interval | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | osmoticDecayLength | Osmotic decay length | 1,0,0,0,0,0 | not-applicable | scalar | decayLength |
@@ -238,6 +255,7 @@ Total: 318 quantities, 45 rejected spellings, 0 reserved spellings.
 | quantumEfficiency | Quantum efficiency | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | quantumEnergy | Quantum energy | 2,1,-2,0,0,0 | not-applicable | scalar | meanQuantumEnergy |
 | quantumRate | Incident quantum rate | 0,0,-1,0,0,0 | not-applicable | scalar | — |
+| quotedMassMeasurementError | Quoted error of a measured mass difference | 0,1,0,0,0,0 | not-applicable | scalar | — |
 | radialDistance2d | Radial distance (two dimensions) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | radiationElectricField | Radiation electric field | 1,1,-3,0,-1,0 | not-applicable | vector | electricForceComponentZ |
 | radiationEnergy | Radiation energy | 2,1,-2,0,0,0 | not-applicable | scalar | — |
@@ -246,16 +264,25 @@ Total: 318 quantities, 45 rejected spellings, 0 reserved spellings.
 | radiationForce | Radiation force | 1,1,-2,0,0,0 | not-applicable | vector | — |
 | radiationForceAbsorbed | Push of light on an absorbing surface | 1,1,-2,0,0,0 | not-applicable | scalar | — |
 | radiationForceReflected | Push of light on a mirror | 1,1,-2,0,0,0 | not-applicable | scalar | — |
+| radiationMomentum | Net radiation x momentum | 1,1,-1,0,0,0 | stationary-system | scalar | — |
 | radiationPressureMirror | Radiation pressure on a mirror | -1,1,-2,0,0,0 | not-applicable | scalar | — |
+| radiusCubedTimesMolecularNumber | Compatible radius cubed times molecular number | 3,0,0,0,0,-1 | not-applicable | scalar | — |
 | radiusCurvatureElectric | Radius of curvature (electric deflection) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | radiusCurvatureMagnetic | Radius of curvature (magnetic deflection) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | radiusNumberProduct | Compatible radius × number | 1,0,0,0,0,-1 | not-applicable | scalar | — |
 | rapidity | Rapidity | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| reactionEnergyGain | Nuclear reaction energy gain | 2,1,-2,0,0,0 | laboratory | scalar | — |
+| reactionEnergyMeasurementError | Error of a reported reaction energy gain | 2,1,-2,0,0,0 | laboratory | scalar | — |
+| reactionMassDefect | Independently measured reaction mass defect | 0,1,0,0,0,0 | not-applicable | scalar | — |
 | recedingDopplerFactor | Receding line-of-sight Doppler factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | recoilSpeed | Recoil speed | 1,0,-1,0,0,0 | not-applicable | scalar | — |
 | reflectedFrequencyRatio | Reflected frequency ratio | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| relativeSpecificViscosityResidual | Relative residual of the specific viscosity | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | relativeSpectralEmission | Relative spectral emission | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | relativeViscosity | Relative viscosity | 0,0,0,0,0,0 | not-applicable | scalar | viscosityRatio |
+| relativisticGalileanVelocityDifference | Relativistic minus Galilean composed velocity | 1,0,-1,0,0,0 | moving-system | scalar | — |
+| remainingEmitterEnergy | Remaining emitter energy | 2,1,-2,0,0,0 | stationary-system | scalar | — |
+| remainingEmitterMass | Remaining emitter invariant mass | 0,1,0,0,0,0 | not-applicable | scalar | — |
 | rmsDisplacement1d | RMS displacement (one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | rmsRadialDistance | RMS radial distance | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | sampleSize | Number of values in a sample | 0,0,0,0,0,0 | not-applicable | scalar | — |
@@ -265,9 +292,11 @@ Total: 318 quantities, 45 rejected spellings, 0 reserved spellings.
 | signalReflectionTimeB | Signal reflection time at B | 0,0,1,0,0,0 | stationary-system | scalar | — |
 | signalReturnTimeA | Signal return time at A | 0,0,1,0,0,0 | stationary-system | scalar | — |
 | soluteAmount | Solute amount | 0,0,0,0,0,1 | not-applicable | scalar | — |
+| sourcePeriodCount | Source periods in a stationary-frame counting window | 0,0,0,0,0,0 | stationary-system | scalar | — |
 | sourcePower | Power of the source | 2,1,-3,0,0,0 | not-applicable | scalar | — |
 | spacetimeIntervalSquared | Squared spacetime interval | 2,0,0,0,0,0 | frame-independent | scalar | intervalSquared |
 | spectralEntropyDensity | Spectral entropy density | -1,1,-1,-1,0,0 | not-applicable | scalar | — |
+| spectralEntropyDensitySlope | Spectral entropy density slope | 0,0,0,-1,0,0 | not-applicable | scalar | — |
 | speedDeficitFromLight | Speed deficit from light speed: kappa, lambda | 1,0,-1,0,0,0 | not-applicable | scalar | — |
 | speedOfLight | Speed of light | 1,0,-1,0,0,0 | not-applicable | scalar | lightSpeed |
 | speedOfLightSquared | Speed of light squared, as a printed factor | 2,0,-2,0,0,0 | not-applicable | scalar | — |
@@ -320,6 +349,7 @@ Total: 318 quantities, 45 rejected spellings, 0 reserved spellings.
 | waveFrequencyReflectedStationary | Reflected light frequency (stationary system) | 0,0,-1,0,0,0 | stationary-system | scalar | — |
 | waveFrequencyStationary | Wave frequency (stationary system) | 0,0,-1,0,0,0 | stationary-system | scalar | — |
 | wavePhase | Wave phase | 0,0,0,0,0,0 | frame-independent | scalar | — |
+| wavePhaseAgreement | Named-event phase comparison | 0,0,0,0,0,0 | frame-independent | scalar | — |
 | wavelength | Wavelength | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | wavelengthEnergyDensity | Wavelength-basis spectral energy density | -2,1,-2,0,0,0 | not-applicable | scalar | — |
 | wienConstantAlpha | Wien's constant: alpha | -1,1,2,0,0,0 | not-applicable | scalar | — |

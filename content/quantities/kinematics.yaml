@@ -432,3 +432,47 @@
   mathematicalKind: vector
   frame: laboratory
   colorRole: space-geometry
+
+- id: normalizedLorentzMapCoefficients
+  name: Normalized longitudinal coordinate-map coefficients
+  description: >
+    The ordered vector [a, b, c*d] for the modern ansatz x'/c = a(x/c - (v/c)t)
+    and t' = b*t + (c*d)(x/c). All entries are dimensionless. This is the longitudinal
+    map inferred by SR-04's enabled requirements; it contains no transverse coefficient
+    and makes no claim that the transverse scale has been fixed. Before the requirements
+    select a unique map, the instrument publishes the compatible family as underdetermined.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: vector
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: normalizedCandidateConstraintResiduals
+  name: Normalized candidate-map constraint residuals
+  description: >
+    The ordered vector of a candidate map's right-moving-light, left-moving-light,
+    reciprocity, isotropy, identity-branch, and transverse-light residuals. Each light-ray
+    speed residual is divided by c; the remaining residuals are already dimensionless.
+    These are computed checks on a proposed coordinate map, with zero denoting that
+    requirement's algebraic equality, rather than independent measurements. The visible
+    SR-04 table retains the unnormalized light residuals in meters per second.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: vector
+  frame: not-applicable
+  colorRole: space-geometry
+
+- id: relativisticGalileanVelocityDifference
+  name: Relativistic minus Galilean composed velocity
+  description: >
+    The signed difference between the relativistic collinear velocity (u - v)/(1 - uv/c^2)
+    and the Galilean velocity u - v for the same object and observer. SR-04 evaluates it
+    in a cancellation-free form so the small slow-motion difference remains resolved.
+    Both velocities describe the object in the moving observer's frame.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: space-geometry

@@ -1,4 +1,8 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import {
+  checkCandidateMap,
+  speedOfLightMetresPerSecond,
+} from "../../physics/reference/kinematics.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import {
   ALL_CONSTRAINTS,
@@ -59,6 +63,42 @@ export function validateSr04Parameters(input: unknown): Computation<Sr04Paramete
     return bad(
       "Enter an object speed of at most 10 000 m/s either way: this is the slow case, and faster composition is in the velocity-composition laboratory.",
     );
+
+  if (p.testCandidate) {
+    // A wrong finite candidate is useful evidence. A candidate with no finite transformed
+    // light-ray speed cannot supply the residual table, and is an input-domain question,
+    // rather than evidence of a broken evaluator. Let the same scientific owner decide.
+    const checked = checkCandidateMap(
+      {
+        a: p.candidateA,
+        b: p.candidateB,
+        d: p.candidateD,
+        transverseScale: p.candidateTransverseScale,
+      },
+      p.vOverC * speedOfLightMetresPerSecond(),
+    );
+    if (Object.values(checked.residuals).some((value) => !Number.isFinite(value)))
+      return {
+        kind: "refused",
+        refusal: makeRefusal(
+          "invalid-parameter",
+          { parameterIds: ["candidateB", "candidateD"] },
+          {
+            details: {
+              requirements:
+                "This candidate gives zero or numerically unusable elapsed time for a light ray. Choose b and d so both transformed light-ray speeds are finite, or return to the constraint construction.",
+            },
+            rankedRepairs: [
+              {
+                label: "Return to the constraint construction",
+                action: { parameterId: "testCandidate", value: false },
+              },
+              { label: "Choose b and d that give finite transformed light-ray speeds." },
+            ],
+          },
+        ),
+      };
+  }
 
   return { kind: "accepted", data: Object.freeze({ ...p }) };
 }

@@ -151,6 +151,25 @@ parameters:
     role: independent
     commandClass: setup-change
 outputs:
+  - id: constraintFamily
+    quantityId: normalizedLorentzMapCoefficients
+    allowedStatuses:
+      - value
+      - underdetermined
+      - not-applicable
+      - outside-domain
+    primary: false
+  - id: candidateResiduals
+    quantityId: normalizedCandidateConstraintResiduals
+    allowedStatuses:
+      - value
+      - not-applicable
+    primary: false
+  - id: slowCaseDeviation
+    quantityId: relativisticGalileanVelocityDifference
+    allowedStatuses:
+      - value
+    primary: false
   - id: slowCaseGalilean
     quantityId: velocityInMovingFrame
     allowedStatuses:

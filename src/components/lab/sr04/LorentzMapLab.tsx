@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { typedOrNaN } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
@@ -27,12 +27,7 @@ import {
   type Sr04Parameters,
   splitConstraints,
 } from "../../../experiments/sr04/definition.ts";
-import {
-  buildSr04Snapshot,
-  createSr04Session,
-  evaluateSr04,
-  type PreparedSr04Example,
-} from "../../../experiments/sr04/session.ts";
+import { createSr04Session, type PreparedSr04Example } from "../../../experiments/sr04/session.ts";
 import { SR04_TAPE } from "../../../experiments/sr04/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { useRetainedSession } from "../../../experiments/store/retainedSession.tsx";
@@ -151,9 +146,7 @@ export function LorentzMapLab({
     },
   );
 
-  const fallback =
-    session.getServerSnapshot().accepted ??
-    buildSr04Snapshot(instanceId ?? `sr04-${id}`, "sr04-init", SR04_DEFAULTS, 0, 0);
+  const fallback = session.getServerSnapshot().accepted;
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Sr04Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
@@ -170,7 +163,7 @@ export function LorentzMapLab({
   const [ready, setReady] = useState(false);
   const [failure, setFailure] = useState<ApplyFailure | null>(null);
 
-  const evaluation = evaluateSr04(p);
+  const evaluation = session.getCalculation();
 
   useEffect(() => {
     setReady(true);
@@ -179,7 +172,7 @@ export function LorentzMapLab({
 
   function apply(parameters: unknown) {
     const outcome = session.apply(parameters);
-    if (outcome.kind === "refused") {
+    if (outcome.kind !== "accepted") {
       // THE REFUSAL IS KEPT (am-ig23). Flattening it to its sentence discarded the code, the ranked
       // repairs and the staleness marking - three of the four things AGENTS.md's refusal contract asks
       // for - one layer below any component that could have shown them.
@@ -513,10 +506,7 @@ export function LorentzMapLab({
               {evaluation.slowCaseDeviation.status === "value" && (
                 <>
                   , and the exact map differs from that by{" "}
-                  <Sci
-                    value={Math.abs(evaluation.slowCaseDeviation.value.difference)}
-                    digits={2}
-                  />{" "}
+                  <Sci value={Math.abs(evaluation.slowCaseDeviation.value.difference)} digits={2} />{" "}
                   m/s
                 </>
               )}
@@ -529,12 +519,12 @@ export function LorentzMapLab({
               separately from the frame speed v used for the light-ray test.
             </p>
 
-            {draft.showLaterAids && (
+            {p.showLaterAids && (
               <>
                 <h3>Later aids (never a premise of the construction above)</h3>
                 <p>
-                  Lorentz factor: {fractionText(evaluation.laterAids.gammaValue, "")}.
-                  Rapidity: {fractionText(evaluation.laterAids.rapidityValue, "")}.
+                  Lorentz factor: {fractionText(evaluation.laterAids.gammaValue, "")}. Rapidity:{" "}
+                  {fractionText(evaluation.laterAids.rapidityValue, "")}.
                   {evaluation.laterAids.eigenvalues && (
                     <>
                       {" "}

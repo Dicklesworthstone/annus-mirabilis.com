@@ -89,12 +89,18 @@ const c = (
   Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
 
 export const SR04_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
-  constraintFamily: c("1", "candidate-map-family-status", "kinematics.solveCandidateFamily", [
-    "value",
-    "underdetermined",
-    "outside-domain",
-  ]),
-  candidateResiduals: c("1", "candidate-map-residuals", "kinematics.checkCandidateMap"),
+  constraintFamily: c(
+    "1",
+    "candidate-map-longitudinal-coefficients",
+    "kinematics.solveCandidateFamily",
+    ["value", "underdetermined", "not-applicable", "outside-domain"],
+  ),
+  candidateResiduals: c(
+    "1",
+    "normalized-candidate-constraint-residuals",
+    "kinematics.checkCandidateMap",
+    ["value", "not-applicable"],
+  ),
   slowCaseGalilean: c("m/s", "galilean-composed-velocity", "kinematics.galileanVelocity"),
   slowCaseDeviation: c(
     "m/s",
