@@ -165,9 +165,10 @@ export function BoundaryLedgerLab({
       })
     : null;
 
-  const boxScale = isBox
-    ? buildMe03BoxScale(p.magnification, boxEvaluation?.flightTimeValue ?? 3.33564095198152e-9)
-    : null;
+  const boxScale =
+    boxEvaluation?.status === "value"
+      ? buildMe03BoxScale(p.magnification, boxEvaluation.flightTimeValue)
+      : null;
   if (boxScale) {
     validateMe03BoxScale(boxScale, "me-03:box-1906");
   }
@@ -761,7 +762,11 @@ export function BoundaryLedgerLab({
 
         <div className="lab-results" {...gate.response}>
           {/* Main Visual Plot */}
-          {isBox && boxEvaluation && boxScale ? (
+          {isBox && boxEvaluation?.status === "outside-domain" ? (
+            <p className="notice" data-photon-box-unavailable>
+              {boxEvaluation.reason} Change the box or pulse settings to calculate another case.
+            </p>
+          ) : isBox && boxEvaluation && boxScale ? (
             <PhotonBoxPlot
               parameters={p}
               evaluation={boxEvaluation}

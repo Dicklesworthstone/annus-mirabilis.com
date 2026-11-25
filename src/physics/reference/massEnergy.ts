@@ -2182,14 +2182,37 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
   const c = constantValue(set, "speedOfLight").value;
   const cSq = c * c;
 
-  const refuse = (reason: string, condition: string): PhotonInBoxResult => {
+  const refuse = (
+    reason: string,
+    condition: string,
+    domainKind: DomainKind = "physical",
+  ): PhotonInBoxResult => {
+    const outside = (
+      quantityId: string,
+      unit: string,
+      semanticKind: string,
+      ownerId: string,
+      condition: string,
+      reason: string,
+    ): ScientificResult => Object.freeze({
+      ...identity(quantityId, unit, semanticKind, ownerId),
+      status: "outside-domain",
+      condition,
+      reason,
+      domainKind,
+      boundary: Object.freeze({
+        alternativeModel: domainKind === "numerical"
+          ? "Choose box and pulse scales whose nonzero outputs fit the numerical range."
+          : "Choose positive box and pulse settings within the small-recoil approximation.",
+      }),
+    });
     return Object.freeze({
       status: "outside-domain" as const,
       condition,
       reason,
-      boxMass: asOutside("boxMass", "kg", "box-mass", "massEnergy.box", condition, reason),
-      boxLength: asOutside("boxLength", "m", "box-length", "massEnergy.box", condition, reason),
-      pulseEnergy: asOutside(
+      boxMass: outside("boxMass", "kg", "box-mass", "massEnergy.box", condition, reason),
+      boxLength: outside("boxLength", "m", "box-length", "massEnergy.box", condition, reason),
+      pulseEnergy: outside(
         "emittedEnergyRestFrame",
         "J",
         "emitted-energy",
@@ -2197,7 +2220,7 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
         condition,
         reason,
       ),
-      pulseFlightTime: asOutside(
+      pulseFlightTime: outside(
         "pulseFlightTime",
         "s",
         "pulse-flight-time",
@@ -2205,7 +2228,7 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
         condition,
         reason,
       ),
-      recoilSpeed: asOutside(
+      recoilSpeed: outside(
         "recoilSpeed",
         "m/s",
         "recoil-speed",
@@ -2213,7 +2236,7 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
         condition,
         reason,
       ),
-      pulseMomentum: asOutside(
+      pulseMomentum: outside(
         "pulseMomentum",
         "kg·m/s",
         "pulse-momentum",
@@ -2221,7 +2244,7 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
         condition,
         reason,
       ),
-      boxDisplacement: asOutside(
+      boxDisplacement: outside(
         "boxDisplacement",
         "m",
         "box-displacement",
@@ -2229,7 +2252,7 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
         condition,
         reason,
       ),
-      centerOfMassShift: asOutside(
+      centerOfMassShift: outside(
         "centerOfMassShift",
         "m",
         "center-of-mass-shift",
@@ -2241,7 +2264,7 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
       displacement: Number.NaN,
       recoilSpeedValue: Number.NaN,
       flightTimeValue: Number.NaN,
-      lightMassAssigned: asOutside(
+      lightMassAssigned: outside(
         "lightMassAssigned",
         "kg",
         "light-mass-assigned",
@@ -2249,7 +2272,7 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
         condition,
         reason,
       ),
-      domainRatio: Number.isFinite(E) && Number.isFinite(M) && M > 0 ? E / (M * cSq) : Number.NaN,
+      domainRatio: Number.isFinite(E) && Number.isFinite(M) && M > 0 ? (E / M) / cSq : Number.NaN,
       domainBound,
       approximations: Object.freeze(["nonrelativistic-box", "flight-time-l-over-c", "rigid-box"]),
       exactRationalCenterOfMassShift: Object.freeze({
@@ -2267,7 +2290,25 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
     );
   }
 
-  const domainRatio = E / (M * cSq);
+  if (!Number.isFinite(domainBound) || domainBound <= 0 || domainBound > 1e-3) {
+    return refuse(
+      "The recoil bound must be positive, finite, and no greater than the model's one-thousandth limit.",
+      "0 < domainBound <= 1e-3",
+      "input",
+    );
+  }
+  if (!Number.isFinite(cSq) || c <= 0 || cSq === 0) {
+    return refuse(
+      "The selected speed of light does not yield a representable positive squared speed.",
+      "c > 0 and c² must be finite and positive",
+      "numerical",
+    );
+  }
+
+  // Form the energy-to-mass ratio first: M*c² and E*ell can overflow even when
+  // every physical output is finite. These are the same leading-order formulas.
+  const energyPerMass = E / M;
+  const domainRatio = energyPerMass / cSq;
   if (domainRatio > domainBound) {
     return refuse(
       "The nonrelativistic recoil approximation and neglected change in pulse transit time are no longer small when E / (M * c^2) exceeds the declared bound.",
@@ -2275,11 +2316,22 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
     );
   }
 
-  const recoilSpeed = E / (M * c);
+  const recoilSpeed = energyPerMass / c;
   const pulseFlightTime = ell / c;
   const pulseMomentum = E / c;
-  const displacement = -(E * ell) / (M * cSq);
+  const displacement = -domainRatio * ell;
   const lightMass = E / cSq;
+  if (
+    [domainRatio, recoilSpeed, pulseFlightTime, pulseMomentum, lightMass].some(
+      (value) => !Number.isFinite(value) || value <= 0,
+    ) || !Number.isFinite(displacement) || displacement === 0
+  ) {
+    return refuse(
+      "These scales overflow or underflow the numerical calculation. A zero recoil, travel time, or displacement would be misleading.",
+      "Nonzero physical outputs must remain finite and nonzero",
+      "numerical",
+    );
+  }
   const comShift = assignLightMass ? 0 : displacement;
 
   const rationalShift = (() => {
@@ -2293,11 +2345,10 @@ export function evaluatePhotonBox(input: PhotonInBoxInput = {}): PhotonInBoxResu
     const rE = toBigIntRational(E);
     const rEll = toBigIntRational(ell);
     const rM = toBigIntRational(M);
-    const cBig = BigInt(Math.round(c));
-    const cSqBig = cBig * cBig;
+    const rC = toBigIntRational(c);
 
-    const num = -(rE.num * rEll.num * rM.den);
-    const den = rE.den * rEll.den * rM.num * cSqBig;
+    const num = -(rE.num * rEll.num * rM.den * rC.den * rC.den);
+    const den = rE.den * rEll.den * rM.num * rC.num * rC.num;
     return Object.freeze({
       numerator: num,
       denominator: den,

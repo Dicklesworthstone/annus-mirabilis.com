@@ -1,3 +1,4 @@
+import { evaluatePhotonBox } from "../../physics/reference/massEnergy.ts";
 import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { optionalNumber } from "../controls/typedNumber.ts";
 import { makeRefusal } from "../results/refusals.ts";
@@ -288,5 +289,33 @@ const ME03_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
 
 /** The fields above, then every range content/experiments/me-03.yaml declares (dispatch 134). */
 export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
-  return withinDeclaredDomain("me-03", validateMe03Fields(input), ME03_DOMAIN_DISPLAY);
+  const checked = withinDeclaredDomain("me-03", validateMe03Fields(input), ME03_DOMAIN_DISPLAY);
+  if (checked.kind !== "accepted" || checked.data.mode !== "box-1906") return checked;
+  const p = checked.data;
+  // Positive form values can still underflow a recoil or flight time to zero. Ask the owner
+  // before issuing a new run, so a refused calculation leaves the last accepted trial intact.
+  const box = evaluatePhotonBox({
+    M: p.boxMass,
+    ell: p.boxLength,
+    E: p.pulseEnergy,
+    assignLightMass: p.assignLightMass,
+  });
+  if (box.status === "value") return checked;
+  return {
+    kind: "refused",
+    refusal: makeRefusal(
+      "invalid-parameter",
+      { parameterIds: ["boxMass", "boxLength", "pulseEnergy"] },
+      {
+        details: {
+          code: "outside-domain",
+          domainKind:
+            box.boxDisplacement.status === "outside-domain"
+              ? box.boxDisplacement.domainKind
+              : "numerical",
+          requirements: box.reason ?? "Choose representable box and pulse scales.",
+        },
+      },
+    ),
+  };
 }
