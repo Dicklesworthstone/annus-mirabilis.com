@@ -1,0 +1,16 @@
+.walk-playback,
+.walk-playback-controls fieldset {
+  min-width: 0;
+}
+
+.walk-playback-scrub {
+  display: block;
+  width: 100%;
+  margin-block: 0.5rem 1rem;
+}
+
+@media print {
+  .walk-playback-controls {
+    display: none;
+  }
+}

@@ -1,11 +1,24 @@
 import type { Bm05Parameters } from "../../experiments/bm05/definition.ts";
+import {
+  type RecordingPlayback,
+  recordedSampleIndex,
+} from "../../experiments/playback/recordingClock.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { array, display, identity, scalar } from "./presentation.ts";
-export function WalkPaths({ snapshot }: { snapshot: AcceptedSnapshot }) {
+export function WalkPaths({
+  snapshot,
+  replay,
+}: {
+  snapshot: AcceptedSnapshot;
+  replay?: RecordingPlayback;
+}) {
   const p = snapshot.parameters as Bm05Parameters,
     times = array(snapshot, "traceTimes"),
     traces = array(snapshot, "traceDisplacements"),
     length = times.length;
+  const selected = replay ? recordedSampleIndex(times, replay.position) : length - 1;
+  const walkerIds = Array.from({ length: traces.length / length }, (_, index) => index);
+  const recordedTime = times.at(selected);
   let extent = 0;
   for (let i = 0; i < traces.length; i++) extent = Math.max(extent, Math.abs(traces.at(i)));
   extent ||= p.stepRms;
@@ -13,21 +26,39 @@ export function WalkPaths({ snapshot }: { snapshot: AcceptedSnapshot }) {
     x = (i: number) => 38 + (last === 0 ? 0 : (times.at(i) / last) * 232),
     y = (v: number) => 122 - (v / extent) * 82;
   return (
-    <figure className="plot" {...identity(snapshot)}>
+    <figure
+      className="plot"
+      {...identity(snapshot)}
+      data-playback-time={replay?.position}
+      data-recorded-time={recordedTime}
+      data-playback-multiplier={replay?.playbackMultiplier}
+    >
       <svg
         viewBox="0 0 300 255"
         role="img"
-        aria-label="The first twenty recorded walks, or all walks when fewer than twenty are requested. Time is horizontal and signed displacement is vertical. The statistics include every walker."
+        aria-label={`The first ${walkerIds.length} recorded walks through ${display(recordedTime)} seconds. Time is horizontal and signed displacement is vertical. The ensemble statistics still describe all walkers at ${display(last)} seconds.`}
       >
         <path d="M38 35V210H270M38 122H270" className="axis" />
-        {Array.from({ length: traces.length / length }, (_, i) => ({
-          id: `walk-trace-${i}`,
-          d: Array.from(
-            { length },
-            (_, j) => `${j ? "L" : "M"}${x(j)},${y(traces.at(i * length + j))}`,
-          ).join(" "),
-        })).map((trace) => (
-          <path key={trace.id} d={trace.d} className="walk-trace" />
+        {walkerIds.map((i) => (
+          <g key={`walk-${i}`}>
+            <path
+              d={Array.from(
+                { length: selected + 1 },
+                (_, j) => `${j ? "L" : "M"}${x(j)},${y(traces.at(i * length + j))}`,
+              ).join(" ")}
+              className="walk-trace"
+            />
+            {replay && (
+              <circle
+                cx={x(selected)}
+                cy={y(traces.at(i * length + selected))}
+                r="3"
+                fill="var(--ink)"
+                data-walker-index={i}
+                data-displacement-metres={traces.at(i * length + selected)}
+              />
+            )}
+          </g>
         ))}
         {p.n === 0 && <circle cx="38" cy="122" r="4" className="histogram-bar" />}
         <text x="38" y="20">
@@ -53,6 +84,32 @@ export function WalkPaths({ snapshot }: { snapshot: AcceptedSnapshot }) {
         Joining recorded points does not model motion between jumps. These are mathematical walks,
         not observed molecular collisions.
       </figcaption>
+      {replay && (
+        <details>
+          <summary>Read the recorded walker positions as a table</summary>
+          <table>
+            <caption>
+              Recorded positions at {display(recordedTime)} s; signed displacement in μm
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Recorded walk</th>
+                <th scope="col">Displacement (μm)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {walkerIds.map((i) => (
+                <tr key={`position-${i}`} data-walker-row={i}>
+                  <th scope="row">Walk {i + 1}</th>
+                  <td data-displacement-metres={traces.at(i * length + selected)}>
+                    {display(traces.at(i * length + selected), 1e6)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
+      )}
     </figure>
   );
 }

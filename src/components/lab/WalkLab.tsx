@@ -48,7 +48,8 @@ import { array, display, identity, result, scalar } from "./presentation.ts";
 import { SeedHelp } from "./SeedHelp.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
-import { WalkConvergence, WalkHistogram, WalkPaths } from "./WalkPlots.tsx";
+import { WalkPlayback } from "./WalkPlayback.tsx";
+import { WalkConvergence, WalkHistogram } from "./WalkPlots.tsx";
 
 const names = {
   coin: "Equal left/right jumps",
@@ -750,7 +751,7 @@ export function WalkLab({
               </table>
             </div>
           </details>
-          <WalkPaths snapshot={snapshot} />
+          <WalkPlayback snapshot={snapshot} />
           <WalkConvergence snapshot={snapshot} />
         </div>
       </div>
