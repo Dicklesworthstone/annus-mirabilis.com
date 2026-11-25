@@ -108,7 +108,7 @@ describe("the seven source displays, parsed before typography exceptions", () =>
     expect(offset.rows[0]?.tree).not.toEqual(offset.rows[1]?.tree);
   });
 
-  test("unknown mathematics is refused instead of guessed (sourceExpression.ts:119)", () => {
+  test("unknown mathematics is refused instead of guessed (sourceExpression.ts:127)", () => {
     const d = display("eq-s0-d7");
     expect(
       refuses(
@@ -289,7 +289,7 @@ describe("source rendering with safe operation markers", () => {
 });
 
 describe("every publication guard has an actual reject and accept case", () => {
-  test("an alignment must contain the complete display (sourceExpression.ts:437)", () => {
+  test("an alignment must contain the complete display (sourceExpression.ts:593)", () => {
     const d = display("eq-s0-d5");
     expect(
       refuses(

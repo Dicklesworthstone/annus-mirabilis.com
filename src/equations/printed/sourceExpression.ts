@@ -42,6 +42,8 @@ export type SourceExpression = Readonly<{
 export type SourceExpressionOptions = Readonly<{
   /** Independent relations separated by &\\qquad inside an aligned environment. */
   allowAlignedColumns?: boolean;
+  /** A source-authored list of standalone expressions, separated by top-level commas. */
+  allowExpressionList?: boolean;
   /** Only named quantity functions consume a following parenthesized argument. */
   functionQuantities?: readonly string[];
   /** Explicit argument counts; zero admits the field without its arguments in a derivative. */
@@ -170,8 +172,14 @@ class RowParser {
       printed === "=" ? "=" : printed === "\\leqq" ? "le" : printed === "\\geqq" ? "ge" : undefined;
     if (!operator) {
       if (!left) this.fail("Expected an expression or relation.");
+      const rows = [left];
+      while (this.options.allowExpressionList && this.peek()?.value === ",") {
+        this.take(",");
+        if (this.peek()?.value === "\\quad") this.take("\\quad");
+        rows.push(this.sum());
+      }
       this.finish();
-      return { rows: [left], continuation: false };
+      return { rows, continuation: false };
     }
     const sign = this.take();
     const leftTree = left?.tree ?? previousLeft;
@@ -626,7 +634,9 @@ export function parseSourceExpression(
           "Each aligned column must contain an independent relation.",
         );
       if (parsed.continuation) continuationRows.push(rows.length);
-      for (let i = 1; i < parsed.rows.length; i++) continuationRows.push(rows.length + i);
+      for (let i = 1; i < parsed.rows.length; i++) {
+        if (parsed.rows[i]!.tree.kind === "relation") continuationRows.push(rows.length + i);
+      }
       rows.push(...parsed.rows);
     }
     previousLineHadColumns = independent;

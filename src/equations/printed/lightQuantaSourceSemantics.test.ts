@@ -336,7 +336,7 @@ describe("independent dimension premises and truthful operation readings", () =>
     expect(() => compile(d)).not.toThrow();
   });
 
-  test("the expanded grammar still rejects trailing mathematics and malformed products (sourceExpression.ts:119)", () => {
+  test("the expanded grammar still rejects trailing mathematics and malformed products (sourceExpression.ts:127)", () => {
     const d = display("eq-s5-d3");
     for (const latex of [d.latex + " \\int", d.latex.replace("\\cdot W_2", "\\cdot")]) {
       expect(

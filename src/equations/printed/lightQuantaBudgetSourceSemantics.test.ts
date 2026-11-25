@@ -282,7 +282,7 @@ describe("exact relation and dimension contracts", () => {
     expect(compile(d).semantics.dimension).toBe("amount");
   });
 
-  test("expanded relation grammar still refuses unknown, chained and partially parsed mathematics (sourceExpression.ts:119)", () => {
+  test("expanded relation grammar still refuses unknown, chained and partially parsed mathematics (sourceExpression.ts:127)", () => {
     for (const id of ["eq-s7-d1", "eq-s8-d1"]) {
       const d = display(id);
       expect(

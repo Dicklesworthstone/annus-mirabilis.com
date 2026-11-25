@@ -144,7 +144,7 @@ describe("explicit independent columns in printed aligned equations", () => {
     expect(fourth.left).toBe(third.left);
   });
 
-  test("each aligned column requires its own relation (sourceExpression.ts:474)", () => {
+  test("each aligned column requires its own relation (sourceExpression.ts:630)", () => {
     let caught: unknown;
     try {
       parseSourceExpression(
