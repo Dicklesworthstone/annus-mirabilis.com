@@ -75,6 +75,62 @@ describe("extractLesson", () => {
 });
 
 describe("loadLessonBody", () => {
+  test("leaving a panel while its page loads never installs a detached lesson or construction", async () => {
+    const slot = slotFor("cancelled-lesson");
+    const initial = slot.innerHTML;
+    const controller = new AbortController();
+    let resolvePage: ((response: Response) => void) | undefined;
+    let mounts = 0;
+    const pending = loadLessonBody(slot, {
+      signal: controller.signal,
+      fetch: (() =>
+        new Promise<Response>((resolve) => {
+          resolvePage = resolve;
+        })) as typeof fetch,
+      mount: () => {
+        mounts++;
+        return { unmount() {} };
+      },
+    });
+    controller.abort();
+    resolvePage?.(
+      new Response(
+        '<main><article class="foundation-lesson"><section class="foundation-construction">Drawing</section></article></main>',
+      ),
+    );
+    expect(await pending).toBe("skipped");
+    expect(slot.innerHTML).toBe(initial);
+    expect(mounts).toBe(0);
+  });
+
+  test("a construction finishing after its panel is disposed is immediately unmounted", async () => {
+    const controller = new AbortController();
+    let disposed = 0;
+    let adopted = 0;
+    const slot = slotFor("late-construction");
+    const result = await loadLessonBody(slot, {
+      signal: controller.signal,
+      fetch: fetchFrom({
+        [lessonPageHref("late-construction")]:
+          '<main><article class="foundation-lesson"><section class="foundation-construction">Drawing</section></article></main>',
+      }),
+      mount: async () => {
+        controller.abort();
+        return {
+          unmount() {
+            disposed++;
+          },
+        };
+      },
+      onMount: () => {
+        adopted++;
+      },
+    });
+    expect(result).toBe("loaded");
+    expect(disposed).toBe(1);
+    expect(adopted).toBe(0);
+  });
+
   test("a lesson that draws several constructions mounts one slot and keeps no dead copy", async () => {
     // Structural rather than borrowed: the fixture builds a lesson with two construction sections
     // itself, so this holds whether or not any real lesson currently draws two. Before the change
