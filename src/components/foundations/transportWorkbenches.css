@@ -1,0 +1,54 @@
+.transport-workbench fieldset {
+  min-inline-size: 0;
+}
+
+.transport-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.transport-fields label {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.transport-fields input {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+}
+
+.transport-readouts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.4rem 1rem;
+}
+
+.transport-readouts dt,
+.transport-readouts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.transport-readouts dd {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 560px) {
+  .transport-fields,
+  .transport-readouts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .transport-readouts dd {
+    margin-bottom: 0.6rem;
+  }
+}
+
+@media print {
+  .transport-workbench .construction-controls {
+    display: none;
+  }
+}

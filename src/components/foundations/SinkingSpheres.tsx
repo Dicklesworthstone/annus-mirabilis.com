@@ -2,6 +2,7 @@ import { useId } from "react";
 import { sci } from "../../foundations/configurations.ts";
 import { SINKING, SINKING_ROWS } from "../../foundations/sinkingSpheres.ts";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
+import { StokesSettlingWorkbench } from "./StokesSettlingWorkbench.tsx";
 
 /** Keep a number's "× 10⁻¹⁵" on the line its mantissa is on. */
 const together = (s: string) => s.replace(/ × /g, " × ");
@@ -70,6 +71,8 @@ export function SinkingSpheres({ headingLevel = 3 }: { readonly headingLevel?: H
         §5 of the Brownian paper, it wanders about 0.8 μm, several times as far as it sinks. That is
         why such spheres stay suspended long enough to watch.
       </p>
+
+      <StokesSettlingWorkbench headingLevel={headingLevel} />
 
       <div className="construction-text-equivalent">
         <Sub>What it shows, in words</Sub>

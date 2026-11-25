@@ -2,6 +2,7 @@ import { useId } from "react";
 import { OSMOTIC_ROWS, OSMOTIC_TEMPERATURE } from "../../foundations/osmoticRows.ts";
 import { formatScientificSuperscript, toSuperscriptDigits } from "../../i18n/numberLocale.ts";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
+import { OsmoticPartitionWorkbench } from "./OsmoticPartitionWorkbench.tsx";
 
 /** Keep a number's "× 10⁻⁶" on the line its mantissa is on. */
 const together = (s: string) => s.replace(/ × /g, " × ");
@@ -15,10 +16,8 @@ function powerOfTen(value: number, figures: number): string {
 }
 
 /**
- * The osmotic-pressure lesson's construction: a selective-partition table, and the osmotic
- * partition laboratory (BM-02) by link. BM-02 has no manifest or admitted embed yet, so it is
- * linked, never embedded or reimplemented. Every number is printed in
- * src/foundations/osmoticRows.ts and recomputed through the owner by its test.
+ * The original selective-partition table is retained alongside an operable comparison using
+ * BM-02's existing snapshot owner. The printed rows remain available without JavaScript.
  */
 export function OsmoticTable({ headingLevel = 3 }: { readonly headingLevel?: HeadingLevel }) {
   const headingId = useId(),
@@ -83,6 +82,8 @@ export function OsmoticTable({ headingLevel = 3 }: { readonly headingLevel?: Hea
         do not. The <a href="/lab/bm-02/">osmotic partition laboratory</a> lets you change the
         count, the volume and the radius and see which of them the pressure depends on.
       </p>
+
+      <OsmoticPartitionWorkbench headingLevel={headingLevel} />
 
       <div className="construction-text-equivalent">
         <Sub>What it shows, in words</Sub>

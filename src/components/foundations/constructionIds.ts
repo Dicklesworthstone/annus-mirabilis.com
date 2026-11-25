@@ -95,6 +95,8 @@ export const CONSTRUCTIONS_WITH_CONTROLS: readonly FoundationConstructionId[] = 
   "entropy-multiplicity",
   "work-energy",
   "temperature-thermal-energy",
+  "viscosity-stokes-drag",
+  "free-energy-osmotic-pressure",
   // A reader sets a power and a surface and the push answers (dispatch 468).
   "momentum-energy-light",
   "probability-independence",
