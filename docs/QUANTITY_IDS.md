@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 348 quantities, 45 rejected spellings, 0 reserved spellings.
+Total: 349 quantities, 45 rejected spellings, 0 reserved spellings.
 
 ## Registered quantities
 
@@ -219,6 +219,7 @@ Total: 348 quantities, 45 rejected spellings, 0 reserved spellings.
 | normalizedCandidateConstraintResiduals | Normalized candidate-map constraint residuals | 0,0,0,0,0,0 | not-applicable | vector | — |
 | normalizedLorentzMapCoefficients | Normalized longitudinal coordinate-map coefficients | 0,0,0,0,0,0 | not-applicable | vector | — |
 | numberDensity | Number density | -3,0,0,0,0,0 | not-applicable | scalar | — |
+| numberDensity1d | Particle number density (one-dimensional) | -1,0,0,0,0,0 | not-applicable | scalar | — |
 | observationInterval | Observation interval | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | osmoticDecayLength | Osmotic decay length | 1,0,0,0,0,0 | not-applicable | scalar | decayLength |
 | osmoticPressure | Osmotic pressure | -1,1,-2,0,0,0 | not-applicable | scalar | — |

@@ -7,7 +7,10 @@ inWords:
   - text: "The change in "
   - text: "the entropy"
     quantityId: entropy
-  - text: " is the sum along the column, from zero to "
+  - text: " is the sum over "
+  - text: "position along the column"
+    quantityId: positionCoordinate1d
+  - text: ", from zero to "
   - text: "its far end"
     quantityId: columnLength
   - text: ", of "

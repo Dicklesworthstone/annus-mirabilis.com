@@ -13,7 +13,10 @@ inWords:
   - text: " equals "
   - text: "the diffusion coefficient"
     quantityId: diffusionCoefficient
-  - text: " times the curvature of that density along the axis."
+  - text: " times the curvature of that density as a function of "
+  - text: "position along the axis"
+    quantityId: positionCoordinate1d
+  - text: "."
 r0: "The differential equation of diffusion, reached from the disordered stepping alone. The paper names it as the well known one, and recognizes the constant in it as the diffusion coefficient."
 r1: "Of the terms left in the balance, the ones carrying an odd power of $\\Delta$ vanish because the frequency law is even, which in the paper's own counting are its second, fourth and further terms, and of the rest the paper keeps the first and the third and drops the others as small. Dividing by the interval and putting in the definition of $D$ leaves the diffusion equation. Two things are worth separating. The equation is the known one, so nothing about its form is new; what is new is the route, since it was obtained from the disordered motion of independent particles and a frequency law with two properties, and not from a continuum law of transport. That is why the paper says one recognizes that $D$ is the diffusion coefficient: the constant defined a line earlier out of the mean square step sits exactly where the diffusion coefficient sits in the known equation. The identification is read off the form of the result."
 r2:

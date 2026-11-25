@@ -8,7 +8,10 @@ inWords:
   - text: "The change in "
   - text: "the energy"
     quantityId: systemEnergy
-  - text: " is minus the sum, over the column from zero to "
+  - text: " is minus the sum over "
+  - text: "position along the column"
+    quantityId: positionCoordinate1d
+  - text: ", from zero to "
   - text: "its far end"
     quantityId: columnLength
   - text: ", of "

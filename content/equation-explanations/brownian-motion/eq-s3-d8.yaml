@@ -10,7 +10,10 @@ inWords:
   - text: " times how steeply "
   - text: "the number of particles in unit volume"
     quantityId: numberDensity
-  - text: " changes along the column."
+  - text: " changes with "
+  - text: "position along the column"
+    quantityId: positionCoordinate1d
+  - text: "."
 r0: "The same diffusion flow counted in particles instead of grams, which is what the balance with the force needs, since the force was also counted in particles."
 r1: "Every particle has the same mass $\\mu$, and that mass does not depend on where the particle is, so it comes out of the derivative and can be divided away. What is left counts particles through the unit of cross-section rather than grams. The step is small but it is the one that makes the two flows comparable: the force drove $\\frac{\\nu K}{6 \\pi k P}$ particles across, and diffusion carries $- D \\frac{\\partial \\nu}{\\partial x}$ particles back, both through the same unit of cross-section in the same unit of time. The next display sets their sum to zero."
 r2:

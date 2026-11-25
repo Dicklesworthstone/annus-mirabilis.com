@@ -3,14 +3,20 @@ import { renderToString } from "katex";
 import equality from "../../../content/foundations/bridge-equals-sign-relationship.json";
 import fractions from "../../../content/foundations/bridge-fractions-ratios.json";
 import signs from "../../../content/foundations/bridge-negative-numbers-direction.json";
+import diffusion from "../../../content/foundations/diffusion-equation.json";
+import distributions from "../../../content/foundations/distributions.json";
 import entropy from "../../../content/foundations/entropy-multiplicity.json";
 import temperature from "../../../content/foundations/entropy-temperature.json";
 import inference from "../../../content/foundations/error-and-inference.json";
+import exponentials from "../../../content/foundations/exponentials.json";
 import fields from "../../../content/foundations/fields-waves.json";
 import frames from "../../../content/foundations/frames-events.json";
 import functions from "../../../content/foundations/functions-graphs.json";
+import gaussians from "../../../content/foundations/gaussian-distributions.json";
+import integration from "../../../content/foundations/integration.json";
 import logarithms from "../../../content/foundations/logarithms.json";
 import rms from "../../../content/foundations/mean-variance-rms.json";
+import partialDerivatives from "../../../content/foundations/partial-derivatives.json";
 import independence from "../../../content/foundations/probability-independence.json";
 import taylor from "../../../content/foundations/taylor-expansion.json";
 import historicalUnits from "../../../content/foundations/unit-system-1905.json";
@@ -270,6 +276,12 @@ const FOUNDATION_TITLES = new Map(
     viscosity,
     rms,
     inference,
+    diffusion,
+    distributions,
+    exponentials,
+    gaussians,
+    integration,
+    partialDerivatives,
   ].map(({ id, title }) => [id, title]),
 );
 
@@ -330,6 +342,9 @@ export function compilePrintedSourceSemantics(
       ...(relativity?.functionQuantities
         ? { functionQuantities: relativity.functionQuantities }
         : {}),
+      ...(brownian?.functionArities ? { functionArities: brownian.functionArities } : {}),
+      allowCalculus: brownian?.allowCalculus ?? false,
+      allowExponentials: brownian?.allowExponentials ?? false,
     },
   );
   const expectedOperator =
@@ -376,6 +391,9 @@ export function compilePrintedSourceSemantics(
     const operands = node ? walk(node.tree) : [];
     const symbolIndex = relativity?.primary[path]?.symbolIndex;
     const exponent = radiation?.primary[path]?.exponent;
+    const calculus = brownian?.primary[path];
+    const argumentsOfSymbol =
+      node?.tree.kind === "symbol" ? (node.tree.args ?? (node.tree.at ? [node.tree.at] : [])) : [];
     if (
       !node ||
       node.tree.kind !== reading.kind ||
@@ -385,6 +403,36 @@ export function compilePrintedSourceSemantics(
         (node.tree.kind !== "power" ||
           node.tree.exponent.num !== exponent ||
           node.tree.exponent.den !== 1)) ||
+      (calculus?.derivativeOrder !== undefined &&
+        (node.tree.kind !== "derivative" ||
+          !node.tree.partial ||
+          node.tree.order !== calculus.derivativeOrder)) ||
+      (calculus?.variableQuantity !== undefined &&
+        ((node.tree.kind !== "derivative" && node.tree.kind !== "integral") ||
+          node.tree.variable.kind !== "symbol" ||
+          node.tree.variable.quantityId !== calculus.variableQuantity)) ||
+      (calculus?.integralBounds === "all-real" &&
+        (node.tree.kind !== "integral" ||
+          node.tree.lower?.kind !== "negate" ||
+          node.tree.lower.argument.kind !== "constant" ||
+          node.tree.lower.argument.name !== "infinity" ||
+          node.tree.upper?.kind !== "constant" ||
+          node.tree.upper.name !== "infinity")) ||
+      (calculus?.functionArguments !== undefined &&
+        (argumentsOfSymbol.length !== calculus.functionArguments.length ||
+          argumentsOfSymbol.some((arg, i) => {
+            const expected = calculus.functionArguments?.[i];
+            const value =
+              typeof expected !== "string" && arg.kind === "negate" ? arg.argument : arg;
+            return (
+              value.kind !== "symbol" ||
+              value.at !== undefined ||
+              value.args !== undefined ||
+              value.quantityId !==
+                (typeof expected === "string" ? expected : expected?.quantityId) ||
+              (typeof expected !== "string" && arg.kind !== "negate")
+            );
+          }))) ||
       quantitiesIn(node.tree).join("\u0000") !== [...reading.quantities].sort().join("\u0000") ||
       (reading.literalNumbers !== undefined &&
         operands
@@ -464,8 +512,8 @@ export function compilePrintedSourceSemantics(
               ? LIGHT_QUANTA_ARITHMETIC
               : MASS_ENERGY_ARITHMETIC;
     const functionReading =
-      node.tree.kind === "function" && relativity
-        ? relativity.functions?.[node.tree.name]
+      node.tree.kind === "function" && (relativity || brownian)
+        ? (relativity ?? brownian)?.functions?.[node.tree.name]
         : undefined;
     const reading = authored ?? functionReading ?? arithmetic[node.tree.kind];
     const foundationTitle = reading ? FOUNDATION_TITLES.get(reading.foundation) : undefined;
@@ -477,7 +525,7 @@ export function compilePrintedSourceSemantics(
         (node.tree.exponent.num !== (radiation ? radiation.primary[path]?.exponent : 2) ||
           node.tree.exponent.den !== 1)) ||
       (node.tree.kind === "function" &&
-        (relativity
+        (relativity || brownian
           ? !functionReading
           : node.tree.name !==
             (lightQuanta ? "ln" : budget || radiation || brownian ? undefined : "cos")))

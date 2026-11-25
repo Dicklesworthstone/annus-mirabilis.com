@@ -51,6 +51,20 @@
   frame: not-applicable
   colorRole: statistical
 
+- id: numberDensity1d
+  name: Particle number density (one-dimensional)
+  description: >
+    Particles per unit displacement in the Brownian paper's section 4 point-source solution.
+    Integrating f(x,t) over displacement gives the total particle count n, not probability one.
+    Distinct from numberDensity, which counts particles per unit volume earlier in the argument.
+  dimensionStatus: declared
+  dimension: [-1, 0, 0, 0, 0, 0]
+  densityKind: density
+  densityPer: [displacement]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
 - id: particleCount
   name: Particle count
   description: A count of particles, e.g. observed in a Brownian trial.

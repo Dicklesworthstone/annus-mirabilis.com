@@ -44,6 +44,12 @@ export type SourceExpressionOptions = Readonly<{
   allowAlignedColumns?: boolean;
   /** Only named quantity functions consume a following parenthesized argument. */
   functionQuantities?: readonly string[];
+  /** Explicit argument counts; zero admits the field without its arguments in a derivative. */
+  functionArities?: Readonly<Record<string, readonly number[]>>;
+  /** Definite integrals and matched first/higher partial derivatives, never formal d fractions. */
+  allowCalculus?: boolean;
+  /** The printed e with an exponent denotes exp, not an unbound physical quantity. */
+  allowExponentials?: boolean;
 }>;
 
 export class SourceExpressionError extends Error {
@@ -241,7 +247,11 @@ class RowParser {
       next &&
       (next.term ||
         /^[0-9]$/.test(next.value) ||
-        ["{", "(", "[", "\\left", "\\frac", "\\sqrt", "\\cos", "\\lg", "\\pi"].includes(next.value))
+        ["{", "(", "[", "\\left", "\\frac", "\\sqrt", "\\cos", "\\lg", "\\pi"].includes(
+          next.value,
+        ) ||
+        (this.options.allowCalculus && next.value === "\\int") ||
+        (this.options.allowExponentials && next.value === "e"))
     );
   }
 
@@ -326,6 +336,112 @@ class RowParser {
     return { node, end: close.end };
   }
 
+  /** A derivative order is an integer syntax marker, not a second physical power. */
+  private derivativeOrder(): number {
+    if (this.peek()?.value !== "^") return 1;
+    this.take("^");
+    const braced = this.peek()?.value === "{";
+    if (braced) this.take("{");
+    const order = this.take();
+    if (!/^[1-9]$/.test(order.value))
+      this.fail("A partial derivative needs a positive integer order.");
+    if (braced) this.take("}");
+    return Number(order.value);
+  }
+
+  private derivative(start: number): SourceExpressionNode {
+    this.take("{");
+    this.take("\\partial");
+    const order = this.derivativeOrder();
+    const expression = this.sum();
+    this.take("}");
+    this.take("{");
+    this.take("\\partial");
+    // The denominator names the differentiation variable; its superscript records order.
+    // Consuming it as an ordinary power would silently turn a derivative into a quotient.
+    const variable = this.atom();
+    if (variable.tree.kind !== "symbol" || variable.tree.at || variable.tree.args)
+      this.fail("A partial derivative must name one bound differentiation variable.");
+    const denominatorOrder = this.derivativeOrder();
+    if (order !== denominatorOrder) this.fail("The partial derivative orders must agree.");
+    const close = this.take("}");
+    return this.operation(
+      {
+        kind: "derivative",
+        expression: expression.tree,
+        variable: variable.tree,
+        order,
+        partial: true,
+      },
+      start,
+      close.end,
+      [
+        { name: "expression", node: expression },
+        { name: "variable", node: variable },
+      ],
+    );
+  }
+
+  /** Infinity is admitted only as an integration endpoint, never as an arithmetic operand. */
+  private integralBound(): SourceExpressionNode {
+    const braced = this.peek()?.value === "{";
+    if (braced) this.take("{");
+    const sign = ["-", "+"].includes(this.peek()?.value ?? "") ? this.take() : undefined;
+    let node: SourceExpressionNode;
+    if (this.peek()?.value === "\\infty") {
+      const token = this.take();
+      node = {
+        tree: { kind: "constant", name: "infinity" },
+        start: token.start,
+        end: token.end,
+        parts: [],
+      };
+    } else {
+      node = this.atom();
+      if (node.tree.kind !== "number" && node.tree.kind !== "symbol")
+        this.fail("An integral endpoint must be a number, a bound variable or infinity.");
+    }
+    if (sign?.value === "-")
+      node = {
+        tree: { kind: "negate", argument: node.tree },
+        start: sign.start,
+        end: node.end,
+        parts: [{ name: "argument", node }],
+      };
+    if (braced) this.take("}");
+    return node;
+  }
+
+  private integral(start: number): SourceExpressionNode {
+    this.take("_");
+    const lower = this.integralBound();
+    this.take("^");
+    const upper = this.integralBound();
+    const expression = this.sum();
+    // No missing measure, guessed dummy variable, or absorbed trailing factor is accepted.
+    this.take("d");
+    const variable = this.atom();
+    if (variable.tree.kind !== "symbol" || variable.tree.at || variable.tree.args)
+      this.fail("An integral must name one bound variable after its differential d.");
+    return this.operation(
+      {
+        kind: "integral",
+        expression: expression.tree,
+        variable: variable.tree,
+        lower: lower.tree,
+        upper: upper.tree,
+      },
+      start,
+      variable.end,
+      [
+        { name: "lower", node: lower },
+        { name: "upper", node: upper },
+        { name: "expression", node: expression },
+        { name: "variable", node: variable },
+      ],
+    );
+  }
+
   private atom(): SourceExpressionNode {
     const token = this.take();
     if (token.term) {
@@ -337,16 +453,31 @@ class RowParser {
           ? { index: this.symbolIndices[token.term.glyph] }
           : {}),
       };
-      if (this.options.functionQuantities?.includes(token.term.quantityId)) {
+      const arities =
+        this.options.functionArities?.[token.term.quantityId] ??
+        (this.options.functionQuantities?.includes(token.term.quantityId) ? [1] : undefined);
+      if (arities && (this.peek()?.value === "(" || !arities.includes(0))) {
         // A declared quantity such as psi(v) is evaluated at v; multiplying psi by v
         // would change both its physical meaning and its dimensions. Its source glyph
         // still owns one term, and the argument owns its own term and operations.
         this.take("(");
-        const argument = this.sum();
+        const args = [this.sum()];
+        while (this.peek()?.value === ",") {
+          this.take(",");
+          if (args.length >= 4) this.fail("A quantity function accepts at most four arguments.");
+          args.push(this.sum());
+        }
         const close = this.take(")");
-        return this.operation({ ...tree, at: argument.tree }, token.start, close.end, [
-          { name: "at", node: argument },
-        ]);
+        if (!arities.includes(args.length))
+          this.fail("The quantity function has an unauthored argument count.");
+        return this.operation(
+          args.length === 1
+            ? { ...tree, at: args[0]!.tree }
+            : { ...tree, args: args.map((arg) => arg.tree) },
+          token.start,
+          close.end,
+          args.map((node, i) => ({ name: args.length === 1 ? "at" : `args.${i}`, node })),
+        );
       }
       return {
         tree,
@@ -373,6 +504,12 @@ class RowParser {
         parts: [],
       };
     if (token.value === "\\frac") {
+      if (
+        this.options.allowCalculus &&
+        this.peek()?.value === "{" &&
+        this.items[this.index + 1]?.value === "\\partial"
+      )
+        return this.derivative(token.start);
       const numerator = this.argument();
       const denominator = this.argument();
       return this.operation(
@@ -383,6 +520,17 @@ class RowParser {
           { name: "numerator", node: numerator.node },
           { name: "denominator", node: denominator.node },
         ],
+      );
+    }
+    if (token.value === "\\int" && this.options.allowCalculus) return this.integral(token.start);
+    if (token.value === "e" && this.options.allowExponentials) {
+      this.take("^");
+      const argument = this.peek()?.value === "{" ? this.argument() : this.unbracedExponent();
+      return this.operation(
+        { kind: "function", name: "exp", argument: argument.node.tree },
+        token.start,
+        argument.end,
+        [{ name: "argument", node: argument.node }],
       );
     }
     if (token.value === "\\sqrt") {

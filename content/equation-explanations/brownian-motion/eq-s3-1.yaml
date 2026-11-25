@@ -20,7 +20,10 @@ inWords:
   - text: " over "
   - text: "the number of molecules in a gram-molecule"
     quantityId: avogadroConstant
-  - text: " times how steeply the number density changes along the column, is zero."
+  - text: " times how steeply the number density changes with "
+  - text: "position along the column"
+    quantityId: positionCoordinate1d
+  - text: ", is zero."
 r0: "The paper's first equation. At every point the force on the particles is balanced by the tendency of the suspended substance to spread from where it is crowded to where it is not, and the balance fixes how steeply the number density may vary."
 r1: "Put the two variations together. The energy term and the entropy term are both integrals along the column with $\\delta x$ standing free, so they combine into one integral of a bracket times $\\delta x$, and that integral is to vanish for an arbitrary virtual displacement. A quantity whose integral against every shift vanishes must itself vanish at every point, since otherwise a shift concentrated where the bracket is positive would make the integral positive. So the bracket is zero everywhere, which is the equation the paper numbers (1). Read it as a balance of two pressures at each point: the force term $K \\nu$ is what the outside force exerts on the particles of unit volume, and $\\frac{R T}{N} \\frac{\\partial \\nu}{\\partial x}$ is what the crowding of the particles exerts against it. Nothing in it mentions the size of the particles."
 r2:

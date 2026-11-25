@@ -12,7 +12,10 @@ inWords:
   - text: ", less how steeply "
   - text: "the osmotic pressure"
     quantityId: osmoticPressure
-  - text: " changes along the column, is zero."
+  - text: " changes with "
+  - text: "position along the column"
+    quantityId: positionCoordinate1d
+  - text: ", is zero."
 r0: "The same equilibrium written with the osmotic pressure of the first two sections in it: the force on the particles of unit volume is balanced by the fall of the osmotic pressure across that volume."
 r1: "Sections 1 and 2 gave the osmotic pressure of the suspended particles as $p = \\frac{R T}{N} \\nu$. The second term of equation (1) is exactly the derivative of that pressure with respect to $x$, since $R T / N$ does not vary along the column, so equation (1) can be written in this form. The sentence under it says what the form is for: the force $K$ is balanced by osmotic pressure forces. That is the point at which the argument of the first two sections enters the theory of diffusion. The equilibrium is the familiar one of a fluid in a field of force, with the osmotic pressure of the suspended substance playing the part of the pressure, and it holds only where that pressure law does, which is at great dilution."
 r2:

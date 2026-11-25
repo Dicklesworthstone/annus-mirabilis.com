@@ -219,4 +219,36 @@ describe("Brownian source operations on the actual reading path", () => {
     expect(document.activeElement).toBe(element(".printed-operation-toggle"));
     expect(element(".katex-mathml").outerHTML).toBe(originalMathml);
   });
+
+  test("selecting spatial curvature explains the second partial derivative and preserves its source", async () => {
+    const source = display("eq-s4-1");
+    const operation = source.semantics?.operations.find(
+      (entry) => entry.path === "row1.right.args.1",
+    );
+    if (!operation) throw new Error("The spatial derivative must be selectable.");
+    await mount(source);
+    const originalMathml = element(".katex-mathml").outerHTML;
+    const span = element('[data-op="' + operation.id + '"]');
+    await act(async () =>
+      handler(
+        element(".printed-operation-explorer"),
+        "onClick",
+      )({ target: span, preventDefault() {} }),
+    );
+    expect(element("[data-operation-note]").textContent).toContain(
+      "Differentiate f twice with respect to x",
+    );
+    expect(element("[data-operation-note]").textContent).toContain(
+      "first derivative measures slope",
+    );
+    expect(selectedTerms()).toEqual([...operation.termIds].sort());
+    expect(
+      operation.termIds
+        .map((id) =>
+          element('.katex-html [data-term="' + id + '"]').getAttribute("data-quantity-id"),
+        )
+        .sort(),
+    ).toEqual(["numberDensity", "positionCoordinate1d"]);
+    expect(element(".katex-mathml").outerHTML).toBe(originalMathml);
+  });
 });

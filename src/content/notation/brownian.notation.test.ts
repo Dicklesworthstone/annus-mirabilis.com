@@ -99,6 +99,30 @@ describe("am-not-entries-brownian-1rq: Brownian notation concordance", () => {
     assert.equal(modern, "n");
   });
 
+  test("Bindings: the later f dx counts displacements while bare x has length and X names an axis", () => {
+    const file = loadConcordanceForPaper(paper);
+    for (const anchor of ["bm-s4-p10", "eq-s4-d10", "eq-s4-d11"]) {
+      const result = resolveGlyph(paper, anchor, "f", emptyManifestIndex, file);
+      assert.ok(result.ok);
+      assert.deepEqual(result.entry.binding, { quantityId: "numberDensity1d" });
+      assert.notEqual(modernSymbolFor(paper, anchor, "f", emptyManifestIndex, file), "p");
+    }
+    const registry = getQuantityRegistry().quantities;
+    assert.deepEqual(
+      registry.get("numberDensity1d")?.dimension?.map((value) => value.num),
+      [-1, 0, 0, 0, 0, 0],
+    );
+    assert.deepEqual(
+      registry.get("numberDensity")?.dimension?.map((value) => value.num),
+      [-3, 0, 0, 0, 0, 0],
+    );
+    const x = resolveGlyph(paper, "bm-s4", "x", emptyManifestIndex, file);
+    const axis = resolveGlyph(paper, "bm-s4", "X", emptyManifestIndex, file);
+    assert.ok(x.ok && axis.ok);
+    assert.deepEqual(x.entry.binding, { quantityId: "positionCoordinate1d" });
+    assert.deepEqual(axis.entry.binding, { nonQuantityKind: "coordinate-system-label" });
+  });
+
   test("Bindings: \\varphi in §4 binds transitionKernel with L^-1 dimension", () => {
     const file = loadConcordanceForPaper(paper);
     // The entry is the letter, which §4 prints with its argument, φ(Δ), and without it (dispatch

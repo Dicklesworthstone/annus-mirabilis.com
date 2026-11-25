@@ -4,6 +4,7 @@
  * Einstein's k (viscosity), P (particle radius), or the two different roles of N in section 5.
  */
 import type { Expression } from "../ast.ts";
+import { BROWNIAN_CALCULUS_GUIDES } from "./brownianCalculusOperations.ts";
 import type { MassEnergyOperationGuide, OperationReading } from "./massEnergyOperations.ts";
 
 export type BrownianOperationGuide = MassEnergyOperationGuide &
@@ -14,6 +15,25 @@ export type BrownianOperationGuide = MassEnergyOperationGuide &
     relationOperator?: "=" | null;
     /** Both printed equals signs need their own dimensional and physical readings. */
     allowChainedRelations?: boolean;
+    functionArities?: Readonly<Record<string, readonly number[]>>;
+    allowCalculus?: boolean;
+    allowExponentials?: boolean;
+    functions?: Readonly<Partial<Record<"exp" | "ln" | "sin" | "cos", OperationReading>>>;
+    primary: Readonly<
+      Record<
+        string,
+        MassEnergyOperationGuide["primary"][string] &
+          Readonly<{
+            derivativeOrder?: number;
+            variableQuantity?: string;
+            integralBounds?: "all-real";
+            functionArguments?: readonly (
+              | string
+              | Readonly<{ quantityId: string; negated: true }>
+            )[];
+          }>
+      >
+    >;
   }>;
 
 /** The records are shared by the source compiler and every reading face. */
@@ -85,7 +105,7 @@ export const BROWNIAN_ARITHMETIC: Readonly<Partial<Record<Expression["kind"], Op
     quotient: {
       title: "Divide by the complete denominator",
       does: "Divide everything in the numerator by everything in the denominator.",
-      why: "The denominator must be nonzero. In these relations the viscosity, particle radius and molecular number are positive; inversion from displacement additionally requires a nonzero measured spread.",
+      why: "The denominator must be nonzero under the conditions stated for this display. Division subtracts its dimensional exponents from those of the numerator.",
       foundation: "bridge-fractions-ratios",
     },
     root: {
@@ -105,6 +125,12 @@ export const BROWNIAN_ARITHMETIC: Readonly<Partial<Record<Expression["kind"], Op
       does: "Treat the enclosed expression as one operand of the surrounding operation.",
       why: "A fraction or power outside the delimiters applies to the complete group, rather than to only the nearest factor.",
       foundation: "bridge-fractions-ratios",
+    },
+    negate: {
+      title: "Reverse the sign of the complete argument",
+      does: "The minus sign acts on the whole following expression.",
+      why: "A reversed displacement names the opposite direction. A negative exponent instead makes the exponential decrease with its positive argument; the surrounding operation determines the role.",
+      foundation: "bridge-negative-numbers-direction",
     },
   });
 
@@ -153,6 +179,7 @@ const diffusivityGuide: BrownianOperationGuide = {
 
 /** Opt in the authored algebra and drift expressions; the rounded fixture stays a source form. */
 export const BROWNIAN_OPERATION_GUIDES: Readonly<Record<string, BrownianOperationGuide>> = frozen({
+  ...BROWNIAN_CALCULUS_GUIDES,
   "eq-s1-d1": {
     expectedDimension: ENERGY,
     symbolIndices: {},

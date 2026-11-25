@@ -35,7 +35,62 @@ formulas:
     display: eq-s4-d9
 
   - latex: "\\begin{aligned}& p(x,t+\\tau) \\\\ &\\qquad = \\int p(x-\\Delta,t)\\varphi(\\Delta)\\,d\\Delta\\end{aligned}"
-    display: eq-s4-d4
+    own:
+      id: lab-bm-05-probability-transport
+      inWords:
+        - text: "The probability density"
+          quantityId: probabilityDensity
+        - text: " at "
+        - text: "position"
+          quantityId: positionCoordinate1d
+        - text: " and a "
+        - text: "time"
+          quantityId: fieldTimeCoordinate
+        - text: " one "
+        - text: "step interval"
+          quantityId: stepInterval
+        - text: " later is the sum of earlier densities at possible starting positions, weighted by "
+        - text: "the step probability density"
+          quantityId: transitionKernel
+        - text: " for each "
+        - text: "displacement"
+          quantityId: displacementIncrement
+        - text: "."
+      r0: "To find where the particle may be after another step, consider every place it could have started and how likely the required step is. The total probability remains one."
+      r1: "The lab uses $p$ for probability per unit length. A particle arriving at $x$ after a step $\\Delta$ started at $x-\\Delta$. Its contribution is the earlier density there times the probability of that step. Integrating over all signed steps adds those contributions. The step law is independent of starting position and of previous steps, and its integral is one. These assumptions make the update conserve total probability. The equation is an exact update for this step model; obtaining the differential equation requires a further smooth, small-step approximation."
+      r2:
+        - latex: "\\int_{-\\infty}^{+\\infty} p(x,t)\\,d x=1"
+          why: "The initial distribution assigns total probability one. Integrating a density over length gives probability."
+        - latex: "\\int_{-\\infty}^{+\\infty} \\varphi(\\Delta)\\,d\\Delta=1"
+          why: "The independent step law is normalized separately: the particle makes some signed step."
+        - latex: "p(x,t+\\tau)=\\int_{-\\infty}^{+\\infty}p(x-\\Delta,t)\\varphi(\\Delta)\\,d\\Delta"
+          why: "Add the contributions from every starting position. Integrating this update over x keeps total probability one because both normalized factors have unit integral."
+      r3: "This is the lab's probability form of the transport step in section 4. During that derivation Einstein uses f for particles per volume; later he reinterprets f as particles per displacement and normalizes its integral to a total count. The lab instead uses probability density throughout. The paper prints the earlier position with a plus sign. Its even step law makes that form equivalent to the lab's minus sign after reversing the integration variable. These choices are stated here rather than treating the lab formula as an unchanged quotation."
 
   - latex: "\\frac{\\partial p}{\\partial t}=D\\frac{\\partial^2p}{\\partial x^2}"
-    display: eq-s4-1
+    own:
+      id: lab-bm-05-probability-diffusion
+      inWords:
+        - text: "The rate at which "
+        - text: "probability density"
+          quantityId: probabilityDensity
+        - text: " changes with "
+        - text: "time"
+          quantityId: fieldTimeCoordinate
+        - text: " equals "
+        - text: "the diffusion coefficient"
+          quantityId: diffusionCoefficient
+        - text: " times its curvature as a function of "
+        - text: "position"
+          quantityId: positionCoordinate1d
+        - text: "."
+      r0: "A peak flattens and a trough fills. How quickly the probability density changes depends on its curvature, with the diffusion coefficient setting the rate."
+      r1: "The first partial derivative measures change in time at a fixed position. The second spatial derivative measures curvature at a fixed time. For positive constant $D$, a local peak has negative curvature and loses density; a trough has positive curvature and gains it. Each side has dimension inverse length per time. The equation describes a smooth probability distribution, not the velocity of a single particle. It follows from the step update when independent symmetric steps have a finite second moment and the higher expansion terms can be neglected."
+      r2:
+        - latex: "D=\\frac{1}{2\\tau}\\int_{-\\infty}^{+\\infty}\\Delta^2\\varphi(\\Delta)\\,d\\Delta"
+          why: "The finite second moment per twice the step interval sets the spreading rate. Symmetry removes the signed first moment, which would otherwise give drift."
+        - latex: "\\frac{\\partial p}{\\partial t}=D\\frac{\\partial^2p}{\\partial x^2}"
+          why: "After retaining the second-order spatial contribution, the continuum balance equates local change in time with diffusivity times spatial curvature."
+        - latex: "\\int_{-\\infty}^{+\\infty}p(x,t)\\,d x=1"
+          why: "With no probability flux lost at infinity, the solution keeps unit total probability. This is the lab's normalization condition, separate from the local differential equation."
+      r3: "Einstein's printed equation (1) in section 4 initially describes a volume number density f. He then applies the same linear equation to the displacement count density whose integral is the number of particles. Dividing that later density by a fixed total count gives the probability form used here. The normalization changes the meaning and units of the density without changing the structure of this linear evolution equation."

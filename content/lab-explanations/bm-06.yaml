@@ -5,7 +5,33 @@ formulas:
     incidental: "Three of the paper's printed results gathered into one block, the diffusion coefficient of § 5 and the mean square and typical displacement of §§ 4 and 5, in modern letters. Each is a printed display and carries its words where it is printed; the block is an arrangement rather than an equation of the lab's own."
 
   - latex: "\\begin{gathered}p(x,t)=\\frac{1}{\\sqrt{4\\pi Dt}}\\exp\\!\\left(-\\frac{x^2}{4Dt}\\right) \\\\ (D>0,\\ t>0)\\end{gathered}"
-    display: eq-s4-d11
+    own:
+      id: lab-bm-06-gaussian-probability
+      inWords:
+        - text: "The probability density"
+          quantityId: probabilityDensity
+        - text: " at "
+        - text: "position"
+          quantityId: positionCoordinate1d
+        - text: " and "
+        - text: "time"
+          quantityId: fieldTimeCoordinate
+        - text: " is a normalized bell curve whose width is set by "
+        - text: "the diffusion coefficient"
+          quantityId: diffusionCoefficient
+        - text: " times the time. The coefficient and time must be positive for this finite density formula."
+      r0: "Starting at one point, the probability spreads into a bell curve. Its width grows with the square root of time while its total area stays one."
+      r1: "Here $p$ is probability per unit length, so its area over an interval is the probability of finding the displacement there. The exponential has the dimensionless argument $-x^2/(4Dt)$ because both the numerator and denominator have dimension length squared. The factor $1/\\sqrt{4\\pi Dt}$ has dimension inverse length and makes the total area one. The formula assumes constant positive diffusivity, positive time, zero drift and an unbounded line. At zero time or zero diffusivity the distribution is a point mass; no finite density curve represents that state."
+      r2:
+        - latex: "p(x,t)=\\frac{1}{\\sqrt{4\\pi Dt}}\\exp\\!\\left(-\\frac{x^2}{4Dt}\\right)"
+          why: "The even exponential gives opposite displacements equal density. The normalization supplies the inverse-length units."
+        - latex: "\\int_{-\\infty}^{+\\infty}p(x,t)\\,d x=1"
+          why: "Integrating the Gaussian over displacement cancels its normalization factor and returns total probability one. There is no particle-count multiplier in this lab formula."
+        - latex: "\\frac{\\partial p}{\\partial t}=D\\frac{\\partial^2p}{\\partial x^2}"
+          why: "Differentiating once in time and twice in position verifies that the Gaussian satisfies the diffusion equation for positive D and t."
+        - latex: "\\langle x^2\\rangle=2Dt"
+          why: "Its mean displacement is zero and its mean square grows linearly in time. Taking the square root gives the width scale used to compare with the particle ensemble."
+      r3: "The paper's printed solution in section 4 uses f for a displacement count density and includes the total number of particles n as a multiplier. Its integral is n. This lab divides that density by the fixed count to obtain probability density, with integral one, and combines the source's separate square roots into one denominator. The link between the Gaussian width and the molecularly determined diffusion coefficient is preserved; the probability normalization and typography are the lab's modern form."
 
   - latex: "r=\\frac{D\\,\\Delta t}{(\\Delta x)^2}\\leq\\frac12"
     incidental: "A condition on the lab's own stepping scheme, not on diffusion. The sentence before it says exactly that: the finite grid approximates diffusion with an explicit scheme whose diffusion number must not exceed one half, and a refused timestep is a limitation of the algorithm rather than a prohibition on diffusion. Nothing in the paper corresponds to it."

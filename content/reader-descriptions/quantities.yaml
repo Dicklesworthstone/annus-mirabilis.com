@@ -76,6 +76,7 @@ quantities:
   microstateEnergy: "The energy of a system when its microscopic state, every position and velocity, is given."
   molarGasConstant: "The gas constant of the ideal gas law, for one gram-molecule of gas."
   numberDensity: "The number of particles in each unit of volume."
+  numberDensity1d: "The number of particles per unit of displacement along one axis. Its area over an interval counts particles; its total area is n."
   observationInterval: "The time over which a particle is observed."
   osmoticPressure: "The pressure that dissolved or suspended particles exert on a wall that lets the liquid through but not them."
   particleCount: "The number of particles counted."

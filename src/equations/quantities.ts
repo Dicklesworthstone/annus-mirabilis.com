@@ -213,6 +213,18 @@ export const BROWNIAN_QUANTITIES: Readonly<Record<string, Quantity>> = Object.fr
         "The coordinate along which the particles spread, in the diffusion equation.",
       ),
       q(
+        "numberDensity1d",
+        "Particle number density along one coordinate",
+        "f",
+        ["-1", "0", "0", "0", "0", "0"],
+        "1/m",
+        "1/μm",
+        -6,
+        "particle-number-density-1d",
+        "result",
+        "Particles per metre of displacement. Its integral is the total particle count n; dividing by n gives a probability density. It is distinct from particles per unit volume.",
+      ),
+      q(
         "fieldTimeCoordinate",
         "Time",
         "t",

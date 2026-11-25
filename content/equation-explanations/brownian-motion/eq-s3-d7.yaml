@@ -13,7 +13,10 @@ inWords:
   - text: " times "
   - text: "the number of particles in unit volume"
     quantityId: numberDensity
-  - text: " changes along the column, in grams."
+  - text: " changes with "
+  - text: "position along the column"
+    quantityId: positionCoordinate1d
+  - text: ", in grams."
 r0: "The second of the two opposed processes: diffusion carries matter from where the suspended substance is crowded to where it is not, and the grams crossing a unit of cross-section each second are the diffusion coefficient times the steepness of the fall in mass per unit volume."
 r1: "The paper calls $D$ the diffusion coefficient of the suspended substance and $\\mu$ the mass of one particle, and writes down what passes per unit of time by diffusion in grams. The product $\\mu \\nu$ is the mass of suspended substance in unit volume, so this is Fick's law in its usual shape, a flow proportional to how steeply the concentration falls. The minus sign says the flow runs from the crowded side to the empty one: where $\\mu \\nu$ grows with $x$, the flow is towards smaller $x$. The paper does not derive the law here; it is the definition of the diffusion coefficient, and the value of $D$ for suspended spheres is what the section is about to compute."
 r2:

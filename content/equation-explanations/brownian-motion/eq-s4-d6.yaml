@@ -9,7 +9,10 @@ inWords:
   - text: " a "
   - text: "displacement"
     quantityId: displacementIncrement
-  - text: " away, at the same "
+  - text: " away from a chosen "
+  - text: "position"
+    quantityId: positionCoordinate1d
+  - text: ", at the same "
   - text: "time"
     quantityId: fieldTimeCoordinate
   - text: ", written as its value here plus the displacement times its slope, plus half the displacement squared times the curvature, and so on without end."

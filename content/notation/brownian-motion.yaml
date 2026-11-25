@@ -1320,7 +1320,7 @@ entries:
       variant: plain
     meaning: "Spatial coordinate along the 1D axis of diffusion"
     binding:
-      nonQuantityKind: coordinate-system-label
+      quantityId: positionCoordinate1d
     operation:
       kind: rename
       target:
@@ -1679,7 +1679,7 @@ entries:
       unicode: "f"
       latex: "f"
       variant: plain
-    meaning: "Particle number density per unit length (dn = f(x,t) dx, normalized to total count n)"
+    meaning: "Particle number density per unit volume, varying with one spatial coordinate and time"
     binding:
       quantityId: numberDensity
     operation:
@@ -1687,7 +1687,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "n"
-    notes: "Einstein's f(x,t) represents number density with integral over space equaling total particle count n. Renaming to probability density p(x,t) is an argument modernization."
+    notes: "Einstein first sets f(x,t) equal to nu, the number of particles per unit volume. In s4-p10 he reinterprets f(x,t) dx as a particle count in a displacement interval; that later use has its own one-dimensional density binding."
     sources:
       facsimilePage: 557
       anchor: bm-s4-p6
@@ -1696,6 +1696,31 @@ entries:
       checkedAgainst: "Plates of printed pages 556, 557 and 558 (public/figures/plates/pages/ap-17-549/556-1280.webp, public/figures/plates/pages/ap-17-549/557-1280.webp, public/figures/plates/pages/ap-17-549/558-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 557 in s4-p6 ('Es sei ν = f(x, t) die Anzahl der Teilchen pro Volumeneinheit'). Page 558 redefines f(x, t)dx as the number of particles displaced by between x and x + dx, with ∫f(x, t)dx = n. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
+
+  - id: bm.f.numberDensity1d
+    paper: brownian-motion
+    scope: ["bm-s4-p10", "eq-s4-d10", "eq-s4-d11"]
+    glyph:
+      unicode: "f"
+      latex: "f"
+      variant: plain
+    meaning: "Particle number per unit displacement, with f(x,t) dx counting particles in a displacement interval"
+    binding:
+      quantityId: numberDensity1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "f"
+    notes: "The integral over x equals the total count n. Dividing this density by n produces a probability density; replacing it directly with p would change the normalization. This is the later displacement interpretation, distinct from the volume density used to derive equation (1)."
+    sources:
+      facsimilePage: 558
+      anchor: bm-s4-p10
+    verification:
+      printed: true
+      checkedAgainst: "Printed page 558 (public/figures/plates/pages/ap-17-549/558-1280.webp), read visually: the paragraph says f(x,t) dx counts particles with displacement between x and x + dx, and the following integral equals n. The Gaussian below uses the same f. This records the authoring agent's source check, not an independent or human review."
+      by: "agent:reader-audit"
+      date: "2026-11-25"
 
   - id: bm.t.time
     paper: brownian-motion

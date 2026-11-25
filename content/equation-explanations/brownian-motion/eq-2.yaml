@@ -19,7 +19,10 @@ inWords:
   - text: ", less those carried back by diffusion, which is "
   - text: "the diffusion coefficient"
     quantityId: diffusionCoefficient
-  - text: " times the gradient of the number density, comes to zero."
+  - text: " times the gradient of the number density with respect to "
+  - text: "position along the column"
+    quantityId: positionCoordinate1d
+  - text: ", comes to zero."
 r0: "The two currents cancel. As many particles are pushed across a surface each second by the force as are carried back across it by diffusion, and that balance is what the paper calls dynamic equilibrium."
 r1: "Section 3 regards the equilibrium state it has just considered as the superposition of two processes running in opposite senses: a motion of the suspended substance under the force acting on each particle, and a diffusion process to be understood as a consequence of the disordered motions of the particles arising from the molecular motion of heat. This line sets the two against each other. The first current follows from the mechanics of a viscous liquid: a spherical particle of radius $P$ in a liquid of friction coefficient $k$ is driven at the velocity the force divided by the Stokes factor gives, and the number crossing unit area each second is that velocity times the number of particles per unit volume. The second is the diffusion current, which the paper writes first in grams, using the mass of a particle, and then in particles. Dynamic equilibrium does not mean that nothing moves. Both currents are running; what vanishes is their sum. The paper labels this equation (2) and combines it with the equilibrium condition it labelled (1) to obtain the diffusion coefficient, which is the result section 5 begins from."
 r2:

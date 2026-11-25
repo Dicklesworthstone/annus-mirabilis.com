@@ -6,6 +6,9 @@ review: draft
 inWords:
   - text: "The density"
     quantityId: numberDensity
+  - text: " at a given "
+  - text: "position"
+    quantityId: positionCoordinate1d
   - text: " plus the "
   - text: "short interval"
     quantityId: stepInterval

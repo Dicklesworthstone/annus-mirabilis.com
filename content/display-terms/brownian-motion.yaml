@@ -21,8 +21,6 @@ notQuantities:
     reason: "the differential d of an integral or a derivative: an operation, not a quantity"
   - glyph: "e"
     reason: "e, the base of the natural logarithm: a number, not a quantity"
-  - glyph: "x"
-    reason: "the coordinate along the X-axis, which the concordance reads as a coordinate label, not a quantity (bm.x.coordinate)"
   - glyph: "\\delta"
     reason: "the variation δ of a virtual displacement, an operator (concordance bm.delta.variationOperator)"
   - glyph: "\\pi"
@@ -274,6 +272,8 @@ displays:
     latex: "\\delta E = -\\int_0^l K \\nu \\delta x d x"
     spoken: "delta E equals minus the integral from zero to l of K nu delta x, d x."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "E"
         quantityId: systemEnergy
       - glyph: "l"
@@ -286,6 +286,8 @@ displays:
     latex: "\\delta S = \\int_0^l R \\frac{\\nu}{N} \\frac{\\partial \\delta x}{\\partial x} d x = -\\frac{R}{N} \\int_0^l \\frac{\\partial \\nu}{\\partial x} \\delta x d x."
     spoken: "delta S equals the integral from zero to l of R times nu over N times the partial derivative of delta x with respect to x, d x; and this equals minus R over N times the integral from zero to l of the partial derivative of nu with respect to x, times delta x, d x."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "S"
         quantityId: entropy
       - glyph: "l"
@@ -300,6 +302,8 @@ displays:
     latex: "-K \\nu + \\frac{R T}{N} \\frac{\\partial \\nu}{\\partial x} = 0"
     spoken: "Minus K nu, plus R T over N times the partial derivative of nu with respect to x, equals zero."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "K"
         quantityId: externalForcePerParticle
       - glyph: "\\nu"
@@ -314,6 +318,8 @@ displays:
     latex: "K \\nu - \\frac{\\partial p}{\\partial x} = 0."
     spoken: "K nu minus the partial derivative of p with respect to x equals zero."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "K"
         quantityId: externalForcePerParticle
       - glyph: "\\nu"
@@ -346,6 +352,8 @@ displays:
     latex: "-D \\frac{\\partial (\\mu \\nu)}{\\partial x} \\quad \\text{Gramm}"
     spoken: "Minus D times the partial derivative of mu nu with respect to x, in grams."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "D"
         quantityId: diffusionCoefficient
       - glyph: "\\mu"
@@ -356,6 +364,8 @@ displays:
     latex: "-D \\frac{\\partial \\nu}{\\partial x}"
     spoken: "Minus D times the partial derivative of nu with respect to x."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "D"
         quantityId: diffusionCoefficient
       - glyph: "\\nu"
@@ -364,6 +374,8 @@ displays:
     latex: "\\frac{\\nu K}{6 \\pi k P} - D \\frac{\\partial \\nu}{\\partial x} = 0."
     spoken: "nu K over six pi k P, minus D times the partial derivative of nu with respect to x, equals zero."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "\\nu"
         quantityId: numberDensity
       - glyph: "K"
@@ -425,6 +437,8 @@ displays:
     latex: "f(x, t + \\tau) d x = d x \\cdot \\int_{\\Delta = -\\infty}^{\\Delta = +\\infty} f(x + \\Delta) \\varphi(\\Delta) d \\Delta."
     spoken: "f of x and t plus tau, d x, equals d x times the integral, from Delta equals minus infinity to Delta equals plus infinity, of f of x plus Delta, times phi of Delta, d Delta."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "f"
         quantityId: numberDensity
       - glyph: "t"
@@ -439,6 +453,8 @@ displays:
     latex: "f(x, t + \\tau) = f(x, t) + \\tau \\frac{\\partial f}{\\partial t}."
     spoken: "f of x and t plus tau equals f of x and t, plus tau times the partial derivative of f with respect to t."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "f"
         quantityId: numberDensity
       - glyph: "t"
@@ -449,6 +465,8 @@ displays:
     latex: "f(x + \\Delta, t) = f(x, t) + \\Delta \\frac{\\partial f(x, t)}{\\partial x} + \\frac{\\Delta^2}{2!} \\frac{\\partial^2 f(x, t)}{\\partial x^2} \\ldots \\text{ in inf.}"
     spoken: "f of x plus Delta and t equals f of x and t, plus Delta times the partial derivative of f of x and t with respect to x, plus Delta squared over two factorial times the second partial derivative of f of x and t with respect to x, and so on, in infinitum."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "f"
         quantityId: numberDensity
       - glyph: "\\Delta"
@@ -459,6 +477,8 @@ displays:
     latex: "\\begin{aligned} f + \\frac{\\partial f}{\\partial t} \\cdot \\tau = f \\cdot \\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta &+ \\frac{\\partial f}{\\partial x} \\int_{-\\infty}^{+\\infty} \\Delta \\varphi(\\Delta) d \\Delta \\\\ &+ \\frac{\\partial^2 f}{\\partial x^2} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta \\ldots \\end{aligned}"
     spoken: "f plus the partial derivative of f with respect to t, times tau, equals f times the integral from minus infinity to plus infinity of phi of Delta, d Delta; plus the partial derivative of f with respect to x, times the integral from minus infinity to plus infinity of Delta times phi of Delta, d Delta; plus the second partial derivative of f with respect to x, times the integral from minus infinity to plus infinity of Delta squared over two, times phi of Delta, d Delta; and so on."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "f"
         quantityId: numberDensity
       - glyph: "t"
@@ -493,6 +513,8 @@ displays:
     latex: "\\frac{\\partial f}{\\partial t} = D \\frac{\\partial^2 f}{\\partial x^2}."
     spoken: "The partial derivative of f with respect to t equals D times the second partial derivative of f with respect to x."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "f"
         quantityId: numberDensity
       - glyph: "t"
@@ -503,8 +525,10 @@ displays:
     latex: "f(x, t) = 0 \\quad \\text{und} \\quad \\int_{-\\infty}^{+\\infty} f(x, t) d x = n"
     spoken: "f of x and t equals zero, and the integral from minus infinity to plus infinity of f of x and t, d x, equals n."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "f"
-        quantityId: numberDensity
+        quantityId: numberDensity1d
       - glyph: "t"
         quantityId: fieldTimeCoordinate
       - glyph: "n"
@@ -513,8 +537,10 @@ displays:
     latex: "f(x, t) = \\frac{n}{\\sqrt{4 \\pi D}} \\frac{e^{-\\frac{x^2}{4 D t}}}{\\sqrt{t}}."
     spoken: "f of x and t equals n over the square root of four pi D, times e to the minus x squared over four D t, divided by the square root of t."
     terms:
+      - glyph: "x"
+        quantityId: positionCoordinate1d
       - glyph: "f"
-        quantityId: numberDensity
+        quantityId: numberDensity1d
       - glyph: "t"
         quantityId: fieldTimeCoordinate
       - glyph: "n"

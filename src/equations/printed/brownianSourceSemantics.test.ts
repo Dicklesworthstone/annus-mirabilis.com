@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { checkDimensions } from "../../content/dimensions/check.ts";
 import { getQuantityRegistry } from "../../content/quantities/registry.ts";
+import { gaussianPropagator } from "../../physics/reference/diffusion/distributions.ts";
 import { walk } from "../ast.ts";
+import { evaluateExpression } from "../derivations/spotCheck.ts";
 import { BROWNIAN_OPERATION_GUIDES } from "./brownianOperations.ts";
 import { type CheckedDisplay, compilePrintedDisplay } from "./displayTerms.ts";
 import { checkPaperDisplays, printedDisplays } from "./paperDisplays.ts";
@@ -19,6 +21,12 @@ const IDS = [
   "eq-s3-d5",
   "eq-s3-d6",
   "eq-s3-d9",
+  "eq-s4-d2",
+  "eq-s4-d3",
+  "eq-s4-d8",
+  "eq-s4-d9",
+  "eq-s4-1",
+  "eq-s4-d11",
   "eq-s4-d12",
   "eq-s5-d1",
   "eq-s5-d2",
@@ -44,7 +52,11 @@ function compile(source: CheckedDisplay) {
 
 function parse(source: CheckedDisplay) {
   const guide = BROWNIAN_OPERATION_GUIDES[source.display];
-  return parseSourceExpression(source, guide?.symbolIndices, guide?.allowChainedRelations);
+  return parseSourceExpression(source, guide?.symbolIndices, guide?.allowChainedRelations, {
+    ...(guide?.functionArities ? { functionArities: guide.functionArities } : {}),
+    allowCalculus: guide?.allowCalculus ?? false,
+    allowExponentials: guide?.allowExponentials ?? false,
+  });
 }
 
 function refuses(action: () => unknown, code: string): string {
@@ -338,5 +350,181 @@ describe("the Brownian source's diffusivity, displacement and inference operatio
       .join(" ");
     expect(prose).not.toContain("observer speed");
     expect(prose).not.toContain("cosine");
+  });
+
+  test("the printed calculus retains its measure, derivative orders and distinct density roles", () => {
+    const normalized = parse(display("eq-s4-d2")).rows[0]?.tree;
+    expect(normalized).toMatchObject({
+      kind: "relation",
+      left: {
+        kind: "integral",
+        lower: { kind: "negate", argument: { kind: "constant", name: "infinity" } },
+        upper: { kind: "constant", name: "infinity" },
+        expression: {
+          kind: "symbol",
+          quantityId: "transitionKernel",
+          at: { quantityId: "displacementIncrement" },
+        },
+        variable: { kind: "symbol", quantityId: "displacementIncrement" },
+      },
+      right: { kind: "number", value: "1" },
+    });
+    expect(compile(display("eq-s4-d2")).semantics.dimension).toBe("none: a pure number");
+    const pde = parse(display("eq-s4-1")).rows[0]?.tree;
+    expect(pde).toMatchObject({
+      kind: "relation",
+      left: {
+        kind: "derivative",
+        partial: true,
+        order: 1,
+        expression: { quantityId: "numberDensity" },
+        variable: { quantityId: "fieldTimeCoordinate" },
+      },
+      right: {
+        kind: "product",
+        args: [
+          { quantityId: "diffusionCoefficient" },
+          {
+            kind: "derivative",
+            partial: true,
+            order: 2,
+            expression: { quantityId: "numberDensity" },
+            variable: { quantityId: "positionCoordinate1d" },
+          },
+        ],
+      },
+    });
+    expect(compile(display("eq-s4-1")).semantics.dimension).toBe("length⁻³ × time⁻¹");
+    expect(compile(display("eq-s4-d11")).semantics.dimension).toBe("length⁻¹");
+    for (const id of ["eq-s4-d10", "eq-s4-d11"])
+      expect(
+        display(id)
+          .terms.filter((term) => term.glyph === "f")
+          .every((term) => term.quantityId === "numberDensity1d"),
+      ).toBe(true);
+    // The source's point-source initial condition also needs its surrounding t=0, x!=0 prose.
+    // Publishing f(x,t)=0 as an unconditional relation would change its meaning.
+    expect(
+      compilePrintedSourceSemantics(
+        display("eq-s4-d10"),
+        compilePrintedDisplay(display("eq-s4-d10")),
+        quantities,
+      ),
+    ).toBeUndefined();
+  });
+
+  test("the actual printed Gaussian evaluates to n times the independent probability-density owner", () => {
+    const source = display("eq-s4-d11");
+    const tree = parse(source).rows[0]?.tree;
+    if (tree?.kind !== "relation") throw new Error("The Gaussian source is a relation.");
+    for (const [x, t, D, n] of [
+      [0, 1, 0.25, 12],
+      [-0.75, 2, 0.5, 37],
+      [2, 0.5, 3, 1000],
+    ] as const) {
+      const values: Record<string, number> = {
+        positionCoordinate1d: x,
+        fieldTimeCoordinate: t,
+        diffusionCoefficient: D,
+        particleCount: n,
+      };
+      const bindings = Object.fromEntries(
+        source.terms.map((term) => [term.termId, values[term.quantityId] ?? 0]),
+      );
+      const density = gaussianPropagator(x, t, D).result;
+      if (density.status !== "value" || typeof density.value !== "number")
+        throw new Error("The reference density must be a finite scalar at this point.");
+      expect(evaluateExpression(tree.right, bindings)).toBeCloseTo(n * density.value, 11);
+    }
+    expect(compile(source).semantics.premise).toContain("integrates to n");
+    expect(compile(source).semantics.premise).toContain("t > 0");
+  });
+
+  test("malformed calculus and changed bounds cannot inherit authored operation readings", () => {
+    const normalization = display("eq-s4-d2");
+    refuses(
+      () => compile(replaceOperator(normalization, " d ", " ")),
+      "printed-expression-unsupported",
+    );
+    refuses(
+      () => compile(replaceOperator(normalization, "_{-", "_{+")),
+      "printed-source-operation",
+    );
+    refuses(
+      () => compile(replaceOperator(normalization, "= 1", "= 2")),
+      "printed-source-operation",
+    );
+    // A quantity function's dimensional output alone cannot detect a wrong argument.
+    refuses(() => compile(replaceOperator(normalization, ")", "^2)")), "printed-source-operation");
+    const pde = display("eq-s4-1");
+    refuses(
+      () => compile(replaceOperator(pde, "\\partial^2", "\\partial")),
+      "printed-expression-unsupported",
+    );
+    const firstOrder = replaceOperator(replaceOperator(pde, "^2", "^1"), "^2", "^1");
+    refuses(() => compile(firstOrder), "printed-source-operation");
+    const moment = display("eq-s4-d9");
+    refuses(() => compile(replaceOperator(moment, "}{2}", "}{3}")), "printed-source-operation");
+    refuses(() => parseSourceExpression(normalization), "printed-expression-unsupported");
+    refuses(
+      () =>
+        parseSourceExpression({ ...normalization, latex: "\\infty = 1", terms: [] }, {}, false, {
+          allowCalculus: true,
+        }),
+      "printed-expression-unsupported",
+    );
+    for (const id of ["eq-s4-d6", "eq-s4-d7"])
+      refuses(
+        () =>
+          parseSourceExpression(display(id), {}, false, {
+            allowCalculus: true,
+            functionArities: { numberDensity: [0, 2], transitionKernel: [1] },
+          }),
+        "printed-expression-unsupported",
+      );
+  });
+
+  test("the Gaussian refuses changed normalization, argument order, sign and dimensional exponent", () => {
+    const source = display("eq-s4-d11");
+    for (const quantityId of ["numberDensity", "probabilityDensity"])
+      refuses(
+        () =>
+          compile({
+            ...source,
+            terms: source.terms.map((term) =>
+              term.quantityId === "numberDensity1d" ? { ...term, quantityId } : term,
+            ),
+          }),
+        "printed-expression-unsupported",
+      );
+    const leftTerms = source.terms.filter((term) => term.end < source.latex.indexOf("="));
+    refuses(
+      () =>
+        compile({
+          ...source,
+          terms: source.terms.map((term) =>
+            leftTerms.includes(term) && ["x", "t"].includes(term.glyph)
+              ? {
+                  ...term,
+                  quantityId: term.glyph === "x" ? "fieldTimeCoordinate" : "positionCoordinate1d",
+                }
+              : term,
+          ),
+        }),
+      "printed-source-operation",
+    );
+    refuses(() => compile(replaceOperator(source, "e^{-", "e^{")), "printed-source-operation");
+    refuses(() => compile(replaceOperator(source, "4 ", "2 ")), "printed-source-operation");
+    const position = quantities.get("positionCoordinate1d");
+    if (!position) throw new Error("The coordinate must be registered.");
+    const altered = new Map(quantities);
+    altered.set(position.id, {
+      ...position,
+      dimension: [2, 0, 0, 0, 0, 0].map((num) => ({ num, den: 1 })),
+    });
+    refuses(
+      () => compilePrintedSourceSemantics(source, compilePrintedDisplay(source), altered),
+      "printed-source-dimension",
+    );
   });
 });

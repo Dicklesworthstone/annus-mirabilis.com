@@ -6,7 +6,10 @@ review: draft
 inWords:
   - text: "The number of particles per unit volume"
     quantityId: numberDensity
-  - text: " one "
+  - text: " at a fixed "
+  - text: "position"
+    quantityId: positionCoordinate1d
+  - text: ", one "
   - text: "short interval"
     quantityId: stepInterval
   - text: " after a given "
