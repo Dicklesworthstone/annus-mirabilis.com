@@ -14,6 +14,7 @@ import { paperEquations } from "../paperEquations.ts";
 import { faceLinkHref, paperPath } from "../paperRoutes.ts";
 import { loadPassageProjections } from "../projections/passageProjections.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
+import { splitInstrumentTarget } from "./clarificationTargets.ts";
 import { SplitEnhancer } from "./SplitEnhancer.tsx";
 import { SplitInlineTerms } from "./SplitInlineTerms.tsx";
 import { SplitSource } from "./SplitSource.tsx";
@@ -63,7 +64,15 @@ export async function SplitReadingView({
   );
 
   return (
-    <div className="reader-root split-reader" data-reader-root data-ready="true" data-view="split">
+    <div
+      className="reader-root split-reader"
+      data-reader-root
+      data-ready="true"
+      data-view="split"
+      data-split-foundations={JSON.stringify(
+        Object.fromEntries(foundations.map((f) => [f.id, f.title])),
+      )}
+    >
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: shared tested reader readiness source. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <SplitInlineTerms paper={paper.id} />
@@ -199,11 +208,12 @@ export async function SplitReadingView({
                     key={a.id}
                     id={paneDomId(a.id, "secondary")}
                     data-anchor={a.id}
+                    data-clarification-anchor={a.id}
                     aria-labelledby={`split-title-${a.id}`}
                   >
                     <span id={a.id} className="split-argument-anchor" />
                     <h3 id={`split-title-${a.id}`}>{a.title}</h3>
-                    <p className="split-question">
+                    <p className="split-question" data-clarification-question>
                       <InlineMathText text={a.question} />
                     </p>
                     <ReadingBlocks
@@ -287,7 +297,12 @@ export async function SplitReadingView({
                         </li>
                         {(projection?.instrument ?? []).map((link) => (
                           <li key={link.href}>
-                            <a href={link.href}>Try it: {link.label}</a>
+                            <a
+                              href={link.href}
+                              data-clarification-open={splitInstrumentTarget(link.href)}
+                            >
+                              Try it: {link.label}
+                            </a>
                           </li>
                         ))}
                         {(projection?.journey ?? []).map((link) => (

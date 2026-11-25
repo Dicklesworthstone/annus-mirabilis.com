@@ -85,21 +85,28 @@ export async function loadLessonBody(
   options: Readonly<{
     fetch?: typeof fetch;
     mount?: (slot: HTMLElement, id: string) => MountedConstruction | Promise<MountedConstruction>;
+    signal?: AbortSignal;
+    /** A short-lived panel owns its own construction instead of the whole reading route. */
+    onMount?: (construction: MountedConstruction) => void;
   }> = {},
 ): Promise<"loaded" | "failed" | "skipped"> {
   const id = slot.getAttribute(LESSON_BODY_ATTRIBUTE);
   const state = slot.dataset.lessonState;
-  if (!id || state === "loading" || state === "loaded") return "skipped";
+  if (!id || state === "loading" || state === "loaded" || options.signal?.aborted) return "skipped";
   const target = slot.ownerDocument;
   slot.dataset.lessonState = "loading";
   slot.setAttribute("aria-busy", "true");
   let lesson: HTMLElement | null = null;
   try {
-    const response = await (options.fetch ?? fetch)(lessonPageHref(id));
+    const response = await (options.fetch ?? fetch)(
+      lessonPageHref(id),
+      options.signal ? { signal: options.signal } : undefined,
+    );
     if (response.ok) lesson = extractLesson(await response.text(), target);
   } catch {
     // Offline, blocked or aborted: the same as a page with no lesson, handled just below.
   }
+  if (options.signal?.aborted) return "skipped";
   if (!lesson) {
     slot.replaceChildren(failure(target, id));
     slot.dataset.lessonState = "failed";
@@ -130,9 +137,12 @@ export async function loadLessonBody(
     // The lesson has loaded; a construction that cannot mount leaves it in place and points
     // to the lesson's page, where the construction runs.
     try {
-      mounted.add(await (options.mount ?? defaultMount)(constructionSlot, id));
+      const construction = await (options.mount ?? defaultMount)(constructionSlot, id);
+      if (options.signal?.aborted) construction.unmount();
+      else if (options.onMount) options.onMount(construction);
+      else mounted.add(construction);
     } catch {
-      constructionSlot.replaceChildren(failure(target, id));
+      if (!options.signal?.aborted) constructionSlot.replaceChildren(failure(target, id));
     }
   }
   return "loaded";

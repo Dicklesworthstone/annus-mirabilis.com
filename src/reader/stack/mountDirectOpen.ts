@@ -142,8 +142,12 @@ export function closeDirectOpenDialog(doc: Document, returnFocus = false): void 
   if (returnFocus)
     doc.defaultView?.requestAnimationFrame(() => {
       // Browser Back restores the interrupted control; Forward into another panel must not
-      // let this delayed return steal focus from the newly opened clarification.
-      if (!mounted.get(doc)?.dialog.open) restore(doc, current.frame);
+      // let this delayed return steal focus from the newly opened clarification. A retained
+      // prerequisite link inside the reopened parent is the one exception: Back returns there.
+      const active = mounted.get(doc);
+      const trigger = current.frame.triggerId ? doc.getElementById(current.frame.triggerId) : null;
+      if (!active?.dialog.open || (trigger && active.dialog.contains(trigger)))
+        restore(doc, current.frame);
     });
   queueMicrotask(() => {
     if (mounted.get(doc) !== current || current.dialog.open) return;
@@ -154,7 +158,13 @@ export function closeDirectOpenDialog(doc: Document, returnFocus = false): void 
 function restore(doc: Document, frame: StackFrame): void {
   const win = doc.defaultView;
   if (!win) return;
-  const target = returnToInterruptedSentence(win, doc, frame);
+  const target = returnToInterruptedSentence(
+    win,
+    doc,
+    frame,
+    undefined,
+    activeDirectOpenDialog(doc)?.dialog,
+  );
   if (target && frame.selectionId) target.element.dataset.restoredSelection = frame.selectionId;
 }
 /** A click records the real originating passage and viewport position before descending. */
@@ -164,8 +174,9 @@ export function openFromTrigger(doc: Document, trigger: HTMLElement, raw: string
   const previous = win.history.state;
   const reader = doc.querySelector<HTMLElement>("[data-reader-root]");
   const params = new URLSearchParams(win.location.search);
+  const passage = trigger.closest<HTMLElement>(".reader-passage, [data-clarification-anchor]");
   const anchor =
-    trigger.closest<HTMLElement>(".reader-passage")?.id ?? decodeAnchor(win.location.hash);
+    passage?.dataset.clarificationAnchor ?? passage?.id ?? decodeAnchor(win.location.hash);
   if (!trigger.id) trigger.id = `clarification-trigger-${++triggerNumber}`;
   const outcome = openClarification(
     mounted.get(doc)?.dialog.open
@@ -175,7 +186,7 @@ export function openFromTrigger(doc: Document, trigger: HTMLElement, raw: string
       kind: raw.slice(0, raw.indexOf(":")),
       id: raw.slice(raw.indexOf(":") + 1),
       question:
-        trigger.closest(".reader-passage")?.querySelector(".passage-question")?.textContent ??
+        passage?.querySelector(".passage-question, [data-clarification-question]")?.textContent ??
         "Why does this step follow?",
       openedLab: triggerLabs.get(trigger) ?? null,
       returnTo: {
@@ -265,6 +276,17 @@ export function openFromSearch(doc: Document, search: string): boolean {
           lab: null,
           openedLab: null,
         };
+  // Directly linked lessons have no session callback to write their parent frame. Keep the
+  // same local stack contract as a laboratory before a prerequisite can descend from here.
+  if (frame !== saved) {
+    win.history.replaceState(
+      {
+        ...win.history.state,
+        annusClarification: { stack: serializeStackState({ frames: [frame] }), pushed: false },
+      },
+      "",
+    );
+  }
   const { dialog, mount } = ensureDialog(doc);
   dialog.setAttribute("aria-label", frame.title);
   const existing = mounted.get(doc);
