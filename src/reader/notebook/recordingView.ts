@@ -1,3 +1,4 @@
+import { isScientificCheckpoint } from "../../experiments/permalink/recordedExperiments.ts";
 import { recordingLaboratory } from "./recordingEntry.ts";
 import type { NotebookRecordingEntry } from "./schema.ts";
 
@@ -46,17 +47,21 @@ export function appendRecordingView(
     item.append(
       element(
         "p",
-        checkpoint.scientificState
+        isScientificCheckpoint(checkpoint)
           ? "Saved scientific checkpoint. Restore verifies its accepted output digest."
           : "Saved settings only. Calculate these settings as a new run in the laboratory.",
       ),
     );
-    const seed = element(
-      "p",
-      typeof stop.tape.seed === "string" ? "Exact seed: " : "No seeded stream declared.",
-    );
-    if (typeof stop.tape.seed === "string") seed.append(element("code", stop.tape.seed));
-    item.append(seed);
+    if (stop.tape.streamVersion === "deterministic") {
+      item.append(element("p", "Deterministic calculation; no random stream is used."));
+    } else {
+      const seed = element(
+        "p",
+        typeof stop.tape.seed === "string" ? "Exact seed: " : "No seeded stream declared.",
+      );
+      if (typeof stop.tape.seed === "string") seed.append(element("code", stop.tape.seed));
+      item.append(seed);
+    }
     const details = element("details");
     details.append(element("summary", "Saved settings"));
     details.append(element("pre", JSON.stringify(stop.tape.initialConditions, null, 2)));

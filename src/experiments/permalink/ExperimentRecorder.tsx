@@ -6,6 +6,7 @@ import type { NotebookRecording } from "../../reader/notebook/recordingEntry.ts"
 import { recordingLaboratory } from "../../reader/notebook/recordingLaboratories.ts";
 import {
   captureRecordedStop,
+  isScientificCheckpoint,
   RECORDING_LIMITS,
   type RecordedExperiment,
   readRecordedExperiment,
@@ -61,7 +62,7 @@ export function ExperimentRecorder({
     : "Download the recording to keep it after leaving this page.";
   const stop = recording?.stops[index];
   const settingsOnlyWorkerStop =
-    scientific && stop && !stop.tape.acceptedCheckpoint.scientificState;
+    scientific && stop && !isScientificCheckpoint(stop.tape.acceptedCheckpoint);
   useEffect(
     () => () => {
       ++importGeneration.current;
@@ -121,8 +122,11 @@ export function ExperimentRecorder({
       notice: tape.acceptedCheckpoint.scientificState
         ? "Saved the completed trial's scientific checkpoint with its exact seeds and settings. " +
           keepNotice
-        : "Saved the laboratory's accepted settings, not unapplied edits in its form. " +
-          keepNotice,
+        : isScientificCheckpoint(tape.acceptedCheckpoint)
+          ? "Saved the completed calculation's scientific checkpoint and exact settings. " +
+            keepNotice
+          : "Saved the laboratory's accepted settings, not unapplied edits in its form. " +
+            keepNotice,
     });
   }
   async function restore(next: number, calculate = false) {
@@ -241,7 +245,9 @@ export function ExperimentRecorder({
       }
       setMessage({
         kind: "loaded",
-        notice: recording.stops.some((entry) => entry.tape.acceptedCheckpoint.scientificState)
+        notice: recording.stops.some((entry) =>
+          isScientificCheckpoint(entry.tape.acceptedCheckpoint),
+        )
           ? "Recording file prepared with every saved checkpoint, title, and note. Restore a scientific stop to recompute and verify its trial."
           : "Recording file prepared. It includes every saved stop, the title, and your notes; it contains no animation or measured observations.",
       });
@@ -264,7 +270,7 @@ export function ExperimentRecorder({
       <summary>Save and replay your own experiment</summary>
       <p>
         {scientific
-          ? "Save a completed calculation with a note. Each scientific stop preserves the settings, exact seeds and checkpoint needed to reproduce its calculated trial."
+          ? "Save a completed calculation with a note. Each scientific stop preserves its settings and checkpoint, including exact seeds when it uses a random stream, so the laboratory can reproduce and verify it."
           : "Save interesting accepted settings with a note, then revisit them or give the recording to another reader. This saves settings checkpoints, not animation, timing, or observations."}{" "}
         Nothing is uploaded.{" "}
         {notebookSupported

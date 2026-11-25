@@ -1,3 +1,4 @@
+import { isScientificCheckpoint } from "./recordedExperiments.ts";
 import type { TapeV2 } from "./types.ts";
 import { type CheckpointWalkthrough, checkpointAt } from "./walkthroughCheckpoints.ts";
 
@@ -147,7 +148,7 @@ export function applyWalkthroughCheckpoint(
     if (restored.kind !== "restored") return { kind: "refused", notice: restored.notice };
     return {
       kind: "replayed",
-      notice: checkpoint.tape.acceptedCheckpoint.scientificState
+      notice: isScientificCheckpoint(checkpoint.tape.acceptedCheckpoint)
         ? `${checkpoint.label}: reproduced and verified the recorded scientific checkpoint. The results below are computed by this laboratory.`
         : `${checkpoint.label}: restored and matched the recorded settings checkpoint. The results below are computed by this laboratory.`,
     };

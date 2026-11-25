@@ -22,6 +22,17 @@ export type RecordingResult<T> =
   | Readonly<{ kind: "accepted"; value: T }>
   | Readonly<{ kind: "refused"; notice: string }>;
 
+/** A deterministic owner binds its complete outputs without inventing random-stream state.
+ * This classifies a receipt for presentation; only the laboratory can verify its calculation. */
+export function isScientificCheckpoint(
+  checkpoint: Readonly<{ digest?: unknown; scientificState?: unknown }>,
+): boolean {
+  return (
+    checkpoint.scientificState !== undefined ||
+    (typeof checkpoint.digest === "string" && /^host:sha256:[a-f0-9]{64}$/.test(checkpoint.digest))
+  );
+}
+
 /** The wire schema stays the owner of tape admission. The browser supplies validateTapeV2. */
 export type AdmitRecordingTape = (raw: unknown, path: string) => TapeV2;
 const refuse = (notice: string): RecordingResult<never> => ({ kind: "refused", notice });

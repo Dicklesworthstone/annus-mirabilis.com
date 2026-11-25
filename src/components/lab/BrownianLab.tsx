@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { LaboratoryEquations } from "../../equations/live/LaboratoryEquations.tsx";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
@@ -17,7 +17,6 @@ import {
   BM06_RADIAL_EXPLANATIONS,
   type Bm06Parameters,
 } from "../../experiments/bm06/definition.ts";
-import { BM06_DRAFT_TAPE } from "../../experiments/bm06/draftTape.ts";
 import { gridExecutionKind } from "../../experiments/bm06/gridExecution.ts";
 import {
   BM06_GRID_PROFILES,
@@ -27,13 +26,14 @@ import {
 import { decodeBm06Settings } from "../../experiments/bm06/permalink.ts";
 import { BM06_CURVE_PROMPT, bm06PredictionCurve } from "../../experiments/bm06/prediction.ts";
 import { createBm06Session, type PreparedBm06Example } from "../../experiments/bm06/session.ts";
+import { createBm06TapeBinding, createBm06WalkthroughTarget } from "../../experiments/bm06/tape.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { ExecutionLabel } from "../../experiments/labels/ExecutionLabel.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { useLaboratoryVisibility } from "../../experiments/lifecycle/useLaboratoryVisibility.ts";
-import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
+import { LabTapeLink, useWorkerTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_DIFFUSION_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
 import {
@@ -49,6 +49,7 @@ import bm06Equations from "../../generated/bm06-equations.json";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { SessionResultWeave } from "../../reader/weave/SessionResultWeave.tsx";
 import { BM06_READER_WEAVE } from "../../reader/weave/spreadingPassages.ts";
+import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
 import { DistributionComparison } from "./DistributionComparison.tsx";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -85,6 +86,7 @@ export function BrownianLab({
   title = "The spreading laboratory",
   externalDiffusivitySource,
   readings = false,
+  workerFactory = createBm06BrowserChannel,
 }: {
   example: PreparedBm06Example;
   instanceId?: string | undefined;
@@ -97,6 +99,7 @@ export function BrownianLab({
   /** A named BM-01 instance's accepted snapshot, offered by a page such as the guided
    * investigation. BrownianLab never reaches out for this itself; copying remains explicit. */
   externalDiffusivitySource?: ExternalDiffusivitySource;
+  workerFactory?: (() => WorkerChannel) | undefined;
 }) {
   const id = useId();
   const session = useRetainedSession(
@@ -105,7 +108,7 @@ export function BrownianLab({
       instanceId: instanceId ?? `bm06-${id}`,
       sourceDigest: example?.sourceDigest,
     },
-    (retainedId) => createBm06Session(retainedId, example, createBm06BrowserChannel),
+    (retainedId) => createBm06Session(retainedId, example, workerFactory),
   );
   const laboratoryRegion = useLaboratoryVisibility(session);
   const serverAccepted = session.getServerSnapshot().accepted;
@@ -130,6 +133,7 @@ export function BrownianLab({
   const p = snapshot.parameters as Bm06Parameters;
   const [draft, setDraftState] = useState(() => toDraft(session.acceptedParameters()));
   const draftRevision = useRef(0);
+  const walkthroughDraftRevision = useRef(0);
   const setDraft = useCallback((next: Parameters<typeof setDraftState>[0]) => {
     draftRevision.current++;
     setDraftState(next);
@@ -139,8 +143,47 @@ export function BrownianLab({
   const [failure, setFailure] = useState<ApplyFailure | null>(null),
     [linkNote, setLinkNote] = useState("");
   const gate = usePredictGate("bm-06", BM06_CURVE_PROMPTS);
-  const tapeLink = useDraftTapeLink(
-    BM06_DRAFT_TAPE,
+  const restorePredictions = useRef(gate.restore);
+  restorePredictions.current = gate.restore;
+  const predictionRecords = useRef(gate.records);
+  predictionRecords.current = gate.records;
+  const walkthroughPredictions = useRef(gate.records);
+  const workerTape = useMemo(
+    () => createBm06TapeBinding(example, workerFactory),
+    [example, workerFactory],
+  );
+  const workerWalkthrough = useMemo(
+    () =>
+      createBm06WalkthroughTarget(
+        workerTape,
+        session,
+        (parameters) => {
+          if (draftRevision.current !== walkthroughDraftRevision.current) {
+            setLinkNote(
+              "The checkpoint result is ready. Your newer entries are still in the form; apply them when ready.",
+            );
+            return;
+          }
+          setDraftState(toDraft(parameters));
+          setDirty(false);
+          setFailure(null);
+          setLinkNote("");
+        },
+        () => {
+          walkthroughDraftRevision.current = draftRevision.current;
+          walkthroughPredictions.current = predictionRecords.current;
+        },
+        (predictions) => {
+          if (predictionRecords.current === walkthroughPredictions.current)
+            restorePredictions.current(predictions);
+        },
+      ),
+    [workerTape, session],
+  );
+  // Settings links remain drafts. A scientific checkpoint waits for explicit owner-backed replay.
+  const tapeLink = useWorkerTapeLink(
+    workerTape,
+    session,
     p,
     restoreFromLocation,
     (settings, predictions) => {
@@ -148,8 +191,8 @@ export function BrownianLab({
       setDirty(true);
       if (predictions) gate.restore(predictions);
     },
-    undefined,
-    { draftRevision, session },
+    workerWalkthrough,
+    draftRevision,
   );
   const curvePrompt = BM06_CURVE_PROMPTS[0];
   const curveRecord = gate.records.get(BM06_CURVE_PROMPT);
@@ -948,7 +991,11 @@ export function BrownianLab({
           uid={`stc-${id}`}
         />
       </details>
-      <LabTapeLink link={withPredictions(tapeLink, gate)} />
+      <LabTapeLink
+        link={withPredictions(tapeLink, gate)}
+        workerWalkthrough={workerWalkthrough}
+        sharePath="/lab/bm-06/"
+      />
       {linkNote && <p className="notice">{linkNote}</p>}
     </section>
   );

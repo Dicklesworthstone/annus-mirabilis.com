@@ -1,5 +1,9 @@
 import type { WorkerChannel } from "../../workers/scheduler/hostScheduler.ts";
-import type { WorkerTapeBinding } from "../permalink/workerSessionTape.ts";
+import type { TapePredictionEvent } from "../permalink/types.ts";
+import type { WorkerWalkthroughTarget } from "../permalink/walkthroughActions.ts";
+import type { WorkerTapeBinding, WorkerTapeSession } from "../permalink/workerSessionTape.ts";
+import { createWorkerWalkthroughTarget } from "../permalink/workerWalkthrough.ts";
+import type { Bm06Parameters } from "./definition.ts";
 import { BM06_DRAFT_TAPE } from "./draftTape.ts";
 import { createBm06Session, type PreparedBm06Example } from "./session.ts";
 import { captureBm06Tape } from "./tapeCapture.ts";
@@ -27,4 +31,24 @@ export function createBm06TapeBinding(
     },
   };
   return Object.freeze(binding);
+}
+
+/** The visible laboratory accepts a replay only after its complete owner result verifies. */
+export function createBm06WalkthroughTarget(
+  binding: WorkerTapeBinding,
+  session: WorkerTapeSession,
+  onAccepted: (parameters: Bm06Parameters) => void,
+  onStarting?: () => void,
+  onPredictions?: (predictions: readonly TapePredictionEvent[]) => void,
+): WorkerWalkthroughTarget {
+  const target = createWorkerWalkthroughTarget(binding, session, onAccepted, onStarting);
+  return {
+    ...target,
+    async restore(tape, signal) {
+      const outcome = await target.restore(tape, signal);
+      if (outcome.kind === "restored" && !signal?.aborted && tape.predictions)
+        onPredictions?.(tape.predictions);
+      return outcome;
+    },
+  };
 }

@@ -16,6 +16,14 @@ const laboratories = Object.freeze({
     href: "/lab/bm-05/",
     requiresScientificCheckpoint: false,
   } as const),
+  "bm-06": Object.freeze({
+    experimentId: "bm-06",
+    paper: "brownian-motion",
+    anchor: "arg-bm-gaussian",
+    title: "Spreading probability",
+    href: "/lab/bm-06/",
+    requiresScientificCheckpoint: true,
+  } as const),
   "bm-07": Object.freeze({
     experimentId: "bm-07",
     paper: "brownian-motion",
@@ -40,4 +48,3 @@ export function recordingLaboratory(experimentId: string) {
     ? laboratories[experimentId as NotebookRecordingExperiment]
     : null;
 }
-
