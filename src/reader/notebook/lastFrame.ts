@@ -1,3 +1,4 @@
+import { scanPageDescription, splitNotebookPosition, splitPassageSummary } from "./splitPlace.ts";
 import { portableClarificationFromSearch } from "../stack/portableTargets.ts";
 import {
   type LastPlace,
@@ -29,10 +30,14 @@ export function frameForPassage(
   const detail =
     ({ overview: 0, full: 1, steps: 2 } as Record<string, number>)[detailValue] ??
     Number(detailValue);
+  const split = view === "split" ? splitNotebookPosition(passage, location.search) : null;
   try {
     return parseNotebookFrame({
       paper,
-      anchor: sourceNotebookAnchor(passage) ?? passage.id,
+      ...(split ? { split } : {}),
+      anchor: split && passage.matches("[data-facsimile-reader]")
+        ? "split-companion-pane"
+        : sourceNotebookAnchor(passage) ?? passage.id,
       view: NOTEBOOK_VIEWS.includes(view as NotebookFrame["view"]) ? view : "reading",
       detail,
       lens:
@@ -48,8 +53,12 @@ export function frameForPassage(
 
 export function authoredLastPlace(passage: HTMLElement, frame: NotebookFrame): LastPlace | null {
   const source = sourceNotebookPassage(passage, frame.paper);
-  const title = passage.querySelector("h3")?.textContent?.trim() ?? "";
-  const recap = passage.querySelector("[data-face-results] > p")?.textContent?.trim() ?? "";
+  const page = frame.split ? scanPageDescription(passage) : null;
+  const title = page ?? passage.querySelector("h3")?.textContent?.trim() ?? "";
+  const recap =
+    (frame.split ? splitPassageSummary(passage) : null) ??
+    passage.querySelector("[data-face-results] > p")?.textContent?.trim() ??
+    "";
   const overview = [...passage.querySelectorAll('[data-reading="0"] > p')]
     .map((node) => node.textContent?.trim() ?? "")
     .filter(Boolean)
@@ -66,7 +75,7 @@ export function authoredLastPlace(passage: HTMLElement, frame: NotebookFrame): L
       frame,
       title,
       recap: recap || overview,
-      recapKind: recap ? "authored-recap" : "overview",
+      recapKind: page ? "page-location" : recap ? "authored-recap" : "overview",
     });
   } catch {
     return null;

@@ -95,6 +95,7 @@ export async function SplitReadingView({
         className="split-reading"
         data-split=""
         data-split-comparison
+        data-split-section={selected.id}
         data-split-source="parallel"
         data-split-companion="reading"
       >
@@ -209,6 +210,7 @@ export async function SplitReadingView({
                     className="split-argument"
                     key={a.id}
                     id={paneDomId(a.id, "secondary")}
+                    data-notebook-recap={a.recap}
                     data-anchor={a.id}
                     data-clarification-anchor={a.id}
                     aria-labelledby={`split-title-${a.id}`}

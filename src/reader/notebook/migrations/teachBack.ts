@@ -108,13 +108,26 @@ export function migrateRecordingNotebook(input: Readonly<Record<string, unknown>
         "Version 3 notebooks cannot contain saved recording entries.",
       );
   }
-  return parseNotebookDocument({ ...document, schemaVersion: NOTEBOOK_SCHEMA_VERSION });
+  const checked = parseNotebookDocument({ ...document, schemaVersion: NOTEBOOK_SCHEMA_VERSION });
+  return Object.freeze({ ...checked, schemaVersion: 4 });
+}
+
+/** Older frames keep their original URLs; split comparison settings first appear in version 5. */
+export function migrateSplitNotebook(input: Readonly<Record<string, unknown>>) {
+  const document = envelope(input);
+  if (document.schemaVersion !== 4)
+    throw new NotebookMigrationError("notebook-migration-version", "This is not a version 4 reading notebook.");
+  const checked = parseNotebookDocument({ ...document, schemaVersion: NOTEBOOK_SCHEMA_VERSION });
+  if (checked.lastPlace?.frame.split || checked.lastPlace?.recapKind === "page-location" || checked.entries.some(entry => entry.frame.split))
+    throw new NotebookMigrationError("notebook-migration-entry", "Older notebooks cannot contain split comparison settings.");
+  return checked;
 }
 
 const migrations = createMigrationChain(NOTEBOOK_SCHEMA_VERSION, {
   1: migrateTeachBackNotebook,
   2: migrateExerciseNotebook,
   3: migrateRecordingNotebook,
+  4: migrateSplitNotebook,
 });
 
 /** Used by storage and file import; opening an older notebook does not itself write anything. */

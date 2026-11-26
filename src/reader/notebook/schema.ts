@@ -1,4 +1,5 @@
-import { sectionAnchorOf } from "../../content/anchors.ts";
+import { splitSelectionFromSearch } from "../split/selection.ts";
+import { parseAnchor, sectionAnchorOf } from "../../content/anchors.ts";
 import { portableClarification } from "../stack/portableTargets.ts";
 import { type CapstoneCapture, parseCapstoneCapture } from "./capstoneEntry.ts";
 import { comparisonReplayAdapter } from "./comparisonAdapters.ts";
@@ -9,7 +10,7 @@ import { parseTeachBackCapture, type TeachBackCapture } from "./teachBackEntry.t
 /** Local reader work, never a publication record or an assessment of its author. */
 export const NOTEBOOK_KEY = "am:notebook:v1";
 export const NOTEBOOK_FORMAT = "annus-reading-notebook";
-export const NOTEBOOK_SCHEMA_VERSION = 4;
+export const NOTEBOOK_SCHEMA_VERSION = 5;
 export const NOTEBOOK_LIMITS = Object.freeze({ entries: 500, text: 4000, title: 240, recap: 2000 });
 export const NOTEBOOK_PAPERS = [
   "brownian-motion",
@@ -41,6 +42,13 @@ export const NOTEBOOK_VIEWS = [
   "facsimile",
   "split",
 ] as const;
+export type NotebookSplit = Readonly<{
+  section: string;
+  panes: string;
+  pane: "source" | "companion";
+  scan: string;
+}>;
+
 export type NotebookFrame = Readonly<{
   paper: NotebookPaper;
   anchor: string;
@@ -49,6 +57,7 @@ export type NotebookFrame = Readonly<{
   lens: "paper" | "modern";
   /** A public foundation, instrument or term address; no instance, run or tape is restored. */
   open: string;
+  split?: NotebookSplit;
 }>;
 type NotebookEntryBase = Readonly<{
   id: string;
@@ -82,7 +91,7 @@ export type LastPlace = Readonly<{
   frame: NotebookFrame;
   title: string;
   recap: string;
-  recapKind: "authored-recap" | "overview" | "source-excerpt";
+  recapKind: "authored-recap" | "overview" | "source-excerpt" | "page-location";
 }>;
 export type NotebookDocument = Readonly<{
   format: typeof NOTEBOOK_FORMAT;
@@ -124,8 +133,14 @@ function text(input: unknown, max: number, empty = false): string {
     throw new TypeError("Notebook text is empty, invalid, or too long.");
   return input;
 }
+export function isNotebookScanTarget(value: string): boolean {
+  return value.length <= 160 && (/^facsimile-page-\d{1,6}$/.test(value) || parseAnchor(value).ok);
+}
+
 export function parseNotebookFrame(input: unknown): NotebookFrame {
-  const f = record(input, ["paper", "anchor", "view", "detail", "lens", "open"]);
+  const hasSplit = input !== null && typeof input === "object" && Object.hasOwn(input, "split");
+  const fields = ["paper", "anchor", "view", "detail", "lens", "open"];
+  const f = record(input, hasSplit ? [...fields, "split"] : fields);
   if (
     !NOTEBOOK_PAPERS.includes(f.paper as NotebookPaper) ||
     !NOTEBOOK_VIEWS.includes(f.view as NotebookFrame["view"]) ||
@@ -139,7 +154,22 @@ export function parseNotebookFrame(input: unknown): NotebookFrame {
   const open = text(f.open, 180, true);
   if (portableClarification(open) === null)
     throw new TypeError("Unsupported notebook clarification.");
+  let split: NotebookSplit | undefined;
+  if (hasSplit) {
+    const position = record(f.split, ["section", "panes", "pane", "scan"]);
+    const section = text(position.section, 8);
+    const panes = text(position.panes, 32);
+    const scan = text(position.scan, 160, true);
+    const { selection, notice } = splitSelectionFromSearch(`?${new URLSearchParams({ panes })}`);
+    if (
+      f.view !== "split" || !/^s\d+$/.test(section) || notice ||
+      (position.pane !== "source" && position.pane !== "companion") ||
+      (scan && (selection.companion !== "facsimile" || !isNotebookScanTarget(scan)))
+    ) throw new TypeError("Unsupported split reading location.");
+    split = Object.freeze({ section, panes, pane: position.pane, scan });
+  }
   return Object.freeze({
+    ...(split ? { split } : {}),
     paper: f.paper,
     anchor,
     view: f.view,
@@ -239,7 +269,8 @@ export function parseLastPlace(input: unknown): LastPlace {
   if (
     p.recapKind !== "authored-recap" &&
     p.recapKind !== "overview" &&
-    p.recapKind !== "source-excerpt"
+    p.recapKind !== "source-excerpt" &&
+    p.recapKind !== "page-location"
   )
     throw new TypeError("A recap must identify its authored source.");
   return Object.freeze({
@@ -279,14 +310,20 @@ export function notebookFrameHref(input: NotebookFrame): string {
   const frame = parseNotebookFrame(input),
     query = new URLSearchParams();
   const sourceFace = ["german", "english", "parallel", "gloss"].includes(frame.view);
-  if (frame.view !== "reading" && !sourceFace) query.set("view", frame.view);
+  if (frame.split) {
+    query.set("panes", frame.split.panes);
+    query.set("split-pane", frame.split.pane);
+    if (frame.split.scan) query.set("split-scan", frame.split.scan);
+  } else if (frame.view !== "reading" && !sourceFace) query.set("view", frame.view);
   if (frame.detail !== 1) query.set("detail", String(frame.detail));
   if (frame.lens === "modern") query.set("lens", "modern");
   if (frame.open) query.set("open", frame.open);
   // Gloss routes show one section at a time. Use the grammar owner, preserving the English
   // half's actual fragment while finding its section from the unprefixed source address.
   const section = sourceFace ? sectionAnchorOf(frame.anchor.replace(/^en-/u, "")) : null;
-  const path = sourceFace
+  const path = frame.split
+    ? `/papers/${frame.paper}/${frame.split.section}/view/split/`
+    : sourceFace
     ? `/papers/${frame.paper}/${section ? `${section}/` : ""}view/${frame.view}/`
     : `/papers/${frame.paper}/`;
   return `${path}${query.size ? `?${query}` : ""}#${frame.anchor}`;

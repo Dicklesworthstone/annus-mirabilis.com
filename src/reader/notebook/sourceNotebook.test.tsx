@@ -60,11 +60,14 @@ function backend() {
   };
 }
 
-async function mount(face: Face, io = backend()) {
-  document.body.innerHTML = `<header><a id="trigger" href="/notebook/">Notebook</a><div id="host"></div></header><main>${await page(face)}</main>`;
+async function mount(face: Face | "split", io = backend(), panes = "") {
+  const html = face === "split"
+    ? await PaperPage({ paperId: PAPER, section: SECTION, face }).then(exportMarkup)
+    : await page(face);
+  document.body.innerHTML = `<header><a id="trigger" href="/notebook/">Notebook</a><div id="host"></div></header><main>${html}</main>`;
   const location = {
     pathname: `/papers/${PAPER}/${SECTION}/view/${face}/`,
-    search: "?detail=2&lens=modern&private=not-for-a-link",
+    search: `?detail=2&lens=modern&private=not-for-a-link${panes ? `&panes=${panes}` : ""}`,
     hash: "",
   };
   const store = createNotebookStore(io.storage);
@@ -248,4 +251,36 @@ test("source resume refuses malformed foundation addresses without throwing", as
   assert.ok(valid);
   expect(valid.recapKind).toBe("source-excerpt");
   expect(authoredLastPlace(passage, { ...frame, open: "foundation:bad!" })).toBeNull();
+}, 60_000);
+
+test("a split reader reopens their source note and the authored recap of the companion argument", async () => {
+  const { store, io } = await mount("split", backend(), "reading,english");
+  const translation = target("parallel", true);
+  toggleFor(translation).click();
+  action("Save passage").click();
+  const entry = store.getSnapshot().document.entries[0];
+  assert.ok(entry);
+  const href = new URL(notebookFrameHref(entry.frame), "https://annus-mirabilis.com");
+  expect(href.pathname).toBe("/papers/brownian-motion/s4/view/split/");
+  expect(href.hash.startsWith("#en-")).toBe(true);
+  expect(href.searchParams.get("panes")).toBe("reading,english");
+  expect(href.searchParams.get("split-pane")).toBe("source");
+  expect(href.searchParams.has("private")).toBe(false);
+  expect(document.getElementById(href.hash.slice(1))).not.toBeNull();
+
+  const argument = document.querySelector<HTMLElement>("article.split-argument");
+  assert.ok(argument);
+  const bounds = new DOMRect(0, 80, 600, 180);
+  argument.getBoundingClientRect = () => bounds;
+  argument.getClientRects = () => [bounds] as unknown as DOMRectList;
+  toggleFor(argument).dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+  window.dispatchEvent(new Event("pagehide"));
+  const reopened = createNotebookStore(io.storage);
+  reopened.open();
+  const place = reopened.getSnapshot().document.lastPlace;
+  assert.ok(place);
+  expect(place.recap).toBe(argument.dataset.notebookRecap ?? "");
+  expect(place.frame.split?.pane).toBe("companion");
+  expect(place.frame.anchor).toBe(argument.id);
+  expect(notebookFrameHref(place.frame)).toContain("/s4/view/split/");
 }, 60_000);

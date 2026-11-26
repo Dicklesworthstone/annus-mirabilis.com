@@ -175,13 +175,13 @@ test("version 1, 2 and 3 notebooks migrate one step at a time without changing r
   expect(migrateTeachBackNotebook({ ...notebook, schemaVersion: 1 }).schemaVersion).toBe(2);
   expect(migrateExerciseNotebook({ ...notebook, schemaVersion: 2 }).schemaVersion).toBe(3);
   expect(migrateRecordingNotebook({ ...notebook, schemaVersion: 3 }).schemaVersion).toBe(4);
-  for (const version of [1, 2, 3]) {
+  for (const version of [1, 2, 3, 4]) {
     const original = { ...notebook, schemaVersion: version };
     const before = JSON.stringify(original);
     expect(readNotebookDocument(original)).toEqual(notebook);
     expect(JSON.stringify(original)).toBe(before);
   }
-  expect(NOTEBOOK_SCHEMA_VERSION).toBe(4);
+  expect(NOTEBOOK_SCHEMA_VERSION).toBe(5);
 });
 
 test("older envelopes cannot counterfeit the new recording entry kind", () => {
@@ -198,7 +198,7 @@ test("older envelopes cannot counterfeit the new recording entry kind", () => {
 });
 
 test("notebook-migration-version: recording upgrade requires version 3 and an entry array (teachBack.ts:95)", () => {
-  expect(migrateRecordingNotebook({ ...notebook, schemaVersion: 3 })).toEqual(notebook);
+  expect(migrateRecordingNotebook({ ...notebook, schemaVersion: 3 })).toEqual({ ...notebook, schemaVersion: 4 });
   for (const input of [
     { ...notebook, schemaVersion: 2 },
     { ...notebook, schemaVersion: 3, entries: {} },

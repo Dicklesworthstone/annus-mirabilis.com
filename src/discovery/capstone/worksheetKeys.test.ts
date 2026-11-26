@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { it } from "node:test";
 import { CAPSTONE_WORKSHEET_KEYS, storageKeyRegistry } from "../../platform/storage/keys.ts";
+import { NOTEBOOK_SCHEMA_VERSION } from "../../reader/notebook/schema.ts";
 import { WORKSHEET_LIMITS } from "./worksheetState.ts";
 
 it("all four capstone documents have independent bounded, exportable, clearable registrations", () => {
@@ -15,5 +16,5 @@ it("all four capstone documents have independent bounded, exportable, clearable 
     assert.equal(registration?.clearable, true);
     assert.ok((registration?.maxBytes ?? 0) >= 2 * (WORKSHEET_LIMITS.bytes + key.length));
   }
-  assert.equal(storageKeyRegistry.get("am:notebook:v1")?.schemaVersion, 3);
+  assert.equal(storageKeyRegistry.get("am:notebook:v1")?.schemaVersion, NOTEBOOK_SCHEMA_VERSION);
 });

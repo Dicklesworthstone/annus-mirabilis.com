@@ -4,6 +4,7 @@ import type { NotebookPaper } from "./schema.ts";
 /** Source paragraphs are different DOM owners from the explanatory reader's articles. */
 export const SOURCE_NOTEBOOK_PASSAGES = [
   ".source-paragraph[id]",
+  '[data-split-language="gloss"] > section.gloss-sentence[id]',
   "p.translation-paragraph[data-source-paragraph]",
   ".gloss-block-wrapper[id][data-block-id] > section.gloss-sentence[id]",
 ].join(", ");
@@ -17,6 +18,7 @@ export type SourceNotebookPassage = Readonly<{
 function sourceFace(passage: HTMLElement): string | null {
   const root = passage.closest<HTMLElement>("[data-reader-root]");
   const face = root?.dataset.view ?? root?.dataset.face;
+  if (face === "split") return passage.closest<HTMLElement>("[data-split-language]")?.dataset.splitLanguage ?? null;
   return face && ["german", "english", "parallel", "gloss"].includes(face) ? face : null;
 }
 
@@ -74,7 +76,7 @@ export function sourceNotebookPassage(
       : textExcerpt(passage.querySelector<HTMLElement>(".sentence-german-unadorned") ?? passage),
   );
   if (!excerpt) return null;
-  const sourceId = passage.dataset.sourceParagraph ?? anchor.replace(/^en-/u, "");
+  const sourceId = passage.dataset.sourceParagraph ?? passage.dataset.sentenceId ?? anchor.replace(/^en-/u, "");
   const location = sourceUnitLabel(
     sourceId,
     gloss ? "sentence" : "paragraph",

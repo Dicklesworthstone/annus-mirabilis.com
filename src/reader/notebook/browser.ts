@@ -1,3 +1,4 @@
+import { SPLIT_NOTEBOOK_PASSAGES, scanPageDescription, splitPassageSummary } from "./splitPlace.ts";
 import { createModalCloseButton, makeDismissible } from "../../a11y/modal/dismiss.ts";
 import { authoredLastPlace, frameForPassage } from "./lastFrame.ts";
 import { RECAP_PAGES } from "./mountTiming.ts";
@@ -84,6 +85,8 @@ export function mountReaderNotebook(
     HTMLElement,
     { controls: HTMLElement; toggle: HTMLButtonElement; source: SourceNotebookPassage | null }
   >();
+  // Both desktop panes may expose passages at the same height. Remember the pane the reader used.
+  let lastPane: HTMLElement | null = null;
   const initialPlace = store.getSnapshot().document.lastPlace;
   let recap: HTMLElement | null = null;
   /** The one open "Save to notebook" menu, if any. Its listeners live only while it is open. */
@@ -130,7 +133,10 @@ export function mountReaderNotebook(
   }
   function passageTitle(passage: HTMLElement) {
     return (
-      owned.get(passage)?.source?.title ?? passage.querySelector("h3")?.textContent?.trim() ?? ""
+      owned.get(passage)?.source?.title ??
+      scanPageDescription(passage) ??
+      passage.querySelector("h3")?.textContent?.trim() ??
+      ""
     );
   }
   function closeMenu(returnFocus: boolean) {
@@ -162,7 +168,7 @@ export function mountReaderNotebook(
     heading.textContent = "Save to notebook";
     const source = owned.get(passage)?.source;
     const actions = [
-      source
+      source || passage.matches("[data-facsimile-reader], .result-card")
         ? makeButton("Save passage", () => save("note", passage))
         : makeButton("Save question", () => save("question", passage)),
       makeButton("Save next step", () => save("nextStep", passage)),
@@ -214,7 +220,8 @@ export function mountReaderNotebook(
       const saved =
         frame !== null &&
         entries.some(
-          (entry) => entry.frame.paper === frame.paper && entry.frame.anchor === frame.anchor,
+          (entry) => entry.frame.paper === frame.paper && entry.frame.anchor === frame.anchor &&
+            (!frame.split || notebookFrameHref(entry.frame) === notebookFrameHref(frame)),
         );
       const title = passageTitle(passage);
       toggle.toggleAttribute("data-saved", saved);
@@ -233,7 +240,8 @@ export function mountReaderNotebook(
     const title = passageTitle(passage);
     const question =
       owned.get(passage)?.source?.excerpt ??
-      passage.querySelector(".passage-question")?.textContent?.trim() ??
+      passage.querySelector(".passage-question, .split-question")?.textContent?.trim() ??
+      splitPassageSummary(passage) ??
       "";
     if (!frame || !title || !question) {
       message("This passage cannot be saved yet: it has no fixed address to come back to.");
@@ -271,13 +279,13 @@ export function mountReaderNotebook(
       }
     }
     for (const passage of main.querySelectorAll<HTMLElement>(
-      `article.reader-passage[data-unit][id], ${SOURCE_NOTEBOOK_PASSAGES}`,
+      `article.reader-passage[data-unit][id], ${SOURCE_NOTEBOOK_PASSAGES}, ${SPLIT_NOTEBOOK_PASSAGES}`,
     )) {
       if (owned.has(passage)) continue;
       const frame = frameForPassage(passage, readingLocation(), passage);
       if (!frame) continue;
       const source = sourceNotebookPassage(passage, frame.paper);
-      if (!source && !passage.matches("article.reader-passage[data-unit][id]")) continue;
+      if (!source && !passage.matches(`article.reader-passage[data-unit][id], ${SPLIT_NOTEBOOK_PASSAGES}`)) continue;
       const controls = document.createElement("div");
       controls.className = "notebook-passage-actions";
       controls.lang = "en";
@@ -338,17 +346,17 @@ export function mountReaderNotebook(
       const bounds = passage.getBoundingClientRect();
       return bounds.bottom > 0 && bounds.top < innerHeight && passage.getClientRects().length > 0;
     });
+    const candidates = lastPane ? passages.filter(passage => lastPane?.contains(passage)) : [];
+    const visible = candidates.length ? candidates : passages;
     const active = document.activeElement;
     const focused =
       active instanceof Element
-        ? passages.find(
+        ? visible.find(
             (passage) => passage.contains(active) || owned.get(passage)?.controls.contains(active),
           )
         : null;
     const passage =
-      focused && passages.includes(focused)
-        ? focused
-        : passages.sort(
+      focused ?? visible.sort(
             (a, b) =>
               Math.abs(a.getBoundingClientRect().top) - Math.abs(b.getBoundingClientRect().top),
           )[0];
@@ -366,6 +374,17 @@ export function mountReaderNotebook(
   function interaction(event: Event) {
     if (event.target instanceof Node && main.contains(event.target)) {
       interacted = true;
+      if (event.target instanceof Element) {
+        const split = event.target.closest("[data-split-comparison]");
+        const tab = event.target.closest<HTMLElement>("[data-split-tab]")?.dataset.splitTab;
+        const jump = event.target.closest<HTMLElement>("[data-split-go]")?.dataset.splitGo;
+        const role = event.target.closest("[data-split-scan], [data-split-companion-choice]") || jump === "explanation"
+          ? "companion"
+          : tab ?? jump;
+        lastPane = role === "companion" || role === "source"
+          ? split?.querySelector<HTMLElement>(`[data-split-role="${role}"]`) ?? null
+          : event.target.closest<HTMLElement>("[data-split-role]");
+      }
       schedule();
     }
   }

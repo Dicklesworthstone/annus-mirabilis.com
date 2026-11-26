@@ -138,3 +138,18 @@ test("last-place records distinguish an authored recap, overview and source exce
     }),
   );
 });
+
+test("split frames preserve the section, pane order, scan and exact fragment through export", () => {
+  const split = { section: "s4", panes: "facsimile,gloss", pane: "source", scan: "facsimile-page-555" };
+  const saved = { ...frame, view: "split", anchor: "split-gloss--s4-p3-s1", split };
+  const reopened = parseNotebookDocument(JSON.parse(JSON.stringify(document([entry({ frame: saved })]))));
+  assert.equal(notebookFrameHref(reopened.entries[0].frame),
+    "/papers/brownian-motion/s4/view/split/?panes=facsimile%2Cgloss&split-pane=source&split-scan=facsimile-page-555#split-gloss--s4-p3-s1");
+  for (const patch of [
+    { section: "../s4" }, { panes: "private,reading" }, { pane: "private" },
+    { scan: "note?private=1" }, { panes: "german,reading" }, { extra: "private" },
+  ]) {
+    assert.throws(() => parseNotebookFrame({ ...saved, split: { ...split, ...patch } }));
+  }
+  assert.throws(() => parseNotebookFrame({ ...saved, view: "reading" }));
+});

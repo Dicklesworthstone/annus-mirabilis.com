@@ -361,7 +361,9 @@ export function mountNotebookPanel(
       if (last) {
         resumeLink.href = notebookFrameHref(last.frame);
         resumeLink.textContent = `Continue ${PAPER_NAMES[last.frame.paper]}: ${last.title}`;
-        recapLabel.textContent = last.recapKind === "source-excerpt" ? "Read the saved passage excerpt" : "Read the recap";
+        recapLabel.textContent = last.recapKind === "page-location"
+          ? "Journal page location"
+          : last.recapKind === "source-excerpt" ? "Read the saved passage excerpt" : "Read the recap";
         recap.textContent = last.recap;
       } else {
         resumeLink.removeAttribute("href");
