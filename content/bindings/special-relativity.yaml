@@ -38,9 +38,8 @@ paragraphs:
     passages: [arg-sr-synchronization]
     r0: "Describing a motion means giving positions as functions of time, which has a meaning only once it is said what time is. Every statement about time is a statement about simultaneous events, such as a train arriving when the small hand of a watch points to 7."
   - unit: s1-fn1
-    status: unexplained
-    reason: "No passage of this paper takes up the simultaneity of two events at nearly the same place; the passage on synchronization begins with clocks at different places."
-    r0: "A footnote sets aside the imprecision in calling two events at nearly the same place simultaneous, which also has to be bridged by an abstraction."
+    passages: [arg-sr-synchronization]
+    r0: "Comparing the train’s arrival with the nearby clock hand treats their small separation as negligible. The footnote calls attention to this idealization before the paper takes up clocks at different places."
   - unit: s1-p5
     passages: [arg-sr-synchronization]
     r0: "Reading time from the hand of one clock works only at the place of that clock. It does not connect events that happen at other places, far from the clock."

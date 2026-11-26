@@ -26,6 +26,10 @@
     ],
     "full": [
       {
+        "kind": "paragraph",
+        "text": "Start beside the station clock. When the front of the train passes a platform mark, read the clock hand beside it. This gives the arrival a time on one clock. The mark, the hand and the observer occupy slightly different places. Calling this a local comparison means treating their separation as negligible at the precision of the reading. Einstein flags this idealization in the footnote to his train example and leaves it there. For a clock at another station he supplies a separate rule."
+      },
+      {
         "kind": "formula",
         "latex": "t_B-t_A=t_{A,\\mathrm{return}}-t_B",
         "spoken": "The outward assigned travel time equals the return assigned travel time.",
@@ -61,6 +65,7 @@
         "items": [
           "Start from one coordinate system in which Newton's equations of mechanics hold; the paper calls it the stationary system. A point at rest in it has a position measured with rigid rods by the methods of Euclidean geometry.",
           "Describing a motion means giving the coordinates as functions of time, and that has a physical meaning only once it is said what time means. For an event at the place of a clock, the time is the position of the clock's hand at that event.",
+          "Why does nearly the same place suffice for a station clock? As a worked example, light takes about three billionths of a second to cross one metre in vacuum. A delay of that size is negligible when reading a whole second and matters when timing billionths of a second. This example illustrates the local idealization. The footnote gives no distance cutoff and no procedure for synchronizing distant clocks.",
           "A clock at A times the events at A, and a clock at B times the events at B. So far there is an A-time and a B-time, but no time common to A and B. Comparing an event at A with an event at B needs a further rule.",
           "The rule, set by definition: the time light takes to go from A to B equals the time it takes to come back from B to A. With the three readings above, that is the first formula below."
         ]
