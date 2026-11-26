@@ -94,8 +94,17 @@ export const SR06_EVENT_OUTPUTS = Object.freeze({
   eventSlopeYStationary: contract("1", "y-velocity-from-event-pair-stationary", ["value", "outside-domain"]),
 });
 
+export const SR06_REVERSED_OUTPUTS = Object.freeze({
+  reversedUxOverC: contract("1", "reversed-order-frame-x-velocity-over-c"),
+  reversedUyOverC: contract("1", "reversed-order-frame-y-velocity-over-c"),
+  reversedSpeedOverC: contract("1", "reversed-order-frame-speed-over-c"),
+  reversedRotationDeg: contract("deg", "reversed-order-wigner-rotation-angle"),
+  reversedProductMatrix: contract("1", "reversed-order-two-boost-product-matrix"),
+});
+
 export const SR06_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
   ...SR06_EVENT_OUTPUTS,
+  ...SR06_REVERSED_OUTPUTS,
   movingUxOverC: contract("1", "input-moving-x-velocity-over-c"),
   movingUyOverC: contract("1", "input-moving-y-velocity-over-c"),
   galileanUxOverC: contract("1", "galilean-sum-x-velocity-over-c"),

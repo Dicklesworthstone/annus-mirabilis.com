@@ -41,6 +41,7 @@ import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGa
 import { fixed, result } from "../presentation.ts";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
+import { BoostOrderComparison } from "./BoostOrderComparison.tsx";
 import { VelocityEventComparison } from "./VelocityEventComparison.tsx";
 import { VelocityCompositionPlot } from "./VelocityCompositionPlot.tsx";
 
@@ -159,6 +160,7 @@ export function VelocityCompositionLab({
       return;
     }
     setFailure(null);
+    setNote("");
     setDraft(toSr06Draft(next));
   }
 
@@ -385,6 +387,7 @@ export function VelocityCompositionLab({
             />
           ) : null}
           <VelocityCompositionPlot snapshot={snapshot} />
+          {p.mode === "two-boosts" && <BoostOrderComparison snapshot={snapshot} />}
           <VelocityEventComparison snapshot={snapshot} />
           <table className="inference-summary">
             <caption>Accepted composition (fractions of c)</caption>

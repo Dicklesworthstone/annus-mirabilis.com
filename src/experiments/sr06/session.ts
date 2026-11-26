@@ -19,6 +19,7 @@ import {
   SR06_DEFAULTS,
   SR06_EVENT_OUTPUTS,
   SR06_OUTPUTS,
+  SR06_REVERSED_OUTPUTS,
   type Sr06Parameters,
   sr06CompositionSettings,
 } from "./definition.ts";
@@ -56,6 +57,35 @@ function flatten(matrix: readonly (readonly number[])[]): Float64Array {
   const out = new Float64Array(16);
   for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) out[i * 4 + j] = matrix[i]?.[j] ?? 0;
   return out;
+}
+
+function unavailableReversed(status: "outside-domain" | "not-applicable", reason: string) {
+  return Object.keys(SR06_REVERSED_OUTPUTS).map((id) => absent(id, status, reason));
+}
+
+function reversedBoostResults(report: ReturnType<typeof composeBoosts>): ScientificResult[] {
+  if (report.status !== "value") return unavailableReversed("outside-domain", report.reason);
+  const { product, wignerAngle } = report.value;
+  // For the passive map X_final = L X_K, the rest origin in final coordinates follows
+  // the time column of L^-1. Metric inversion gives (L00, -L01, -L02, -L03) in K.
+  // The boost in the left-factor decomposition L = B R has differently oriented components.
+  const row = product[0]!;
+  const time = row[0]!;
+  const ux = -row[1]! / time;
+  const uy = -row[2]! / time;
+  const speed = Math.hypot(ux, uy);
+  const readings = [
+    value("reversedRotationDeg", (wignerAngle * 180) / Math.PI),
+    value("reversedProductMatrix", flatten(product)),
+  ];
+  if (!(time > 0 && speed < 1)) {
+    const reason = "The product’s time row cannot resolve a subluminal frame velocity at this precision.";
+    for (const id of ["reversedUxOverC", "reversedUyOverC", "reversedSpeedOverC"])
+      readings.push(absent(id, "outside-domain", reason));
+  } else {
+    readings.push(value("reversedUxOverC", ux), value("reversedUyOverC", uy), value("reversedSpeedOverC", speed));
+  }
+  return readings;
 }
 
 export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
@@ -153,6 +183,7 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
     );
     if (first.status === "value" && second.status === "value") {
       const product = composeBoosts(first.value, second.value);
+      outputs.push(...reversedBoostResults(composeBoosts(second.value, first.value)));
       if (product.status === "value") {
         outputs.push(
           value("rotationDeg", (product.value.wignerAngle * 180) / Math.PI),
@@ -170,6 +201,7 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
       const msg =
         first.status !== "value" ? first.reason : second.status !== "value" ? second.reason : "";
       outputs.push(
+        ...unavailableReversed("outside-domain", msg),
         absent("rotationDeg", "outside-domain", msg),
         absent("composedGamma", "outside-domain", msg),
         absent("productMatrix", "outside-domain", msg),
@@ -177,6 +209,7 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
     }
   } else {
     outputs.push(
+      ...unavailableReversed("not-applicable", "Comparing the two orders requires two boosts."),
       absent(
         "rotationDeg",
         "not-applicable",

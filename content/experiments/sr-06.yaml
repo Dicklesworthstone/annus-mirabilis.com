@@ -74,17 +74,17 @@ parameters:
   - id: secondAngleDeg
     label: "Second boost angle"
     accessibleName: "Angle of the second boost from the x-axis"
-    accessibleDescription: "Direction of the second boost measured from the x-axis, in degrees."
+    accessibleDescription: "Angle from +x, in degrees. Positive angles turn toward +y; negative angles turn toward −y."
     quantityId: emissionAngle
     displayUnit: "deg"
     modelDomain:
-      min: 0
+      min: -360
       max: 360
       minInclusive: true
       maxInclusive: true
-      reason: "A full turn of direction"
+      reason: "One full turn in either direction"
     visualRange:
-      min: 0
+      min: -360
       max: 360
     default: 90
     mapping:
@@ -189,6 +189,18 @@ outputs:
       - value
       - not-applicable
       - outside-domain
+  - id: reversedUxOverC
+    quantityId: velocityComponentXStationary
+    allowedStatuses: [value, not-applicable, outside-domain]
+  - id: reversedUyOverC
+    quantityId: velocityComponentYStationary
+    allowedStatuses: [value, not-applicable, outside-domain]
+  - id: reversedSpeedOverC
+    quantityId: frameSpeed
+    allowedStatuses: [value, not-applicable, outside-domain]
+  - id: reversedRotationDeg
+    quantityId: emissionAngle
+    allowedStatuses: [value, not-applicable, outside-domain]
   - id: eventTimeMoving
     quantityId: coordinateTimeMoving
     allowedStatuses: [value, outside-domain]
@@ -325,6 +337,9 @@ views:
       - printedSpeedOverC
       - shortfall
       - rotationDeg
+  - id: boost-order-comparison
+    kind: table
+    consumes: [composedUxOverC, composedUyOverC, composedSpeedOverC, rotationDeg, reversedUxOverC, reversedUyOverC, reversedSpeedOverC, reversedRotationDeg]
 actions:
   - actionId: sr-06-type-speeds
     family: fields-boosts
