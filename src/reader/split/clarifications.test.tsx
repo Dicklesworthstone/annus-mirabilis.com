@@ -136,6 +136,7 @@ async function mount() {
       gloss: "/papers/brownian-motion/s4/view/gloss/",
       reading: "/papers/brownian-motion/s4/",
       results: "/papers/brownian-motion/s4/view/results/",
+      facsimile: "/papers/brownian-motion/s4/view/facsimile/",
     },
   });
   owner = mountSourceClarifications(root);

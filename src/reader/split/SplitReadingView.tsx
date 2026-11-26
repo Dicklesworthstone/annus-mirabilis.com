@@ -2,6 +2,7 @@ import type { PaperPayload } from "../../content/compiler/compile.ts";
 import type { StructureIndex } from "../anchors/mapToFace.ts";
 import { paneDomId } from "../anchors/paneIds.ts";
 import { ReadingBlocks } from "../Blocks.tsx";
+import { InlineFacsimile } from "../facsimile/InlineFacsimile.tsx";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
 import type { BilingualEdition } from "../faces/bilingualLoader.ts";
@@ -129,6 +130,7 @@ export async function SplitReadingView({
             <select id="split-companion-choice" data-split-companion-choice defaultValue="reading">
               <option value="reading">Explanation</option>
               <option value="results">Results</option>
+              <option value="facsimile">Original journal scan</option>
             </select>
           </label>
           <button type="button" className="secondary" data-split-swap>
@@ -322,6 +324,7 @@ export async function SplitReadingView({
                 </p>
               ) : null}
             </div>
+            <InlineFacsimile key={paper.id} paperId={paper.id} splitSection={selected.id} />
             <div data-split-results hidden>
               {cards.map((card) => (
                 <ResultCard key={card.resultId} card={card} equations={equations} />
@@ -364,6 +367,7 @@ export async function SplitReadingView({
             gloss: faceLinkHref(paper.id, "gloss", selected.id),
             reading: paperPath(paper.id, selected.id),
             results: faceLinkHref(paper.id, "results", selected.id),
+            facsimile: faceLinkHref(paper.id, "facsimile", selected.id),
           }}
         />
       </div>

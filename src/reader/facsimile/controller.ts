@@ -14,7 +14,7 @@ export function mountFacsimileReader(
   document: FacsimileDocument,
   initialPdfPage: number,
   faceHref: string,
-  options: Readonly<{ preserveReaderHistory?: boolean }> = {},
+  options: Readonly<{ preserveReaderHistory?: boolean; split?: boolean }> = {},
 ): () => void {
   const window = root.ownerDocument.defaultView;
   if (!window) return () => {};
@@ -83,7 +83,9 @@ export function mountFacsimileReader(
         link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     }
-    if (writeHistory && !options.preserveReaderHistory) {
+    if (writeHistory && options.split) {
+      root.dispatchEvent(new CustomEvent("facsimile-page-selected", { bubbles: true, detail: facsimilePageAnchor(page) }));
+    } else if (writeHistory && !options.preserveReaderHistory) {
       const url = new URL(window!.location.href);
       url.hash = facsimilePageAnchor(page);
       if (url.href !== window!.location.href) {
@@ -163,12 +165,12 @@ export function mountFacsimileReader(
     const page = resolveFacsimileTarget(document, link.dataset.facsimileTarget ?? "");
     if (page === null) return;
     event.preventDefault();
-    select(page, false);
+    select(page, options.split === true);
   };
 
   controls.disabled = false;
   select(initialPdfPage, false);
-  fromLocation();
+  if (!options.split) fromLocation();
   if (!options.preserveReaderHistory) {
     window.addEventListener("hashchange", fromLocation);
     window.addEventListener("popstate", fromLocation);

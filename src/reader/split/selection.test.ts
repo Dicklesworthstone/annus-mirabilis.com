@@ -9,7 +9,7 @@ import {
 describe("split face choices", () => {
   test("supported pairs and their reverse preserve the actual requested faces", () => {
     for (const source of ["parallel", "german", "english", "gloss"] as const) {
-      for (const companion of ["reading", "results"] as const) {
+      for (const companion of ["reading", "results", "facsimile"] as const) {
         expect(splitSelectionFromSearch(`?panes=${source},${companion}`)).toEqual({
           selection: { source, companion, reversed: false },
           notice: "",
@@ -24,7 +24,7 @@ describe("split face choices", () => {
   test("missing settings use the documented default; unsupported or malformed pairs say so", () => {
     expect(splitSelectionFromSearch("")).toEqual({ selection: DEFAULT_SELECTION, notice: "" });
     for (const query of [
-      "?panes=gloss,facsimile",
+      "?panes=reading,facsimile",
       "?panes=german,english",
       "?panes=reading,results",
       "?panes=reading,reading",
@@ -72,6 +72,7 @@ describe("section-sized split deep links", () => {
       gloss: "/papers/special-relativity/s0/view/gloss/",
       reading: "/papers/special-relativity/s0/",
       results: "/papers/special-relativity/s0/view/results/",
+      facsimile: "/papers/special-relativity/s0/view/facsimile/",
     },
   };
   test("source, English and secondary explanation anchors reach their existing static section", () => {

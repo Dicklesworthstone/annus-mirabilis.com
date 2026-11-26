@@ -30,7 +30,7 @@ function comparison(width = 1280, search = "", hash = "") {
     <a data-split-section-link href="/papers/special-relativity/s0/view/split/">Introduction</a>
     <fieldset hidden disabled data-split-controls>
       <select data-split-source-choice><option>parallel</option><option>german</option><option>english</option><option>gloss</option></select>
-      <select data-split-companion-choice><option>reading</option><option>results</option></select>
+      <select data-split-companion-choice><option>reading</option><option>results</option><option>facsimile</option></select>
       <button data-split-swap>Swap pane order</button>
     </fieldset>
     <p data-split-notice hidden role="status"></p>
@@ -40,7 +40,7 @@ function comparison(width = 1280, search = "", hash = "") {
         <div data-split-gloss-tools hidden>Show reasoning words</div>
         <div id="split-row-s1-p1" data-split-source-row="s1-p1"><p data-split-language="german"><span id="s1-p1">Deutsch</span><span id="s1-p1-s1">Die Kraft.</span></p><p data-split-language="english"><span id="en-s1-p1-s1">English</span><a data-action="show-aligned-source" href="#s1-p1">Show source</a></p><div data-split-language="gloss" hidden><span id="split-gloss--s1-p1-s1">Die / the Kraft / force</span><button data-action="read-german" aria-label="Read the German sentence: Die Kraft.">Read German</button></div><a data-split-go="companion" href="#pane-b--argument">Explanation of this paragraph</a></div>
       </section>
-      <section id="split-companion-pane" data-split-role="companion"><h2 id="split-companion-heading" data-split-companion-label>Explanation</h2><a data-split-companion-face-link href="/papers/special-relativity/s1/">Open explanation</a><div data-split-explanation><article id="pane-b--argument"><span id="argument"></span><p>Actual explanation content.</p><a href="#split-row-s1-p1" data-split-go="source">Read the source</a><details><summary>Steps</summary><p id="inside-step">An explained step</p></details></article></div><div data-split-results hidden><article id="result-energy">Actual result</article><a href="#pane-b--argument" data-split-go="explanation">Read this explanation</a></div></section>
+      <section id="split-companion-pane" data-split-role="companion"><h2 id="split-companion-heading" data-split-companion-label>Explanation</h2><a data-split-companion-face-link href="/papers/special-relativity/s1/">Open explanation</a><a href="/papers/special-relativity/s1/view/facsimile/#s1-p1" data-split-scan="s1-p1">Printed passage</a><div data-split-explanation><article id="pane-b--argument"><span id="argument"></span><p>Actual explanation content.</p><a href="#split-row-s1-p1" data-split-go="source">Read the source</a><details><summary>Steps</summary><p id="inside-step">An explained step</p></details></article></div><div data-split-results hidden><article id="result-energy">Actual result</article><a href="#pane-b--argument" data-split-go="explanation">Read this explanation</a></div></section>
     </div>`;
   document.body.append(root);
   cleanup = attachSplitReader(root, {
@@ -59,6 +59,7 @@ function comparison(width = 1280, search = "", hash = "") {
       gloss: "/papers/special-relativity/s1/view/gloss/",
       reading: "/papers/special-relativity/s1/",
       results: "/papers/special-relativity/s1/view/results/",
+      facsimile: "/papers/special-relativity/s1/view/facsimile/",
     },
   });
   return root;
@@ -196,8 +197,31 @@ describe("real split reader controller", () => {
     expect(q(reloaded, "[data-split-explanation]").hidden).toBe(true);
   });
 
+  test("a printed passage opens beside its translation and its page survives history traversal", () => {
+    const root = comparison(390, "?panes=english,results");
+    click(root, "[data-split-scan]");
+    const first = new URL(window.location.href);
+    expect(first.searchParams.get("panes")).toBe("english,facsimile");
+    expect(first.searchParams.get("split-scan")).toBe("s1-p1");
+    expect(q(root, "[data-split-role=companion]").hidden).toBe(false);
+    expect(q(root, "[data-split-explanation]").hidden).toBe(true);
+    expect(q(root, "[data-split-results]").hidden).toBe(true);
+    expect(q<HTMLAnchorElement>(root, "[data-split-companion-face-link]").hash).toBe("#s1-p1");
+    q(root, "[data-split-role=companion]").dispatchEvent(
+      new CustomEvent("facsimile-page-selected", { bubbles: true, detail: "facsimile-page-893" }),
+    );
+    expect(root.dataset.splitScanTarget).toBe("facsimile-page-893");
+    click(root, "[data-split-swap]");
+    expect(new URL(window.location.href).searchParams.get("panes")).toBe("facsimile,english");
+    expect(q<HTMLAnchorElement>(root, "[data-split-section-link]").search).not.toContain("split-scan");
+    window.history.replaceState(null, "", first.href);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    expect(root.dataset.splitScanTarget).toBe("s1-p1");
+    expect(q(root, "[data-split-role=companion]").hidden).toBe(false);
+  });
+
   test("unsupported pairs are disclosed and never represented by misleading selected labels", () => {
-    const root = comparison(390, "?panes=gloss,facsimile");
+    const root = comparison(390, "?panes=facsimile,results");
     expect(q(root, "[data-split-notice]").hidden).toBe(false);
     expect(q(root, "[data-split-notice]").textContent).toContain("unavailable");
     expect(q<HTMLSelectElement>(root, "[data-split-source-choice]").value).toBe("parallel");

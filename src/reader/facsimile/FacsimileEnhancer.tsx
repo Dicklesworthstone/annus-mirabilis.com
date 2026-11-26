@@ -11,12 +11,14 @@ export function FacsimileEnhancer({
   initialPdfPage,
   faceHref,
   inline = false,
+  split = false,
 }: {
   rootId: string;
   document: FacsimileDocument;
   initialPdfPage: number;
   faceHref: string;
   inline?: boolean | undefined;
+  split?: boolean;
 }) {
   useEffect(() => {
     const root = document.getElementById(rootId);
@@ -24,12 +26,13 @@ export function FacsimileEnhancer({
       const unmountDownload = mountNativeFacsimileDownload(root, source);
       const unmountReader = mountFacsimileReader(root, source, initialPdfPage, faceHref, {
         preserveReaderHistory: inline,
+        split,
       });
       return () => {
         unmountReader();
         unmountDownload();
       };
     }
-  }, [rootId, source, initialPdfPage, faceHref, inline]);
+  }, [rootId, source, initialPdfPage, faceHref, inline, split]);
   return null;
 }

@@ -23,6 +23,8 @@ export function FacsimilePanel({
   explanationHref,
   section,
   inline = false,
+  requestedAnchor,
+  split = false,
 }: {
   document: FacsimileDocument;
   title: string;
@@ -30,12 +32,15 @@ export function FacsimilePanel({
   explanationHref: string;
   section?: string | undefined;
   inline?: boolean | undefined;
+  requestedAnchor?: string | undefined;
+  split?: boolean;
 }) {
   const id = useId();
   const anchorId = (anchor: string) => (inline ? `${id}-${anchor}` : anchor);
   const targetHref = (anchor: string) => `${inline ? faceHref : ""}#${anchor}`;
   const scope = facsimileSectionPages(document, section);
-  const initial = scope[0] ?? document.pages[0];
+  const requestedPage = requestedAnchor ? resolveFacsimileTarget(document, requestedAnchor) : null;
+  const initial = document.pages.find((page) => page.pdfPage === requestedPage) ?? scope[0] ?? document.pages[0];
   if (!initial) return null;
   const plate = facsimilePlate(document, initial);
   const sourceIds = new Set(document.units.map((unit) => unit.id));
@@ -79,6 +84,7 @@ export function FacsimilePanel({
         initialPdfPage={initial.pdfPage}
         faceHref={faceHref}
         inline={inline}
+        split={split}
       />
       <h2>Read the original scanned pages</h2>
       <p>These are the pinned journal scans, not a newly typeset transcription or a translation.</p>
@@ -97,7 +103,10 @@ export function FacsimilePanel({
       </section>
       {section && (
         <p className="notice" data-facsimile-section={section}>
-          {scope.length > 0
+          {requestedAnchor && requestedPage === null ? "No scan-page locator is recorded for this passage. " : ""}
+          {requestedPage !== null
+            ? `Opening at printed page ${initial.printedPage} for the selected source.`
+            : scope.length > 0
             ? `Opening at the first recorded source page for ${section}. The page directory marks every page with a recorded source unit in this section; the complete paper remains available.`
             : "No source-page map is recorded for this section yet. The complete paper opens at its first page; no paragraph location is implied."}
         </p>

@@ -56,6 +56,7 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
     root.dataset.splitEnhanced = "true";
     root.dataset.splitSource = selection.source;
     root.dataset.splitCompanion = selection.companion;
+    root.dataset.splitScanTarget = new URL(win.location.href).searchParams.get("split-scan") ?? "";
     sourcePane.dataset.splitPane = selection.source;
     companionPane.dataset.splitPane = selection.companion;
     sourceChoice.value = selection.source;
@@ -125,7 +126,10 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
       companionLink.textContent =
         selection.companion === "reading"
           ? "Open this explanation on its own"
-          : "Open these results on their own";
+          : selection.companion === "facsimile"
+            ? "Open this scan on its own"
+            : "Open these results on their own";
+      if (selection.companion === "facsimile") companionLink.hash = root.dataset.splitScanTarget;
     }
     for (const link of root.querySelectorAll<HTMLAnchorElement>("[data-split-section-link]")) {
       const next = withSplitSelection(new URL(link.href), selection);
@@ -136,14 +140,16 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
         withSplitSelection(current, selection).searchParams.get("panes") ?? "parallel,reading",
       );
       next.searchParams.delete("split-pane");
+      next.searchParams.delete("split-scan");
       link.href = next.href;
     }
   };
 
-  const write = (mode: "push" | "replace", hash?: string) => {
+  const write = (mode: "push" | "replace", hash?: string, scan?: string) => {
     const next = withSplitSelection(new URL(win.location.href), selection);
     next.searchParams.set("split-pane", active);
     if (hash !== undefined) next.hash = hash;
+    if (scan !== undefined) next.searchParams.set("split-scan", scan);
     if (next.href !== win.location.href)
       win.history[mode === "push" ? "pushState" : "replaceState"](win.history.state, "", next);
     notice = "";
@@ -250,6 +256,15 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
       write("push");
       return;
     }
+    const scan = target?.closest<HTMLAnchorElement>("a[data-split-scan]")?.dataset.splitScan;
+    if (scan) {
+      event.preventDefault();
+      selection = { ...selection, companion: "facsimile" };
+      active = "companion";
+      write("push", companionPane.id, scan);
+      revealHash(true);
+      return;
+    }
     const crossLink = target?.closest<HTMLAnchorElement>("a[data-split-go]");
     if (crossLink) {
       event.preventDefault();
@@ -294,6 +309,14 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
     if (selection.source === "english" && ["j", "k", "ArrowDown", "ArrowUp"].includes(event.key))
       event.stopPropagation();
   };
+  const pageSelected = (event: Event) => {
+    const anchor: unknown = (event as CustomEvent).detail;
+    if (selection.companion !== "facsimile" || typeof anchor !== "string" ||
+        !/^facsimile-page-\d+$/.test(anchor)) return;
+    active = "companion";
+    write("push", companionPane.id, anchor);
+  };
+  companionPane.addEventListener("facsimile-page-selected", pageSelected);
   const resize = () => render();
   root.addEventListener("change", onChange);
   root.addEventListener("click", onClick);
@@ -305,6 +328,7 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
   restore();
 
   return () => {
+    companionPane.removeEventListener("facsimile-page-selected", pageSelected);
     root.removeEventListener("change", onChange);
     root.removeEventListener("click", onClick);
     root.removeEventListener("keydown", onKeyDown);

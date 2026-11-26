@@ -19,35 +19,49 @@ const FacsimilePanel = lazy(() => loadPanel().then((m) => ({ default: m.Facsimil
 /** Reader face changes never replace the explanation/laboratory subtree.
  * Nothing is fetched until this instance's reader explicitly selects the facsimile face.
  */
-export function InlineFacsimile({ paperId }: { paperId: string }) {
+export function InlineFacsimile({
+  paperId,
+  splitSection,
+}: {
+  paperId: string;
+  splitSection?: string;
+}) {
   const host = useRef<HTMLElement>(null);
   const cached = useRef<FacsimileAvailability | null>(null);
   const [visible, setVisible] = useState(false);
   const [result, setResult] = useState<FacsimileAvailability | null>(null);
   const [failure, setFailure] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const [section, setSection] = useState<string | undefined>();
+  const [section, setSection] = useState<string | undefined>(splitSection);
+  const [requestedAnchor, setRequestedAnchor] = useState<string>();
 
   useEffect(() => {
-    const root = host.current?.closest<HTMLElement>("[data-reader-root]");
+    const split = splitSection !== undefined;
+    const root = host.current?.closest<HTMLElement>(split ? "[data-split-comparison]" : "[data-reader-root]");
     if (!root) return;
     const update = () => {
       const segments = window.location.pathname.split("/").filter(Boolean);
       const candidate =
         segments[0] === "papers" && segments[1] === paperId ? segments[2] : undefined;
-      setSection(candidate && /^s\d+$/.test(candidate) ? candidate : undefined);
-      const active = root.dataset.view === "facsimile";
-      root.toggleAttribute("data-facsimile-inline-active", active);
+      setSection(splitSection ?? (candidate && /^s\d+$/.test(candidate) ? candidate : undefined));
+      const active = split ? root.dataset.splitCompanion === "facsimile" : root.dataset.view === "facsimile";
+      if (split) {
+        const anchor = root.dataset.splitScanTarget;
+        setRequestedAnchor(anchor && anchor.length <= 160 ? anchor : undefined);
+      } else root.toggleAttribute("data-facsimile-inline-active", active);
       setVisible(active);
     };
     update();
     const observer = new MutationObserver(update);
-    observer.observe(root, { attributes: true, attributeFilter: ["data-view"] });
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: split ? ["data-split-companion", "data-split-scan-target"] : ["data-view"],
+    });
     return () => {
       observer.disconnect();
-      root.removeAttribute("data-facsimile-inline-active");
+      if (!split) root.removeAttribute("data-facsimile-inline-active");
     };
-  }, [paperId]);
+  }, [paperId, splitSection]);
 
   // `attempt` IS A DEPENDENCY ON PURPOSE, and its FIXABLE autofix is a defect.
   //
@@ -102,6 +116,8 @@ export function InlineFacsimile({ paperId }: { paperId: string }) {
             document={result.document}
             title={`Original source for ${paperId.replaceAll("-", " ")}`}
             section={section}
+            requestedAnchor={requestedAnchor}
+            split={splitSection !== undefined}
             faceHref={faceHref}
             explanationHref={explanationHref}
             inline
@@ -130,7 +146,7 @@ export function InlineFacsimile({ paperId }: { paperId: string }) {
             </button>
           )}
           <p>
-            <a href={faceHref}>Open the standalone facsimile reader</a>
+            <a href={requestedAnchor ? `${faceHref}#${encodeURIComponent(requestedAnchor)}` : faceHref}>Open the standalone facsimile reader</a>
             {" · "}
             <a href={explanationHref} data-view-link="reading">
               Return to the explanation

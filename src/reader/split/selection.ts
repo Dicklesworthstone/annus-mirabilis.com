@@ -3,7 +3,7 @@ import { contentIdFromDomId } from "../anchors/paneIds.ts";
 import { parseSplitPanesFromSearch } from "../viewMode.ts";
 
 export type SplitSource = "parallel" | "german" | "english" | "gloss";
-export type SplitCompanion = "reading" | "results";
+export type SplitCompanion = "reading" | "results" | "facsimile";
 export type SplitPane = "source" | "companion";
 export const SPLIT_GLOSS_PREFIX = "split-gloss--";
 export interface SplitSelection {
@@ -27,12 +27,13 @@ export const SOURCE_LABELS: Readonly<Record<SplitSource, string>> = {
 export const COMPANION_LABELS: Readonly<Record<SplitCompanion, string>> = {
   reading: "Explanation",
   results: "Results",
+  facsimile: "Original journal scan",
 };
 
 const isSource = (face: string): face is SplitSource =>
   face === "parallel" || face === "german" || face === "english" || face === "gloss";
 const isCompanion = (face: string): face is SplitCompanion =>
-  face === "reading" || face === "results";
+  face === "reading" || face === "results" || face === "facsimile";
 
 /** Reuse the reader's allowlist, then require a pair this renderer can actually show. */
 export function splitSelectionFromSearch(search: string): {
@@ -63,7 +64,7 @@ export function splitSelectionFromSearch(search: string): {
   return {
     selection: DEFAULT_SELECTION,
     notice:
-      "This split view pairs German, English, bilingual, or interlinear gloss source with Explanation or Results. The requested pair is unavailable here. Showing the bilingual source and explanation; other faces remain available above.",
+      "This split view pairs German, English, bilingual, or interlinear gloss source with Explanation, Results, or the original journal scan. The requested pair is unavailable here. Showing the bilingual source and explanation; other faces remain available above.",
   };
 }
 

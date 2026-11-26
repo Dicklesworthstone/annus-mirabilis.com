@@ -102,3 +102,39 @@ describe("the inline facsimile on a reading page", () => {
     }
   });
 });
+
+test("a split companion loads the verified plate for the chosen passage and reuses its map", async () => {
+  const body = await realMap("mass-energy");
+  const requested: string[] = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async (input: string | URL | Request) => {
+    requested.push(String(input));
+    return new Response(body, { headers: { "content-type": "application/json" } });
+  }) as typeof fetch;
+  const host = document.createElement("div");
+  host.dataset.splitComparison = "";
+  host.dataset.splitCompanion = "reading";
+  document.body.append(host);
+  const root = createRoot(host);
+  try {
+    await act(async () => root.render(<InlineFacsimile paperId="mass-energy" splitSection="s0" />));
+    expect(requested).toEqual([]);
+    host.dataset.splitCompanion = "facsimile";
+    host.dataset.splitScanTarget = "s0-p11";
+    await settle();
+    const plate = () => host.querySelector("[data-facsimile-plate]")?.getAttribute("src");
+    expect(plate()).toBe("/figures/plates/pages/ap-18-639/641.webp");
+    expect(host.querySelector("[data-facsimile-direct]")?.getAttribute("href")).toContain("#page=3");
+    host.dataset.splitScanTarget = "facsimile-page-640";
+    await settle();
+    expect(plate()).toBe("/figures/plates/pages/ap-18-639/640.webp");
+    host.dataset.splitScanTarget = "missing-passage";
+    await settle();
+    expect(host.querySelector("[data-facsimile-section]")?.textContent).toContain("No scan-page locator");
+    expect(plate()).toBe("/figures/plates/pages/ap-18-639/639.webp");
+    expect(requested).toEqual(["/papers/mass-energy/facsimile.json"]);
+  } finally {
+    act(() => root.unmount());
+    globalThis.fetch = realFetch;
+  }
+});

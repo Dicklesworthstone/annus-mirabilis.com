@@ -70,6 +70,15 @@ export function SplitSource({
         />
       </div>
     ) : null;
+  const scanLink = (row: ParallelRow) =>
+    row.block ? (
+      <a
+        href={`${faceLinkHref(paper, "facsimile", section)}#${row.block.id}`}
+        data-split-scan={row.block.id}
+      >
+        Find this passage in the original scan
+      </a>
+    ) : null;
   const explainedIn = (row: ParallelRow) => {
     const links = projections.bySourceBlock[row.key]?.explanation ?? [];
     return links.length > 0 ? (
@@ -134,6 +143,7 @@ export function SplitSource({
           {english(row)}
           {gloss(row)}
           {explainedIn(row)}
+          {scanLink(row)}
         </div>
       ))}
       {source.footnoteRows.length > 0 ? (
@@ -162,6 +172,7 @@ export function SplitSource({
               {english(row)}
               {gloss(row)}
               {explainedIn(row)}
+              {scanLink(row)}
             </div>
           ))}
         </section>

@@ -82,6 +82,10 @@ describe("published split reading markup", () => {
       expect(html).toContain("data-split-explanation");
       expect(html).not.toContain("data-face-reading");
       expect(html).not.toContain("<iframe");
+      expect(html).toContain('<option value="facsimile">Original journal scan</option>');
+      expect(html).toContain(`href="/papers/${paperId}/${first.id}/view/facsimile/#`);
+      expect(html).toContain("data-split-scan=");
+      expect(html).not.toContain("data-facsimile-plate=");
       expect(html).toContain('data-split-controls="true" hidden="" disabled=""');
       expect(html).not.toMatch(/id="split-(?:source|companion)-pane"[^>]*hidden=/);
     }, 30000);
