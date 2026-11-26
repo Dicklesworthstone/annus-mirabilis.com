@@ -67,12 +67,19 @@ describe("the modern scope for inline formulas", () => {
     expect(resolve("light-quanta", "L", "s6").terms).toEqual(["L absorbedLightEnergy"]);
   });
 
-  test("a glyph the paper prints paper-wide keeps its printed reading: Brownian's x is a coordinate label", () => {
-    // Before, the registry's x (positionCoordinate1d) met it at the same level and ⟨x²⟩ was refused.
-    expect(resolve("brownian-motion", "\\langle x^2\\rangle", "s4")).toEqual({
-      terms: [],
-      problems: [],
-    });
+  test("Brownian's paper-wide x is a position quantity while X remains an axis label", () => {
+    // The authored concordance gives lowercase x a length-bearing coordinate quantity. Uppercase
+    // X names the axis. Adding modern readings must preserve both of these distinct meanings.
+    for (const modern of [false, true]) {
+      expect(resolve("brownian-motion", "\\langle x^2\\rangle", "s4", modern)).toEqual({
+        terms: ["x positionCoordinate1d"],
+        problems: [],
+      });
+      expect(resolve("brownian-motion", "X", "s4", modern)).toEqual({
+        terms: [],
+        problems: [],
+      });
+    }
   });
 
   test("where the concordance renames a glyph for a section, the registry's letter steps aside", () => {

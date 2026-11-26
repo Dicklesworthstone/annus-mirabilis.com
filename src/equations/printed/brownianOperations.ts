@@ -5,6 +5,7 @@
  */
 import type { Expression } from "../ast.ts";
 import { BROWNIAN_CALCULUS_GUIDES } from "./brownianCalculusOperations.ts";
+import { BROWNIAN_EQUILIBRIUM_GUIDES } from "./brownianEquilibriumOperations.ts";
 import type { MassEnergyOperationGuide, OperationReading } from "./massEnergyOperations.ts";
 
 export type BrownianOperationGuide = MassEnergyOperationGuide &
@@ -180,6 +181,7 @@ const diffusivityGuide: BrownianOperationGuide = {
 /** Opt in the authored algebra and drift expressions; the rounded fixture stays a source form. */
 export const BROWNIAN_OPERATION_GUIDES: Readonly<Record<string, BrownianOperationGuide>> = frozen({
   ...BROWNIAN_CALCULUS_GUIDES,
+  ...BROWNIAN_EQUILIBRIUM_GUIDES,
   "eq-s1-d1": {
     expectedDimension: ENERGY,
     symbolIndices: {},

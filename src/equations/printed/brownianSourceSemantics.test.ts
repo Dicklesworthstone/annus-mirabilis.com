@@ -18,6 +18,11 @@ import {
 const IDS = [
   "eq-s1-d1",
   "eq-s1-d2",
+  "eq-s2-d12",
+  "eq-s3-1",
+  "eq-s3-d4",
+  "eq-s3-d8",
+  "eq-2",
   "eq-s3-d5",
   "eq-s3-d6",
   "eq-s3-d9",
