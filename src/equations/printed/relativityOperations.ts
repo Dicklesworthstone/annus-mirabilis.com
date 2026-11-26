@@ -5,6 +5,7 @@
  */
 import type { Expression } from "../ast.ts";
 import type { MassEnergyOperationGuide, OperationReading } from "./massEnergyOperations.ts";
+import { RELATIVITY_CLOCK_AND_LENGTH_GUIDES } from "./relativityClocksAndLengths.ts";
 import { RELATIVITY_CONSEQUENCE_GUIDES } from "./relativityConsequences.ts";
 import { RELATIVITY_ELECTRODYNAMICS_GUIDES } from "./relativityElectrodynamics.ts";
 import { RELATIVITY_FIELD_GUIDES } from "./relativityFields.ts";
@@ -26,6 +27,8 @@ export type RelativityOperationGuide = MassEnergyOperationGuide &
     symbolIndices: Readonly<Record<string, string>>;
     /** Chained equals signs require an explicitly authored reading of every continuation. */
     allowChainedRelations?: boolean;
+    /** Ordered standalone expressions, such as the three semiaxes in section 4. */
+    allowExpressionList?: boolean;
     /** A printed alignment can place independent equalities in adjacent columns. */
     allowAlignedColumns?: boolean;
     /** A quantity application is permitted only for these explicitly named function quantities. */
@@ -161,6 +164,7 @@ const factorGuide: RelativityOperationGuide = {
 
 /** Only these source displays opt in; the earlier undetermined phi(v) is not guessed. */
 export const RELATIVITY_OPERATION_GUIDES: Readonly<Record<string, RelativityOperationGuide>> = {
+  ...RELATIVITY_CLOCK_AND_LENGTH_GUIDES,
   ...RELATIVITY_CONSEQUENCE_GUIDES,
   ...RELATIVITY_ELECTRODYNAMICS_GUIDES,
   ...RELATIVITY_FIELD_GUIDES,

@@ -351,6 +351,7 @@ export function compilePrintedSourceSemantics(
       radiation?.allowChainedRelations,
     {
       allowAlignedColumns: relativity?.allowAlignedColumns ?? false,
+      allowExpressionList: relativity?.allowExpressionList ?? false,
       ...(relativity?.functionQuantities
         ? { functionQuantities: relativity.functionQuantities }
         : {}),
@@ -360,7 +361,11 @@ export function compilePrintedSourceSemantics(
     },
   );
   const expectedOperator =
-    brownian?.relationOperator === null ? null : budget ? budget.relationOperator : "=";
+    relativity?.allowExpressionList || brownian?.relationOperator === null
+      ? null
+      : budget
+        ? budget.relationOperator
+        : "=";
   if (
     parsed.rows.some(({ tree }) =>
       tree.kind === "relation" ? tree.operator !== expectedOperator : expectedOperator !== null,
