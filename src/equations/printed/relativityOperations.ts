@@ -10,6 +10,7 @@ import { RELATIVITY_CONSEQUENCE_GUIDES } from "./relativityConsequences.ts";
 import { RELATIVITY_ELECTRODYNAMICS_GUIDES } from "./relativityElectrodynamics.ts";
 import { RELATIVITY_FIELD_GUIDES } from "./relativityFields.ts";
 import { RELATIVITY_LIGHT_COMPLEX_GUIDES } from "./relativityLightComplex.ts";
+import { RELATIVITY_PLANAR_VELOCITY_GUIDES } from "./relativityPlanarVelocity.ts";
 import { RELATIVITY_SYNCHRONIZATION_GUIDES } from "./relativitySynchronization.ts";
 
 export type RelativityOperationGuide = MassEnergyOperationGuide &
@@ -169,6 +170,7 @@ export const RELATIVITY_OPERATION_GUIDES: Readonly<Record<string, RelativityOper
   ...RELATIVITY_ELECTRODYNAMICS_GUIDES,
   ...RELATIVITY_FIELD_GUIDES,
   ...RELATIVITY_LIGHT_COMPLEX_GUIDES,
+  ...RELATIVITY_PLANAR_VELOCITY_GUIDES,
   ...RELATIVITY_SYNCHRONIZATION_GUIDES,
   "eq-s3-d16": factorGuide,
   "eq-s6-d3": {
