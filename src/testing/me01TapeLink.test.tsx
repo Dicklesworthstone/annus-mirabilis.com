@@ -4,11 +4,13 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TwoLedgersLab } from "../components/lab/me01/TwoLedgersLab.tsx";
+import { WalkthroughControl } from "../components/lab/WalkthroughControl.tsx";
 import { ME01_DEFAULTS, type Me01Parameters } from "../experiments/me01/definition.ts";
-import { DEFAULT_PREPARED_EXAMPLE } from "../experiments/me01/session.ts";
+import { createMe01Session, DEFAULT_PREPARED_EXAMPLE } from "../experiments/me01/session.ts";
 import { ME01_TAPE } from "../experiments/me01/tape.ts";
 import { decodeTapePermalink, encodeTapePermalink } from "../experiments/permalink/codec.ts";
-import { tapeForSettings } from "../experiments/permalink/sessionTape.ts";
+import { type LabTapeBinding, tapeForSettings } from "../experiments/permalink/sessionTape.ts";
+import { resolveTeachingTape } from "../experiments/permalink/teachingTapeCatalogue.ts";
 import type { TapeV2 } from "../experiments/permalink/types.ts";
 import { predictionForLink } from "../experiments/predict/authoredChoice.ts";
 import { LOCAL_PREDICT_PERSISTENCE } from "../experiments/predict/localPredictPersistence.ts";
@@ -344,17 +346,35 @@ describe("ME-01 verified links and personal recordings", () => {
     expect(required('[data-recording-outcome="replayed"]')).not.toBeNull();
   });
 
-  test("the first two-pulses choice replays the dated recording and clears refused draft controls", async () => {
+  test("the dated recording waits for an explicit current-model calculation before clearing refused controls", async () => {
+    const tapeId = "me-01-two-pulses-2026-11-13";
+    const archived = resolveTeachingTape(tapeId);
+    assert.ok(archived);
+    const originalRecording = structuredClone(archived);
     await mount();
+    expect(container.querySelector("[data-walkthrough-recalculate]")).toBeNull();
     await edit("1.2", true);
     const before = snapshot();
+    assert.ok(before.accepted);
     expect(container.querySelector('[role="alert"][data-refusal-code]')).not.toBeNull();
     const first = required<HTMLButtonElement>("button[data-walkthrough]");
-    expect(first.getAttribute("data-walkthrough")).toBe("me-01-two-pulses-2026-11-13");
+    expect(first.getAttribute("data-walkthrough")).toBe(tapeId);
     expect(first.textContent?.trim()).toBe("Play: the two pulses (13 November 2026)");
     await act(async () => first.click());
-    expect(snapshot()).not.toBe(before);
-    expect(snapshot().accepted?.parameters).toEqual({
+    expect(required('[data-walkthrough-result="refused"]').getAttribute("data-walkthrough-code"))
+      .toBe("tape-artifact-mismatch");
+    expect(snapshot()).toBe(before);
+    expect(field("frameSpeed").value).toBe("1.2");
+    expect(container.querySelector('[role="alert"][data-refusal-code]')).not.toBeNull();
+    expect(required("[data-walkthrough-recalculate]").getAttribute("data-walkthrough-recalculate"))
+      .toBe(tapeId);
+
+    await click("Calculate with the current model");
+    const accepted = snapshot().accepted;
+    assert.ok(accepted && accepted.parentRunId);
+    expect(accepted.instanceId).toBe(before.accepted.instanceId);
+    expect(accepted.runId).not.toBe(before.accepted.runId);
+    expect(accepted.parameters).toEqual({
       ...ME01_DEFAULTS,
       frameSpeed: 0.1,
       emissionAngle: 90,
@@ -362,14 +382,78 @@ describe("ME-01 verified links and personal recordings", () => {
     expect(field("frameSpeed").value).toBe("0.1");
     expect(field("emissionAngle").value).toBe("90");
     expect(field("emittedEnergyRestFrame").value).toBe("1");
-    expect(required('[data-walkthrough-result="played"]').textContent).toContain("3 steps");
+    const played = required('[data-walkthrough-result="played"]');
+    expect(played.getAttribute("data-walkthrough-new-run")).toBe("true");
+    expect(played.textContent).toContain("3 steps");
+    expect(played.textContent).toContain("using the current model");
+    expect(played.textContent).toContain("recorded identity and checkpoint were not verified");
+    expect(played.textContent).toContain("not a reproduced recorded result");
+    const lineage = required("[data-walkthrough-lineage]");
+    expect(lineage.getAttribute("data-run-id")).toBe(accepted.runId);
+    expect(lineage.getAttribute("data-parent-run-id")).toBe(accepted.parentRunId);
+    expect(lineage.textContent).toContain(accepted.parentRunId);
     expect(
       required<HTMLAnchorElement>('[data-walkthrough-result="played"] a').getAttribute("href"),
     ).toBe("/tapes/me-01-two-pulses-2026-11-13/");
     expect(container.querySelector('[role="alert"][data-refusal-code]')).toBeNull();
     expect(required('[data-instrument-id="me-01"]').hasAttribute("data-refusal-code")).toBe(false);
+    expect(container.querySelector("[data-walkthrough-recalculate]")).toBeNull();
+    expect(resolveTeachingTape(tapeId)).toEqual(originalRecording);
     await until(() => sharedTape()?.initialConditions.frameSpeed === 0.1);
     expect(sharedTape()?.initialConditions.emissionAngle).toBe(90);
+    expect(sharedTape()?.modelIdentity.artifactDigest).toBe(ME01_TAPE.environment.artifactDigest);
+  });
+
+  test("a real owner without new-run support offers no current-model recovery", async () => {
+    const { startNewRun: _unsupported, ...session } = createMe01Session("me01-no-new-run");
+    const before = session.getSnapshot();
+    let updates = 0;
+    root = createRoot(container);
+    await act(async () => {
+      root?.render(
+        <WalkthroughControl binding={ME01_TAPE} session={session} onPlayed={() => updates++} />,
+      );
+    });
+    await click("Play: the two pulses (13 November 2026)");
+    expect(required('[data-walkthrough-result="refused"]').getAttribute("data-walkthrough-code"))
+      .toBe("tape-artifact-mismatch");
+    expect(session.getSnapshot()).toBe(before);
+    expect(container.querySelector("[data-walkthrough-recalculate]")).toBeNull();
+    expect(container.querySelector("[data-walkthrough-lineage]")).toBeNull();
+    expect(updates).toBe(0);
+  });
+
+  test("a refused current-model preflight preserves the real owner and announces no accepted settings", async () => {
+    const session = createMe01Session("me01-current-model-refusal");
+    const before = session.getSnapshot();
+    let validations = 0;
+    let updates = 0;
+    const binding: LabTapeBinding = {
+      ...ME01_TAPE,
+      validate() {
+        validations++;
+        return { kind: "refused" };
+      },
+    };
+    root = createRoot(container);
+    await act(async () => {
+      root?.render(
+        <WalkthroughControl binding={binding} session={session} onPlayed={() => updates++} />,
+      );
+    });
+    await click("Play: the two pulses (13 November 2026)");
+    expect(validations).toBe(0);
+    expect(session.getSnapshot()).toBe(before);
+    expect(required("[data-walkthrough-recalculate]")).not.toBeNull();
+    await click("Calculate with the current model");
+    expect(validations).toBe(1);
+    expect(session.getSnapshot()).toBe(before);
+    expect(required('[data-walkthrough-result="refused"]').getAttribute("data-walkthrough-code"))
+      .toBe("initial-conditions-failed");
+    expect(container.querySelector('[data-walkthrough-result="played"]')).toBeNull();
+    expect(container.querySelector("[data-walkthrough-recalculate]")).toBeNull();
+    expect(container.querySelector("[data-walkthrough-lineage]")).toBeNull();
+    expect(updates).toBe(0);
   });
 
   test("the historical two-pulses choice keeps the current result when its artifact differs", async () => {
@@ -394,6 +478,7 @@ describe("ME-01 verified links and personal recordings", () => {
     ).toBeGreaterThan(4);
     expect(required("noscript").textContent).toContain("complete worked example");
     expect(container.querySelector("[data-experiment-recorder]")).toBeNull();
+    expect(container.querySelector("[data-walkthrough-recalculate]")).toBeNull();
     expect(container.querySelector('[data-testid="selectable-url"]')).toBeNull();
   });
 });

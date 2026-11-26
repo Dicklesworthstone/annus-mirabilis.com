@@ -6,19 +6,36 @@ import { replayTeachingTapeOn } from "./replayTeachingTape.ts";
 import { type LabTapeBinding, type TapeSession, tapeStateDigestIn } from "./sessionTape.ts";
 import type { TapeV2 } from "./types.ts";
 
+let sessionNumber = 0;
 function session() {
+  const instanceId = `walkthrough-fixture-${++sessionNumber}`;
   let parameters = { x: 8, y: 9 };
-  let snapshot = { accepted: { revisions: { input: 0 } } };
+  let runNumber = 1;
+  let parentRunId: string | null = null;
   const applied: unknown[] = [];
+  const accepted = () => ({
+    revisions: { input: applied.length },
+    runId: `${instanceId}/run/${runNumber}`,
+    parentRunId,
+    parameters: { ...parameters },
+    final: true as const,
+  });
+  let snapshot = { pending: false, accepted: accepted() };
+  function apply(input: unknown, newRun = false) {
+    const p = input as typeof parameters;
+    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return { kind: "refused" };
+    if (newRun) {
+      parentRunId = snapshot.accepted.runId;
+      runNumber++;
+    }
+    applied.push(input);
+    parameters = { ...p };
+    snapshot = { pending: false, accepted: accepted() };
+    return { kind: "accepted" };
+  }
   const live: TapeSession = {
-    apply(input) {
-      const p = input as typeof parameters;
-      if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return { kind: "refused" };
-      applied.push(input);
-      parameters = { ...p };
-      snapshot = { accepted: { revisions: { input: applied.length } } };
-      return { kind: "accepted" };
-    },
+    apply: (input) => apply(input),
+    startNewRun: (input) => apply(input, true),
     acceptedParameters: () => parameters,
     getSnapshot: () => snapshot,
   };
@@ -153,6 +170,8 @@ test("an intermediate step cannot borrow the final checkpoint's verification", (
 
 test("an explicitly new intermediate run is labelled as unverified, not as reproduced history", () => {
   const { live } = session();
+  const previousRun = live.getSnapshot().accepted?.runId;
+  assert.ok(previousRun);
   const result = playWalkthrough(binding, live, "fixture", {
     resolve: () => ({ ...tape(), constantSetId: "historical" }),
     stepIndex: 0,
@@ -167,6 +186,8 @@ test("an explicitly new intermediate run is labelled as unverified, not as repro
     assert.match(result.notice, /identity and checkpoint were not verified/);
     assert.match(result.notice, /not a reproduced recorded result/);
   }
+  assert.ok(live.getSnapshot().accepted?.runId);
+  assert.notEqual(live.getSnapshot().accepted?.runId, previousRun);
 });
 
 test("a checkpoint at the opening settings is the default even when later controls exist", () => {
@@ -207,6 +228,8 @@ test("walkthrough playback honours legacy digest formats as shared-link restorat
 test("a high-level seek past the end retains the scrubber's last-step behavior", () => {
   for (const asNewRun of [false, true]) {
     const { live } = session();
+    const previousRun = live.getSnapshot().accepted?.runId;
+    assert.ok(previousRun);
     const result = playWalkthrough(binding, live, "fixture", {
       resolve: () => tape(),
       stepIndex: 99,
@@ -218,5 +241,9 @@ test("a high-level seek past the end retains the scrubber's last-step behavior",
       assert.equal(result.isNewRun, asNewRun);
       assert.deepEqual(result.parameters, { x: 3, y: 4 });
     }
+    const currentRun = live.getSnapshot().accepted?.runId;
+    assert.ok(currentRun);
+    if (asNewRun) assert.notEqual(currentRun, previousRun);
+    else assert.equal(currentRun, previousRun);
   }
 });

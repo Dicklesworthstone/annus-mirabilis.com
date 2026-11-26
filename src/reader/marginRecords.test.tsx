@@ -286,18 +286,20 @@ describe("the sections on the page", () => {
     });
 
     test("two rows share one instrument, and no two links say the same thing", () => {
-      // Both the 1906 box and the four-momentum reading are formalisms ME-03 selects with its own mode
-      // control, and ME-03 declares no mode, so both links go to /lab/me-03/. Identical link text for
-      // different rows is what the link-name gate refuses; each says which mode to choose once there.
+      // The same laboratory now opens two distinct accepted presets. Each link still names the
+      // argument it serves, so a screen reader can distinguish the two destinations.
       const links = [...(figure?.querySelectorAll("a") ?? [])].map((a) => ({
         text: (a.textContent ?? "").trim(),
         href: a.getAttribute("href") ?? "",
       }));
       const labs = links.filter((l) => l.href.startsWith("/lab/"));
-      expect(labs.map((l) => l.href)).toEqual(["/lab/me-01/", "/lab/me-03/", "/lab/me-03/"]);
+      expect(labs[0]?.href).toBe("/lab/me-01/");
+      expect(labs[1]?.href).toMatch(/^\/lab\/me-03\/\?tape=/);
+      expect(labs[2]?.href).toMatch(/^\/lab\/me-03\/\?tape=/);
+      expect(labs[1]?.href).not.toBe(labs[2]?.href);
       expect(new Set(labs.map((l) => l.text)).size).toBe(3);
-      expect(labs[1]?.text).toContain("choose the 1906 box");
-      expect(labs[2]?.text).toContain("choose the four-momentum");
+      expect(labs[1]?.text).toBe("Open the 1906 box in ME-03");
+      expect(labs[2]?.text).toBe("Open the four-momentum comparison in ME-03");
       // And every row's sources link names its own row rather than "the note this row cites".
       const sources = links.filter((l) => l.href.startsWith("#note-"));
       expect(sources.length).toBe(3);

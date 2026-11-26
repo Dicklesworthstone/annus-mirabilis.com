@@ -134,6 +134,10 @@ jobs:
         run: >-
           bun test --isolate --timeout 60000
           scripts/generate-capstone-links.test.ts
+          src/content/schemas/argumentComparisonPreset.test.ts
+          src/reader/marginComparisonLaunch.test.tsx
+          src/reader/marginRecords.test.tsx
+          src/reader/citationRoleShown.test.tsx
           scripts/generate-result-probe-links.test.ts
           src/reader/faces/results/probeLaunch.test.tsx
           src/reader/faces/results/brownianMotionResults.test.tsx

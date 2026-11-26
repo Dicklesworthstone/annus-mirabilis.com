@@ -1,38 +1,47 @@
 import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
 import LabPage from "../../app/lab/me-01/page.tsx";
 import { loadWireTeachingTapes } from "../../content/teachingTapes.ts";
 import { toMe01Draft } from "../me01/controls.ts";
 import { ME01_DEFAULTS } from "../me01/definition.ts";
+import { createMe01Session } from "../me01/session.ts";
 import { ME01_TAPE } from "../me01/tape.ts";
 import { playWalkthrough } from "./playWalkthrough.ts";
+import { createSessionReplayRunner, tapeForSettings } from "./sessionTape.ts";
 import type { TapeV2 } from "./types.ts";
 
 /**
- * THE READER'S HALF: what happens when the button on ME-01 is pressed (am-2rl9).
- *
- * `playWalkthrough` is what the control calls, so this drives the reader's path one layer below the
- * click rather than the replay API two layers below it. What is NOT covered here is stated in the
- * commit and again at the end of this comment: no browser event was dispatched, because this
- * repository's DOM harness does not deliver React events, so the click itself is checked as markup —
- * an enabled button with its accessible name — and the behaviour it invokes is checked here.
- *
- * The records are read from disk, not from src/generated/teaching-tapes.json, for the reason
- * replayTeachingTape.test.ts gives: the catalogue is a build product and a test that reads it cannot
- * see a record change. The browser resolves through the catalogue, which prepare:lab keeps current.
+ * The positive replay cases record a fresh checkpoint through ME-01's actual current owner.
+ * They reuse the published three-control sequence without relabeling an archived source identity.
+ * Archived records are read from disk for refusal checks; their served buttons remain below.
+ * The real mounted button and form synchronization are exercised by me01TapeLink.test.tsx.
  */
 const RECORDS = loadWireTeachingTapes().tapes as ReadonlyMap<string, TapeV2>;
-const TAPE_ID = "me-01-two-pulses-2026-11-13";
-const resolve = (id: string): TapeV2 | null => RECORDS.get(id) ?? null;
-/*
- * TapeSession declares the MINIMUM a tape needs of a session, so `getServerSnapshot` is invisible
- * through it while ME-01's session has it. Read through the laboratory's own shape here rather than
- * widening a shared interface on behalf of every laboratory; the assertions are what make the cast
- * honest, since a session without it would fail them rather than pass quietly.
- */
-type LiveSession = ReturnType<typeof ME01_TAPE.createSession> &
-  Readonly<{ getServerSnapshot(): Readonly<{ accepted: unknown }> }>;
-const session = (name: string) => ME01_TAPE.createSession(name) as LiveSession;
+const ARCHIVED_TAPE_ID = "me-01-two-pulses-2026-11-13";
+const TAPE_ID = "me01-current-owner-fixture";
+const session = (name: string) => createMe01Session(name);
+
+function recordCurrentOwner(): TapeV2 {
+  const archived = RECORDS.get(ARCHIVED_TAPE_ID);
+  assert.ok(archived);
+  const opening = tapeForSettings(ME01_TAPE, ME01_DEFAULTS);
+  assert.ok(opening);
+  const recorder = createSessionReplayRunner(ME01_TAPE, session("play-fixture-recorder"));
+  recorder.applyInitialConditions(opening.initialConditions);
+  const events = archived.events.map((event) => ({ ...event }));
+  for (const event of events) recorder.applyEvent(event);
+  return {
+    ...opening,
+    title: "Current ME-01 owner fixture",
+    events,
+    acceptedCheckpoint: recorder.getAcceptedCheckpoint(),
+  };
+}
+
+const currentRecord = recordCurrentOwner();
+const resolve = (id: string): TapeV2 | null =>
+  id === TAPE_ID ? currentRecord : RECORDS.get(id) ?? null;
 
 describe("pressing play on ME-01's recorded walkthrough", () => {
   test("applies the three authored steps and reaches the state the record describes", () => {
@@ -49,15 +58,7 @@ describe("pressing play on ME-01's recorded walkthrough", () => {
   });
 
   test("the values the fields will show are the walkthrough's, not the ones they had", () => {
-    /*
-     * WHAT THIS COVERS AND WHAT IT DOES NOT. The control sets the form from the replayed session,
-     * because a form left showing old numbers over new results is a defect this repository has paid
-     * for: 12 of 12 laboratories with an Apply button lost restored settings that way. This asserts
-     * the VALUE that line assigns. It does not assert that the line runs: removing
-     * `setDraft(toMe01Draft(next))` from TwoLedgersLab leaves every test in this file green, which I
-     * found by planting it, and covering it needs a real click this repository's DOM harness cannot
-     * deliver. The gap is one React setter wide and it is named rather than implied.
-     */
+    // Check the form conversion here; the mounted suite exercises the real click and setter.
     const before = toMe01Draft(ME01_DEFAULTS);
     const out = playWalkthrough(ME01_TAPE, session("play-fields"), TAPE_ID, { resolve });
     if (out.kind !== "played") throw new Error("unreachable");
@@ -96,6 +97,23 @@ describe("pressing play on ME-01's recorded walkthrough", () => {
     // And the accepted snapshot is no longer the served one, which is what stops the page calling
     // the result a static worked example: the label is earned per snapshot by the laboratory.
     expect(live.getSnapshot().accepted).not.toBe(served);
+  });
+
+  test("archived source identities still refuse verified replay without changing the live owner", () => {
+    for (const tapeId of ["the-two-pulses", ARCHIVED_TAPE_ID]) {
+      const archived = RECORDS.get(tapeId);
+      assert.ok(archived);
+      expect(resolve(tapeId)).toBe(archived);
+      expect(archived.modelIdentity.artifactDigest)
+        .not.toBe(currentRecord.modelIdentity.artifactDigest);
+      const live = session(`play-archived-${tapeId}`);
+      const before = live.getSnapshot();
+      const out = playWalkthrough(ME01_TAPE, live, tapeId, { resolve });
+      assert.equal(out.kind, "refused");
+      expect(out.code).toBe("tape-artifact-mismatch");
+      expect(out.offerNewRun).toBe(true);
+      expect(live.getSnapshot()).toBe(before);
+    }
   });
 
   test("a walkthrough recorded elsewhere is refused in the reader's words, and changes nothing", () => {

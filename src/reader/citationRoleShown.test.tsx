@@ -64,6 +64,25 @@ describe("the citation role on the page (am-wfuc)", () => {
       if (role === "primary") expect(body).not.toContain("Later scholarship.");
     }
   });
+
+  test("a note's comparison-witness role takes precedence over the bibliography's primary role", () => {
+    const margins = loadPaperMargins("special-relativity", process.cwd());
+    const note = margins.notes.find((entry) => entry.id === "note-sr-f-the-equator-clock-remark");
+    if (!note) throw new Error("The equator-clock margin note did not load");
+    expect(margins.citations.get("cit-hafele-1970")?.role).toBe("primary");
+    expect(note.sourceSupport.find((source) => source.citationId === "cit-hafele-1970")?.role).toBe(
+      "comparison-witness",
+    );
+    const contextual = renderToStaticMarkup(
+      <PaperMargins
+        margins={{ ...margins, misconceptions: [], notes: [note] }}
+        paperId="special-relativity"
+      />,
+    );
+    expect(contextual).toContain('data-citation-role="comparison-witness"');
+    expect(contextual).toContain("A comparison witness.");
+    expect(margins.citations.get("cit-hafele-1970")?.role).toBe("primary");
+  });
 });
 
 function counting(haystack: string, needle: string): number {
