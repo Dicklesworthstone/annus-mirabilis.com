@@ -1484,25 +1484,18 @@ export function validateGlossUnit(raw: unknown, path = "GlossUnit"): GlossUnit {
 export type SourceSupport = Readonly<{
   citationId: string;
   locator?: string | undefined;
-  role?: "primary" | "secondary" | undefined;
+  role?: "primary" | "secondary" | "comparison-witness" | "technical" | undefined;
 }>;
 
 /**
- * SEVERAL ARGUMENTS FOR ONE RESULT, ASKED THE SAME QUESTIONS (am-me-margin-entries-kfg5).
+ * Several arguments for one result, asked the same questions (am-me-margin-entries-kfg5).
+ * A comparison distinguishes what belongs to the result from the premises of each route.
+ * It records premises, never scores, verdicts or rankings; an unanswered question is refused
+ * rather than displayed as a weakness. Arguments empirically equivalent within their scope
+ * are never declared refuted.
  *
- * Three arguments reach the conclusion of the mass-energy paper from different premises, and a
- * reader who meets only one of them cannot tell which of its features are the result's and which are
- * that route's. The comparison asks each argument the same questions and records the answers.
- *
- * It is a record of premises, never a scoreboard. Nothing here ranks the arguments, and the shape
- * refuses to help: there is no score, no verdict field and no ordering claim, and a question a row
- * cannot answer is a refusal rather than an empty cell that reads as a weakness. AGENTS.md's rule
- * holds over it: an argument that is empirically equivalent within its scope is never declared
- * refuted.
- *
- * A question may be marked `scopeCritical`, which says the answers in that row change WHICH SYSTEMS
- * the conclusion is established for, rather than how it is reached. That mark is what lets the
- * readings audit insist the substance appears at a reading a reader meets without opening R3.
+ * A scopeCritical question identifies which systems each argument covers. The readings audit
+ * requires that scope distinction before R3.
  */
 export type ComparisonQuestion = Readonly<{
   id: string;
@@ -1515,8 +1508,10 @@ export type ComparisonArgument = Readonly<{
   label: string;
   /** The margin record that carries this argument's sources, so no citation is duplicated here. */
   sourceNoteId: string;
-  /** An instrument, mode address or model identity a reader can open. */
+  /** A declared instrument or mode address a reader can open. */
   instrumentRef: string;
+  /** An authored preset of that instrument, resolved through its own settings loader. */
+  presetId?: string | undefined;
   /** One answer per question id. Every question, or the record is refused by name. */
   cells: Readonly<Record<string, string>>;
 }>;
@@ -1550,6 +1545,11 @@ export type EditorialNote = Readonly<{
   lang?: string | undefined;
   dir?: TextDirection | undefined;
 }>;
+
+function comparisonArgumentFields(a: Record<string, unknown>): readonly string[] {
+  const fields = ["id", "label", "sourceNoteId", "instrumentRef"];
+  return a.presetId === undefined ? fields : [...fields, "presetId"];
+}
 
 /**
  * An argument comparison's shape. What it refuses, and why each refusal is worth having:
@@ -1626,7 +1626,7 @@ export function validateArgumentComparison(
     );
   const args: ComparisonArgument[] = rawArguments.map((value, index) => {
     const a = (value ?? {}) as Record<string, unknown>;
-    for (const field of ["id", "label", "sourceNoteId", "instrumentRef"] as const) {
+    for (const field of comparisonArgumentFields(a)) {
       if (typeof a[field] !== "string" || !(a[field] as string).trim())
         throw new SchemaValidationError(
           "comparison-argument-invalid",
@@ -1653,12 +1653,12 @@ export function validateArgumentComparison(
       label: a.label as string,
       sourceNoteId: a.sourceNoteId as string,
       instrumentRef: a.instrumentRef as string,
+      ...(a.presetId === undefined ? {} : { presetId: a.presetId as string }),
       cells: answered,
     };
   });
   return { questions, arguments: args };
 }
-
 export function validateEditorialNote(raw: unknown, path = "EditorialNote"): EditorialNote {
   if (!raw || typeof raw !== "object")
     throw new SchemaValidationError(
