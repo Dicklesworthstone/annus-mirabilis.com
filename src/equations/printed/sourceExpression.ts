@@ -267,7 +267,7 @@ class RowParser {
       next &&
       (next.term ||
         /^[0-9]$/.test(next.value) ||
-        ["{", "(", "[", "\\left", "\\frac", "\\sqrt", "\\cos", "\\sin", "\\lg", "\\pi"].includes(
+        ["{", "(", "[", "\\left", "\\frac", "\\sqrt", "\\cos", "\\sin", "\\lg", "\\pi", "\\operatorname"].includes(
           next.value,
         ) ||
         (this.options.allowCalculus && next.value === "\\int") ||
@@ -560,6 +560,19 @@ class RowParser {
         token.start,
         radicand.end,
         [{ name: "radicand", node: radicand.node }],
+      );
+    }
+    if (token.value === "\\operatorname") {
+      // The paper spells inverse tangent arctg. Other operator names have no source reading.
+      this.take("{");
+      for (const letter of "arctg") this.take(letter);
+      this.take("}");
+      const argument = this.unary();
+      return this.operation(
+        { kind: "function", name: "atan", argument: argument.tree },
+        token.start,
+        argument.end,
+        [{ name: "argument", node: argument }],
       );
     }
     if (token.value === "\\cos" || token.value === "\\sin" || token.value === "\\lg") {

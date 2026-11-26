@@ -8,6 +8,7 @@ import type { MassEnergyOperationGuide, OperationReading } from "./massEnergyOpe
 import { RELATIVITY_CLOCK_AND_LENGTH_GUIDES } from "./relativityClocksAndLengths.ts";
 import { RELATIVITY_COLLINEAR_LIMIT_GUIDES } from "./relativityCollinearLimits.ts";
 import { RELATIVITY_CONSEQUENCE_GUIDES } from "./relativityConsequences.ts";
+import { RELATIVITY_DIRECTION_ANGLE_GUIDE } from "./relativityDirectionAngle.ts";
 import { RELATIVITY_ELECTRODYNAMICS_GUIDES } from "./relativityElectrodynamics.ts";
 import { RELATIVITY_FIELD_GUIDES } from "./relativityFields.ts";
 import { RELATIVITY_KINEMATICS_GUIDES } from "./relativityKinematics.ts";
@@ -183,6 +184,7 @@ export const RELATIVITY_OPERATION_GUIDES: Readonly<Record<string, RelativityOper
   ...RELATIVITY_KINEMATICS_GUIDES,
   ...RELATIVITY_LIGHT_COMPLEX_GUIDES,
   ...RELATIVITY_PLANAR_VELOCITY_GUIDES,
+  "eq-s5-d4": RELATIVITY_DIRECTION_ANGLE_GUIDE,
   "eq-s5-d5": RELATIVITY_OBLIQUE_SPEED_GUIDE,
   ...RELATIVITY_SYNCHRONIZATION_GUIDES,
   "eq-s3-d16": factorGuide,
