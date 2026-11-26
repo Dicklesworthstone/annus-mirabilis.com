@@ -25,6 +25,7 @@ import labDigests from "../../../generated/lab-source-digests.json";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { LabMargin } from "../LabMargin.tsx";
 import { readablePowers } from "../presentation.ts";
+import { MichelsonMorleyComparison } from "../shelf/MichelsonMorleyComparison.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { FizeauComparison } from "./FizeauComparison.tsx";
 
@@ -442,6 +443,7 @@ export function ShelfOpticsLab({
         </div>
       </div>
 
+      {report.parameters.instrumentId === "shelf-michelson-morley" && <MichelsonMorleyComparison modern={report} />}
       {fizeau && report.parameters.instrumentId === "shelf-fizeau" && (
         <FizeauComparison
           record={fizeau}

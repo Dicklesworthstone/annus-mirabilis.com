@@ -34,6 +34,8 @@ export function ShelfOpticsPage({ instrumentId }: { instrumentId: ShelfId }) {
       <p className="notice">
         {instrumentId === "shelf-fizeau"
           ? "The model rows are host reference calculations with modern SI calibration and an assumed refractive index. The separately labeled observations are Fizeau’s measurements, transcribed from his 1859 table. The two kinds of number remain distinct."
+          : instrumentId === "shelf-michelson-morley"
+            ? "The model rows use modern SI calibration. The limits beside them come from Michelson and Morley’s 1887 paper."
           : "These are host reference calculations with modern SI calibration and illustrative settings. They are not historical measurements, a historical dataset, or publication of the strict 1904 shelf."}{" "}
         No FrankenSim WASM calculation is claimed.
       </p>
@@ -44,8 +46,8 @@ export function ShelfOpticsPage({ instrumentId }: { instrumentId: ShelfId }) {
             <p>
               The apparatus has equal one-way arm lengths before any hypothesized contraction. The
               wind is aligned with one arm, and the displayed fringe prediction is the change after
-              a 90° rotation. Unequal arms, angular sweeps, source coherence and an empirical upper
-              bound are not modeled here.
+              a 90° rotation. Unequal arms, angular sweeps, and source coherence are outside this model. The comparison below the controls uses
+              the observational limits reported by Michelson and Morley.
             </p>
             <Formula
               latex={String.raw`t_{\parallel}=\frac{2L}{c(1-\beta^2)},\qquad t_{\perp}=\frac{2L}{c\sqrt{1-\beta^2}}`}
@@ -123,10 +125,11 @@ export function ShelfOpticsPage({ instrumentId }: { instrumentId: ShelfId }) {
       <section className="reading" aria-labelledby="shelf-evidence-status">
         <h2 id="shelf-evidence-status">Prediction is not a measurement</h2>
         <p>
-          No observed points, digitized fringe shifts or experimental confidence bounds have been
-          added to these plots. A source-specific dataset, with its geometry, wavelength, protocol
-          and uncertainty, is still needed before making a numerical comparison with a historical
-          experiment.
+          {instrumentId === "shelf-michelson-morley"
+            ? "The comparison uses the authors’ published upper limits. The plot shows the size of each model prediction. It does not reconstruct the individual readings taken as the apparatus rotated."
+            : instrumentId === "shelf-fizeau"
+              ? "The model plot shows the expected shift. The measurement table gives the observations Fizeau published and identifies the conditions of comparison."
+              : "The plotted residuals test the mathematical form of the scalar wave equation under each substitution. They are calculated quantities."}
         </p>
         <p>
           The reference implementation is <code>src/physics/reference/shelfOptics.ts</code>. Its

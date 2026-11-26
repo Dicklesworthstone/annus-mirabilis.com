@@ -27,6 +27,8 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { Sci } from "../Sci.tsx";
 
+import { MichelsonMorleyComparison } from "./MichelsonMorleyComparison.tsx";
+
 type Draft = Readonly<Record<string, string | boolean>>;
 
 function draftFor(parameters: Parameters): Draft {
@@ -414,6 +416,7 @@ function HistoricalShelfInstance({
           Time units are one wavelength divided by <i>c</i>. A fringe shift is a number of fringes.
         </p>
       )}
+      {instrumentId === "shelf-michelson-morley" && <MichelsonMorleyComparison historical={accepted} />}
       {instrumentId === "shelf-fizeau" && (
         <p>
           Time units are metres divided by <i>c</i>. The speed entries are multiples of <i>c</i>. A
