@@ -15,12 +15,22 @@ export type ArgumentStep = Readonly<{
     | "assumes-target";
   requires: readonly string[];
   latex: string;
+  source: Readonly<{
+    kind: "source" | "reconstruction" | "modern";
+    anchor: string;
+    label: string;
+  }>;
   explanation: string;
 }>;
 
 const steps = [
   {
     id: "opposite-pulses",
+    source: {
+      kind: "source",
+      anchor: "s0-p7-s1",
+      label: "The equal, oppositely directed emissions",
+    },
     title: "Choose an emission without recoil",
     kind: "setup",
     requires: [],
@@ -30,6 +40,11 @@ const steps = [
   },
   {
     id: "conservation",
+    source: {
+      kind: "source",
+      anchor: "s0-p7-s3",
+      label: "The energy principle in both coordinate systems",
+    },
     title: "Keep an energy account in each frame",
     kind: "premise",
     requires: [],
@@ -39,6 +54,11 @@ const steps = [
   },
   {
     id: "light-transform",
+    source: {
+      kind: "source",
+      anchor: "eq-s0-d1",
+      label: "The light-energy law quoted in September",
+    },
     title: "Import the light-energy transformation",
     kind: "import",
     requires: [],
@@ -48,6 +68,11 @@ const steps = [
   },
   {
     id: "rest-balance",
+    source: {
+      kind: "source",
+      anchor: "eq-s0-d2",
+      label: "The balance in the body’s rest frame",
+    },
     title: "Write the rest-frame balance",
     kind: "algebra",
     requires: ["opposite-pulses", "conservation"],
@@ -57,6 +82,11 @@ const steps = [
   },
   {
     id: "angle-cancellation",
+    source: {
+      kind: "source",
+      anchor: "eq-s0-d3",
+      label: "The two direction factors in the moving balance",
+    },
     title: "Add the two transformed pulses",
     kind: "algebra",
     requires: ["opposite-pulses", "light-transform"],
@@ -66,6 +96,11 @@ const steps = [
   },
   {
     id: "moving-balance",
+    source: {
+      kind: "source",
+      anchor: "eq-s0-d3",
+      label: "The moving observer’s energy balance",
+    },
     title: "Write the moving-frame balance",
     kind: "algebra",
     requires: ["angle-cancellation", "conservation"],
@@ -75,6 +110,11 @@ const steps = [
   },
   {
     id: "subtract-balances",
+    source: {
+      kind: "source",
+      anchor: "eq-s0-d4",
+      label: "The difference between the two balances",
+    },
     title: "Subtract the two balances",
     kind: "algebra",
     requires: ["rest-balance", "moving-balance"],
@@ -84,6 +124,11 @@ const steps = [
   },
   {
     id: "kinetic-offset",
+    source: {
+      kind: "reconstruction",
+      anchor: "eq-s0-d5",
+      label: "The two relations written with a common constant",
+    },
     title: "State how frame-energy differences relate to motion",
     kind: "premise",
     requires: [],
@@ -93,6 +138,11 @@ const steps = [
   },
   {
     id: "retain-offset",
+    source: {
+      kind: "reconstruction",
+      anchor: "s0-p7-s9b",
+      label: "The premise relaxed in this comparison",
+    },
     title: "Keep the possible offset change visible",
     kind: "algebra",
     requires: ["subtract-balances", "kinetic-offset"],
@@ -102,6 +152,11 @@ const steps = [
   },
   {
     id: "unchanged-offset",
+    source: {
+      kind: "source",
+      anchor: "s0-p7-s9b",
+      label: "The sentence that keeps the constant unchanged",
+    },
     title: "Admit the unchanged-offset premise",
     kind: "premise",
     requires: ["kinetic-offset"],
@@ -111,6 +166,11 @@ const steps = [
   },
   {
     id: "kinetic-drop",
+    source: {
+      kind: "source",
+      anchor: "eq-s0-d6",
+      label: "The resulting kinetic-energy difference",
+    },
     title: "Identify the kinetic-energy decrease",
     kind: "algebra",
     requires: ["retain-offset", "unchanged-offset"],
@@ -120,6 +180,11 @@ const steps = [
   },
   {
     id: "inertial-coefficient",
+    source: {
+      kind: "reconstruction",
+      anchor: "eq-s0-d7",
+      label: "The quadratic term from which inertia is inferred",
+    },
     title: "Define inertia by the small-speed coefficient",
     kind: "premise",
     requires: [],
@@ -129,6 +194,11 @@ const steps = [
   },
   {
     id: "small-speed",
+    source: {
+      kind: "reconstruction",
+      anchor: "s0-p11-s1",
+      label: "Where fourth and higher orders are dropped",
+    },
     title: "Take the limit, not a finite-speed shortcut",
     kind: "approximation",
     requires: ["kinetic-drop", "light-transform"],
@@ -138,6 +208,11 @@ const steps = [
   },
   {
     id: "inertia-loss",
+    source: {
+      kind: "source",
+      anchor: "s0-p12-s1",
+      label: "The mass lost when the body gives off radiation",
+    },
     title: "Read off the inertia lost",
     kind: "conclusion",
     requires: ["small-speed", "inertial-coefficient"],
@@ -147,6 +222,11 @@ const steps = [
   },
   {
     id: "assume-rest-energy",
+    source: {
+      kind: "modern",
+      anchor: "s0-p12-s1",
+      label: "Compare the conclusion the alternative takes as a premise",
+    },
     title: "Alternative: start by assuming rest energy equals M c²",
     kind: "assumes-target",
     requires: [],
@@ -156,6 +236,11 @@ const steps = [
   },
   {
     id: "rest-energy-check",
+    source: {
+      kind: "modern",
+      anchor: "eq-s0-d2",
+      label: "The rest balance used for this modern substitution",
+    },
     title: "Check the rest balance using that assumption",
     kind: "conclusion",
     requires: ["rest-balance", "assume-rest-energy"],
@@ -228,6 +313,7 @@ export type ArgumentAssessment = Readonly<{
     | "incomplete"
     | "ledger-relation"
     | "offset-unresolved"
+    | "offset-fixed"
     | "kinetic-drop"
     | "inertia-derived"
     | "consistency-check";
@@ -280,10 +366,20 @@ export function assessArgument(raw: unknown): ArgumentAssessment {
     outcome = "kinetic-drop";
     summary =
       "The kinetic-energy decrease follows under the unchanged-offset premise. Identifying an inertia change still requires the small-speed limit and the definition of inertial mass by its kinetic-energy coefficient.";
+  } else if (
+    accepted.has("retain-offset") &&
+    accepted.has("unchanged-offset") &&
+    !assessed.some((step) => step.id === "kinetic-drop")
+  ) {
+    outcome = "offset-fixed";
+    summary =
+      "Your chain retains the offset difference and admits the premise that both offsets are equal. Their difference therefore vanishes. Add the kinetic-energy step to record what the balances now determine.";
   } else if (accepted.has("retain-offset")) {
     outcome = "offset-unresolved";
     summary =
-      "The energy accounts constrain K₀ − K₁ + (C₀ − C₁). With the offset change left free, the kinetic-energy decrease is underdetermined. This is a valid weaker conclusion, not a failed energy balance.";
+      accepted.has("unchanged-offset")
+        ? "The kinetic-energy step came before its premises were in place. At that step the chain had established only the balance with the offset difference retained. Move the step after both the subtraction and the unchanged-offset premise to identify the kinetic-energy decrease."
+        : "The energy accounts constrain K₀ − K₁ + (C₀ − C₁). With the offset change left free, the kinetic-energy decrease is underdetermined. This is a valid weaker conclusion, not a failed energy balance.";
   } else if (accepted.has("subtract-balances")) {
     outcome = "ledger-relation";
     summary =

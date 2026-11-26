@@ -1,5 +1,7 @@
 "use client";
 
+import { MassEnergyStepSource } from "./MassEnergyStepSource.tsx";
+import { argumentLedgerHandoff } from "./massEnergyArgumentHandoff.ts";
 import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import {
   ARGUMENT_STEPS,
@@ -37,6 +39,7 @@ export function MassEnergyArgumentWorkbench({
   const focusAfterRemoval = useRef<string | null>(null);
   const addButtons = useRef(new Map<string, HTMLButtonElement>());
   const assessment = assessArgument(order);
+  const ledger = argumentLedgerHandoff(assessment);
 
   useEffect(() => {
     const shared = decodeArgument(window.location.search);
@@ -204,6 +207,12 @@ export function MassEnergyArgumentWorkbench({
         <p className="notice" aria-live="polite" aria-atomic="true">
           {assessment.summary}
         </p>
+        {ledger && (
+          <p>
+            <a href={ledger.href}>{ledger.label}</a>. In the laboratory, calculate the linked
+            settings to compare what the energy balances determine with what your premises allow.
+          </p>
+        )}
       </section>
       <div className="argument-columns">
         <section aria-labelledby={`${instance}-selection`}>
@@ -251,6 +260,7 @@ export function MassEnergyArgumentWorkbench({
                   <details>
                     <summary>Why this step is allowed, and where it stops</summary>
                     <p>{card.explanation}</p>
+                    <MassEnergyStepSource card={card} />
                   </details>
                   <div className="actions">
                     <button
@@ -309,6 +319,7 @@ export function MassEnergyArgumentWorkbench({
                     </p>
                     {equations[id]}
                     <p>{card.explanation}</p>
+                    <MassEnergyStepSource card={card} />
                     <p className="fine">
                       Requires:{" "}
                       {card.requires.length

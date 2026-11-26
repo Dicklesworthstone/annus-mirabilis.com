@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { TwoLedgersComparison } from "../../../../components/lab/me01/TwoLedgersLab.tsx";
 import { JourneyFormula } from "../../../../discovery/JourneyFormula.tsx";
 import { massEnergyStepScope } from "../../../../discovery/journeyFormulaList.ts";
+import { MassEnergyStepSource } from "../../../../discovery/MassEnergyStepSource.tsx";
 import { MassEnergyArgumentWorkbench } from "../../../../discovery/MassEnergyArgumentWorkbench.tsx";
 import {
   ARGUMENT_STEPS,
@@ -105,6 +106,7 @@ export default function MassEnergyArgumentPage() {
                   <h3>{step.title}</h3>
                   <JourneyFormula latex={step.latex} tabIndex={0} scope={massEnergyStepScope(id)} />
                   <p>{step.explanation}</p>
+                  <MassEnergyStepSource card={step} />
                 </li>
               );
             })}
