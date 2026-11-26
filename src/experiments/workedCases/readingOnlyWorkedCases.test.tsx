@@ -13,6 +13,8 @@ import {
 } from "../../testing/reactDom.ts";
 import { CATALOGUE_IDS, CATALOGUE_STATUS } from "../catalogue.ts";
 import { ExperimentDispatch, type ViewLoaders } from "../dispatch.tsx";
+import { SHELF_DEFINITIONS as SHELF_CONTEXT } from "../shelf/definition.ts";
+import { SHELF_DEFINITIONS, SHELF_IDS, shelfDraft } from "../shelfOptics/definition.ts";
 import {
   findWorkedCase,
   type InstrumentWorkedCaseIndex,
@@ -66,6 +68,48 @@ describe("the real prepared laboratory cases", () => {
       );
       expect(html, id).toContain("data-prepared-worked-case");
       expect(html, id).not.toContain("The static worked case stays in the page");
+    }
+  });
+
+  test("the three optical shelves prepare the reader's illustrative model values without historical observations", () => {
+    const index = generatedCases();
+    const expected = {
+      "shelf-michelson-morley": ["0.4"],
+      "shelf-fizeau": ["0.4526", "0.1979"],
+      "shelf-maxwell-galilean": ["0.19"],
+    };
+    for (const id of SHELF_IDS) {
+      const record = findWorkedCase(index, id);
+      expect(record?.kind, id).toBe("prepared");
+      if (record?.kind !== "prepared") continue;
+      expect(record.origin, id).toBe("prepared-default");
+      expect(record.mode, id).toBeNull();
+      expect(record.tables.length, id).toBe(1);
+      expect(record.tables[0]?.caption, id).toContain("not experimental observations");
+      const html = renderToStaticMarkup(
+        <WorkedCase record={record} instrumentId={id} mode={null} />,
+      );
+      for (const value of expected[id]) expect(html, id).toContain(">" + value + "<");
+      const definition = SHELF_DEFINITIONS[id];
+      const defaults = shelfDraft(definition.defaults);
+      for (const field of definition.fields) {
+        const label = field.label + (field.unit === "1" ? "" : " (" + field.unit + ")");
+        expect(record.settings.find((setting) => setting.label === label)?.value, id).toBe(
+          String(defaults[field.key]),
+        );
+      }
+      for (const field of definition.switches)
+        expect(record.settings.find((setting) => setting.label === field.label)?.value, id).toBe(
+          defaults[field.key] ? "On" : "Off",
+        );
+      expect(record.notes.join(" "), id).toContain("modern SI calibration");
+      expect(record.notModeled, id).toEqual(SHELF_CONTEXT[id].notModeled);
+      expect(record.sources.map((source) => source.href), id).toContain(
+        "/papers/special-relativity/#" + SHELF_CONTEXT[id].sourceSection,
+      );
+      expect(html, id).not.toContain("Measured mean");
+      expect(html, id).not.toContain("published upper limit of 0.02");
+      expect(html, id).not.toContain("A prepared worked example is not available");
     }
   });
 

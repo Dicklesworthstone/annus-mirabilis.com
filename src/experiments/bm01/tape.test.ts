@@ -1,6 +1,8 @@
 import { afterAll, afterEach, expect, test } from "bun:test";
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import { loadWalkthroughCatalogue } from "../../content/walkthroughs.ts";
 import {
@@ -81,6 +83,58 @@ function changedState(tape: TapeV2, patch: Partial<TapeScientificCheckpoint>): T
     },
   };
 }
+
+test("the declared recorder reproduces the authored values and both complete scientific checkpoints", () => {
+  // Exercise the supported command in its declared Bun engine. It records through the pinned
+  // owner and verifies every original event prefix before it can emit replacement receipts.
+  const recorder = spawnSync(
+    process.execPath,
+    [fileURLToPath(new URL("../../../scripts/record-einstein-displacement.mjs", import.meta.url))],
+    {
+      cwd: fileURLToPath(new URL("../../../", import.meta.url)),
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 45_000,
+      killSignal: "SIGKILL",
+      maxBuffer: 1024 * 1024,
+    },
+  );
+  assert.ifError(recorder.error);
+  assert.equal(recorder.signal, null, recorder.stderr);
+  assert.equal(recorder.status, 0, recorder.stderr);
+
+  const emitted: unknown = JSON.parse(recorder.stdout);
+  assert.ok(emitted && typeof emitted === "object" && !Array.isArray(emitted));
+  const receipt = emitted as Record<string, unknown>;
+  assert.deepEqual(Object.keys(receipt).sort(), ["artifactDigest", "checkpoints"]);
+  assert.equal(receipt.artifactDigest, fixture.sourceDigest.replace(/^source:/, "host:"));
+  assert.ok(Array.isArray(receipt.checkpoints));
+  assert.equal(receipt.checkpoints.length, 2);
+  const digests: string[] = [];
+  for (const [index, checkpoint] of receipt.checkpoints.entries()) {
+    assert.ok(checkpoint && typeof checkpoint === "object" && !Array.isArray(checkpoint));
+    const point = checkpoint as Record<string, unknown>;
+    assert.deepEqual(Object.keys(point).sort(), ["actionIndex", "digest", "values"]);
+    assert.equal(point.actionIndex, index + 1);
+    assert.ok(typeof point.digest === "string");
+    assert.match(point.digest, /^host:sha256:[a-f0-9]{64}$/);
+    digests.push(point.digest);
+    const authored = record.checkpoints[index];
+    assert.ok(authored && authored.expectedDisplayValues?.length);
+    assert.equal(point.actionIndex, authored.actionIndex);
+    assert.deepEqual(
+      point.values,
+      authored.expectedDisplayValues.map((value) => ({
+        outputId: value.outputId,
+        value: value.value,
+        unit: value.unit,
+      })),
+    );
+  }
+  assert.equal(new Set(digests).size, 2, "The two authored actions need distinct scientific receipts.");
+  console.log(JSON.stringify({ event: "bm01-authored-recorder-verified", ...receipt }));
+  passed("authored-recorder-exact-values-and-prefixes");
+}, 50_000);
 
 test("the authored 1-second and 60-second stops reproduce real complete trajectories forward and backward", async () => {
   const lab = laboratory();

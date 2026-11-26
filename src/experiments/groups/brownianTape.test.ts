@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import assert from "node:assert/strict";
+import { HOST_NORMAL_VERSION } from "../../physics/reference/philox.ts";
 import {
   brownianReplayFixture,
   brownianReplayLaboratory,
 } from "../../testing/brownianGroupReplayHarness.ts";
 import { HOST_TRACER_RECORDER } from "../../workers/operations/bm01.ts";
+import { BM01_HOST_RECORDER_OWNER } from "../bm01/definition.ts";
 import { createBm06TapeBinding } from "../bm06/tape.ts";
 import { verifyBm06ScientificCheckpoint } from "../bm06/tapeCheckpoint.ts";
 import { decodeTapeDocument, encodeTapePermalink } from "../permalink/codec.ts";
@@ -178,20 +180,50 @@ describe("scientific Brownian comparison records", () => {
     expect(lab.resources.admission.activeCount).toBe(0);
   });
 
-  test("a host normal transform never stands in for the recorded pinned engine", async () => {
+  test("host and pinned Brownian comparison checkpoints keep their distinct engines", async () => {
     const source = await record();
     const lab = laboratory({ tracer: { recorder: () => HOST_TRACER_RECORDER } });
     const before = lab.bundle.group.getSnapshot().displayed;
     const result = await restoreBrownianGroup("wrong-engine", lab.inputs, lab.bundle, source.tape);
-    expect(result.kind).toBe("not-restored");
+    assert(result.kind === "not-restored", JSON.stringify(result));
+    expect(result.notice).toContain("different normal transform");
     expect(lab.bundle.group.getSnapshot().displayed).toEqual(before);
+    expect(lab.tracer.channels).toHaveLength(1);
     expect(lab.tracer.channels.every((channel) => channel.disposed)).toBe(true);
     expect(lab.density).toHaveLength(0);
+
     lab.bundle.group.link(1e-6);
     await waitFor(() => lab.bundle.group.getSnapshot().status === "accepted");
+    const publication = lab.bundle.sessions[0].acceptedPublication();
+    assert(publication);
+    expect(publication.recordingCheckpoint).toMatchObject({
+      ownerId: BM01_HOST_RECORDER_OWNER,
+      normalVersion: HOST_NORMAL_VERSION,
+      artifactDigest: fixture.tracer.sourceDigest,
+    });
     const captured = await captureBrownianGroup(lab.inputs, lab.bundle);
-    expect(captured.kind).toBe("unavailable");
-    if (captured.kind === "unavailable") expect(captured.notice).toContain("pinned FrankenSim");
+    assert(captured.kind === "captured", JSON.stringify(captured));
+    const decoded = decodeTapeDocument(encodeTapePermalink(captured.tape));
+    assert(decoded.kind === "success" && decoded.tape.tapeVersion === 3);
+    const restored = await restoreBrownianGroup("restored-host-pair", lab.inputs, lab.bundle, decoded.tape);
+    assert(restored.kind === "restored", JSON.stringify(restored));
+    cleanups.push(() => restored.bundle.group.disconnect());
+    expect(restored.bundle.group.getSnapshot().coherent?.value).toBe(1e-6);
+    expect(restored.bundle.sessions[0].acceptedPublication()?.recordingCheckpoint)
+      .toEqual(publication.recordingCheckpoint);
+    const recaptured = await captureBrownianGroup(lab.inputs, restored.bundle);
+    assert(recaptured.kind === "captured", JSON.stringify(recaptured));
+    expect(recaptured.tape).toEqual(captured.tape);
+
+    const pinned = laboratory();
+    const pinnedBefore = pinned.bundle.group.getSnapshot().displayed;
+    const reverse = await restoreBrownianGroup("host-into-pinned", pinned.inputs, pinned.bundle, decoded.tape);
+    assert(reverse.kind === "not-restored", JSON.stringify(reverse));
+    expect(reverse.notice).toContain("different normal transform");
+    expect(pinned.bundle.group.getSnapshot().displayed).toEqual(pinnedBefore);
+    expect(pinned.tracer.channels).toHaveLength(1);
+    expect(pinned.tracer.channels.every((channel) => channel.disposed)).toBe(true);
+    expect(pinned.density).toHaveLength(0);
   });
 
   test("independent recorded radii restore independently and never change the other owner's run", async () => {

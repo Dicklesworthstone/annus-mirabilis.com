@@ -268,17 +268,27 @@ describe("the real shelf instruments in the reader return stack", () => {
     expect(element<HTMLInputElement>('input[name="showLater"]').checked).toBe(true);
     expect(container.querySelector("[data-historical-status=later-development]")).not.toBeNull();
     expect(container.querySelector("[data-fizeau-observed]")).toBeNull();
-    expect(container.querySelector('a[href="/lab/shelf-fizeau/"]')?.textContent).toContain(
-      "historical observations",
-    );
+    expect(
+      [...container.querySelectorAll('a[href="/lab/shelf-fizeau/"]')].some((link) =>
+        link.textContent?.includes("historical observations"),
+      ),
+    ).toBe(true);
   });
 
   test("reading-only defers the shelf and disabling it mounts the real controls", async () => {
     document.documentElement.dataset.readingOnly = "on";
     await open("shelf-fizeau");
-    await until(() => container.querySelector("[data-load-experiment]") !== null);
+    await until(
+      () => container.querySelector('[data-prepared-worked-case="shelf-fizeau"]') !== null,
+    );
+    expect(container.querySelector("[data-load-experiment]")).not.toBeNull();
     expect(container.querySelector("section.shelf-lab")).toBeNull();
-    expect(container.textContent).toContain("The static worked case stays in the page");
+    const prepared = element('[data-prepared-worked-case="shelf-fizeau"]');
+    expect(prepared.textContent).toContain("0.4526");
+    expect(prepared.textContent).toContain("0.1979");
+    expect(prepared.textContent).toContain("not experimental observations");
+    expect(prepared.textContent).toContain("modern SI calibration");
+    const preparedMarkup = prepared.innerHTML;
     expect(workers).toBe(0);
     // The shared gate reads the document preference after hydration. A warm lazy chunk may
     // briefly retain its pure initial example, but it must not calculate another run or work.
@@ -286,6 +296,7 @@ describe("the real shelf instruments in the reader return stack", () => {
     document.documentElement.dataset.readingOnly = "off";
     await until(() => container.querySelector("section.shelf-lab[data-ready=true]") !== null);
     expect(element<HTMLInputElement>('input[name="waterSpeed"]').disabled).toBe(false);
+    expect(element('[data-prepared-worked-case="shelf-fizeau"]').innerHTML).toBe(preparedMarkup);
     expect(cache.size()).toBe(1);
     expect(lab("shelf-fizeau").dataset.runId).toMatch(/\/run\/1$/);
     expect(new Set(references.map((reference) => reference.instanceId)).size).toBe(1);

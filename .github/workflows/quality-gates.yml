@@ -222,6 +222,8 @@ jobs:
           src/discovery/connections
           src/components/foundations/FieldWaveSamples.test.tsx
           src/experiments/shelfOptics
+          scripts/instrument-worked-case.test.ts
+          src/experiments/workedCases/readingOnlyWorkedCases.test.tsx
           src/experiments/bm01
           src/experiments/groups
           src/components/lab/*Linked*.test.tsx

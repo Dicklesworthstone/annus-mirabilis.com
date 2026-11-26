@@ -270,3 +270,34 @@ test("does not publish unbounded cell data or a case without its model limits an
     "unavailable",
   );
 });
+
+test("a declared model-readout scope excludes neighboring observations and retains calibration notes", () => {
+  const measured = readouts
+    .replace("One accepted calculation", "Historical observations")
+    .replace("71.94%", "999%");
+  const result = readInstrumentWorkedCase(
+    laboratory(
+      controls +
+        "<section data-worked-case-results>" +
+        readouts +
+        "</section>" +
+        measured,
+    ),
+    { ...metadata, notes: ["Illustrative inputs with modern SI calibration."] },
+  );
+  assert.equal(result.kind, "prepared");
+  assert.ok(result.kind === "prepared");
+  assert.deepEqual(result.settings, [{ label: "Temperature (K)", value: "293.15" }]);
+  assert.deepEqual(result.notes, ["Illustrative inputs with modern SI calibration."]);
+  assert.equal(result.tables.length, 1);
+  assert.equal(result.tables[0]?.caption, "One accepted calculation");
+  assert.equal(result.tables[0]?.rows[0]?.[1]?.content[0]?.t, "71.94%");
+  assert.ok(!JSON.stringify(result).includes("999%"));
+  assert.equal(
+    readInstrumentWorkedCase(
+      laboratory(controls + "<section data-worked-case-results></section>" + measured),
+      metadata,
+    ).kind,
+    "unavailable",
+  );
+});

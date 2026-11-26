@@ -136,10 +136,12 @@ test("a later result cannot borrow the earlier inference recording receipt", asy
   expect((await lab.binding.capture(lab.session, accepted)).kind).toBe("unavailable");
 });
 
-test("a worker publication with incomplete observations cannot be captured", async () => {
+test("incomplete observations are refused before replacing the accepted inference trial", async () => {
+  let damagedPublications = 0;
   const lab = laboratory({
     transform(message) {
-      if (message.result.kind === "accepted")
+      if (message.result.kind === "accepted") {
+        damagedPublications++;
         return {
           ...message,
           result: {
@@ -150,17 +152,18 @@ test("a worker publication with incomplete observations cannot be captured", asy
             },
           },
         };
+      }
       return message;
     },
   });
   const previous = lab.session.getSnapshot().accepted;
-  expect((await applyWorkerSettings(lab.session, BM07_DEFAULTS)).kind).toBe("restored");
-  const accepted = lab.session.getSnapshot().accepted;
-  assert.ok(accepted && lab.binding.capture);
-  expect(accepted).not.toBe(previous);
-  expect(accepted.outputs.some((output) => output.quantityId === "observationPositions")).toBe(false);
+  assert.ok(previous && lab.binding.capture);
+  expect(previous.outputs.some((output) => output.quantityId === "observationPositions")).toBe(true);
+  expect((await applyWorkerSettings(lab.session, BM07_DEFAULTS)).kind).toBe("not-restored");
+  expect(damagedPublications).toBe(1);
+  expect(lab.session.getSnapshot().accepted).toBe(previous);
   expect(lab.session.acceptedPublication?.()).toBeNull();
-  expect((await lab.binding.capture(lab.session, accepted)).kind).toBe("unavailable");
+  expect((await lab.binding.capture(lab.session, previous)).kind).toBe("unavailable");
 });
 
 test("hypothetical coverage trials are not captured as a single synthetic trial", async () => {
