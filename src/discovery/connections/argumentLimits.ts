@@ -85,7 +85,11 @@ export const ARGUMENT_LIMIT_LABELS: Readonly<Record<ArgumentLimitKind, string>> 
 export type ArgumentLimit = ArgumentLimitSelection &
   Readonly<{
     note: EditorialNote;
-    sources: readonly Readonly<{ citation: MarginCitation; locator: string | undefined }>[];
+    sources: readonly Readonly<{
+      citation: MarginCitation;
+      locator: string | undefined;
+      role: MarginCitation["role"];
+    }>[];
   }>;
 
 /** Resolve every selected note and citation before rendering; never silently omit a gap. */
@@ -107,7 +111,7 @@ export function selectArgumentLimits(
           "argument-limit-citation-missing",
           `Connections argument limits: "${note.id}" cites missing bibliography record "${source.citationId}".`,
         );
-      return { citation, locator: source.locator };
+      return { citation, locator: source.locator, role: source.role ?? citation.role };
     });
     return { ...selection, note, sources };
   });

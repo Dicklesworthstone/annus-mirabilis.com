@@ -14,6 +14,11 @@
 import { citationTitleClose } from "../content/citationTitle.ts";
 import type { CitationRole } from "../content/schemas/reading.ts";
 import type { EditorialNoteKind } from "../content/schemas/source.ts";
+import {
+  type ExperimentLaunchIndex,
+  selectedExperimentLaunch,
+} from "../discovery/capstone/experimentLaunch.ts";
+import comparisonLinks from "../generated/margin-comparison-links.json";
 import misconceptionLinks from "../generated/misconception-links.json";
 import { labName } from "./actions/labNames.ts";
 import { InlineMathText } from "./InlineMathText.tsx";
@@ -106,13 +111,9 @@ const CITATION_ROLE_LABELS: Readonly<Record<CitationRole, string | undefined>> =
  * comparison's value is reading three answers to ONE question together, and grouping by question keeps
  * that at every width.
  *
- * TWO COLUMNS SHARE ONE INSTRUMENT, and the link text is where that is made honest. Both the 1906 box and
- * the four-momentum reading are formalisms ME-03 selects with its own `mode` control, and ME-03 DECLARES
- * NO MODE, so neither is addressable and both rows resolve only as the bare `me-03` (4d1100c9).
- * `/lab/me-03/` opens at its 1905 ledger default, so a link promising the box or the four-momentum view
- * would not keep its word. Each link instead says which mode the reader must choose once there, which
- * distinguishes the two and tells the truth about the extra step. When me-03 declares its modes, as
- * sr-02 declares `apparatus`, these become deep addresses and the sentence gets shorter.
+ * The 1906 box and four-momentum rows name existing ME-03 presets. Their generated session links
+ * select accepted settings on arrival, while the page imports only display data. Missing or refused
+ * selections keep the laboratory link and explicitly ask the reader to choose the named mode.
  *
  * NO REVIEW STATE REACHES THE READER (D-2026-09-25-no-review-status-banners): the record is
  * `reviewState: draft` and that word appears nowhere in the markup, only in `data-review-state` on the
@@ -125,6 +126,15 @@ function ComparisonTable({
   note: string;
   comparison: NonNullable<Margins["notes"][number]["comparison"]>;
 }) {
+  const openings = comparison.arguments.map((argument) => ({
+    argument,
+    launch: argument.presetId
+      ? selectedExperimentLaunch(
+          { instrumentId: argument.instrumentRef, presetId: argument.presetId },
+          comparisonLinks as ExperimentLaunchIndex,
+        )
+      : null,
+  }));
   return (
     <figure className="margin-comparison">
       <table>
@@ -165,11 +175,17 @@ function ComparisonTable({
         </tbody>
       </table>
       <p className="fine">
-        {comparison.arguments.map((argument, n) => (
+        {openings.map(({ argument, launch }, n) => (
           <span key={argument.id}>
             {n > 0 && " "}
             {argument.label}:{" "}
-            <a href={`/lab/${argument.instrumentRef}/`}>{openingWords(argument)}</a>, and{" "}
+            <a
+              href={launch?.href ?? `/lab/${argument.instrumentRef}/`}
+              data-comparison-preset={argument.presetId}
+            >
+              {openingWords(argument, launch?.ready ?? false)}
+            </a>
+            , and{" "}
             {/* Each link names its own row. Three links reading "the note this row cites" would be
                 three different destinations under one name, which the link-name gate refuses and a
                 screen reader cannot tell apart (WCAG 2.4.4); the misconception callouts carry the
@@ -179,6 +195,7 @@ function ComparisonTable({
               {"’"}s sources
             </a>
             {argument.sourceNoteId === note ? ", which is this note" : ""}.
+            {launch && <span className="fine"> {launch.notice}</span>}
           </span>
         ))}
       </p>
@@ -186,16 +203,20 @@ function ComparisonTable({
   );
 }
 
-/**
- * What a row's instrument link says. Two of the three rows address the same instrument because their
- * formalisms are its modes and no mode is addressable yet, so the words carry the difference and name
- * the step the reader still has to take. A row whose instrument needs no mode says so plainly.
- */
-function openingWords(argument: { id: string; instrumentRef: string }): string {
+/** Distinct names describe the selected formalism and retain a truthful manual fallback. */
+function openingWords(
+  argument: { id: string; instrumentRef: string },
+  opensPreset: boolean,
+): string {
   const instrument = argument.instrumentRef.toUpperCase();
-  if (argument.id === "box-1906") return `Open ${instrument} and choose the 1906 box`;
+  if (argument.id === "box-1906")
+    return opensPreset
+      ? `Open the 1906 box in ${instrument}`
+      : `Open ${instrument} and choose the 1906 box`;
   if (argument.id === "four-momentum-modern")
-    return `Open ${instrument} and choose the four-momentum formalism`;
+    return opensPreset
+      ? `Open the four-momentum comparison in ${instrument}`
+      : `Open ${instrument} and choose the four-momentum formalism`;
   return `Open ${instrument}`;
 }
 
@@ -305,6 +326,7 @@ export function PaperMargins({
                 {note.sourceSupport.map((source, n) => {
                   const c = citations.get(source.citationId);
                   if (!c) return null;
+                  const role = source.role ?? c.role;
                   // A source that IS this page's paper prints the journal locator alone. Measured on
                   // 1ec891a0: each of light-quanta's five entries opened with the paper's full
                   // German title, the title of the page the reader is standing on, before the volume
@@ -323,11 +345,11 @@ export function PaperMargins({
                   // The page's own paper is always a primary source and is printed as the bare
                   // journal locator, so a role word there would be noise on the one citation a
                   // reader already knows the standing of.
-                  const roleLabel = isOwnPaper ? undefined : CITATION_ROLE_LABELS[c.role];
+                  const roleLabel = isOwnPaper ? undefined : CITATION_ROLE_LABELS[role];
                   return (
                     <span
                       key={`${source.citationId}-${source.locator ?? n}`}
-                      data-citation-role={c.role}
+                      data-citation-role={role}
                     >
                       {n > 0 && " "}
                       {isOwnPaper ? (

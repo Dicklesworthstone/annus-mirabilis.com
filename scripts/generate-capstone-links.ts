@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Join each capstone's authored selection to the laboratory's real settings loader. Physics and
+ * Join capstone and margin-comparison selections to the laboratory's real settings loader. Physics and
  * parameter validation remain in that laboratory. Only public links reach the server components;
  * the worksheet never imports a session, evaluator or the whole experiment registry.
  */
@@ -17,10 +17,12 @@ import {
   isExperimentLaunchHref,
 } from "../src/discovery/capstone/experimentLaunch.ts";
 import { loadCapstone } from "../src/discovery/capstone/loadCapstone.ts";
+import { resolveCatalogueAddress } from "../src/experiments/catalogue.ts";
 import { encodeTapePermalink } from "../src/experiments/permalink/codec.ts";
 import { MAX_PERMALINK_URL_LENGTH } from "../src/experiments/permalink/codecCore.ts";
 import { draftTapeForSettings } from "../src/experiments/permalink/draftTape.ts";
 import { tapeForSettings } from "../src/experiments/permalink/sessionTape.ts";
+import { loadPaperMargins } from "../src/reader/marginRecords.ts";
 import { QUERY_BINDINGS, settingsForLab } from "./generate-misconception-links.ts";
 import { buildTapeLinks, DRAFT_BINDINGS, SESSION_BINDINGS } from "./generate-tape-links.ts";
 
@@ -151,16 +153,50 @@ export function buildCapstoneLinks(): ExperimentLaunchIndex {
   return Object.freeze(links);
 }
 
+/** Comparison presets have their own output map; misconception record ids never index it. */
+export function buildMarginComparisonLinks(root = process.cwd()): ExperimentLaunchIndex {
+  const links: Record<string, ExperimentLaunch> = {};
+  for (const paper of CAPSTONE_PAPERS) {
+    for (const note of loadPaperMargins(paper, root).notes) {
+      for (const argument of note.comparison?.arguments ?? []) {
+        if (!argument.presetId) continue;
+        const selection = {
+          instrumentId: argument.instrumentRef,
+          presetId: argument.presetId,
+        };
+        const address = resolveCatalogueAddress(argument.instrumentRef);
+        links[experimentSelectionKey(selection)] =
+          "error" in address || address.mode !== null
+            ? unavailable(
+                argument.instrumentRef,
+                "A comparison preset must name its declared laboratory without a second mode.",
+              )
+            : declaredPreset(selection, root);
+      }
+    }
+  }
+  return Object.freeze(links);
+}
+
 export async function generateCapstoneLinks() {
   const links = buildCapstoneLinks();
   const destination = resolve(process.cwd(), "src/generated/capstone-links.json");
   await mkdir(dirname(destination), { recursive: true });
   await writeFile(destination, `${JSON.stringify(links, null, 2)}\n`);
+  const comparisons = buildMarginComparisonLinks();
+  await writeFile(
+    resolve(process.cwd(), "src/generated/margin-comparison-links.json"),
+    `${JSON.stringify(comparisons, null, 2)}\n`,
+  );
   const entries = Object.values(links);
   return {
     selections: entries.length,
     linked: entries.filter((link) => link.status === "ready").length,
     unavailable: entries.filter((link) => link.status === "unavailable"),
+    comparisonSelections: Object.keys(comparisons).length,
+    unavailableComparisons: Object.values(comparisons).filter(
+      (link) => link.status === "unavailable",
+    ),
   };
 }
 

@@ -27,8 +27,8 @@ export function ArgumentLimits({ entries }: { entries: readonly ArgumentLimit[] 
       <p className="eyebrow">Four papers · Assumptions, conventions and later debate</p>
       <h2 id="argument-limits-heading">Where the arguments reach their limits</h2>
       <p>
-        Six notes from the papers’ margins: an approximation, a step beyond a model, a convention,
-        a disputed argument and the scope of the historical claims. Open a note to read its full
+        Six notes from the papers’ margins: an approximation, a step beyond a model, a convention, a
+        disputed argument and the scope of the historical claims. Open a note to read its full
         account and follow the cited passages.
       </p>
       {entries.map((entry) => {
@@ -60,21 +60,20 @@ export function ArgumentLimits({ entries }: { entries: readonly ArgumentLimit[] 
               </p>
               <h4 id={`${id}-sources`}>Sources</h4>
               <ul className="fine" aria-labelledby={`${id}-sources`}>
-                {entry.sources.map(({ citation, locator }, index) => {
+                {entry.sources.map(({ citation, locator, role }) => {
                   const where = locator
                     ? `${citation.locator.replace(/\.$/, "")}, ${locator}.`
                     : citation.locator;
                   return (
                     <li
-                      key={`${citation.id}-${index}`}
+                      key={`${citation.id}-${locator ?? ""}`}
                       data-citation-id={citation.id}
-                      data-citation-role={citation.role}
+                      data-citation-role={role}
                     >
                       <cite>
                         <a href={citation.url}>{citation.title}</a>
                       </cite>
-                      {citationTitleClose(citation.title)} {where}{" "}
-                      {SOURCE_ROLE_LABELS[citation.role]}.
+                      {citationTitleClose(citation.title)} {where} {SOURCE_ROLE_LABELS[role]}.
                     </li>
                   );
                 })}
