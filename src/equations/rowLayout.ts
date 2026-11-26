@@ -78,6 +78,7 @@ type Chain = Exclude<ReturnType<typeof relationChain>, string>;
 /** The printed sign of each relation, as the single-line renderer prints it (checked by test). */
 const SIGN: Readonly<Record<Relation["operator"], string>> = {
   "=": "=",
+  "<": "<",
   approx: "\\approx",
   define: ":=",
   le: "\\le",

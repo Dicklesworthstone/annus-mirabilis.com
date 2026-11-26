@@ -133,7 +133,7 @@ describe("an authored row layout", () => {
         termId: `eq-model-x.t.${t}`,
         quantityId: "diffusionCoefficient",
       }) as Expression;
-    for (const operator of ["=", "approx", "define", "le", "ge"] as const) {
+    for (const operator of ["=", "approx", "define", "le", "ge", "<"] as const) {
       const tree = {
         kind: "relation",
         operator,
