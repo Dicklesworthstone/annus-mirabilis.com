@@ -41,7 +41,7 @@ describe("the closing collinear velocity displays of section 5", () => {
       const record = result.displays.find((row) => row.display === display.display);
       assert(record?.semantics);
       expect(record.semantics.dimensionStatus).toBe("consistent");
-      expect(record.semantics.next.href).toBe("/lab/sr-06/");
+      expect(record.semantics.next.href).toBe(display === limiting ? "/lab/sr-06/cases/light-ray/" : "/lab/sr-06/");
       expect(record.html.split('<span class="katex-html"')[0]).toBe(
         compilePrintedDisplay(display).html.split('<span class="katex-html"')[0],
       );

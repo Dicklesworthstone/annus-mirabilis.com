@@ -1,4 +1,5 @@
 /** The magnitude of a velocity with both longitudinal and transverse motion in §5. */
+import { SR06_PAPER_CASES } from "../../experiments/sr06/paperCases.ts";
 import type { RelativityOperationGuide } from "./relativityOperations.ts";
 
 const U = "velocityComposed";
@@ -27,7 +28,7 @@ const correction = "row1.right.numerator.radicand.args.1";
 export const RELATIVITY_OBLIQUE_SPEED_GUIDE: RelativityOperationGuide = {
   context: "Section 5 combines the transformed x and y velocity components into the speed U measured in K.",
   premise: "Choose the common longitudinal axis along the boost. In Einstein's angle convention α is the angle between the two velocity directions. Equivalently, with a fixed positive x direction, use signed v and measure α from that axis. The magnitude of the frame speed is below the positive light speed V and the particle or signal has speed 0 ≤ w ≤ V in k. A zero input speed is obtained by continuity.",
-  next: { href: "/lab/sr-06/", label: "Compare the speed with its transformed components in the velocity-composition lab" },
+  next: SR06_PAPER_CASES.oblique.link,
   symbolIndices: {},
   expectedRowDimensions: [["1", "0", "-1", "0", "0", "0"]],
   functions: { sin: sine, cos: cosine },

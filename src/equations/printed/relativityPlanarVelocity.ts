@@ -1,4 +1,5 @@
 /** Einstein's section 5 follows one uniformly moving point from k into K. */
+import { SR06_PAPER_CASES } from "../../experiments/sr06/paperCases.ts";
 import type { Expression } from "../ast.ts";
 import type { RelativityOperationGuide } from "./relativityOperations.ts";
 
@@ -14,10 +15,7 @@ const t = "coordinateTimeStationary";
 const tau = "coordinateTimeMoving";
 const premise =
   "The point passes the common origin when both clocks read zero. It moves uniformly in the ξ, η plane of k. Frame k moves at constant signed speed v along the parallel x axes of K and k, with |v| < V. Each frame uses its own synchronized clock readings.";
-const next = {
-  href: "/lab/sr-06/",
-  label: "Compare parallel and transverse velocity components in the velocity-composition lab",
-};
+const next = SR06_PAPER_CASES.transverse.link;
 
 function read(
   kind: Expression["kind"],

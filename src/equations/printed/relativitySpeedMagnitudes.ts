@@ -1,4 +1,5 @@
 /** The two printed definitions of squared planar speed in §5, p. 905. */
+import { SR06_PAPER_CASES } from "../../experiments/sr06/paperCases.ts";
 import type { RelativityOperationGuide } from "./relativityOperations.ts";
 
 type Primary = RelativityOperationGuide["primary"][string];
@@ -43,7 +44,7 @@ function positionRate(axis: "x" | "y", path: string): Record<string, Primary> {
 export const RELATIVITY_SPEED_MAGNITUDES_GUIDE: RelativityOperationGuide = {
   context: "Section 5 defines U and w from the components of the same particle’s motion as measured by K and k.",
   premise: "The axes in each frame are orthogonal, and the trajectory is confined to their first two directions. U and w are nonnegative speeds; individual components retain their signs.",
-  next: { href: "/lab/sr-06/", label: "Compare planar velocity components and magnitudes in the lab" },
+  next: SR06_PAPER_CASES.transverse.link,
   expectedRowDimensions: [squaredSpeed, squaredSpeed],
   allowTrajectoryDerivatives: true,
   symbolIndices: { x: "x", y: "y" },

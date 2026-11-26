@@ -209,6 +209,7 @@ const sourcePaths = [
   "src/equations/printed/displayTerms.ts",
   "src/equations/printed/paperDisplays.ts",
   "src/equations/printed/fallbackFacts.ts",
+  "src/experiments/sr06/paperCases.ts",
   "src/equations/termFacts.ts",
   "src/content/quantities/readerDescriptions.ts",
   "content/reader-descriptions/quantities.yaml",

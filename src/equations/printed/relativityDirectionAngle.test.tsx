@@ -19,16 +19,17 @@ const compiled = compilePrintedSourceSemantics(display, original, quantities);
 assert(compiled);
 const row = compiled.semantics.rows[0];
 assert(row?.kind === "relation" && row.right.kind === "function");
+const angleTree = row.right;
 
 describe("the direction of the particle's velocity in the moving system", () => {
   test("arctg retains the principal-branch and axis limitations of the printed quotient", () => {
-    expect(row.right.name).toBe("atan");
+    expect(angleTree.name).toBe("atan");
     for (const [x, y] of [[1, 0], [1, 1], [1, -1], [-1, -1], [-1, 1]] as const) {
       const values = Object.fromEntries(display.terms.map((t) => [t.termId, t.glyph === "w_y" ? y : x]));
-      expect(evaluateExpression(row.right, values)).toBeCloseTo(Math.atan(y / x), 12);
+      expect(evaluateExpression(angleTree, values)).toBeCloseTo(Math.atan(y / x), 12);
     }
     const vertical = Object.fromEntries(display.terms.map((t) => [t.termId, t.glyph === "w_x" ? 0 : 1]));
-    expect(() => evaluateExpression(row.right, vertical)).toThrow();
+    expect(() => evaluateExpression(angleTree, vertical)).toThrow();
     expect(compiled.semantics.premise).toContain("point at rest has no velocity direction");
     expect(compiled.semantics.operations.find((op) => op.path === "row1.right")?.why).toContain("quadrant");
   });
@@ -43,7 +44,7 @@ describe("the direction of the particle's velocity in the moving system", () => 
     expect(payload.html.split('<span class="katex-html"')[0]).toBe(original.html.split('<span class="katex-html"')[0]);
     const html = renderToStaticMarkup(<PrintedOperationReference reading={payload.semantics} spoken={payload.spoken} />);
     expect(html).toContain("Recover the direction from its slope");
-    expect(html).toContain("/lab/sr-06/");
+    expect(html).toContain("/lab/sr-06/cases/oblique/");
     for (const op of payload.semantics.operations) expect(payload.html).toContain('data-op="' + op.id + '"');
     for (const term of display.terms) expect(payload.html).toContain('data-term="' + term.termId + '"');
   });

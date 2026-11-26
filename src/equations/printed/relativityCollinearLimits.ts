@@ -1,4 +1,5 @@
 /** The light-speed substitution and interchange of collinear velocities at the end of §5. */
+import { SR06_PAPER_CASES } from "../../experiments/sr06/paperCases.ts";
 import type { RelativityOperationGuide } from "./relativityOperations.ts";
 
 const SPEED = ["1", "0", "-1", "0", "0", "0"];
@@ -95,7 +96,7 @@ export const RELATIVITY_COLLINEAR_LIMIT_GUIDES: Readonly<Record<string, Relativi
     context: "Section 5 puts the light speed V into one slot of the collinear composition law.",
     premise:
       "V is positive and the other signed speed w satisfies |w| < V. The printed substitution v = V evaluates the algebraic boundary of the addition law. A physical inertial frame must move below V. Interchanging the two collinear inputs gives the physical reading of a light signal moving at V as measured from another inertial frame.",
-    next: lab,
+    next: SR06_PAPER_CASES["light-ray"].link,
     symbolIndices: {},
     expectedRowDimensions: [SPEED, SPEED],
     allowChainedRelations: true,

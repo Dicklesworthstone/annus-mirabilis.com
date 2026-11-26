@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { VelocityCompositionComparison } from "../../../components/lab/sr06/VelocityCompositionLab.tsx";
+import { SR06_PAPER_CASES } from "../../../experiments/sr06/paperCases.ts";
 import { validateSr06Parameters } from "../../../experiments/sr06/parameters.ts";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr06/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
@@ -40,6 +41,9 @@ export default function VelocityCompositionPage() {
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>
+          {Object.values(SR06_PAPER_CASES).map(example => (
+            <li key={example.link.href}><a href={example.link.href}>{example.link.label}</a></li>
+          ))}
           <li>
             <a href="/papers/special-relativity/#s5">Read §5 of the 1905 kinematics paper</a>
           </li>

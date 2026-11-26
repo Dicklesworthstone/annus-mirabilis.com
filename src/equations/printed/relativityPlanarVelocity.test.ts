@@ -32,7 +32,7 @@ describe("the two printed planar velocity maps of section 5", () => {
       assert(payload && semantics);
       expect(semantics.dimensionStatus).toBe("consistent");
       expect(semantics.rows).toHaveLength(3);
-      expect(semantics.next.href).toBe("/lab/sr-06/");
+      expect(semantics.next.href).toBe("/lab/sr-06/cases/transverse/");
       const original = compilePrintedDisplay(display);
       expect(payload.html.split('<span class="katex-html"')[0]).toBe(
         original.html.split('<span class="katex-html"')[0],

@@ -1,4 +1,5 @@
 /** Einstein's printed arctg and Latin component subscripts in §5 (p. 905). */
+import { SR06_PAPER_CASES } from "../../experiments/sr06/paperCases.ts";
 import type { RelativityOperationGuide } from "./relativityOperations.ts";
 
 const X = "velocityComponentXMoving";
@@ -14,7 +15,7 @@ const tangent = {
 export const RELATIVITY_DIRECTION_ANGLE_GUIDE: RelativityOperationGuide = {
   context: "The paper introduces α before using its sine and cosine in the general composition law. It prints wᵧ and wₓ here for the moving-frame components called wη and wξ in the preceding display.",
   premise: "The positive longitudinal axis points along the boost. The direction requires a nonzero moving-frame velocity. The printed ratio requires wₓ ≠ 0. A purely transverse velocity has direction ±π/2 by continuity; a point at rest has no velocity direction.",
-  next: { href: "/lab/sr-06/", label: "Vary the velocity direction in the composition lab" },
+  next: SR06_PAPER_CASES.oblique.link,
   expectedRowDimensions: [["0", "0", "0", "0", "0", "0"]],
   symbolIndices: {},
   functions: { atan: tangent },
