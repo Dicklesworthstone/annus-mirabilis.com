@@ -267,7 +267,7 @@ class RowParser {
       next &&
       (next.term ||
         /^[0-9]$/.test(next.value) ||
-        ["{", "(", "[", "\\left", "\\frac", "\\sqrt", "\\cos", "\\lg", "\\pi"].includes(
+        ["{", "(", "[", "\\left", "\\frac", "\\sqrt", "\\cos", "\\sin", "\\lg", "\\pi"].includes(
           next.value,
         ) ||
         (this.options.allowCalculus && next.value === "\\int") ||
@@ -562,10 +562,14 @@ class RowParser {
         [{ name: "radicand", node: radicand.node }],
       );
     }
-    if (token.value === "\\cos" || token.value === "\\lg") {
+    if (token.value === "\\cos" || token.value === "\\sin" || token.value === "\\lg") {
       const argument = this.unary();
       return this.operation(
-        { kind: "function", name: token.value === "\\lg" ? "ln" : "cos", argument: argument.tree },
+        {
+          kind: "function",
+          name: token.value === "\\lg" ? "ln" : token.value === "\\sin" ? "sin" : "cos",
+          argument: argument.tree,
+        },
         token.start,
         argument.end,
         [{ name: "argument", node: argument }],

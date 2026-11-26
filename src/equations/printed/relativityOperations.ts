@@ -12,6 +12,7 @@ import { RELATIVITY_ELECTRODYNAMICS_GUIDES } from "./relativityElectrodynamics.t
 import { RELATIVITY_FIELD_GUIDES } from "./relativityFields.ts";
 import { RELATIVITY_KINEMATICS_GUIDES } from "./relativityKinematics.ts";
 import { RELATIVITY_LIGHT_COMPLEX_GUIDES } from "./relativityLightComplex.ts";
+import { RELATIVITY_OBLIQUE_SPEED_GUIDE } from "./relativityObliqueSpeed.ts";
 import { RELATIVITY_PLANAR_VELOCITY_GUIDES } from "./relativityPlanarVelocity.ts";
 import { RELATIVITY_SYNCHRONIZATION_GUIDES } from "./relativitySynchronization.ts";
 
@@ -21,7 +22,10 @@ export type RelativityOperationGuide = MassEnergyOperationGuide &
     primary: Readonly<
       Record<
         string,
-        MassEnergyOperationGuide["primary"][string] & { readonly symbolIndex?: string }
+        MassEnergyOperationGuide["primary"][string] & {
+          readonly symbolIndex?: string;
+          readonly functionName?: Extract<Expression, { kind: "function" }>["name"];
+        }
       >
     >;
     /** Each source row has its own authored physical dimension. */
@@ -179,6 +183,7 @@ export const RELATIVITY_OPERATION_GUIDES: Readonly<Record<string, RelativityOper
   ...RELATIVITY_KINEMATICS_GUIDES,
   ...RELATIVITY_LIGHT_COMPLEX_GUIDES,
   ...RELATIVITY_PLANAR_VELOCITY_GUIDES,
+  "eq-s5-d5": RELATIVITY_OBLIQUE_SPEED_GUIDE,
   ...RELATIVITY_SYNCHRONIZATION_GUIDES,
   "eq-s3-d16": factorGuide,
   "eq-s6-d3": {

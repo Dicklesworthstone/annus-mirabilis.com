@@ -414,7 +414,8 @@ export function compilePrintedSourceSemantics(
     const symbolIndex = relativity?.primary[path]?.symbolIndex;
     const exponent = radiation?.primary[path]?.exponent ?? spectralEntropy?.primary[path]?.exponent;
     const calculus = brownian?.primary[path] ?? spectralEntropy?.primary[path];
-    const functionName = spectralEntropy?.primary[path]?.functionName;
+    const functionName =
+      relativity?.primary[path]?.functionName ?? spectralEntropy?.primary[path]?.functionName;
     const argumentsOfSymbol =
       node?.tree.kind === "symbol" ? (node.tree.args ?? (node.tree.at ? [node.tree.at] : [])) : [];
     if (
