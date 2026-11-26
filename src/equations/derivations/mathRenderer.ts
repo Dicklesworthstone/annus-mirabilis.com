@@ -147,7 +147,7 @@ export function expressionToDerivationLatex(
                 ? "\\leq"
                 : n.operator === "ge"
                   ? "\\geq"
-                  : "=";
+                  : n.operator;
         s = `${render(n.left)} ${operator} ${render(n.right)}`;
         break;
       }

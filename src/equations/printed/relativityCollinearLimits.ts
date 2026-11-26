@@ -8,7 +8,89 @@ const V = "frameSpeed";
 const U = "velocityComposed";
 const lab = { href: "/lab/sr-06/", label: "Try collinear velocities in the composition lab" };
 
+const DEFICIT = "speedDeficitFromLight";
+type Primary = RelativityOperationGuide["primary"][string];
+
+function deficit(index: "k" | "l"): Primary {
+  return {
+    kind: "symbol",
+    quantities: [DEFICIT],
+    symbolIndex: index,
+    title: index === "k" ? "Read the first shortfall" : "Read the second shortfall",
+    does: index === "k" ? "Use κ = V − v." : "Use λ = V − w.",
+    why: "Each positive shortfall belongs to one input velocity. The two inputs may approach V by different amounts.",
+    foundation: "frames-events",
+  };
+}
+
+function commonNumerator(path: string): Record<string, Primary> {
+  const subtract: Primary = {
+    kind: "negate",
+    quantities: [DEFICIT],
+    title: "Subtract the input's shortfall",
+    does: "Subtract the whole positive shortfall from the two light-speed contributions.",
+    why: "Writing each input as V minus its shortfall gives v + w = 2V − κ − λ.",
+    foundation: "bridge-negative-numbers-direction",
+  };
+  return {
+    [path + ".args.1"]: subtract,
+    [path + ".args.1.argument"]: deficit("k"),
+    [path + ".args.2"]: subtract,
+    [path + ".args.2.argument"]: deficit("l"),
+  };
+}
+
 export const RELATIVITY_COLLINEAR_LIMIT_GUIDES: Readonly<Record<string, RelativityOperationGuide>> = {
+  "eq-s5-d7": {
+    context: "Section 5 compares the sum of two forward subluminal velocities with the speed of light.",
+    premise:
+      "V is positive. Write the two forward velocities as v = V − κ and w = V − λ, with 0 < κ, λ ≤ V. Both shortfalls are measured in speed units. The numerator 2V − κ − λ is v + w and is nonnegative.",
+    next: lab,
+    symbolIndices: { "\\varkappa": "k", "\\lambda": "l" },
+    expectedRowDimensions: [SPEED, SPEED],
+    allowTerminalStrictBound: true,
+    primary: {
+      row1: {
+        kind: "relation",
+        quantities: [U, C, DEFICIT],
+        literalNumbers: ["2", "2"],
+        title: "Express the result using the two shortfalls",
+        does: "Multiply V by the fraction whose numerator is v + w and whose denominator adds κλ/V to that same sum.",
+        why: "The fraction compares two speeds. Its size determines the composed speed as a fraction of V.",
+        foundation: "frames-events",
+      },
+      "row1.right.args.1": {
+        kind: "quotient",
+        quantities: [C, DEFICIT],
+        literalNumbers: ["2", "2"],
+        title: "Compare the numerator with the larger denominator",
+        does: "Divide 2V − κ − λ by itself plus κλ/V.",
+        why: "The extra term is positive for two subluminal inputs. The denominator is therefore positive and strictly larger than the nonnegative numerator, including when both inputs are zero.",
+        foundation: "bridge-fractions-ratios",
+      },
+      ...commonNumerator("row1.right.args.1.numerator"),
+      ...commonNumerator("row1.right.args.1.denominator"),
+      "row1.right.args.1.denominator.args.3": {
+        kind: "quotient",
+        quantities: [DEFICIT, C],
+        title: "Find the positive excess in the denominator",
+        does: "Multiply the two shortfalls and divide by V.",
+        why: "This term vanishes if either shortfall is zero. That boundary case belongs to the next display and explains why the present conclusion is strict.",
+        foundation: "bridge-fractions-ratios",
+      },
+      "row1.right.args.1.denominator.args.3.numerator.args.0": deficit("k"),
+      "row1.right.args.1.denominator.args.3.numerator.args.1": deficit("l"),
+      row2: {
+        kind: "relation",
+        quantities: [U, C],
+        literalNumbers: [],
+        title: "Read the strict upper bound",
+        does: "The final sign says U is strictly less than V.",
+        why: "Multiplication of a fraction below one by the positive speed V leaves a speed below V. Arbitrarily small positive shortfalls can bring U close to V, while equality remains excluded under the stated conditions.",
+        foundation: "frames-events",
+      },
+    },
+  },
   "eq-s5-d8": {
     context: "Section 5 puts the light speed V into one slot of the collinear composition law.",
     premise:

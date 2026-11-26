@@ -67,6 +67,10 @@ function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
       reason: "monotonic-function requires both from and to to be relations.",
     };
   }
+  if (from.operator === "<" || to.operator === "<") {
+    // Domain text and a named branch do not certify a strictly increasing map on both sides.
+    return { outcome: "unverifiable", reason: "This rule has no checked order conditions for a strict bound." };
+  }
   const expected: Expression = {
     kind: "relation",
     operator: from.operator,

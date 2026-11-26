@@ -142,7 +142,9 @@ export function expressionToSpokenText(expr: Expression): string {
               ? "is at most"
               : expr.operator === "ge"
                 ? "is at least"
-                : "equals";
+                : expr.operator === "<"
+                  ? "is less than"
+                  : "equals";
       return `${expressionToSpokenText(expr.left)} ${opWord} ${expressionToSpokenText(expr.right)}`;
     }
 

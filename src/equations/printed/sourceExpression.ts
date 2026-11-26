@@ -42,6 +42,8 @@ export type SourceExpression = Readonly<{
 export type SourceExpressionOptions = Readonly<{
   /** Independent relations separated by &\\qquad inside an aligned environment. */
   allowAlignedColumns?: boolean;
+  /** A = B < C has a final strict relation on this same left side. */
+  allowTerminalStrictBound?: boolean;
   /** A source-authored list of standalone expressions, separated by top-level commas. */
   allowExpressionList?: boolean;
   /** Only named quantity functions consume a following parenthesized argument. */
@@ -195,19 +197,29 @@ class RowParser {
     const rows = [row];
     // A = B = C means both A = B and A = C. Only the new right side and equals sign
     // are printed again: reusing A's tree must not invent another physical term occurrence.
-    // Other relation kinds and nested equalities remain outside this opt-in grammar.
-    while (allowChainedRelations && operator === "=" && this.peek()?.value === "=") {
-      const nextSign = this.take("=");
+    // A separately admitted A = B < C similarly states A < C. The bound must end the chain.
+    while (
+      operator === "=" &&
+      ((allowChainedRelations && this.peek()?.value === "=") ||
+        (this.options.allowTerminalStrictBound && rows.length === 1 && this.peek()?.value === "<"))
+    ) {
+      const nextSign = this.take();
       const nextRight = this.sum();
       rows.push(
         this.operation(
-          { kind: "relation", operator, left: leftTree, right: nextRight.tree },
+          {
+            kind: "relation",
+            operator: nextSign.value === "<" ? "<" : "=",
+            left: leftTree,
+            right: nextRight.tree,
+          },
           nextSign.start,
           nextRight.end,
           [{ name: "right", node: nextRight }],
           nextSign,
         ),
       );
+      if (nextSign.value === "<") break;
     }
     this.finish();
     return { rows, continuation };

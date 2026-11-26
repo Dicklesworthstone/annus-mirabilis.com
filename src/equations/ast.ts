@@ -41,8 +41,8 @@ export type Expression =
   | (Op &
       Readonly<{
         kind: "relation";
-        /** "le" and "ge" state a bound: an energy budget, a threshold, a count at most. */
-        operator: "=" | "approx" | "define" | "le" | "ge";
+        /** The strict speed bound uses "<"; "le" and "ge" include equality at the endpoint. */
+        operator: "=" | "approx" | "define" | "le" | "ge" | "<";
         left: Expression;
         right: Expression;
       }>)
@@ -315,7 +315,7 @@ export function parseExpression(
         fail(path, "Unsupported function.");
       if (
         kind === "relation" &&
-        !["=", "approx", "define", "le", "ge"].includes(String(o.operator))
+        !["=", "approx", "define", "le", "ge", "<"].includes(String(o.operator))
       )
         fail(path, "Unsupported relation.");
       if (

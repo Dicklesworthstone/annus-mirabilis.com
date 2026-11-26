@@ -352,6 +352,7 @@ export function compilePrintedSourceSemantics(
     {
       allowAlignedColumns: relativity?.allowAlignedColumns ?? false,
       allowExpressionList: relativity?.allowExpressionList ?? false,
+      allowTerminalStrictBound: relativity?.allowTerminalStrictBound ?? false,
       ...(relativity?.functionQuantities
         ? { functionQuantities: relativity.functionQuantities }
         : {}),
@@ -367,15 +368,19 @@ export function compilePrintedSourceSemantics(
         ? budget.relationOperator
         : "=";
   if (
-    parsed.rows.some(({ tree }) =>
-      tree.kind === "relation" ? tree.operator !== expectedOperator : expectedOperator !== null,
-    )
+    (relativity?.allowTerminalStrictBound && parsed.rows.length !== 2) ||
+    parsed.rows.some(({ tree }, index) => {
+      const operator = relativity?.allowTerminalStrictBound && index === 1 ? "<" : expectedOperator;
+      return tree.kind === "relation" ? tree.operator !== operator : operator !== null;
+    })
   )
     throw new SourceSemanticsError(
       "printed-source-operation",
       display.display,
-      "The source must retain the authored " +
-        (expectedOperator === null ? "standalone expression." : expectedOperator + " relation."),
+      relativity?.allowTerminalStrictBound
+        ? "The source must retain the equality followed by its strict upper bound."
+        : "The source must retain the authored " +
+          (expectedOperator === null ? "standalone expression." : expectedOperator + " relation."),
     );
   const nodes = sourceNodes(parsed);
   const printedTerms = nodes.flatMap(({ node }) =>

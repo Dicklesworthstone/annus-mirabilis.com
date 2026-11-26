@@ -32,6 +32,8 @@ export type RelativityOperationGuide = MassEnergyOperationGuide &
     allowChainedRelations?: boolean;
     /** A single printed expression without a relation sign. */
     standaloneExpression?: boolean;
+    /** The printed chain A = B < C, retaining the strict upper bound. */
+    allowTerminalStrictBound?: boolean;
     /** Ordered standalone expressions, such as the three semiaxes in section 4. */
     allowExpressionList?: boolean;
     /** A printed alignment can place independent equalities in adjacent columns. */

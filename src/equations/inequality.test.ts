@@ -83,6 +83,15 @@ describe("a relation may state a bound", () => {
     );
   });
 
+  test("a strict bound preserves its operator in the model equation and its projection", () => {
+    const parsed = parseEquationRecord(record("<", quantum), "fixture");
+    expect(parsed.tree).toMatchObject({ kind: "relation", operator: "<" });
+    expect(compileEquation(parsed).plainLatex).toBe("K_{\\mathrm{max}} < h\\,\\nu");
+    expect(() => parseEquationRecord(record("<", sym("nu", "frequency")), "fixture")).toThrow(
+      /exponents differ/,
+    );
+  });
+
   test("a bound between an energy and a frequency is refused, as an equality would be", () => {
     expect(() => parseEquationRecord(record("le", sym("nu", "frequency")), "fixture")).toThrow(
       /exponents differ/,

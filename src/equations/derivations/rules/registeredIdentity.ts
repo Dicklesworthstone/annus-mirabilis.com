@@ -210,6 +210,9 @@ function vanishingSubstitutionHolds(
 }
 
 function check({ from, to, params, changed }: RuleCheckArgs): RuleCheckResult {
+  if ((from.kind === "relation" && from.operator === "<") || (to.kind === "relation" && to.operator === "<")) {
+    return { outcome: "unverifiable", reason: "The registered identities do not certify a strict inequality." };
+  }
   const p = params as unknown as RegisteredIdentityParams;
   if (!p?.identityId || typeof p.identityId !== "string" || !p.identityId.trim()) {
     return { outcome: "fail", reason: "registered-identity requires a valid identityId." };

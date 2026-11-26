@@ -95,7 +95,7 @@ function check({ from, to, params }: RuleCheckArgs): RuleCheckResult {
     };
   }
   if (
-    (from.operator === "le" || from.operator === "ge") &&
+    (from.operator === "le" || from.operator === "ge" || from.operator === "<") &&
     (p.operation === "multiply" || p.operation === "divide")
   ) {
     return {

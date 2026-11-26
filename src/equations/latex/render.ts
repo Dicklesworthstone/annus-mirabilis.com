@@ -288,7 +288,7 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
                 ? "\\le"
                 : n.operator === "ge"
                   ? "\\ge"
-                  : "=";
+                  : n.operator;
         s = `${render(n.left)} ${op} ${render(n.right)}`;
         break;
       }
