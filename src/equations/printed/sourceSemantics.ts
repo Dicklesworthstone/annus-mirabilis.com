@@ -358,6 +358,7 @@ export function compilePrintedSourceSemantics(
         : {}),
       ...(calculusGuide?.functionArities ? { functionArities: calculusGuide.functionArities } : {}),
       allowCalculus: calculusGuide?.allowCalculus ?? false,
+      allowTrajectoryDerivatives: relativity?.allowTrajectoryDerivatives ?? false,
       allowExponentials: calculusGuide?.allowExponentials ?? false,
     },
   );

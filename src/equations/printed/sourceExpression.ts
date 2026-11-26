@@ -52,6 +52,8 @@ export type SourceExpressionOptions = Readonly<{
   functionArities?: Readonly<Record<string, readonly number[]>>;
   /** Definite integrals and matched first/higher partial derivatives, never formal d fractions. */
   allowCalculus?: boolean;
+  /** First ordinary derivatives of a bound coordinate along a trajectory. */
+  allowTrajectoryDerivatives?: boolean;
   /** The printed e with an exponent denotes exp, not an unbound physical quantity. */
   allowExponentials?: boolean;
 }>;
@@ -369,20 +371,24 @@ class RowParser {
     return Number(order.value);
   }
 
-  private derivative(start: number): SourceExpressionNode {
+  private derivative(start: number, differential: "\\partial" | "d"): SourceExpressionNode {
     this.take("{");
-    this.take("\\partial");
-    const order = this.derivativeOrder();
-    const expression = this.sum();
+    this.take(differential);
+    const partial = differential === "\\partial";
+    const order = partial ? this.derivativeOrder() : 1;
+    const expression = partial ? this.sum() : this.atom();
+    if (!partial && expression.tree.kind !== "symbol")
+      this.fail("A trajectory derivative must name a bound coordinate.");
     this.take("}");
     this.take("{");
-    this.take("\\partial");
+    if (this.take(differential).term)
+      this.fail("A differential marker cannot also denote a bound quantity.");
     // The denominator names the differentiation variable; its superscript records order.
     // Consuming it as an ordinary power would silently turn a derivative into a quotient.
     const variable = this.atom();
     if (variable.tree.kind !== "symbol" || variable.tree.at || variable.tree.args)
       this.fail("A partial derivative must name one bound differentiation variable.");
-    const denominatorOrder = this.derivativeOrder();
+    const denominatorOrder = partial ? this.derivativeOrder() : 1;
     if (order !== denominatorOrder) this.fail("The partial derivative orders must agree.");
     const close = this.take("}");
     return this.operation(
@@ -391,7 +397,7 @@ class RowParser {
         expression: expression.tree,
         variable: variable.tree,
         order,
-        partial: true,
+        partial,
       },
       start,
       close.end,
@@ -524,12 +530,13 @@ class RowParser {
         parts: [],
       };
     if (token.value === "\\frac") {
-      if (
-        this.options.allowCalculus &&
-        this.peek()?.value === "{" &&
-        this.items[this.index + 1]?.value === "\\partial"
-      )
-        return this.derivative(token.start);
+      if (this.peek()?.value === "{") {
+        const mark = this.items[this.index + 1];
+        if (this.options.allowCalculus && mark?.value === "\\partial")
+          return this.derivative(token.start, "\\partial");
+        if (this.options.allowTrajectoryDerivatives && mark?.value === "d" && !mark.term)
+          return this.derivative(token.start, "d");
+      }
       const numerator = this.argument();
       const denominator = this.argument();
       return this.operation(

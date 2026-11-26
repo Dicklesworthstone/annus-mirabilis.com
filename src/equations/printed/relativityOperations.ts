@@ -15,6 +15,7 @@ import { RELATIVITY_KINEMATICS_GUIDES } from "./relativityKinematics.ts";
 import { RELATIVITY_LIGHT_COMPLEX_GUIDES } from "./relativityLightComplex.ts";
 import { RELATIVITY_OBLIQUE_SPEED_GUIDE } from "./relativityObliqueSpeed.ts";
 import { RELATIVITY_PLANAR_VELOCITY_GUIDES } from "./relativityPlanarVelocity.ts";
+import { RELATIVITY_SPEED_MAGNITUDES_GUIDE } from "./relativitySpeedMagnitudes.ts";
 import { RELATIVITY_SYNCHRONIZATION_GUIDES } from "./relativitySynchronization.ts";
 
 export type RelativityOperationGuide = MassEnergyOperationGuide &
@@ -43,6 +44,8 @@ export type RelativityOperationGuide = MassEnergyOperationGuide &
     allowExpressionList?: boolean;
     /** A printed alignment can place independent equalities in adjacent columns. */
     allowAlignedColumns?: boolean;
+    /** The printed coordinate rates along a moving point’s trajectory, dx/dt and dy/dt. */
+    allowTrajectoryDerivatives?: boolean;
     /** A quantity application is permitted only for these explicitly named function quantities. */
     functionQuantities?: readonly string[];
     /** A function is permitted only when this display supplies its scientific reading. */
@@ -184,6 +187,7 @@ export const RELATIVITY_OPERATION_GUIDES: Readonly<Record<string, RelativityOper
   ...RELATIVITY_KINEMATICS_GUIDES,
   ...RELATIVITY_LIGHT_COMPLEX_GUIDES,
   ...RELATIVITY_PLANAR_VELOCITY_GUIDES,
+  "eq-s5-d3": RELATIVITY_SPEED_MAGNITUDES_GUIDE,
   "eq-s5-d4": RELATIVITY_DIRECTION_ANGLE_GUIDE,
   "eq-s5-d5": RELATIVITY_OBLIQUE_SPEED_GUIDE,
   ...RELATIVITY_SYNCHRONIZATION_GUIDES,
