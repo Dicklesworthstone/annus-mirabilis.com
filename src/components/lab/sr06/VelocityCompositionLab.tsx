@@ -41,6 +41,7 @@ import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGa
 import { fixed, result } from "../presentation.ts";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
+import { VelocityEventComparison } from "./VelocityEventComparison.tsx";
 import { VelocityCompositionPlot } from "./VelocityCompositionPlot.tsx";
 
 function Readout({
@@ -384,6 +385,7 @@ export function VelocityCompositionLab({
             />
           ) : null}
           <VelocityCompositionPlot snapshot={snapshot} />
+          <VelocityEventComparison snapshot={snapshot} />
           <table className="inference-summary">
             <caption>Accepted composition (fractions of c)</caption>
             <tbody>

@@ -81,7 +81,21 @@ const contract = (
     statuses: Object.freeze([...statuses]),
   });
 
+export const SR06_EVENT_OUTPUTS = Object.freeze({
+  eventTimeMoving: contract("s", "coordinate-time-moving", ["value", "outside-domain"]),
+  eventTimeStationary: contract("s", "coordinate-time-stationary", ["value", "outside-domain"]),
+  eventXMoving: contract("light-second", "x-displacement-moving", ["value", "outside-domain"]),
+  eventXStationary: contract("light-second", "x-displacement-stationary", ["value", "outside-domain"]),
+  eventYMoving: contract("light-second", "y-displacement-moving", ["value", "outside-domain"]),
+  eventYStationary: contract("light-second", "y-displacement-stationary", ["value", "outside-domain"]),
+  eventSlopeXMoving: contract("1", "x-velocity-from-event-pair-moving", ["value", "outside-domain"]),
+  eventSlopeXStationary: contract("1", "x-velocity-from-event-pair-stationary", ["value", "outside-domain"]),
+  eventSlopeYMoving: contract("1", "y-velocity-from-event-pair-moving", ["value", "outside-domain"]),
+  eventSlopeYStationary: contract("1", "y-velocity-from-event-pair-stationary", ["value", "outside-domain"]),
+});
+
 export const SR06_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
+  ...SR06_EVENT_OUTPUTS,
   movingUxOverC: contract("1", "input-moving-x-velocity-over-c"),
   movingUyOverC: contract("1", "input-moving-y-velocity-over-c"),
   galileanUxOverC: contract("1", "galilean-sum-x-velocity-over-c"),

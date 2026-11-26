@@ -17,10 +17,12 @@ import { createInstanceStore, type Parameters } from "../store/instanceStore.ts"
 import {
   SR06_CLASSES,
   SR06_DEFAULTS,
+  SR06_EVENT_OUTPUTS,
   SR06_OUTPUTS,
   type Sr06Parameters,
   sr06CompositionSettings,
 } from "./definition.ts";
+import { measureVelocityFromEvents } from "./eventMeasurements.ts";
 import { validateSr06Parameters } from "./parameters.ts";
 
 function identity(id: keyof typeof SR06_OUTPUTS) {
@@ -77,6 +79,13 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
       outputs.push(absent(id, "outside-domain", reason));
     return outputs;
   }
+  const events = measureVelocityFromEvents(p.frameBeta, wx, wy);
+  if (events.status === "value") {
+    for (const [id, readings] of Object.entries(events.value)) outputs.push(value(id, readings));
+  } else {
+    for (const id of Object.keys(SR06_EVENT_OUTPUTS)) outputs.push(absent(id, "outside-domain", events.reason));
+  }
+
   const ux = composed.value.ux;
   const uy = composed.value.uy;
   const U = lightRay ? 1 : Math.hypot(ux, uy);

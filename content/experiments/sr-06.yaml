@@ -189,6 +189,36 @@ outputs:
       - value
       - not-applicable
       - outside-domain
+  - id: eventTimeMoving
+    quantityId: coordinateTimeMoving
+    allowedStatuses: [value, outside-domain]
+  - id: eventTimeStationary
+    quantityId: coordinateTimeStationary
+    allowedStatuses: [value, outside-domain]
+  - id: eventXMoving
+    quantityId: coordinatePositionMoving
+    allowedStatuses: [value, outside-domain]
+  - id: eventXStationary
+    quantityId: coordinatePositionStationary
+    allowedStatuses: [value, outside-domain]
+  - id: eventYMoving
+    quantityId: coordinatePositionMoving
+    allowedStatuses: [value, outside-domain]
+  - id: eventYStationary
+    quantityId: coordinatePositionStationary
+    allowedStatuses: [value, outside-domain]
+  - id: eventSlopeXMoving
+    quantityId: velocityComponentXMoving
+    allowedStatuses: [value, outside-domain]
+  - id: eventSlopeXStationary
+    quantityId: velocityComponentXStationary
+    allowedStatuses: [value, outside-domain]
+  - id: eventSlopeYMoving
+    quantityId: velocityComponentYMoving
+    allowedStatuses: [value, outside-domain]
+  - id: eventSlopeYStationary
+    quantityId: velocityComponentYStationary
+    allowedStatuses: [value, outside-domain]
 assumptions:
   - "Inertial frames, first boost along +x, special-relativistic kinematics only."
   - "Prescribed velocities; no dynamics of the body that carries them."
