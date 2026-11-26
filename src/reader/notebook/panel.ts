@@ -86,6 +86,15 @@ export function mountNotebookPanel(
   status.setAttribute("aria-atomic", "true");
   const error = node("p");
   error.setAttribute("role", "alert");
+  const resume = node("section");
+  resume.setAttribute("aria-label", "Last reading place");
+  const resumeLink = node("a");
+  const recapLabel = node("summary");
+  const recap = node("p");
+  const recapDetails = node("details");
+  recapDetails.append(recapLabel, recap);
+  resume.append(resumeLink, recapDetails);
+  let previousPlace = "";
   const controls = node("div");
   controls.className = "actions";
   const form = node("form");
@@ -194,9 +203,10 @@ export function mountNotebookPanel(
           importFile,
           confirmation,
           form,
+          resume,
           list,
         ]
-      : [heading, status, error, confirmation, form, list, controls, importLabel, importFile]),
+      : [heading, status, error, confirmation, form, resume, list, controls, importLabel, importFile]),
   );
   host.append(container);
   let previousFocus: HTMLElement | null = null,
@@ -342,6 +352,23 @@ export function mountNotebookPanel(
     exportJson.hidden = nothingSaved;
     exportReadable.hidden = nothingSaved;
     clear.hidden = nothingSaved && state.document.lastPlace === null;
+    const last = state.document.lastPlace;
+    const placeKey = JSON.stringify(last);
+    if (placeKey !== previousPlace) {
+      previousPlace = placeKey;
+      resume.hidden = last === null;
+      recapDetails.open = false;
+      if (last) {
+        resumeLink.href = notebookFrameHref(last.frame);
+        resumeLink.textContent = `Continue ${PAPER_NAMES[last.frame.paper]}: ${last.title}`;
+        recapLabel.textContent = last.recapKind === "source-excerpt" ? "Read the saved passage excerpt" : "Read the recap";
+        recap.textContent = last.recap;
+      } else {
+        resumeLink.removeAttribute("href");
+        resumeLink.textContent = "";
+        recap.textContent = "";
+      }
+    }
     if (state.document.entries === renderedEntries) return;
     renderedEntries = state.document.entries;
     // The store validates every commit into new objects, including a change of reading place.

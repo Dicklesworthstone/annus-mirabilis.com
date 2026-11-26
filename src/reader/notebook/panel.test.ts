@@ -124,6 +124,20 @@ describe("the notebook's controls follow what it holds", () => {
     panel.dispose();
   });
 
+  test("the remembered passage and its authored recap are reachable inside the notebook", () => {
+    const { host, store, panel } = mount({ ...emptyNotebook(), lastPlace: place });
+    const resume = host.querySelector<HTMLElement>('[aria-label="Last reading place"]');
+    assert.ok(resume);
+    expect(resume.hidden).toBe(false);
+    expect(resume.querySelector("a")?.getAttribute("href")).toBe("/papers/brownian-motion/#arg-bm-observable");
+    expect(resume.querySelector("details")?.textContent).toContain(place.recap);
+    store.forgetPlace();
+    expect(resume.hidden).toBe(true);
+    expect(resume.querySelector("a")?.hasAttribute("href")).toBe(false);
+    expect(resume.textContent).not.toContain(place.recap);
+    panel.dispose();
+  });
+
   test("failed saved reload keeps an open note draft, then a successful retry replaces it", () => {
     const io = backend({ ...emptyNotebook(), entries: [entry] });
     const read = io.read;
