@@ -4,6 +4,8 @@ import {
   FIZEAU_DATASET_ID,
   type FizeauRecord,
 } from "../../../experiments/shelfOptics/fizeau.ts";
+import { SR06_DEFAULTS } from "../../../experiments/sr06/definition.ts";
+import { encodeSr06Settings } from "../../../experiments/sr06/permalink.ts";
 import type { ShelfSnapshot } from "../../../experiments/shelfOptics/state.ts";
 import { sentenceNumber } from "../presentation.ts";
 
@@ -96,6 +98,18 @@ export function FizeauComparison({
             </>
           ) : (
             <p data-fizeau-unavailable>{comparison.reason}</p>
+          )}
+          {parameters.instrumentId === "shelf-fizeau" && parameters.refractiveIndex > 1 && (
+            <p>
+              <a href={`/lab/sr-06/${encodeSr06Settings({
+                ...SR06_DEFAULTS,
+                mediumIndex: parameters.refractiveIndex,
+                flowSpeed: parameters.waterSpeed,
+              })}#moving-medium`}>
+                Carry this index and signed water speed into the velocity-addition lab
+              </a>{" "}
+              to compare the two speed increments for this medium.
+            </p>
           )}
           {onUseSourceConditions && (
             <p>

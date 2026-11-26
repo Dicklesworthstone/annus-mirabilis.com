@@ -306,6 +306,33 @@ export function VelocityCompositionLab({
               />
               Show rapidity (a later aid, named by Robb in 1911; not the 1905 presentation)
             </label>
+            <fieldset id={restoreFromLocation ? "moving-medium" : undefined}>
+              <legend>Light in moving water</legend>
+              <label htmlFor={`${id}-index`}>Refractive index n</label>
+              <input
+                id={`${id}-index`}
+                name="mediumIndex"
+                type="number"
+                step="any"
+                max="3"
+                value={draft.mediumIndex}
+                onChange={(e) => setDraft({ ...draft, mediumIndex: e.target.value })}
+              />
+              <label htmlFor={`${id}-flow`}>Water speed along the light beam (m/s)</label>
+              <input
+                id={`${id}-flow`}
+                name="flowSpeed"
+                type="number"
+                step="any"
+                min="-1000"
+                max="1000"
+                value={draft.flowSpeed}
+                onChange={(e) => setDraft({ ...draft, flowSpeed: e.target.value })}
+              />
+              <p className="fine">
+                Choose an index above 1 and at most 3. A negative speed sends the water against the beam.
+              </p>
+            </fieldset>
             <button type="submit">Apply settings</button>
           </fieldset>
           {failure && (
@@ -433,8 +460,13 @@ export function VelocityCompositionLab({
               </tbody>
             </table>
           ) : null}
+          <p>
+            Light in still water travels at c/n in this model. For n = {p.mediumIndex} and water
+            flowing at {p.flowSpeed} m/s, compare the change in light speed from relativistic
+            addition with Fresnel’s first-order drag law.
+          </p>
           <table className="inference-summary">
-            <caption>Fizeau limit panel (Laue 1907 interpretation; no 1851 dataset here)</caption>
+            <caption>Change from the still-water speed (Laue’s 1907 interpretation)</caption>
             <tbody>
               <tr>
                 <th scope="row">Composition increment (m/s)</th>
@@ -450,6 +482,11 @@ export function VelocityCompositionLab({
               </tr>
             </tbody>
           </table>
+          <p>
+            <a href="/lab/shelf-fizeau/#fizeau-measurements">
+              Compare the predicted fringe displacement with Fizeau’s observations
+            </a>
+          </p>
         </div>
       </div>
       <section className="action-contract">
