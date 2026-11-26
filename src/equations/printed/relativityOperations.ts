@@ -10,6 +10,7 @@ import { RELATIVITY_COLLINEAR_LIMIT_GUIDES } from "./relativityCollinearLimits.t
 import { RELATIVITY_CONSEQUENCE_GUIDES } from "./relativityConsequences.ts";
 import { RELATIVITY_ELECTRODYNAMICS_GUIDES } from "./relativityElectrodynamics.ts";
 import { RELATIVITY_FIELD_GUIDES } from "./relativityFields.ts";
+import { RELATIVITY_KINEMATICS_GUIDES } from "./relativityKinematics.ts";
 import { RELATIVITY_LIGHT_COMPLEX_GUIDES } from "./relativityLightComplex.ts";
 import { RELATIVITY_PLANAR_VELOCITY_GUIDES } from "./relativityPlanarVelocity.ts";
 import { RELATIVITY_SYNCHRONIZATION_GUIDES } from "./relativitySynchronization.ts";
@@ -173,6 +174,7 @@ export const RELATIVITY_OPERATION_GUIDES: Readonly<Record<string, RelativityOper
   ...RELATIVITY_CONSEQUENCE_GUIDES,
   ...RELATIVITY_ELECTRODYNAMICS_GUIDES,
   ...RELATIVITY_FIELD_GUIDES,
+  ...RELATIVITY_KINEMATICS_GUIDES,
   ...RELATIVITY_LIGHT_COMPLEX_GUIDES,
   ...RELATIVITY_PLANAR_VELOCITY_GUIDES,
   ...RELATIVITY_SYNCHRONIZATION_GUIDES,
