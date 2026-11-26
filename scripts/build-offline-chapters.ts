@@ -14,22 +14,23 @@ import { recordQuantities } from "../src/equations/printedGlyphs.ts";
 import { teachingProfile } from "../src/equations/teachingProfiles.ts";
 import { parseResult } from "../src/experiments/results/codec.ts";
 import { loadOfflineAssets } from "../src/platform/offline/assets.ts";
-import { loadOfflineSectionSources } from "../src/platform/offline/SourceSection.tsx";
-import {
-  assertOfflineSourceInputs,
-  offlineSourceInputs,
-  type OfflineSourceInputs,
-} from "../src/platform/offline/sourceInputs.ts";
 import {
   type OfflineBudget,
   type OfflineWorkedExample,
   packageOfflineChapter,
 } from "../src/platform/offline/chapter.ts";
+import { loadOfflineSectionSources } from "../src/platform/offline/SourceSection.tsx";
 import {
   type OfflineManifest,
   offlineProfile,
   publishOfflineChapters,
 } from "../src/platform/offline/server.ts";
+import {
+  assertOfflineSourceInputs,
+  type OfflineSourceInputs,
+  offlineSourceInputs,
+} from "../src/platform/offline/sourceInputs.ts";
+import { offlineWorkedCaseIndex } from "../src/platform/offline/workedCase.ts";
 import {
   buildInlineScriptHashManifest,
   serializeInlineScriptHashManifest,
@@ -120,9 +121,17 @@ export async function buildOfflineChapters(
         .filter((entry) => entry.kind === "foundation")
         .map((entry) => loadFoundationPayload(entry.id, root)),
     );
-    sourceInputs = await offlineSourceInputs(root, papers.map(({ payload }) => payload.paper.id));
+    sourceInputs = await offlineSourceInputs(
+      root,
+      papers.map(({ payload }) => payload.paper.id),
+    );
     const assets = await loadOfflineAssets(root);
     const examples = await preparedExamples(root);
+    const workedCases = offlineWorkedCaseIndex(
+      JSON.parse(
+        await readFile(resolve(root, "src/generated/instrument-worked-cases.json"), "utf8"),
+      ),
+    );
     const budgets = JSON.parse(
       await readFile(resolve(root, "perf/offline-chapter-budgets.json"), "utf8"),
     ) as {
@@ -152,7 +161,11 @@ export async function buildOfflineChapters(
       // build rather than borrowing another paper's: like a changed schema, it needs an explicit
       // offline adapter, so both share the one refusal.
       const teaching = teachingProfile(payload.paper.id);
-      if (payload.schemaVersion !== 1 || payload.paper.status !== "explanation-preview" || !teaching)
+      if (
+        payload.schemaVersion !== 1 ||
+        payload.paper.status !== "explanation-preview" ||
+        !teaching
+      )
         throw new Error(
           "A changed publication schema, or a paper without a teaching profile, needs an explicit offline adapter.",
         );
@@ -168,7 +181,12 @@ export async function buildOfflineChapters(
         explanation: equation.explanation,
       }));
       for (const section of payload.paper.sections) {
-        const sources = await loadOfflineSectionSources(root, payload.paper.id, section.id, profile);
+        const sources = await loadOfflineSectionSources(
+          root,
+          payload.paper.id,
+          section.id,
+          profile,
+        );
         files.push(
           packageOfflineChapter(
             {
@@ -179,6 +197,7 @@ export async function buildOfflineChapters(
               citations: [...citations.values()],
               equations,
               examples,
+              workedCases,
               assets,
               budget: budgets.default,
               ...(sources ? { sources } : {}),

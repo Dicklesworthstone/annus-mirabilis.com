@@ -10,6 +10,10 @@ import type {
   Paper,
 } from "../../content/schemas/reading.ts";
 import { renderInlineLatex } from "../../equations/render/inlineKatex.ts";
+import {
+  findWorkedCase,
+  type InstrumentWorkedCaseIndex,
+} from "../../experiments/workedCases/types.ts";
 import { type OfflineFigureAsset, renderOfflineAsset } from "./assets.ts";
 import { OFFLINE_DETAIL_SOURCE } from "./detail.inline.ts";
 import type { OfflineSourceAttachment, OfflineSourceCoverage } from "./SourceSection.tsx";
@@ -18,6 +22,7 @@ import {
   offlineMarkupIds,
   prepareOfflineSourceMarkup,
 } from "./sourceProjection.ts";
+import { renderOfflineWorkedCase } from "./workedCase.ts";
 
 export const OFFLINE_CHAPTER_VERSION = 1;
 export const OFFLINE_ORIGIN = "https://annus-mirabilis.com";
@@ -53,6 +58,8 @@ export type OfflineChapterInput = Readonly<{
   citations: readonly Citation[];
   equations: readonly OfflineEquation[];
   examples: readonly OfflineWorkedExample[];
+  /** The laboratory’s actual default tables and prose, including non-scalar results. */
+  workedCases?: InstrumentWorkedCaseIndex | undefined;
   identity: OfflineIdentity;
   assets: Readonly<{ mathCss: string; printCss: string; notices: readonly string[] }>;
   budget: OfflineBudget;
@@ -179,15 +186,18 @@ export function packageOfflineChapter(
     throw new TypeError("Offline byte budgets must be positive integers.");
   const explanationAnchor = input.sources ? "explanation-" + section.id : section.id;
   const sources = input.sources;
-  if (sources && (
-    !Number.isSafeInteger(sources.coverage.germanBlocks) || sources.coverage.germanBlocks < 1 ||
-    !Number.isSafeInteger(sources.coverage.englishUnits) || sources.coverage.englishUnits < 0 ||
-    !/^[a-f0-9]{64}$/u.test(sources.coverage.revision) ||
-    (sources.coverage.englishUnits > 0
-      ? !/^[a-f0-9]{64}$/u.test(sources.coverage.translationRevision ?? "")
-      : sources.coverage.translationRevision !== null) ||
-    identity.translationRevision !== sources.coverage.translationRevision
-  ))
+  if (
+    sources &&
+    (!Number.isSafeInteger(sources.coverage.germanBlocks) ||
+      sources.coverage.germanBlocks < 1 ||
+      !Number.isSafeInteger(sources.coverage.englishUnits) ||
+      sources.coverage.englishUnits < 0 ||
+      !/^[a-f0-9]{64}$/u.test(sources.coverage.revision) ||
+      (sources.coverage.englishUnits > 0
+        ? !/^[a-f0-9]{64}$/u.test(sources.coverage.translationRevision ?? "")
+        : sources.coverage.translationRevision !== null) ||
+      identity.translationRevision !== sources.coverage.translationRevision)
+  )
     throw new OfflineSourceError(
       "offline-source-coverage",
       "Offline source coverage and translation revision must match the packaged text.",
@@ -196,8 +206,15 @@ export function packageOfflineChapter(
     ? prepareOfflineSourceMarkup(sources.html, paper.id, new Set([explanationAnchor]))
     : "";
   const sourceNavigation = sources
-    ? '<nav aria-label="Chapter and source text"><a href="#' + explanationAnchor + '">Explanation</a> · <a href="#offline-german-' + section.id + '">German source</a>' +
-      (sources.coverage.englishUnits > 0 ? ' · <a href="#offline-english-' + section.id + '">English translation</a>' : "") + "</nav>"
+    ? '<nav aria-label="Chapter and source text"><a href="#' +
+      explanationAnchor +
+      '">Explanation</a> · <a href="#offline-german-' +
+      section.id +
+      '">German source</a>' +
+      (sources.coverage.englishUnits > 0
+        ? ' · <a href="#offline-english-' + section.id + '">English translation</a>'
+        : "") +
+      "</nav>"
     : "";
   const contentsDescription = sources
     ? "This file contains the available authored explanation and German source text" +
@@ -334,6 +351,14 @@ export function packageOfflineChapter(
     .map((name) => {
       id(name);
       const example = input.examples.find((item) => item.instrumentId === name);
+      if (input.workedCases)
+        return renderOfflineWorkedCase(findWorkedCase(input.workedCases, name), name, {
+          origin: OFFLINE_ORIGIN,
+          paper: paper.id,
+          section: section.id,
+          explanationAnchor,
+          sourceDigest: example?.sourceDigest,
+        });
       const online = `<a rel="noreferrer" href="${OFFLINE_ORIGIN}/lab/${name}/">Open ${e(name)} online</a>`;
       if (!example)
         return `<section><h3>${e(name)}</h3><p>This laboratory is not included in this file. The chapter's authored foundation examples remain available above. ${online}</p></section>`;

@@ -159,7 +159,7 @@ test("real mass-energy source and translation survive the same renderers in a st
   expect(JSON.stringify({ blocks, units })).toBe(original);
 });
 
-test("packaging refuses coverage that names a different translation (chapter.ts:191)", () => {
+test("packaging refuses coverage that names a different translation (chapter.ts:201)", () => {
   const input = chapterFixture() as unknown as OfflineChapterInput;
   let failure: unknown;
   try {
