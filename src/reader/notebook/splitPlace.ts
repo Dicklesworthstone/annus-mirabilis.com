@@ -31,7 +31,16 @@ export function splitNotebookPosition(passage: HTMLElement, search: string): Not
   let scan = "";
   if (selection.companion === "facsimile") {
     const target = root.dataset.splitScanTarget;
-    scan = target && isNotebookScanTarget(target) ? target : selectedPage(root)?.dataset.facsimileTarget ?? "";
+    const viewer = root.querySelector<HTMLElement>("[data-facsimile-reader]");
+    if (!viewer) {
+      // The verified map is fetched on demand. Keep the reader's public target while it loads.
+      if (target && isNotebookScanTarget(target)) scan = target;
+    } else {
+      // If the map could not resolve that passage, remember the page the viewer actually shows.
+      scan = target && target === viewer.dataset.facsimileResolvedTarget && isNotebookScanTarget(target)
+        ? target
+        : selectedPage(viewer)?.dataset.facsimileTarget ?? "";
+    }
   }
   return { section, panes: panes.join(","), pane, scan };
 }

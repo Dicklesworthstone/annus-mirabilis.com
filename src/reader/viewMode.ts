@@ -19,7 +19,7 @@ import {
   isFaceId,
   isSplittableFaceId,
   type SplittableFaceId,
-} from "./faces/registry";
+} from "./faces/registry.ts";
 
 export const VIEW_PARAM = "view";
 export const PANES_PARAM = "panes";

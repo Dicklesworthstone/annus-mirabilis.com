@@ -10,6 +10,8 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { GET } from "../../app/papers/[paper]/facsimile.json/route.ts";
 import { installDom, uninstallDom } from "../../testing/reactDom.ts";
+import { authoredLastPlace, frameForPassage } from "../notebook/lastFrame.ts";
+import { notebookFrameHref } from "../notebook/schema.ts";
 import { InlineFacsimile } from "./InlineFacsimile.tsx";
 
 beforeEach(async () => {
@@ -113,6 +115,10 @@ test("a split companion loads the verified plate for the chosen passage and reus
   }) as typeof fetch;
   const host = document.createElement("div");
   host.dataset.splitComparison = "";
+  host.dataset.splitSection = "s0";
+  host.dataset.splitRole = "companion";
+  host.dataset.readerRoot = "";
+  host.dataset.view = "split";
   host.dataset.splitCompanion = "reading";
   document.body.append(host);
   const root = createRoot(host);
@@ -128,10 +134,28 @@ test("a split companion loads the verified plate for the chosen passage and reus
     host.dataset.splitScanTarget = "facsimile-page-640";
     await settle();
     expect(plate()).toBe("/figures/plates/pages/ap-18-639/640.webp");
-    host.dataset.splitScanTarget = "missing-passage";
+    const savedPlace = () => {
+      const viewer = host.querySelector<HTMLElement>("[data-facsimile-reader]");
+      if (!viewer) throw new Error("The scan has not mounted.");
+      const frame = frameForPassage(viewer, {
+        pathname: "/papers/mass-energy/s0/view/split/",
+        search: "?panes=facsimile,english",
+      }, viewer);
+      if (!frame) throw new Error("The selected scan must have a portable place.");
+      return { frame, last: authoredLastPlace(viewer, frame) };
+    };
+    const turned = savedPlace();
+    expect(turned.last?.title).toContain("640");
+    expect(notebookFrameHref(turned.frame)).toBe(
+      "/papers/mass-energy/s0/view/split/?panes=facsimile%2Cenglish&split-pane=companion&split-scan=facsimile-page-640#split-companion-pane",
+    );
+    host.dataset.splitScanTarget = "s0-p9999";
     await settle();
     expect(host.querySelector("[data-facsimile-section]")?.textContent).toContain("No scan-page locator");
     expect(plate()).toBe("/figures/plates/pages/ap-18-639/639.webp");
+    const fallback = savedPlace();
+    expect(fallback.frame.split?.scan).toBe("facsimile-page-639");
+    expect(fallback.last?.title).toContain("639");
     expect(requested).toEqual(["/papers/mass-energy/facsimile.json"]);
   } finally {
     act(() => root.unmount());

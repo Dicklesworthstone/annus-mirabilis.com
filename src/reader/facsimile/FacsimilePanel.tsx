@@ -73,6 +73,7 @@ export function FacsimilePanel({
       className="facsimile-reader"
       data-face-source
       data-facsimile-reader
+      data-facsimile-resolved-target={split && requestedPage !== null ? requestedAnchor : undefined}
       data-source-digest={document.sha256}
       data-facsimile-pdf-page={initial.pdfPage}
       aria-label={`${title}: original scanned pages`}
