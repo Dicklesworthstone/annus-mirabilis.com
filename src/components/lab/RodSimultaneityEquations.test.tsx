@@ -207,19 +207,19 @@ describe("the rod laboratory's accepted event-separation equations", () => {
         },
       };
     };
-    const firstId = "event-pair-one";
-    const secondId = "event-pair-two";
+    const firstPlacementId = "event-pair-one";
+    const secondPlacementId = "event-pair-two";
     const firstExample = await prepared(SR03_DEFAULTS);
     const secondExample = await prepared({ ...SR03_DEFAULTS, L0: 20 });
     cache = createSessionRetention();
     const firstOwner = cache.prepare(
-      firstId,
-      { experimentId: "sr-03", instanceId: firstId, sourceDigest: example.sourceDigest },
+      firstPlacementId,
+      { experimentId: "sr-03", instanceId: firstPlacementId, sourceDigest: example.sourceDigest },
       (instanceId) => createSr03Session(instanceId, firstExample, factory),
     );
     const secondOwner = cache.prepare(
-      secondId,
-      { experimentId: "sr-03", instanceId: secondId, sourceDigest: example.sourceDigest },
+      secondPlacementId,
+      { experimentId: "sr-03", instanceId: secondPlacementId, sourceDigest: example.sourceDigest },
       (instanceId) => createSr03Session(instanceId, secondExample, factory),
     );
     const releaseFirst = cache.retain(firstOwner);
@@ -229,27 +229,27 @@ describe("the rod laboratory's accepted event-separation equations", () => {
         <>
           <RetainedSessionProvider
             cache={cache as SessionRetention}
-            placementKey={firstId}
-            instanceId={firstId}
+            placementKey={firstPlacementId}
+            instanceId={firstPlacementId}
             previous={null}
             onReference={() => {}}
           >
             <RodSimultaneityLab
               example={firstExample}
-              instanceId={firstId}
+              instanceId={firstPlacementId}
               restoreFromLocation={false}
             />
           </RetainedSessionProvider>
           <RetainedSessionProvider
             cache={cache as SessionRetention}
-            placementKey={secondId}
-            instanceId={secondId}
+            placementKey={secondPlacementId}
+            instanceId={secondPlacementId}
             previous={null}
             onReference={() => {}}
           >
             <RodSimultaneityLab
               example={secondExample}
-              instanceId={secondId}
+              instanceId={secondPlacementId}
               restoreFromLocation={false}
             />
           </RetainedSessionProvider>
@@ -258,6 +258,8 @@ describe("the rod laboratory's accepted event-separation equations", () => {
     });
     releaseFirst();
     releaseSecond();
+    const firstId = firstOwner.instanceId;
+    const secondId = secondOwner.instanceId;
 
     async function settle(until: () => boolean) {
       for (let attempt = 0; attempt < 400 && !until(); attempt++)

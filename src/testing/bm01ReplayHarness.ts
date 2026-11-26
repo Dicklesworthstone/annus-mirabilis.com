@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { evaluatorSources } from "../../scripts/generate-tracers.mjs";
 import { BM01_DEFAULTS, type Bm01Parameters } from "../experiments/bm01/definition.ts";
-import type { PreparedBm01Example } from "../experiments/bm01/session.ts";
+import { createBm01Session, type PreparedBm01Example } from "../experiments/bm01/session.ts";
 import { createBm01TapeBinding } from "../experiments/bm01/tape.ts";
 import { bm01CheckpointDigest, bm01ScientificState } from "../experiments/bm01/tapeCheckpoint.ts";
 import { parseU64 } from "../experiments/identity/u64.ts";
@@ -143,7 +143,7 @@ export function bm01Laboratory(
     };
   };
   const binding = createBm01TapeBinding(fixture.example, factory);
-  const session = binding.createSession(`bm01-replay-test-${++instances}`);
+  const session = createBm01Session(`bm01-replay-test-${++instances}`, fixture.example, factory);
   return {
     binding,
     session,

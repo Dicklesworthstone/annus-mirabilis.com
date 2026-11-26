@@ -108,7 +108,8 @@ test("result-support-lq-foundations-not-checked rejects missing, duplicate and a
           checkedSupportFor(
             record,
             fixture.records.map((item) =>
-              item.id === equation.id ? { ...item, ...change } : item,
+              // Deliberate post-parse corruption, including a unit system the schema forbids.
+              item.id === equation.id ? Object.assign({}, item, change) : item,
             ),
           ),
         ).toThrow(ResultCardsError);

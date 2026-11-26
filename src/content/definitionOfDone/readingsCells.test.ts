@@ -113,12 +113,9 @@ describe("the real captions and derivation-step records are owned and the audit 
     const equations = loaded.input.targets.filter((target) => target.targetKind === "equation");
     expect(captions.length).toBeGreaterThan(0);
     expect(steps.length).toBeGreaterThan(0);
-    expect(equations.map((target) => target.targetId)).toEqual(
-      expect.arrayContaining([
-        "eq-model-sr-composed-velocity-x",
-        "eq-model-sr-composed-velocity-y",
-      ]),
-    );
+    const equationIds = equations.map((target) => target.targetId);
+    expect(equationIds).toContain("eq-model-sr-composed-velocity-x");
+    expect(equationIds).toContain("eq-model-sr-composed-velocity-y");
     for (const paper of ["light-quanta", "special-relativity", "brownian-motion"]) {
       const targets = steps.filter((target) => target.paper === paper);
       expect(targets.length, paper).toBeGreaterThan(0);

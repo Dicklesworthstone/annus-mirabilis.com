@@ -19,7 +19,9 @@ export type BrownianOperationGuide = MassEnergyOperationGuide &
     functionArities?: Readonly<Record<string, readonly number[]>>;
     allowCalculus?: boolean;
     allowExponentials?: boolean;
-    functions?: Readonly<Partial<Record<"exp" | "ln" | "sin" | "cos", OperationReading>>>;
+    functions?: Readonly<
+      Partial<Record<Extract<Expression, { kind: "function" }>["name"], OperationReading>>
+    >;
     primary: Readonly<
       Record<
         string,

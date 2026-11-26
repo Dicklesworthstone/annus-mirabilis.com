@@ -92,7 +92,12 @@ test("result-support-lq-planck-not-checked requires every supplied record exactl
       { argument: "arg-lq-fixed-band-volume" },
     ])
       refused(() =>
-        direct(records.map((item) => (item.id === original.id ? { ...item, ...change } : item))),
+        direct(
+          records.map((item) =>
+            // Deliberate post-parse corruption, including a unit system the schema forbids.
+            item.id === original.id ? Object.assign({}, item, change) : item,
+          ),
+        ),
       );
   }
 });
@@ -101,12 +106,13 @@ test("result-support-lq-planck-not-checked cannot attach the proof to the starti
   const result = card();
   if (result.support.kind !== "checked-proof")
     throw new Error("The real card must declare its proof.");
+  const declaration = result.support;
   const spectrum = records[0];
   if (!spectrum) throw new Error("The spectrum fixture is required.");
   refused(() =>
     checkedLqPlanckSupport(
       result.id,
-      { ...result.support, conclusion: spectrum.id },
+      { ...declaration, conclusion: spectrum.id },
       spectrum,
       records,
     ),

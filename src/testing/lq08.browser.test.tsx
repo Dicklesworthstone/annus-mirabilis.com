@@ -339,7 +339,7 @@ describe("the photoelectric equations follow the accepted apparatus", () => {
   async function pin(parent: ParentNode, equation = maximum): Promise<HTMLElement> {
     const button = required<HTMLButtonElement>(parent, `[data-pin-equation="${equation}"]`);
     await act(async () => button.click());
-    return required(container, `[data-pinned-equation="${equation}"]`);
+    return required<HTMLElement>(container, `[data-pinned-equation="${equation}"]`);
   }
 
   test("all three equations render real SI values and their selected-term inspector shares the accepted identity", async () => {

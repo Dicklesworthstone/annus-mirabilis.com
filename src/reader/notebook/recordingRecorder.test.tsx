@@ -276,8 +276,9 @@ test("notebook and file selection share one import generation and never start re
     code: "notebook-recording-save-instrument",
   });
   expect(saveNotebookRecording(getNotebookStore(), captured.value).ok).toBe(true);
+  const recording = captured.value;
   function fileSource(title: string) {
-    const result = writeRecordedExperiment({ ...captured.value, title }, validateTapeV2);
+    const result = writeRecordedExperiment({ ...recording, title }, validateTapeV2);
     assert.ok(result.kind === "accepted");
     return result.value;
   }
