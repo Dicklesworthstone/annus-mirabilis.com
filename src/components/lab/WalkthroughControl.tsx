@@ -51,6 +51,10 @@ export function WalkthroughControl({
   readonly onPlayed?: ((parameters: object) => void) | undefined;
 }) {
   const [played, setPlayed] = useState<WalkthroughPlay | null>(null);
+  const [lineage, setLineage] = useState<Readonly<{
+    runId: string;
+    parentRunId: string | null;
+  }> | null>(null);
   const experimentId = binding.environment.experimentId;
   /*
    * BY MODE AS WELL AS BY EXPERIMENT, because `replay.ts` refuses on exactly that pair:
@@ -84,9 +88,30 @@ export function WalkthroughControl({
     .filter((entry) => entry.id !== "");
   if (walkthroughs.length === 0) return null;
 
-  function play(tapeId: string) {
-    const outcome = playWalkthrough(binding, session, tapeId);
+  function play(tapeId: string, asNewRun = false) {
+    // Only the compatibility checker can offer recovery, and only a separate click starts it.
+    if (
+      asNewRun &&
+      (played?.kind !== "refused" ||
+        !played.offerNewRun ||
+        played.tapeId !== tapeId ||
+        !session.startNewRun)
+    )
+      return;
+    const outcome = playWalkthrough(binding, session, tapeId, { asNewRun });
     setPlayed(outcome);
+    const accepted = session.getSnapshot().accepted;
+    setLineage(
+      outcome.kind === "played" && outcome.isNewRun && accepted?.runId
+        ? {
+            runId: accepted.runId,
+            parentRunId:
+              "parentRunId" in accepted && typeof accepted.parentRunId === "string"
+                ? accepted.parentRunId
+                : null,
+          }
+        : null,
+    );
     if (outcome.kind === "played") onPlayed?.(session.acceptedParameters());
   }
 
@@ -110,16 +135,48 @@ export function WalkthroughControl({
           className={played.kind === "played" ? "notice" : "notice error"}
           role={played.kind === "played" ? undefined : "alert"}
           data-walkthrough-result={played.kind}
+          data-walkthrough-new-run={played.kind === "played" ? String(played.isNewRun) : undefined}
           data-walkthrough-code={played.kind === "refused" ? played.code : undefined}
         >
           <p>{played.notice}</p>
           {played.kind === "refused" && played.repair && <p className="fine">{played.repair}</p>}
+          {played.kind === "refused" && played.offerNewRun && session.startNewRun && (
+            <button
+              type="button"
+              className="secondary"
+              data-walkthrough-recalculate={played.tapeId}
+              onClick={() => play(played.tapeId, true)}
+            >
+              Calculate with the current model
+            </button>
+          )}
           {played.kind === "played" && (
             <p className="fine">
-              Recorded in <a href={tapePath(played.tapeId)}>its walkthrough</a>, which says what
-              each step is for. Nothing here was computed by the recording: the label above is this
-              laboratory&rsquo;s own.
+              {played.isNewRun ? "The original settings are described in " : "Recorded in "}
+              <a href={tapePath(played.tapeId)}>
+                {played.isNewRun ? "the archived walkthrough" : "its walkthrough"}
+              </a>
+              , which says what each step is for. Nothing here was computed by the recording: the
+              label above is this laboratory&rsquo;s own.
             </p>
+          )}
+          {played.kind === "played" && played.isNewRun && lineage && (
+            <details
+              className="fine"
+              data-walkthrough-lineage="new-run"
+              data-run-id={lineage.runId}
+              data-parent-run-id={lineage.parentRunId ?? ""}
+            >
+              <summary>New run lineage</summary>
+              <p>
+                Run <code>{lineage.runId}</code>.
+              </p>
+              {lineage.parentRunId && (
+                <p>
+                  Parent run <code>{lineage.parentRunId}</code>.
+                </p>
+              )}
+            </details>
           )}
         </div>
       )}

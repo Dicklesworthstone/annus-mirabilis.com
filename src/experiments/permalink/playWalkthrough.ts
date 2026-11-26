@@ -41,8 +41,8 @@ export type WalkthroughPlay =
       /** What it would take, when the refusal knows. */
       repair?: string | undefined;
       code: string;
+      offerNewRun?: true | undefined;
     }>;
-
 const STEPS = (count: number) =>
   count === 0 ? "its opening settings" : count === 1 ? "one step" : `${count} steps`;
 
@@ -86,6 +86,7 @@ export function playWalkthrough(
         code: result.refusalCode,
         notice: result.notice,
         repair: result.repair,
+        ...(result.offerNewRun ? { offerNewRun: true as const } : {}),
       };
   }
 }

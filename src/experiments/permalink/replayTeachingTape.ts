@@ -42,8 +42,8 @@ export type TeachingTapeReplay =
       refusalCode: string;
       notice: string;
       repair?: string | undefined;
+      offerNewRun?: true | undefined;
     }>;
-
 export type TeachingTapeReplayOptions = Readonly<{
   /**
    * Replay as an explicitly new run, skipping the identity check and the checkpoint verification.
@@ -168,10 +168,10 @@ export function replayTeachingTapeOn(
       refusalCode: result.refusalCode,
       notice: result.notice,
       repair: result.repair,
+      offerNewRun: result.offerNewRun,
     };
   // Keep the public checkpoint refusal code when preflight discovers the mismatch before applying
   // anything. Other invalid requests still retain their distinct repairable reason.
-  //
   // ONE site carries this code, not two. `success` and `refusal` returned above, so the only kinds
   // that reach here are `invariant-violation` and `invalid`: a violation IS the recorded checkpoint
   // disagreeing with the replayed state, and so is the single invalid reason meaning the requested
