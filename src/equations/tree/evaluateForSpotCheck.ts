@@ -240,6 +240,9 @@ export function evaluateForSpotCheck(
           case "sin":
             val = Math.sin(argRes.value);
             break;
+          case "atan":
+            val = Math.atan(argRes.value);
+            break;
           case "cos":
             val = Math.cos(argRes.value);
             break;

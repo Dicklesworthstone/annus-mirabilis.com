@@ -274,7 +274,7 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
             break;
           }
         }
-        s = `\\${n.name}\\left(${render(n.argument)}\\right)`;
+        s = `\\${n.name === "atan" ? "arctan" : n.name}\\left(${render(n.argument)}\\right)`;
         break;
       }
 

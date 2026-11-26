@@ -37,7 +37,7 @@ export type Expression =
   | (Op & Readonly<{ kind: "symbolPower"; base: Expression; exponent: Expression }>)
   | (Op & Readonly<{ kind: "root"; radicand: Expression; degree: number }>)
   | (Op & Readonly<{ kind: "negate" | "average" | "group"; argument: Expression }>)
-  | (Op & Readonly<{ kind: "function"; name: "exp" | "ln" | "sin" | "cos"; argument: Expression }>)
+  | (Op & Readonly<{ kind: "function"; name: "exp" | "ln" | "sin" | "cos" | "atan"; argument: Expression }>)
   | (Op &
       Readonly<{
         kind: "relation";
@@ -311,7 +311,7 @@ export function parseExpression(
         (!Number.isSafeInteger(o.degree) || Number(o.degree) < 2 || Number(o.degree) > 32)
       )
         fail(path, "Root degree must be 2–32.");
-      if (kind === "function" && !["exp", "ln", "sin", "cos"].includes(String(o.name)))
+      if (kind === "function" && !["exp", "ln", "sin", "cos", "atan"].includes(String(o.name)))
         fail(path, "Unsupported function.");
       if (
         kind === "relation" &&

@@ -146,6 +146,7 @@ export function evaluateExpression(
         return Math.log(argument);
       }
       if (tree.name === "sin") return Math.sin(argument);
+      if (tree.name === "atan") return Math.atan(argument);
       return Math.cos(argument);
     }
     case "relation":

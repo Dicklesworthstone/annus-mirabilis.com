@@ -130,7 +130,7 @@ export function expressionToSpokenText(expr: Expression): string {
       return `mean of ${expressionToSpokenText(expr.argument)}`;
 
     case "function":
-      return `${expr.name} of ${expressionToSpokenText(expr.argument)}`;
+      return `${expr.name === "atan" ? "arctangent" : expr.name} of ${expressionToSpokenText(expr.argument)}`;
 
     case "relation": {
       const opWord =

@@ -273,7 +273,7 @@ export function validateExpressionNode(raw: unknown, path = "tree"): Expression 
       };
     }
     case "function": {
-      const allowedFns = ["ln", "exp", "sin", "cos", "sinh", "cosh", "tanh", "sqrt"];
+      const allowedFns = ["ln", "exp", "sin", "cos", "atan", "sinh", "cosh", "tanh", "sqrt"];
       if (typeof o.name !== "string" || !allowedFns.includes(o.name)) {
         throw new TreeSchemaError(
           "invalid-function-name",

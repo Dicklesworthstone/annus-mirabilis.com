@@ -296,7 +296,7 @@ export function parseAuthoring(source: string, options: ParseOptions = {}): Expr
       return { kind: "root", radicand: args[0], degree };
     }
 
-    const mathFns: FunctionName[] = ["ln", "exp", "sin", "cos", "sinh", "cosh", "tanh", "sqrt"];
+    const mathFns: FunctionName[] = ["ln", "exp", "sin", "cos", "atan", "sinh", "cosh", "tanh", "sqrt"];
     if (mathFns.includes(name as FunctionName)) {
       if (args.length !== 1 || !args[0]) {
         throw new ParseError(`${name}(x) requires exactly 1 argument`, pos);

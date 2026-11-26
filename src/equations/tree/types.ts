@@ -76,7 +76,7 @@ export type NegateNode = Readonly<{
   argument: Expression;
 }>;
 
-export type FunctionName = "ln" | "exp" | "sin" | "cos" | "sinh" | "cosh" | "tanh" | "sqrt";
+export type FunctionName = "ln" | "exp" | "sin" | "cos" | "atan" | "sinh" | "cosh" | "tanh" | "sqrt";
 
 export type FunctionNode = Readonly<{
   kind: "function";

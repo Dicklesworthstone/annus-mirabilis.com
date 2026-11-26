@@ -135,7 +135,7 @@ export function expressionToDerivationLatex(
         s = `\\left\\langle ${render(n.argument)}\\right\\rangle`;
         break;
       case "function":
-        s = `\\${n.name}\\left(${render(n.argument)}\\right)`;
+        s = `\\${n.name === "atan" ? "arctan" : n.name}\\left(${render(n.argument)}\\right)`;
         break;
       case "relation": {
         const operator =
