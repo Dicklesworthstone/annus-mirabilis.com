@@ -55,11 +55,26 @@ export type AnalysisDraft = Readonly<{
   offsetVolts: string;
   offsetSigmaV: string;
 }>;
+/** The admitted source stays attached when a reader changes the row selection. */
+export type HistoricalVoltageRecord = Readonly<{
+  datasetId: string;
+  fitId: string;
+  digitizationRevision: number;
+  citation: string;
+  sourceRows: readonly number[];
+  publishedSelection: readonly number[];
+  printedSlopes: readonly Readonly<{ label: string; slopeVs: number; citation: string }>[];
+  excluded: readonly Readonly<{ row: number; reason: string }>[];
+  sourceLinks: readonly Readonly<{ label: string; href: string }>[];
+  uncertainty: string;
+}>;
+
 export type AcceptedAnalysis = Readonly<{
   revision: number;
   csv: string;
   label: string;
-  source: "constructed-example" | "reader-supplied";
+  source: "constructed-example" | "reader-supplied" | "historical-measurement";
+  historicalRecord?: HistoricalVoltageRecord;
   record: VoltageRecord;
   options: FitOptions;
   excludedRows: readonly number[];

@@ -154,6 +154,9 @@ export function LightQuantaWorldCheck({
                 plot. This later test supports the predicted relation; it was unavailable to the
                 1905 argument.
               </p>
+              <p>
+                <a href="/lab/lq-08/millikan/">Refit Millikan’s points and infer Planck’s constant</a>
+              </p>
             </>
           ) : (
             <p>

@@ -35,6 +35,9 @@ export default function PhotoelectricPage() {
         <h2>From here</h2>
         <ul>
           <li>
+            <a href="/lab/lq-08/millikan/">Fit the signed voltages in Millikan’s sodium figure</a>
+          </li>
+          <li>
             <a href="/lab/lq-08/data/">Analyze your own stopping-potential record</a>
           </li>
           <li>

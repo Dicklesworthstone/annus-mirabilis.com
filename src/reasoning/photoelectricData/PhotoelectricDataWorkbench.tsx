@@ -152,6 +152,7 @@ export function PhotoelectricDataWorkbench({
       setError("This browser could not create the download. The accepted analysis is unchanged.");
     }
   }
+  const historical = accepted.historicalRecord;
   const result = accepted.fit;
   const baseline = accepted.allRowsFit;
   const residualByRow = new Map(
@@ -173,8 +174,9 @@ export function PhotoelectricDataWorkbench({
       <h2 id={`${id}-title`}>Analyze a stopping-potential record</h2>
       <noscript>
         <p>
-          The complete constructed worked example and its table remain readable. File reading,
-          refitting and downloads need JavaScript.
+          {historical
+            ? "The historical analysis and its table remain readable. Refitting and downloads need JavaScript."
+            : "The complete constructed worked example and its table remain readable. File reading, refitting and downloads need JavaScript."}
         </p>
       </noscript>
       {/* The accepted analysis comes first, the way every laboratory shows its result before the
@@ -183,13 +185,48 @@ export function PhotoelectricDataWorkbench({
         <h3 id={`${id}-result`}>Accepted analysis: {accepted.label}</h3>
         <p>
           <strong>
-            {accepted.source === "constructed-example"
-              ? "Constructed example, not historical observations"
-              : "Reader-supplied record; provenance not verified"}
+            {historical
+              ? "Historical measurements from Millikan’s 1916 sodium figure"
+              : accepted.source === "constructed-example"
+                ? "Constructed example, not historical observations"
+                : "Reader-supplied record; provenance not verified"}
           </strong>
           . Revision {accepted.revision}. {selectedCount} of {accepted.record.rows.length} rows
           used; {accepted.excludedRows.length} explicitly excluded.
         </p>
+        {historical && (
+          <div>
+            <p>
+              Figure 6 plots the signed voltage at which each mercury line’s photocurrent
+              vanished. The figure includes the contact potential between sodium and collector.
+              This fit uses no separate calibration. Compare the slope with h/e. The intercept alone cannot identify
+              the escape work or the threshold.
+            </p>
+            <p>
+              The source selection uses observations {historical.publishedSelection.join(", ")}.
+              {" "}{historical.excluded.map(({ row, reason }) => `Row ${row}: ${reason}`).join(" ")}
+            </p>
+            <details>
+              <summary>Source, row selection and measurement uncertainty</summary>
+              <p>{historical.citation}. Digitization revision {historical.digitizationRevision}.</p>
+              {historical.printedSlopes.map((slope) => (
+                <p key={slope.label}>
+                  {slope.label}: <Sci value={slope.slopeVs} /> V·s. {slope.citation}
+                </p>
+              ))}
+              <p>{historical.uncertainty}</p>
+              <p>
+                The equal-weight fit estimates scatter from the residuals. Its standard error
+                omits frequency-reading error and shared apparatus effects.
+              </p>
+              <ul>
+                {historical.sourceLinks.map((link) => (
+                  <li key={link.href}><a href={link.href}>{link.label}</a></li>
+                ))}
+              </ul>
+            </details>
+          </div>
+        )}
         <PhotoelectricPlots state={accepted} />
         <p>
           Accepted assumptions:{" "}
@@ -292,7 +329,7 @@ export function PhotoelectricDataWorkbench({
                     <th scope="col">Include</th>
                     <th scope="col">Row</th>
                     <th scope="col">Frequency (THz)</th>
-                    <th scope="col">Stopping (V)</th>
+                    <th scope="col">{historical ? "Signed intercept (V)" : "Stopping (V)"}</th>
                     <th scope="col">σ (V)</th>
                     <th scope="col">Residual (V)</th>
                     <th scope="col">Accepted use</th>
@@ -333,6 +370,11 @@ export function PhotoelectricDataWorkbench({
               <button type="button" onClick={() => setExcluded([])}>
                 Select all rows
               </button>
+              {historical && (
+                <button type="button" onClick={() => setExcluded(historical.excluded.map(({ row }) => row))}>
+                  Select the rows Millikan used
+                </button>
+              )}
             </div>
           </fieldset>
         </form>
@@ -349,6 +391,9 @@ export function PhotoelectricDataWorkbench({
           It is a private file export, not an authenticated experiment or a public sharing link.
         </p>
       </section>
+      {historical ? (
+        <p><a href="/lab/lq-08/data/">Analyze a different stopping-potential record</a></p>
+      ) : (
       <form onSubmit={submit} aria-label="Photoelectric data and calibration">
         <fieldset>
           <legend>1. Choose the record</legend>
@@ -473,6 +518,7 @@ export function PhotoelectricDataWorkbench({
           </button>
         </div>
       </form>
+      )}
       {error && (
         <p className="notice error" role="alert">
           {error} The accepted result above has not been replaced.

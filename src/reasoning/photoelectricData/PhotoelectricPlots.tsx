@@ -12,6 +12,7 @@ const labelStyle = { fontSize: "var(--photo-label, 13px)" } as const;
 export function PhotoelectricPlots({ state }: { state: AcceptedAnalysis }) {
   const id = useId();
   const result = state.fit;
+  const voltage = state.historicalRecord ? "Signed intercept potential" : "Stopping potential";
   const positions = new Map(result.usedRows.map((row, index) => [row, index]));
   const used = state.record.rows.filter((r) => !state.excludedRows.includes(r.row));
   const fitted =
@@ -54,13 +55,15 @@ export function PhotoelectricPlots({ state }: { state: AcceptedAnalysis }) {
     const y = (v: number) => 215 - ((v - lowY) / (highY - lowY)) * 180;
     const label = residual
       ? "Residuals: measured voltage minus fitted voltage"
-      : "Stopping potentials and fitted line";
+      : state.historicalRecord
+        ? "Signed intercept potentials and fitted line"
+        : "Stopping potentials and fitted line";
     return (
       <figure className="photo-data-plot">
         {/* The vertical axis is named in HTML: inside the drawing, at a phone's label size, it
             collided with the top value on its own axis. */}
         <p className="photo-data-axis-title">
-          {residual ? "Residual (V)" : "Stopping potential (V)"}
+          {residual ? "Residual (V)" : `${voltage} (V)`}
         </p>
         <svg
           viewBox="0 0 720 290"
@@ -70,7 +73,7 @@ export function PhotoelectricPlots({ state }: { state: AcceptedAnalysis }) {
           <title id={`${id}-${residual}-title`}>{label}</title>
           <desc id={`${id}-${residual}-desc`}>
             Frequency in terahertz on the horizontal axis;{" "}
-            {residual ? "residual" : "stopping potential"} in volts on the vertical axis. The
+            {residual ? "residual" : voltage.toLowerCase()} in volts on the vertical axis. The
             observation table below contains the same values.
           </desc>
           <path d="M140 30V215H660" fill="none" stroke="currentColor" />

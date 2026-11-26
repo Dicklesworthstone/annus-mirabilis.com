@@ -37,6 +37,9 @@ export default function PhotoelectricDataPage() {
           record, inspect the residuals, then make the calibration assumption visible.
         </p>
       </header>
+      <p>
+        <a href="/lab/lq-08/millikan/">Start with Millikan’s signed sodium voltages (1916)</a>
+      </p>
       <PhotoelectricDataWorkbench reference={reference} example={initial} />
       <section className="lab-readings" aria-label="The fit in words">
         <p data-detail="0">

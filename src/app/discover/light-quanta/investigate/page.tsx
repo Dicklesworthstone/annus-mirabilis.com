@@ -112,6 +112,11 @@ export default function LightQuantaInvestigationPage() {
           fails outside the Wien regime, and why doubling power is not the same experiment as
           raising frequency.
         </p>
+        <p>
+          Millikan tested the frequency prediction eleven years later. <a href="/lab/lq-08/millikan/">
+            Fit his sodium measurements and see how much the sixth point changes the slope.
+          </a>
+        </p>
         <nav className="actions" aria-label="Return to the light-quanta paper">
           <a href="/papers/light-quanta/#arg-lq-wien-integration">Read the entropy derivation</a>
           <a href="/papers/light-quanta/#arg-lq-entropy-correspondence">
