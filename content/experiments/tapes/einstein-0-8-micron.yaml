@@ -14,7 +14,7 @@ mode: "bm-01:default"
 modelIdentity:
   modelId: brownian-motion-reference
   modelVersion: "1"
-  artifactDigest: "host:sha256:573bec0d74993578fd72ef2bcf0c428d74d6098591541dcf15d0f007d90452ca"
+  artifactDigest: "host:sha256:d3730ba00059d352ab3a8bb51b14509e1df557edb5ca8c00fc9788a2884dfa92"
 constantSetId: einstein-1905-brownian-printed
 seed: "1905"
 streamVersion: 1
@@ -54,7 +54,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 3000
     simulatedTime: 60
-    digest: "host:sha256:3ff80e85fca5c67669fca404b2075409bfca5b41b712c7ae3c4c5f25ba813274"
+    digest: "host:sha256:3e35c7b34d974ded59b836b98a5a8ffe4d1d144ff00709986ba5f9f8f2d28160"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -1276,7 +1276,7 @@ checkpoints:
   - actionIndex: 2
     stepIndex: 3000
     simulatedTime: 60
-    digest: "host:sha256:60838a4f6d89319bafc85ebc88cb734694343994f7b95ab493cb4bd3af1cfe61"
+    digest: "host:sha256:fe7329b17b11f635146adfa85396562b99040453b08a72c39059a73a9c9ba9d0"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
