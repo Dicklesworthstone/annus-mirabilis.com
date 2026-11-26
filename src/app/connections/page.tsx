@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { contentIndex } from "../../content/server.ts";
+import { ArgumentLimits } from "../../discovery/connections/ArgumentLimits.tsx";
+import { loadArgumentLimits } from "../../discovery/connections/argumentLimits.ts";
 import { ConnectionExercises } from "../../discovery/connections/ConnectionExercises.tsx";
 import { buildConnectionExercises } from "../../discovery/connections/records.ts";
 import { LINKED_OBSERVER_LESSON } from "../../experiments/groups/linkedObserverLesson.ts";
@@ -14,6 +16,7 @@ export const metadata: Metadata = {
 
 export default async function ConnectionsPage() {
   const index = await contentIndex();
+  const argumentLimits = loadArgumentLimits();
   const exercises = buildConnectionExercises({
     companionPresent: index.payloads.some(
       (entry) => entry.kind === "paper" && entry.id === "molecular-dimensions",
@@ -34,6 +37,11 @@ export default async function ConnectionsPage() {
         </p>
       </header>
       <ConnectionMap />
+      <nav className="reading page-flush" aria-label="Assumptions and limits across the papers">
+        <a className="button" href="#argument-limits">
+          Where the arguments reach their limits
+        </a>
+      </nav>
       {/* The sections follow the map's rows, from evidence to resemblance: a borrowed result, two
           routes to one number, a shared piece of mathematics, a link drawn later. They used to run
           in another order, so the map's first row was the page's third section and its last row
@@ -146,6 +154,7 @@ export default async function ConnectionsPage() {
           . These links open the same later comparison within the reader.
         </p>
       </section>
+      <ArgumentLimits entries={argumentLimits} />
       <ConnectionExercises exercises={exercises} />
       <section className="reading page-flush">
         <h2>Keep the direction of inference visible</h2>
