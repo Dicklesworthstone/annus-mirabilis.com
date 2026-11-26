@@ -361,7 +361,7 @@ export function compilePrintedSourceSemantics(
     },
   );
   const expectedOperator =
-    relativity?.allowExpressionList || brownian?.relationOperator === null
+    relativity?.standaloneExpression || relativity?.allowExpressionList || brownian?.relationOperator === null
       ? null
       : budget
         ? budget.relationOperator
