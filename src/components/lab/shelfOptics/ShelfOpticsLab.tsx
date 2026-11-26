@@ -358,6 +358,7 @@ export function ShelfOpticsLab({
         <div
           className="shelf-results lab-results"
           data-shelf-results
+          data-worked-case-results
           data-revision={accepted.revision}
         >
           <ComparisonPlot report={report} />

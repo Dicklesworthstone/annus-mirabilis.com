@@ -13,7 +13,8 @@
  * becoming "unread".
  *
  * Also writes instrument-worked-cases.json: bounded default settings, accepted table readouts,
- * model limits and source links for every registered core laboratory and supported named mode.
+ * model limits and source links for every registered core laboratory, the optical shelf and supported
+ * named modes.
  * The reading-only renderer consumes this display data without importing a live lab or owner.
  *
  * Which instruments: the registered ones without a picture, by the rule /instruments/ uses to show
@@ -25,10 +26,12 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { ReactElement } from "react";
+import { createElement, type ReactElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { parseYaml } from "../src/content/provenance/yaml.ts";
 import { CATALOGUE_IDS, CATALOGUE_STATUS, DECLARED_MODES } from "../src/experiments/catalogue.ts";
+import { SHELF_DEFINITIONS as SHELF_CONTEXT } from "../src/experiments/shelf/definition.ts";
+import { isShelfId, SHELF_IDS } from "../src/experiments/shelfOptics/definition.ts";
 import {
   type InstrumentWorkedCase,
   WORKED_CASE_SCHEMA_VERSION,
@@ -87,6 +90,31 @@ const paperNames: Readonly<Record<string, string>> = {
 };
 
 function workedCaseMetadata(id: string, mode: string | null): WorkedCaseMetadata {
+  if (isShelfId(id)) {
+    const context = SHELF_CONTEXT[id];
+    return {
+      instrumentId: id,
+      mode,
+      title: labName(id),
+      notModeled: context.notModeled,
+      notes: [
+        "These model predictions use modern SI calibration and illustrative settings. They are not historical observations.",
+      ],
+      sources: [
+        {
+          href: "/papers/special-relativity/#" + context.sourceSection,
+          label:
+            context.sourceSection === "s0"
+              ? "Special relativity, introduction"
+              : "Special relativity, section " + context.sourceSection.slice(1),
+        },
+        {
+          href: "/lab/" + id + "/#shelf-model-scope",
+          label: labName(id) + ": model assumptions and equations",
+        },
+      ],
+    };
+  }
   const manifest = parseYaml(
     readFileSync(join(ROOT, "content/experiments", id + ".yaml"), "utf8"),
   ) as {
@@ -133,6 +161,38 @@ for (const id of new Set([...ids, ...coreIds])) {
   }
 }
 
+// Shelf reader defaults are illustrative, whereas the full Fizeau page opens at its source
+// apparatus settings. Prepare the same view a reader will load, keeping observations separate.
+const shelfViews = await import("../src/experiments/views/shelfViews.tsx");
+const shelfClarifications = {
+  "shelf-michelson-morley": shelfViews.ShelfMichelsonMorleyView,
+  "shelf-fizeau": shelfViews.ShelfFizeauView,
+  "shelf-maxwell-galilean": shelfViews.ShelfMaxwellGalileanView,
+};
+for (const id of SHELF_IDS) {
+  if (CATALOGUE_STATUS[id] !== "registered") continue;
+  try {
+    const stream = await renderToReadableStream(
+      createElement(shelfClarifications[id], {
+        instanceId: "prepared-reading-only-" + id,
+        mode: null,
+        presentation: "standard",
+      }),
+    );
+    await stream.allReady;
+    workedCases[id] = readInstrumentWorkedCase(
+      await new Response(stream).text(),
+      workedCaseMetadata(id, null),
+    );
+  } catch (error) {
+    workedCases[id] = {
+      kind: "unavailable",
+      address: id,
+      reason: unreadReasonForRenderFailure(id, error),
+    };
+  }
+}
+
 // The actual apparatus clarification prepares different outputs from the analytic default.
 // Future declared modes without a prepared adapter stay explicitly unavailable.
 for (const id of coreIds) {
@@ -140,7 +200,6 @@ for (const id of coreIds) {
     const address = id + ":" + mode;
     if (id === "sr-02" && mode === "apparatus") {
       const { default: View } = await import("../src/experiments/views/sr02View.tsx");
-      const { createElement } = await import("react");
       const stream = await renderToReadableStream(
         createElement(View, {
           instanceId: "prepared-reading-only-sr02-apparatus",

@@ -35,6 +35,7 @@ export type WorkedCaseMetadata = Readonly<{
   mode: string | null;
   title: string;
   notModeled: readonly string[];
+  notes?: readonly string[];
   sources: readonly Readonly<{ href: string; label: string }>[];
 }>;
 
@@ -324,7 +325,11 @@ export function readInstrumentWorkedCase(
   }
   const settings = readSettings(root);
   if (!settings.length) return unavailable("The prepared result did not identify its settings.");
-  const statements: WorkedCaseStatement[] = allElements(root).flatMap((node) => {
+  // A laboratory can distinguish its computed readouts from nearby historical evidence.
+  // Settings still come from the entire accepted root, including their closed drawers.
+  const readoutRoot =
+    allElements(root).find((node) => attribute(node, "data-worked-case-results") !== null) ?? root;
+  const statements: WorkedCaseStatement[] = allElements(readoutRoot).flatMap((node) => {
     const kind = attribute(node, "data-results");
     if (
       node.tag !== "p" ||
@@ -336,7 +341,7 @@ export function readInstrumentWorkedCase(
     const content = runsOf(node);
     return content.length ? [{ kind, content }] : [];
   });
-  const tableReadings = allElements(root)
+  const tableReadings = allElements(readoutRoot)
     .filter(
       (node) => (node.tag === "table" || node.tag === "dl") && inView(node) && !isPrediction(node),
     )
@@ -349,8 +354,9 @@ export function readInstrumentWorkedCase(
   if (!metadata.notModeled.length || !metadata.sources.length)
     return unavailable("The prepared example's model limits or source passage are unavailable.");
   const notes = [
-    ...new Set(
-      allElements(root)
+    ...new Set([
+      ...(metadata.notes ?? []),
+      ...allElements(readoutRoot)
         .filter(
           (node) =>
             (node.tag === "p" || node.tag === "div") &&
@@ -361,7 +367,7 @@ export function readInstrumentWorkedCase(
         )
         .map(textOf)
         .filter(Boolean),
-    ),
+    ]),
   ];
   const result: PreparedInstrumentWorkedCase = {
     kind: "prepared",
