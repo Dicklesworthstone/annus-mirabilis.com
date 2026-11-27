@@ -9,6 +9,7 @@ import {
   loadFoundationPayload,
   loadPaperPayload,
 } from "../src/content/compiler/serverLoaders.ts";
+import { loadResultCards } from "../src/content/results/resultCards.ts";
 import { expressionLatex } from "../src/equations/latex.ts";
 import { recordQuantities } from "../src/equations/printedGlyphs.ts";
 import { teachingProfile } from "../src/equations/teachingProfiles.ts";
@@ -169,6 +170,9 @@ export async function buildOfflineChapters(
         throw new Error(
           "A changed publication schema, or a paper without a teaching profile, needs an explicit offline adapter.",
         );
+      const results = loadResultCards(root, payload.paper.id);
+      if (results?.problems.length)
+        throw new Error(`Unresolved offline results for ${payload.paper.id}: ${results.problems.join("\n")}`);
       const equations = payload.equations.map((equation) => ({
         id: equation.id,
         argument: equation.argument,
@@ -198,6 +202,7 @@ export async function buildOfflineChapters(
               equations,
               examples,
               workedCases,
+              results: results?.cards ?? [],
               assets,
               budget: budgets.default,
               ...(sources ? { sources } : {}),

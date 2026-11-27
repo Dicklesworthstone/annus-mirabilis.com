@@ -299,3 +299,29 @@ test("base64 slashes and quoted embedded font URLs are not mistaken for network 
     assert.doesNotThrow(() => build(input));
   }
 });
+
+test("result cards follow the section and cite the German sentence inside the file when present", () => {
+  const input = chapterFixture();
+  const card = {
+    id: "bm-displacement", paper: input.paper.id, section: input.section.id, title: "The spread",
+    oneSentence: "The mean grows.", qualifications: [{ kind: "premise", text: "Independent steps." }],
+    printed: [
+      { anchor: "s4-p1", sentenceIds: ["s4-p1-s1"], kind: "sentences", page: 557 },
+      { anchor: "eq-2", kind: "display", page: 556 },
+    ],
+  };
+  input.results = [card, { ...card, id: "other-result", section: "s2" }];
+  const external = build(input).html;
+  assert.match(external, /view\/german\/#s4-p1-s1/);
+  input.sources = {
+    html: '<section id="offline-german-s4"><p id="s4-p1-s1">German</p></section>',
+    coverage: { germanBlocks: 1, englishUnits: 0, revision: "a".repeat(64), translationRevision: null },
+  };
+  const html = build(input).html;
+  assert.ok(html.includes('href="#chapter-results"'));
+  assert.ok(html.includes('id="result-bm-displacement"'));
+  assert.ok(html.includes("Independent steps."));
+  assert.ok(html.includes('href="#s4-p1-s1"'));
+  assert.ok(html.includes('href="https://annus-mirabilis.com/papers/brownian-motion/view/german/#eq-2"'));
+  assert.ok(!html.includes("other-result"));
+});

@@ -31,6 +31,17 @@ test("source-only edits, new files and aliases change the pinned input even when
   assert.notEqual((await offlineSourceInputs(root, ["brownian-motion"])).sha256, changed.sha256);
 });
 
+test("changing a result card invalidates a saved chapter even with the same German source", async () => {
+  const root = await fixture();
+  await mkdir(resolve(root, "content/results"), { recursive: true });
+  const file = resolve(root, "content/results/brownian-motion.yaml");
+  await writeFile(file, "cards: []");
+  const before = await offlineSourceInputs(root, ["brownian-motion"]);
+  await writeFile(file, "cards: [{id: bm-diffusion-equation}]");
+  const after = await offlineSourceInputs(root, ["brownian-motion"]);
+  assert.throws(() => assertOfflineSourceInputs(before, after), { code: "offline-source-stale" });
+});
+
 test("a source edit makes the served chapter manifest stale without touching the reading digest (sourceInputs.ts:108)", async () => {
   const root = await fixture();
   const file = packageOfflineChapter(chapterFixture(), fixtureMath);

@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
 import { citationTitleClose } from "../../content/citationTitle.ts";
+import type { ResultCardRecord } from "../../content/results/resultCards.ts";
 import { hasInlineMath, splitInlineMath } from "../../content/inlineMath.ts";
 import type {
   Argument,
@@ -15,6 +16,7 @@ import {
   type InstrumentWorkedCaseIndex,
 } from "../../experiments/workedCases/types.ts";
 import { type OfflineFigureAsset, renderOfflineAsset } from "./assets.ts";
+import { renderChapterResults } from "./resultCards.ts";
 import { OFFLINE_DETAIL_SOURCE } from "./detail.inline.ts";
 import type { OfflineSourceAttachment, OfflineSourceCoverage } from "./SourceSection.tsx";
 import {
@@ -58,6 +60,8 @@ export type OfflineChapterInput = Readonly<{
   citations: readonly Citation[];
   equations: readonly OfflineEquation[];
   examples: readonly OfflineWorkedExample[];
+  /** The paper's validated result records, in editorial order. */
+  results?: readonly ResultCardRecord[];
   /** The laboratory’s actual default tables and prose, including non-scalar results. */
   workedCases?: InstrumentWorkedCaseIndex | undefined;
   identity: OfflineIdentity;
@@ -258,6 +262,13 @@ export function packageOfflineChapter(
       })
       .join("");
   }
+  const resultsSection = renderChapterResults(
+    input.results ?? [],
+    paper,
+    section.id,
+    offlineMarkupIds(sourceHtml),
+    prose,
+  );
   function blocks(values: readonly Block[]): string {
     return values
       .map((block) => {
@@ -391,7 +402,7 @@ export function packageOfflineChapter(
     : "<p>No scans or external figures are embedded. Their source references do not grant redistribution rights.</p>";
   const scriptHash = createHash("sha256").update(OFFLINE_DETAIL_SOURCE).digest("base64");
   const csp = `default-src 'none'; script-src 'sha256-${scriptHash}'; style-src 'unsafe-inline'; font-src data:; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'`;
-  const html = `<!doctype html>\n<html lang="en" data-detail="1" data-lens="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${e(csp)}"><meta name="referrer" content="no-referrer"><title>${e(section.title)} · ${e(paper.title)}</title><style>${css}</style></head><body><a href="#${explanationAnchor}">Skip to the chapter</a><header data-print-header><p>Annus Mirabilis · saved explanation preview</p><h1>${e(paper.title)}: ${e(section.title)}</h1><p lang="de">${e(paper.germanTitle)}</p><p>${contentsDescription} No simulation, search index, notebook, or private settings are included. Only explicit online links need a connection.</p><p><a rel="noreferrer" href="${canonical}">Current online chapter</a></p>${sourceNavigation}<fieldset data-screen-only><legend>Choose a reading</legend><label>Detail <select data-offline-detail disabled><option value="0">Overview</option><option value="1" selected>Full explanation</option><option value="2">Show every step</option></select></label><label><input type="checkbox" data-offline-modern disabled> Show modern qualifications</label></fieldset><p data-offline-status role="status" aria-live="polite"></p><noscript><p>JavaScript is off. The full explanation, foundations, source references, and static worked results are readable.</p></noscript></header><main><section id="${explanationAnchor}" tabindex="-1"><h2>${e(section.title)}</h2>${passages}</section>${sourceHtml}${figuresSection}${appendix ? `<section><h2>Foundations included in this file</h2>${appendix}</section>` : ""}${worked ? `<section><h2>Static laboratory examples</h2>${worked}</section>` : ""}<section><h2>Source references</h2><ol>${citations}</ol></section></main><footer data-print-footer><h2>Edition identity and attribution</h2><dl><dt>Generated</dt><dd>${e(identity.generatedAt)}</dd><dt>Content revision</dt><dd class="revision">${e(identity.contentRevision)}</dd>${sources ? `<dt>Source text revision</dt><dd class="revision">${e(sources.coverage.revision)}</dd>` : ""}<dt>Translation revision</dt><dd>${e(identity.translationRevision ?? "None: this file holds the explanation, not the translation")}</dd><dt>Build digest</dt><dd class="revision">${e(identity.buildDigest)}</dd><dt>Release</dt><dd>${e(identity.releaseId ?? "Development scaffold; not a published release")}</dd></dl>${input.assets.notices.map((notice) => `<pre>${e(notice)}</pre>`).join("\n")}${figuresNotice}</footer><script>${OFFLINE_DETAIL_SOURCE}</script></body></html>\n`;
+  const html = `<!doctype html>\n<html lang="en" data-detail="1" data-lens="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${e(csp)}"><meta name="referrer" content="no-referrer"><title>${e(section.title)} · ${e(paper.title)}</title><style>${css}</style></head><body><a href="#${explanationAnchor}">Skip to the chapter</a><header data-print-header><p>Annus Mirabilis · saved explanation preview</p><h1>${e(paper.title)}: ${e(section.title)}</h1><p lang="de">${e(paper.germanTitle)}</p><p>${contentsDescription} No simulation, search index, notebook, or private settings are included. Only explicit online links need a connection.</p><p><a rel="noreferrer" href="${canonical}">Current online chapter</a></p>${sourceNavigation}${resultsSection ? '<p><a href="#chapter-results">Results in this section</a></p>' : ""}<fieldset data-screen-only><legend>Choose a reading</legend><label>Detail <select data-offline-detail disabled><option value="0">Overview</option><option value="1" selected>Full explanation</option><option value="2">Show every step</option></select></label><label><input type="checkbox" data-offline-modern disabled> Show modern qualifications</label></fieldset><p data-offline-status role="status" aria-live="polite"></p><noscript><p>JavaScript is off. The full explanation, foundations, source references, and static worked results are readable.</p></noscript></header><main><section id="${explanationAnchor}" tabindex="-1"><h2>${e(section.title)}</h2>${passages}</section>${resultsSection}${sourceHtml}${figuresSection}${appendix ? `<section><h2>Foundations included in this file</h2>${appendix}</section>` : ""}${worked ? `<section><h2>Static laboratory examples</h2>${worked}</section>` : ""}<section><h2>Source references</h2><ol>${citations}</ol></section></main><footer data-print-footer><h2>Edition identity and attribution</h2><dl><dt>Generated</dt><dd>${e(identity.generatedAt)}</dd><dt>Content revision</dt><dd class="revision">${e(identity.contentRevision)}</dd>${sources ? `<dt>Source text revision</dt><dd class="revision">${e(sources.coverage.revision)}</dd>` : ""}<dt>Translation revision</dt><dd>${e(identity.translationRevision ?? "None: this file holds the explanation, not the translation")}</dd><dt>Build digest</dt><dd class="revision">${e(identity.buildDigest)}</dd><dt>Release</dt><dd>${e(identity.releaseId ?? "Development scaffold; not a published release")}</dd></dl>${input.assets.notices.map((notice) => `<pre>${e(notice)}</pre>`).join("\n")}${figuresNotice}</footer><script>${OFFLINE_DETAIL_SOURCE}</script></body></html>\n`;
   if (sources) offlineMarkupIds(html);
   const bytes = Buffer.byteLength(html),
     gzipBytes = gzipSync(html, { level: 9 }).byteLength;

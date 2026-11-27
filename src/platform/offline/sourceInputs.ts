@@ -77,6 +77,7 @@ export async function offlineSourceInputs(
     }
   }
   for (const paper of papers) {
+    await file("content/results/" + paper + ".yaml");
     for (const family of ["source-blocks", "translation-units"])
       await directory("content/" + family + "/" + paper, /\.(?:json|ya?ml)$/u);
     for (const family of ["alignments", "aliases"])

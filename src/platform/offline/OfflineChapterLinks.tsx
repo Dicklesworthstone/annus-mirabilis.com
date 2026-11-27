@@ -56,7 +56,7 @@ export async function OfflineChapterLinks({
         <p>
           Each chapter is one HTML file that opens in any browser without a connection. It holds the
           explanation at every level of detail, the lessons it links to, its source references and
-          the numbers worked out when the site was built. The label beside each download says whether
+          the numbers worked out when the site was built. Where the section has result cards, it also includes their conclusions and source links. The label beside each download says whether
           German source text and English translation are included. It has no notes of yours and no
           running simulations.
         </p>

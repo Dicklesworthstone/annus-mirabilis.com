@@ -49,8 +49,8 @@ export default async function OfflinePage() {
           </p>
         )}
         <p>
-          A file holds the explanation at every level of detail, its source references and the
-          numbers worked out when the site was built.
+          Each file carries the explanation at every level of detail and the numbers worked out when the site was built.
+          Sections with result cards also include their conclusions, qualifications and links to the cited German passages.
         </p>
       </header>
       {papers.length > 0 ? (
