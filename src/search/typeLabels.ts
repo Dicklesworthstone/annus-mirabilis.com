@@ -18,7 +18,7 @@ export const TYPE_LABELS: Readonly<Record<SearchType, string>> = {
   equation: "Equations",
   instrument: "Laboratories",
   foundation: "Foundations",
-  result: "Argument synopses",
+  result: "Results from the papers",
   "sentence-de": "German passages",
   "sentence-en": "English passages",
   glossary: "Notation and terms",

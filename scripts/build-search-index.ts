@@ -87,6 +87,7 @@ import {
 import { essayDocuments } from "../src/search/essayDocuments.ts";
 import { journeyStageDocuments } from "../src/search/journeyStageDocuments.ts";
 import { linkedGroupDocuments } from "../src/search/linkedGroupDocuments.ts";
+import { resultCardDocuments } from "../src/search/resultCardDocuments.ts";
 import { timelineDocuments } from "../src/search/timelineDocuments.ts";
 import { buildNativeSearchScript } from "./app/native-search.ts";
 import { spotlightSnapshot } from "./app/spotlight.ts";
@@ -417,6 +418,7 @@ export async function loadSearchCorpus(
   const transferExercises = connectionExerciseDocuments(CROSS_JOURNEY_EXERCISES, profile);
   const documents = [
     ...documentsFromCompiled(papers, foundations, instruments, profile, equationTerms),
+    ...papers.flatMap(({ paper }) => resultCardDocuments(root, paper.id, paper.title, profile)),
     ...explainedEquationDocuments(explainedEquations, profile),
     ...wrongTurnDocuments(wrongTurns, profile),
     ...capstoneDocuments(capstones, profile),

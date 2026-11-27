@@ -19,7 +19,7 @@ export function searchProfile(value: string | undefined): SearchProfile {
 
 /** These are the two payload kinds emitted by content/compiler/emitter.ts today. */
 export const SEARCH_COVERAGE = Object.freeze({
-  paper: "paper, section, argument, equation and argument synopsis",
+  paper: "paper, section, argument (including its recap) and equation",
   foundation: "foundation explanation and worked example",
 });
 export function assertSearchCoverage(kinds: readonly string[]): void {
@@ -244,23 +244,11 @@ export function documentsFromCompiled(
         terms: [argument.id],
         text: [
           argument.question,
+          inlineMathPlain(argument.recap),
           ...readings.map((r) => blocksText(argument.readings[r])),
           ...argument.premises,
           ...argument.limitations,
         ].join(" "),
-      });
-      // This is a synopsis, not a source-aligned historical result card.
-      add({
-        ...base,
-        id: `result:${argument.id}`,
-        type: "result",
-        anchor: argument.id,
-        section: section.id,
-        face: "results",
-        title: argument.title,
-        scopeLabel: `${paper.title} · authored argument synopsis, not a printed result`,
-        text: argument.recap,
-        terms: [],
       });
       for (const experiment of argument.experiments) {
         const terms = termsByInstrument.get(experiment) ?? new Set<string>();

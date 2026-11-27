@@ -102,7 +102,7 @@ test("current compiler kinds have coverage and new kinds fail instead of vanishi
 });
 test("compiled records create complete local documents, not placeholders", () => {
   const docs = documents();
-  assert.equal(docs.length, 10);
+  assert.equal(docs.length, 9);
   assert.equal(docs.filter((d) => d.type === "instrument").length, 4);
   assert.ok(docs.every((d) => d.title && d.scopeLabel && d.lang));
   assert.ok(!docs.some((d) => d.id.includes("avogadro")));
@@ -112,8 +112,8 @@ test("actual anchors and explicit reading faces survive the projection", () => {
   const docs = documents();
   assert.equal(docs.find((d) => d.type === "equation").anchor, "arg-bm-observable");
   assert.match(docs.find((d) => d.type === "equation").scopeLabel, /not printed/u);
-  assert.equal(docs.find((d) => d.type === "result").face, "results");
-  assert.match(docs.find((d) => d.type === "result").scopeLabel, /not a printed result/u);
+  assert.ok(!docs.some((d) => d.type === "result"));
+  assert.match(docs.find((d) => d.type === "argument").text, /twice the coordinate RMS/u);
   assert.equal(docs.find((d) => d.type === "foundation").route, "/foundations/mean-square/");
 });
 test("compiled equation spellings and instrument argument links are searchable", () => {
