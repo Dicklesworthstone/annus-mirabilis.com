@@ -121,10 +121,10 @@ test("one chapter retains every reading, with full explanation visible without J
     "A modern qualification.",
   ])
     assert.ok(html.includes(text));
-  assert.match(html, /data-reading="0" hidden/);
-  assert.match(html, /data-reading="1">/);
-  assert.match(html, /data-reading="2" hidden/);
-  assert.match(html, /data-reading="3" hidden/);
+  for (const [index, label] of ["Overview", "Full explanation", "Show every step", "Modern qualifications"].entries()) {
+    const open = index === 1 ? " open" : "";
+    assert.ok(html.includes(`<details class="chapter-reading"${open}><summary>${label}</summary><div data-reading="${index}">`));
+  }
 });
 test("foundation closure includes transitive prerequisites and exact local links", () => {
   const input = chapterFixture();

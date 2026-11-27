@@ -11,8 +11,14 @@ export function initializeOfflineDetail() {
     root.dataset.detail = value;
     root.dataset.lens = modern.checked ? "modern" : "paper";
     for (const block of document.querySelectorAll<HTMLElement>("[data-reading]")) {
-      block.hidden =
-        block.dataset.reading === "3" ? !modern.checked : block.dataset.reading !== value;
+      const visible = block.dataset.reading === "3" ? modern.checked : block.dataset.reading === value;
+      const panel = block.closest("details.chapter-reading") as HTMLDetailsElement | null;
+      if (panel) {
+        panel.open = visible;
+        panel.hidden = !visible;
+      } else {
+        block.hidden = !visible;
+      }
     }
     if (announce && status) {
       status.textContent = `${detail.selectedOptions[0]?.textContent ?? "Full explanation"}. ${modern.checked ? "Modern qualifications shown." : "Modern qualifications hidden."}`;
@@ -27,5 +33,6 @@ export function initializeOfflineDetail() {
   detail.addEventListener("change", () => apply(true));
   modern.addEventListener("change", () => apply(true));
   apply(false);
+  root.dataset.offlineEnhanced = "";
 }
 export const OFFLINE_DETAIL_SOURCE = `(${initializeOfflineDetail.toString()})();`;

@@ -133,10 +133,17 @@ try {
         });
       } else {
         await check(
-          "no-JavaScript controls remain disabled without hiding the full explanation",
+          "all four readings can be opened without JavaScript or a connection",
           async () => {
             assert.ok(await page.locator("[data-offline-detail]").isDisabled());
             assert.ok(await page.locator("noscript").first().isVisible());
+            for (const level of ["0", "2", "3"]) {
+              const panel = page.locator(`details.chapter-reading:has([data-reading="${level}"])`).first();
+              await panel.locator("summary").click();
+              assert.ok(await panel.locator("[data-reading]").isVisible());
+              await panel.locator("summary").click();
+              assert.equal(await panel.locator("[data-reading]").isVisible(), false);
+            }
           },
         );
       }
