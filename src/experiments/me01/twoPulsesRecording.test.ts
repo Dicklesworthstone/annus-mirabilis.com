@@ -139,7 +139,7 @@ describe("the separately recorded ME-01 two-pulses walkthrough", () => {
 
   test("the original link refuses without mutating the owner", () => {
     expect(createHash("sha256").update(historicalSource).digest("hex")).toBe(
-      "a1ab58c80c4d06d61ab886b538f8e7ac2116fee1483874a5415643e8ed4fec30",
+      "64dbee617ae583dc69a301e4f36e54080e6a323a38de270b9ad6cd0caf833428",
     );
     const tape = resolveTeachingTape(HISTORICAL_ID);
     assert.ok(tape);

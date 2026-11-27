@@ -127,7 +127,7 @@ checkpoints:
     seed: "0"
     streamPositions: []
     label: The same emission watched from 0.1c
-    teachingNote: "At 0.1c the kinetic-energy difference is 0.005037815259212077 J, while the low-speed approximation gives 0.005 J. Compare this with 0.25 J and 0.18 J at 0.6c: the approximation approaches the exact difference as the speed becomes small."
+    teachingNote: "At 0.1c the kinetic-energy difference is about 0.00504 J, while the low-speed approximation gives 0.005 J. Compare this with 0.25 J and 0.18 J at 0.6c: the approximation approaches the exact difference as the speed becomes small."
     expectedDisplayValues:
       - label: "Decrease in the body's kinetic energy"
         outputId: kineticEnergyDifference

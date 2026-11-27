@@ -74,7 +74,9 @@ export type TapeExpectedValue = Readonly<{
 export type ParameterName = Readonly<{ label: string }>;
 
 export type TapeStep = Readonly<{
+  rowId: string;
   actionIndex: number;
+  isCheckpoint: boolean;
   commandClass?: string | undefined;
   parameterId?: string | undefined;
   /** The manifest's own label and display unit for parameterId, where it declares one. */
@@ -363,25 +365,35 @@ export function stepsOf(
    * page read "Set n to 60 / n = 3 gives W = 1/8". Moving the checkpoint fixed the record; this
    * makes sure moving it does not make the observation disappear instead.
    */
-  const eventIndices = new Set(
-    list(raw.events).map((e) => num(((e ?? {}) as Record<string, unknown>).actionIndex)),
-  );
+  const events = list(raw.events);
+  // A checkpoint records the state after all events at its action index.
+  const lastEventAt = new Map<number, number>();
+  for (const [index, event] of events.entries()) {
+    const actionIndex = num(((event ?? {}) as Record<string, unknown>).actionIndex);
+    if (actionIndex !== undefined) lastEventAt.set(actionIndex, index);
+  }
   for (const [at, c] of [...checkpointAt].sort((a, b) => a[0] - b[0])) {
-    if (eventIndices.has(at)) continue;
+    if (lastEventAt.has(at)) continue;
     steps.push({
+      rowId: `checkpoint-${at}`,
       actionIndex: at,
+      isCheckpoint: true,
       ...(str(c.label) ? { label: str(c.label) } : {}),
       ...(str(c.teachingNote) ? { teachingNote: str(c.teachingNote) } : {}),
       expected: expectedOf(c.expectedDisplayValues, declared),
     });
   }
-  for (const e of list(raw.events)) {
+  for (const [index, e] of events.entries()) {
     const o = (e ?? {}) as Record<string, unknown>;
     const actionIndex = num(o.actionIndex);
     if (actionIndex === undefined) continue;
-    const c = checkpointAt.get(actionIndex) ?? {};
+    const checkpoint =
+      lastEventAt.get(actionIndex) === index ? checkpointAt.get(actionIndex) : undefined;
+    const c = checkpoint ?? {};
     steps.push({
+      rowId: `event-${index}`,
       actionIndex,
+      isCheckpoint: checkpoint !== undefined,
       ...(str(o.commandClass) ? { commandClass: str(o.commandClass) } : {}),
       ...(str(o.parameterId) ? { parameterId: str(o.parameterId) } : {}),
       ...(() => {

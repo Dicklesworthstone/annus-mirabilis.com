@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { loadTeachingTapes } from "../../../content/teachingTapes.ts";
 import { commandClassInWords } from "../../../experiments/commands/types.ts";
 import { numberText, unitText } from "../../../experiments/controls/declaredDomain.ts";
+import { withWalkthroughSelection } from "../../../experiments/permalink/walkthroughLocation.ts";
 import tapeLinks from "../../../generated/tape-links.json";
 import "../tapes.css";
 
@@ -124,6 +125,12 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
   const lab = `/lab/${tape.experimentId}/`;
   const settingsLink = (tapeLinks.links as unknown as TapeSettingsLinks)[tape.tapeId];
   const openHref = settingsLink?.href ?? lab;
+  const steps = tape.steps.map((step) => ({
+    ...step,
+    inspectHref: step.isCheckpoint
+      ? withWalkthroughSelection(lab, tape.experimentId, tape.tapeId, step.actionIndex)
+      : null,
+  }));
   // The instrument's short id reads inside a sentence; its manifest name stands beside the title.
   const shortName = tape.instrument?.id ?? tape.experimentId;
   const openText = settingsLink
@@ -184,8 +191,8 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
       <section aria-labelledby="tape-steps">
         <h2 id="tape-steps">What it changes, and what to expect</h2>
         <ol className="tape-steps">
-          {tape.steps.map((step) => (
-            <li key={step.actionIndex}>
+          {steps.map((step) => (
+            <li key={step.rowId}>
               <p className="tape-change">
                 {step.parameterId ? (
                   <>
@@ -276,6 +283,13 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
                     </tbody>
                   </table>
                 </section>
+              ) : null}
+              {step.inspectHref ? (
+                <p>
+                  <a href={step.inspectHref}>
+                    Inspect step {step.actionIndex} in {shortName}
+                  </a>
+                </p>
               ) : null}
             </li>
           ))}

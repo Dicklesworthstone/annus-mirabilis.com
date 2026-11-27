@@ -19,6 +19,7 @@ import {
   loadTeachingTapes,
   NAMED_IN_AGENTS,
   PLANNED_TAPES,
+  stepsOf,
   TAPES_DIR,
   tapeIdentityReport,
 } from "./teachingTapes.ts";
@@ -59,6 +60,29 @@ describe("the authored teaching tapes", () => {
   test("each tape can be presented: a title, and at least one step to walk", () => {
     expect(tapes.filter((t) => t.title.trim().length === 0).map((t) => t.tapeId)).toEqual([]);
     expect(tapes.filter((t) => t.steps.length === 0).map((t) => t.tapeId)).toEqual([]);
+  });
+
+  test("a recorded stop belongs to the final event at its index, including stops without prose", () => {
+    const rows = stepsOf({
+      events: [
+        { actionIndex: 4, parameterId: "a", value: 2 },
+        { actionIndex: 4, parameterId: "b", value: 3 },
+        { actionIndex: 9, parameterId: "a", value: 5 },
+      ],
+      checkpoints: [
+        { actionIndex: 0 },
+        { actionIndex: 4, label: "Both settings" },
+        { actionIndex: 12 },
+      ],
+    });
+    expect(rows.map((r) => [r.actionIndex, r.isCheckpoint, r.parameterId, r.label])).toEqual([
+      [0, true, undefined, undefined],
+      [4, false, "a", undefined],
+      [4, true, "b", "Both settings"],
+      [9, false, "a", undefined],
+      [12, true, undefined, undefined],
+    ]);
+    expect(new Set(rows.map((r) => r.rowId)).size).toBe(rows.length);
   });
 
   test("every recorded expectation is a labelled finite number", () => {

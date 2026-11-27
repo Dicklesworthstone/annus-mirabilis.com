@@ -4,7 +4,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { ME01_TAPE } from "../experiments/me01/tape.ts";
 import { validateTapeV2 } from "../experiments/permalink/schema.ts";
-import { restoreTape } from "../experiments/permalink/sessionTape.ts";
+import { restoreTape, settingsFromTape } from "../experiments/permalink/sessionTape.ts";
 import { validateControlTape } from "../experiments/tapes/schema.ts";
 import { parseYaml } from "./provenance/yaml.ts";
 import { loadWalkthroughCatalogue } from "./walkthroughs.ts";
@@ -50,8 +50,10 @@ test("ME-01 seeks to every authored stop in both directions through its real ses
   for (const stop of stops) {
     assert.ok(stop.tape);
     assert.equal(restoreTape(ME01_TAPE, session, stop.tape).kind, "restored", stop.label);
-    const actual = session.acceptedParameters() as Record<string, unknown>;
-    for (const [key, value] of Object.entries(stop.settings)) assert.equal(actual[key], value, key);
+    assert.deepEqual(
+      session.acceptedParameters(),
+      settingsFromTape(stop.settings, ME01_TAPE.defaults),
+    );
   }
 });
 

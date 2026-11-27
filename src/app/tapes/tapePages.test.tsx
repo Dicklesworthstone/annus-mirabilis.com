@@ -100,6 +100,25 @@ describe("the teaching-tape pages", () => {
     expect(numbersSeen).toBeGreaterThan(0);
   });
 
+  test("each recorded checkpoint links to inspection at its authored action index", async () => {
+    for (const tape of tapes) {
+      const raw = parseYaml(
+        readFileSync(join("content/experiments/tapes", `${tape.tapeId}.yaml`), "utf8"),
+      ) as { checkpoints: { actionIndex: number }[] };
+      const expected = raw.checkpoints.map((c) => c.actionIndex).sort((a, b) => a - b);
+      const document = dom(
+        renderToStaticMarkup(await TapePage({ params: Promise.resolve({ tape: tape.tapeId }) })),
+      );
+      const links = document.querySelectorAll(".tape-steps a");
+      expect(
+        [...links].map((a) => a.getAttribute("href")),
+        tape.tapeId,
+      ).toEqual(
+        expected.map((at) => `/lab/${tape.experimentId}/?walkthrough=${tape.tapeId}&stop=${at}`),
+      );
+    }
+  });
+
   test("the index's count of settings links is the records' count, not a number someone typed", () => {
     // The sentence here read "None of them runs the instrument for you: you set the values and
     // compare" for four commits after b5abbea3 made that false for 20 of the 22. The replacement

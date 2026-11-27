@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 349 quantities, 45 rejected spellings, 0 reserved spellings.
+Total: 351 quantities, 45 rejected spellings, 0 reserved spellings.
 
 ## Registered quantities
 
@@ -42,6 +42,7 @@ Total: 349 quantities, 45 rejected spellings, 0 reserved spellings.
 | boxLength | Box length | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | boxMass | Box mass | 0,1,0,0,0,0 | not-applicable | scalar | — |
 | centerOfMassShift | Center-of-mass shift | 1,0,0,0,0,0 | not-applicable | scalar | comShift |
+| chargeAtRestMoving | Charge at rest in the moving system | 0,0,0,0,0,0 | moving-system | scalar | — |
 | chargeDensityMoving | Charge density (moving system) | -3,0,1,0,1,0 | moving-system | scalar | chargeDensity |
 | chargeDensityStationary | Charge density (stationary system) | -3,0,1,0,1,0 | stationary-system | scalar | chargeDensity |
 | chargeToMassRatio | Charge-to-mass ratio | 0,-1,1,0,1,0 | not-applicable | scalar | — |
@@ -109,6 +110,7 @@ Total: 349 quantities, 45 rejected spellings, 0 reserved spellings.
 | endpointSimultaneityOffset | Endpoint simultaneity offset | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | energyDensityBelowCutoff | Energy density below a cutoff frequency | -1,1,-2,0,0,0 | not-applicable | scalar | — |
 | energyEquivalentMass | Mass equivalent of a reported energy gain | 0,1,0,0,0,0 | not-applicable | scalar | — |
+| energyRatio | Energy ratio of the two pulses in the moving frame | 0,0,0,0,0,0 | moving-system | scalar | — |
 | entropy | Entropy | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyDifference, entropyFunctionOfProbability |
 | entropyDensityConstant | Integration constant of the spectral entropy density | -1,1,-1,-1,0,0 | not-applicable | scalar | — |
 | entropyFromUnfixedConstant | Entropy an unfixed constant would add | 2,1,-2,-1,0,0 | not-applicable | scalar | — |
