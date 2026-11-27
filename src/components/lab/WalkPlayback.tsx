@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
+import { onReducedMotionChange } from "../../a11y/reducedMotion.ts";
 import type { Bm05Parameters } from "../../experiments/bm05/definition.ts";
 import { bindLaboratoryVisibility } from "../../experiments/lifecycle/bindLaboratoryVisibility.ts";
 import {
@@ -75,23 +76,13 @@ function RecordedWalkPlayer({ snapshot }: { snapshot: AcceptedSnapshot }) {
         }
       },
     });
-    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const applyMotionPreference = () => {
-      const held = preference.matches || document.documentElement.dataset.readingOnly === "on";
+    const unbindMotion = onReducedMotionChange((held) => {
       setMotionPaused(held);
       if (held) pause();
-    };
-    const observer = new MutationObserver(applyMotionPreference);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-reading-only"],
     });
-    preference.addEventListener("change", applyMotionPreference);
-    applyMotionPreference();
     return () => {
       unbind();
-      observer.disconnect();
-      preference.removeEventListener("change", applyMotionPreference);
+      unbindMotion();
       cancelFrame();
     };
   }, [clock, pause, cancelFrame]);

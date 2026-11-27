@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
+import { onReducedMotionChange } from "../../a11y/reducedMotion.ts";
 import type { RealRate } from "../../content/schemas/experiment.ts";
 import type { Bm01Parameters } from "../../experiments/bm01/definition.ts";
 import { bindLaboratoryVisibility } from "../../experiments/lifecycle/bindLaboratoryVisibility.ts";
@@ -98,23 +99,13 @@ function RecordingPlayer({
       }
     };
     const unbind = bindLaboratoryVisibility(element, { setSchedulingPaused: stopForVisibility });
-    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const applyMotion = () => {
-      const held = preference.matches || document.documentElement.dataset.readingOnly === "on";
+    const unbindMotion = onReducedMotionChange((held) => {
       setMotionPaused(held);
       if (held) pause();
-    };
-    const observer = new MutationObserver(applyMotion);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-reading-only"],
     });
-    preference.addEventListener("change", applyMotion);
-    applyMotion();
     return () => {
       unbind();
-      observer.disconnect();
-      preference.removeEventListener("change", applyMotion);
+      unbindMotion();
       cancelFrame();
     };
   }, [clocks, pause, cancelFrame]);

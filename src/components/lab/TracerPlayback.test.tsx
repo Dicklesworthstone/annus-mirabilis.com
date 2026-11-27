@@ -4,6 +4,8 @@ import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TRACE_POINTS } from "../../experiments/bm01/definition.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
+import { decodeEmbedOptions } from "../../experiments/embed/contract.ts";
+import { installEmbedPresentation } from "../../experiments/embed/presentation.ts";
 import { recordedSampleIndex } from "../../experiments/playback/recordingClock.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import exampleJson from "../../generated/bm01-example.json";
@@ -288,6 +290,45 @@ describe("real tracer playback controls", () => {
     expect(button("Play recording").disabled).toBe(true);
     await press("Next recorded position");
     expect(Number(plot().dataset.recordedTime)).toBe(0.12);
+  });
+
+  test("the embed motion option stops active playback and keeps manual inspection without autoplaying on removal", async () => {
+    const accepted = session.getSnapshot();
+    const decoded = decodeEmbedOptions("?motion=reduce");
+    expect(decoded.kind).toBe("options");
+    if (decoded.kind !== "options") throw new Error("The embed motion option must decode.");
+    await press("Play recording");
+    await advance(100);
+    expect(frames.size).toBe(1);
+    expect(Number(plot().dataset.playbackTime)).toBeCloseTo(0.1, 12);
+    let uninstall = () => {};
+    try {
+      await act(async () => {
+        uninstall = installEmbedPresentation(
+          document.documentElement,
+          decoded.options,
+          window.matchMedia.bind(window),
+        );
+      });
+      expect(frames.size).toBe(0);
+      expect(button("Play recording").disabled).toBe(true);
+      await advance(60_000);
+      expect(Number(plot().dataset.playbackTime)).toBeCloseTo(0.1, 12);
+      await press("Next recorded position");
+      expect(Number(plot().dataset.recordedTime)).toBe(0.12);
+      await act(async () => uninstall());
+      expect(button("Play recording").disabled).toBe(false);
+      expect(frames.size).toBe(0);
+      await advance(60_000);
+      expect(Number(plot().dataset.recordedTime)).toBe(0.12);
+      await press("Play recording");
+      await advance(100);
+      expect(Number(plot().dataset.playbackTime)).toBeCloseTo(0.22, 12);
+      expect(session.getSnapshot()).toBe(accepted);
+      expect(workersCreated).toBe(0);
+    } finally {
+      await act(async () => uninstall());
+    }
   });
 
   test("pagehide cancels the frame loop and pageshow never autoplays it", async () => {

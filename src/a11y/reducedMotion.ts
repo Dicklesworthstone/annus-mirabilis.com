@@ -7,6 +7,13 @@
 
 export type MotionListener = (reduced: boolean) => void;
 
+function hasMotionOverride(root: HTMLElement): boolean {
+  return (
+    root.getAttribute("data-reduced-motion") === "true" ||
+    root.getAttribute("data-reading-only") === "on"
+  );
+}
+
 /**
  * Checks if reduced motion is preferred either by system setting or site override.
  */
@@ -16,7 +23,7 @@ export function isReducedMotionPreferred(): boolean {
   }
 
   // 1. Check DOM data attribute set by prepaint reading settings
-  if (document.documentElement.getAttribute("data-reduced-motion") === "true") {
+  if (hasMotionOverride(document.documentElement)) {
     return true;
   }
 
@@ -40,35 +47,59 @@ export function shouldAnimate(overrideSetting?: boolean): boolean {
 }
 
 /**
- * Subscribes to changes in system reduced-motion preferences.
- * Returns an unsubscription callback.
+ * Reports the current preference, then follows system, embed and reading-only changes.
+ * Removing one pause source never overrides another. The subscriber decides how to pause;
+ * returning to an unrestricted preference is not an instruction to resume playback.
  */
 export function onReducedMotionChange(listener: MotionListener): () => void {
-  if (typeof window === "undefined" || !window.matchMedia) {
+  if (typeof window === "undefined") {
     return () => {};
   }
 
-  const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const root = document.documentElement;
+  let mediaQuery: MediaQueryList | undefined;
+  try {
+    mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+  } catch {
+    // A missing media-query API cannot disable the reader's explicit document preference.
+  }
+  let systemReduced = mediaQuery?.matches ?? false;
+  let disposed = false;
+  let previous: boolean | undefined;
+  const update = () => {
+    if (disposed) return;
+    const reduced = systemReduced || hasMotionOverride(root);
+    if (reduced === previous) return;
+    previous = reduced;
+    listener(reduced);
+  };
   const handler = (event: MediaQueryListEvent) => {
-    // If site has explicit override, it takes precedence
-    if (document.documentElement.getAttribute("data-reduced-motion") === "true") {
-      listener(true);
-    } else {
-      listener(event.matches);
-    }
+    systemReduced =
+      typeof event.matches === "boolean" ? event.matches : (mediaQuery?.matches ?? false);
+    update();
   };
 
-  if (mediaQuery.addEventListener) {
+  let removeMediaListener = () => {};
+  if (typeof mediaQuery?.addEventListener === "function") {
     mediaQuery.addEventListener("change", handler);
-  }
-  const legacyQuery = mediaQuery as unknown as {
-    addListener?: (fn: (e: MediaQueryListEvent) => void) => void;
-    removeListener?: (fn: (e: MediaQueryListEvent) => void) => void;
-  };
-  if (typeof legacyQuery.addListener === "function") {
-    legacyQuery.addListener(handler);
-    return () => legacyQuery.removeListener?.(handler);
+    const query = mediaQuery;
+    removeMediaListener = () => query.removeEventListener("change", handler);
+  } else if (typeof mediaQuery?.addListener === "function") {
+    mediaQuery.addListener(handler);
+    const query = mediaQuery;
+    removeMediaListener = () => query.removeListener(handler);
   }
 
-  return () => {};
+  const observer =
+    typeof window.MutationObserver === "function" ? new window.MutationObserver(update) : null;
+  observer?.observe(root, {
+    attributes: true,
+    attributeFilter: ["data-reduced-motion", "data-reading-only"],
+  });
+  update();
+  return () => {
+    disposed = true;
+    observer?.disconnect();
+    removeMediaListener();
+  };
 }
