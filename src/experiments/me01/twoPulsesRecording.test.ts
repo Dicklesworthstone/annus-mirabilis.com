@@ -14,12 +14,11 @@ import {
 } from "../permalink/sessionTape.ts";
 import { resolveTeachingTape } from "../permalink/teachingTapeCatalogue.ts";
 import { WALKTHROUGH_CATALOGUE } from "../permalink/walkthroughCatalogue.ts";
-import type { ScientificResult } from "../results/types.ts";
 import { validateControlTape } from "../tapes/schema.ts";
 import { createMe01Session } from "./session.ts";
 import { ME01_TAPE } from "./tape.ts";
 
-const CURRENT_ID = "me-01-two-pulses-2026-11-13";
+const CURRENT_ID = "me-01-opposite-pulses-2026-11-27";
 const HISTORICAL_ID = "the-two-pulses";
 const historicalSource = readFileSync(
   new URL("../../../content/experiments/tapes/the-two-pulses.yaml", import.meta.url),
@@ -30,7 +29,7 @@ const record = validateControlTape(
   strictParse(
     readFileSync(
       new URL(
-        "../../../content/experiments/tapes/me-01-two-pulses-2026-11-13.yaml",
+        "../../../content/experiments/tapes/me-01-opposite-pulses-2026-11-27.yaml",
         import.meta.url,
       ),
       "utf8",
@@ -72,11 +71,10 @@ describe("the separately recorded ME-01 two-pulses walkthrough", () => {
       }
       expect(runner.getAcceptedCheckpoint().acceptedActionIndex).toBe(checkpoint.actionIndex);
       expect(runner.getAcceptedCheckpoint().digest).toBe(checkpoint.digest);
-      const evaluated = owner.evaluate(owner.acceptedParameters()) as unknown as Readonly<
-        Record<string, ScientificResult>
-      >;
+      const outputs = owner.getSnapshot().accepted?.outputs;
+      assert.ok(outputs);
       for (const expected of checkpoint.expectedDisplayValues ?? []) {
-        const result = evaluated[expected.label];
+        const result = outputs.find((output) => output.quantityId === expected.outputId);
         assert.ok(result && result.status === "value", expected.label);
         expect(result.value).toBe(expected.value);
         expect(result.unit).toBe(expected.unit);
@@ -122,7 +120,24 @@ describe("the separately recorded ME-01 two-pulses walkthrough", () => {
     expect(owner.getSnapshot()).toBe(accepted);
   });
 
-  test("historical bytes and link resolution stay unchanged and refuse without mutating the owner", () => {
+  test("the November 13 recording retains its published identity", () => {
+    const previousId = "me-01-two-pulses-2026-11-13";
+    const source = readFileSync(
+      new URL(`../../../content/experiments/tapes/${previousId}.yaml`, import.meta.url),
+      "utf8",
+    );
+    expect(createHash("sha256").update(source).digest("hex")).toBe(
+      "69d12262d76350a01d9d96f9a1ec8342f25b925fc35fc49e58844da7945486c4",
+    );
+    const owner = createMe01Session("two-pulses-archives");
+    const before = owner.getSnapshot();
+    const previous = playWalkthrough(ME01_TAPE, owner, previousId);
+    assert.equal(previous.kind, "refused");
+    expect(previous.code).toBe("tape-artifact-mismatch");
+    expect(owner.getSnapshot()).toBe(before);
+  });
+
+  test("the original link refuses without mutating the owner", () => {
     expect(createHash("sha256").update(historicalSource).digest("hex")).toBe(
       "a1ab58c80c4d06d61ab886b538f8e7ac2116fee1483874a5415643e8ed4fec30",
     );

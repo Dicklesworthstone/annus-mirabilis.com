@@ -357,7 +357,7 @@ describe("ME-01 verified links and personal recordings", () => {
     const before = snapshot();
     assert.ok(before.accepted);
     expect(container.querySelector('[role="alert"][data-refusal-code]')).not.toBeNull();
-    const first = required<HTMLButtonElement>("button[data-walkthrough]");
+    const first = required<HTMLButtonElement>(`button[data-walkthrough="${tapeId}"]`);
     expect(first.getAttribute("data-walkthrough")).toBe(tapeId);
     expect(first.textContent?.trim()).toBe("Play: the two pulses (13 November 2026)");
     await act(async () => first.click());
@@ -402,6 +402,18 @@ describe("ME-01 verified links and personal recordings", () => {
     await until(() => sharedTape()?.initialConditions.frameSpeed === 0.1);
     expect(sharedTape()?.initialConditions.emissionAngle).toBe(90);
     expect(sharedTape()?.modelIdentity.artifactDigest).toBe(ME01_TAPE.environment.artifactDigest);
+  });
+
+  test("the first walkthrough replays the current two-pulse recording into the form", async () => {
+    await mount();
+    const button = required<HTMLButtonElement>("button[data-walkthrough]");
+    expect(button.getAttribute("data-walkthrough")).toBe("me-01-opposite-pulses-2026-11-27");
+    await act(async () => button.click());
+    const played = required('[data-walkthrough-result="played"]');
+    expect(played.getAttribute("data-walkthrough-new-run")).toBe("false");
+    expect(field("frameSpeed").value).toBe("0.1");
+    expect(field("emissionAngle").value).toBe("90");
+    expect(container.querySelector("[data-walkthrough-recalculate]")).toBeNull();
   });
 
   test("a real owner without new-run support offers no current-model recovery", async () => {

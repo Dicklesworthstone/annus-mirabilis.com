@@ -1,0 +1,144 @@
+# Recorded through ME-01's session replay runner. Each reading comes from the accepted output
+# at this stop, and each digest from the same owner's accepted checkpoint.
+tapeVersion: 2
+tapeId: me-01-opposite-pulses-2026-11-27
+experimentId: me-01
+mode: me-01:default
+modelIdentity:
+  modelId: mass-energy-two-ledgers-host
+  modelVersion: "1"
+  artifactDigest: "host:sha256:646000d93f3cca42aef9c2c447f2f224c9bc82911525c7f21331830104bc0e36"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: deterministic
+initialConditions:
+  frameSpeed: 0.6
+  emittedEnergyRestFrame: 1
+  emissionAngle: 0
+  offsetDisplay: symbolic
+  premise: unchanged
+  step: subtraction-move
+  cancelAngleFactors: "true"
+  cancelInternalEnergies: "true"
+  cancelAdditiveConstant: "true"
+  notation: printed
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: setup-change
+    commandId: turn-the-pair
+    parameterId: emissionAngle
+    value: 45
+    previousValue: 0
+  - kind: control
+    actionIndex: 2
+    commandClass: setup-change
+    commandId: turn-the-pair-broadside
+    parameterId: emissionAngle
+    value: 90
+    previousValue: 45
+  - kind: control
+    actionIndex: 3
+    commandClass: observer-change
+    commandId: watch-from-a-slower-frame
+    parameterId: frameSpeed
+    value: 0.1
+    previousValue: 0.6
+checkpoints:
+  - actionIndex: 0
+    stepIndex: 0
+    simulatedTime: 0
+    digest: host:de5dcf14f6c3d8ce
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: Both pulses forward and back along the motion
+    teachingNote: In the body's rest frame the opposite pulses carry 1 J between them. At 0.6c the moving observer counts 1.25 J, and the body's kinetic energy falls by 0.25 J. The low-speed approximation gives 0.18 J here; the final stop will compare it at a smaller speed.
+    expectedDisplayValues:
+      - label: "Total light energy in the moving frame"
+        outputId: lightComplexEnergyMoving
+        value: 1.25
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: "Decrease in the body's kinetic energy"
+        outputId: kineticEnergyDifference
+        value: 0.25
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: "Energy ratio of the two pulses"
+        outputId: energyRatio
+        value: 0.25
+        unit: "1"
+        constantSetId: modern-si-2019
+  - actionIndex: 1
+    stepIndex: 1
+    simulatedTime: 0
+    digest: host:d95c7f73ff986e94
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: The pair turned to 45 degrees
+    teachingNote: "One pulse gains what the other loses: their energy ratio goes from 0.25 to 0.4042. The sum is still 1.25 and the kinetic-energy difference is still 0.25. This is the cancellation the argument rests on, and it is worth seeing rather than being told."
+    expectedDisplayValues:
+      - label: "Total light energy in the moving frame"
+        outputId: lightComplexEnergyMoving
+        value: 1.25
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: "Energy ratio of the two pulses"
+        outputId: energyRatio
+        value: 0.40423397875139383
+        unit: "1"
+        constantSetId: modern-si-2019
+  - actionIndex: 2
+    stepIndex: 2
+    simulatedTime: 0
+    digest: host:f997eab025835fd7
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Broadside: the two pulses are equal again"
+    teachingNote: At 90 degrees the ratio is exactly 1, the two pulses sharing the moving-frame energy equally, and the sum is still 1.25. Three different directions, three different splits, one sum. The result does not depend on which way the body fired.
+    expectedDisplayValues:
+      - label: "Total light energy in the moving frame"
+        outputId: lightComplexEnergyMoving
+        value: 1.25
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: "Energy ratio of the two pulses"
+        outputId: energyRatio
+        value: 1
+        unit: "1"
+        constantSetId: modern-si-2019
+  - actionIndex: 3
+    stepIndex: 3
+    simulatedTime: 0
+    digest: host:9d8dc3d885f386f9
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: The same emission watched from 0.1c
+    teachingNote: "At 0.1c the kinetic-energy difference is 0.005037815259212077 J, while the low-speed approximation gives 0.005 J. Compare this with 0.25 J and 0.18 J at 0.6c: the approximation approaches the exact difference as the speed becomes small."
+    expectedDisplayValues:
+      - label: "Decrease in the body's kinetic energy"
+        outputId: kineticEnergyDifference
+        value: 0.005037815259212077
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: "Total light energy in the moving frame"
+        outputId: lightComplexEnergyMoving
+        value: 1.005037815259212
+        unit: "J"
+        constantSetId: modern-si-2019
+title: The two pulses (27 November 2026)
+description: Turn two opposite pulses from 0 to 45 to 90 degrees in the body’s rest frame, then compare the same emission from a slower moving frame. This recording captures the laboratory’s accepted moving-frame energy, energy ratio, and kinetic-energy difference on 27 November 2026.
+isTeachingSequence: true

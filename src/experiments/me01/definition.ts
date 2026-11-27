@@ -68,6 +68,10 @@ export const ME01_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "value",
     "outside-domain",
   ]),
+  energyRatio: contract("1", "pulse-energy-ratio", "massEnergy.pulseEnergyRatio", [
+    "value",
+    "outside-domain",
+  ]),
   emittedEnergyRestFrame: contract("J", "rest-frame-balance", "massEnergy.restBalanceLight", [
     "value",
     "outside-domain",

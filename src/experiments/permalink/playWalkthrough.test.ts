@@ -154,6 +154,7 @@ describe("the control as the page serves it", () => {
     // scripts do not run; no text sits inside it, because that rule hides what a button wraps.
     expect(/<button\b[^>]*data-walkthrough[^>]*\bdisabled\b/u.test(html)).toBe(false);
     // And the route a reader keeps in that case: the walkthrough's own page, server-rendered.
+    expect(html).toContain('href="/tapes/me-01-opposite-pulses-2026-11-27/"');
     expect(html).toContain('href="/tapes/the-two-pulses/"');
     expect(html).toContain('href="/tapes/me-01-two-pulses-2026-11-13/"');
   });

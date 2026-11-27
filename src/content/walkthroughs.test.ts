@@ -42,7 +42,7 @@ test("the checkpoint catalogue retains every authored stop, including unconverti
 });
 
 test("ME-01 seeks to every authored stop in both directions through its real session", () => {
-  const walkthrough = catalogue.walkthroughs.find((entry) => entry.tapeId === "the-two-pulses");
+  const walkthrough = catalogue.walkthroughs.find((entry) => entry.tapeId === "me-01-opposite-pulses-2026-11-27");
   assert.ok(walkthrough);
   assert.ok(walkthrough.checkpoints.length > 1);
   const session = ME01_TAPE.createSession("checkpoint-walkthrough-roundtrip");
@@ -56,7 +56,7 @@ test("ME-01 seeks to every authored stop in both directions through its real ses
 });
 
 test("an altered checkpoint is refused without replacing the reader's accepted snapshot", () => {
-  const walkthrough = catalogue.walkthroughs.find((entry) => entry.tapeId === "the-two-pulses");
+  const walkthrough = catalogue.walkthroughs.find((entry) => entry.tapeId === "me-01-opposite-pulses-2026-11-27");
   const tape = walkthrough?.checkpoints.at(-1)?.tape;
   assert.ok(tape);
   const session = ME01_TAPE.createSession("checkpoint-walkthrough-refusal");

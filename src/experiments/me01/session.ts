@@ -20,6 +20,7 @@ export function snapshotOutputs(p: Me01Parameters): ScientificResult[] {
   const snap = evaluateMe01(p);
   return [
     snap.movingBalanceLight,
+    snap.pulseEnergyRatio,
     snap.restBalanceLight,
     snap.restBodyBefore,
     snap.restBodyAfter,

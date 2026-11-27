@@ -22,7 +22,13 @@ const resolve = (id: string): TapeV2 | null => RECORDS.get(id) ?? null;
 
 /** Every laboratory that mounts the control, with the walkthroughs it should offer. */
 const WIRED = [
-  { lab: "me-01", module: "me01/tape.ts", binding: "ME01_TAPE", tapes: ["the-two-pulses"] },
+  {
+    lab: "me-01",
+    module: "me01/tape.ts",
+    binding: "ME01_TAPE",
+    tapes: ["me-01-opposite-pulses-2026-11-27"],
+    archived: ["the-two-pulses", "me-01-two-pulses-2026-11-13"],
+  },
   {
     lab: "lq-05",
     module: "lq05/tape.ts",
@@ -101,7 +107,8 @@ describe("the walkthrough control, laboratory by laboratory", () => {
       const buttons = [
         ...html.matchAll(/<button\b([^>]*data-walkthrough="([^"]*)"[^>]*)>(.*?)<\/button>/gs),
       ];
-      expect(buttons.map((match) => match[2]).sort()).toEqual([...entry.tapes].sort());
+      const served = "archived" in entry ? [...entry.tapes, ...entry.archived] : [...entry.tapes];
+      expect(buttons.map((match) => match[2]).sort()).toEqual(served.sort());
       // Enabled, so the root layout's noscript rule hides it when scripts do not run.
       for (const match of buttons) expect(/\bdisabled\b/.test(match[1] ?? "")).toBe(false);
       // One walkthrough reads as "the recorded walkthrough"; several are named, or a reader could not
@@ -109,10 +116,10 @@ describe("the walkthrough control, laboratory by laboratory", () => {
       for (const match of buttons) {
         const label = (match[3] ?? "").replace(/<[^>]+>/g, "").trim();
         expect(label.length).toBeGreaterThan(0);
-        if (entry.tapes.length > 1) expect(label.startsWith("Play: ")).toBe(true);
+        if (served.length > 1) expect(label.startsWith("Play: ")).toBe(true);
       }
       // The route a reader keeps without JavaScript, server-rendered by LabTapes.
-      for (const tapeId of entry.tapes) expect(html).toContain(`href="/tapes/${tapeId}/"`);
+      for (const tapeId of served) expect(html).toContain(`href="/tapes/${tapeId}/"`);
       // Nothing about a result is served before the button is pressed.
       expect(html).not.toContain("data-walkthrough-result");
     });

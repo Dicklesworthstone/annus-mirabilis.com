@@ -12,6 +12,16 @@
   frame: object-rest
   colorRole: energy
 
+- id: energyRatio
+  name: Energy ratio of the two pulses in the moving frame
+  description: The energy of the first emitted pulse divided by the energy of the opposite pulse, both measured by the moving observer.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: energy
+
 - id: bodyEnergyRestBefore
   name: Body energy before emission (stationary system)
   description: >
