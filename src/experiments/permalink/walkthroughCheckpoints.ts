@@ -1,4 +1,4 @@
-import type { ControlTapeV2 } from "../tapes/schema.ts";
+import type { ControlTapeV2, ExpectedDisplayValue } from "../tapes/schema.ts";
 import type { TapeV2 } from "./types.ts";
 
 /** A recorded stop, not a recomputed or invented checkpoint (am-rt-control-tapes-0gc). */
@@ -6,6 +6,7 @@ export type WalkthroughCheckpoint = Readonly<{
   actionIndex: number;
   label: string;
   teachingNote?: string | undefined;
+  expectedDisplayValues?: readonly ExpectedDisplayValue[] | undefined;
   /** Canonical settings at this stop. Loading these into a form is NOT a verified replay. */
   settings: Readonly<Record<string, number | string>>;
   /** Self-contained replay request. Null when the authored checkpoint cannot cross the wire. */

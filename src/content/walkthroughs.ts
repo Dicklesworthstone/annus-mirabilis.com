@@ -36,6 +36,7 @@ export function loadWalkthroughCatalogue(root: string = process.cwd()): Walkthro
           actionIndex: prefix.actionIndex,
           label: prefix.label,
           ...(prefix.teachingNote ? { teachingNote: prefix.teachingNote } : {}),
+          expectedDisplayValues: prefix.record.checkpoints[0]?.expectedDisplayValues,
           settings: prefix.settings,
           tape: tape ? withoutReference(tape) : null,
           ...(converted.kind === "unconvertible"

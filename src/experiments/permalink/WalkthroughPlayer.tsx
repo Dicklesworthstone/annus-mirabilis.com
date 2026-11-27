@@ -2,6 +2,8 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { tapePath } from "../../reader/sitePaths.ts";
+import type { CheckpointReadoutOwner } from "./checkpointReadings.ts";
+import { CheckpointReadingsPanel } from "./CheckpointReadingsPanel.tsx";
 import {
   applyWalkthroughCheckpointAsync,
   calculateWalkthroughCheckpointAsync,
@@ -30,9 +32,11 @@ async function loadCatalogue(): Promise<WalkthroughCatalogue> {
  */
 export function WalkthroughPlayer({
   target,
+  owner,
   load = loadCatalogue,
 }: Readonly<{
   target: WalkthroughPlayerTarget;
+  owner?: CheckpointReadoutOwner | undefined;
   load?: (() => Promise<WalkthroughCatalogue>) | undefined;
 }>) {
   const id = useId();
@@ -272,6 +276,15 @@ export function WalkthroughPlayer({
                     <p>{checkpoint.unavailable || "This stop cannot be replayed."}</p>
                   )}
                 </div>
+              )}
+              {checkpoint?.expectedDisplayValues && checkpoint.expectedDisplayValues.length > 0 && (
+                <CheckpointReadingsPanel
+                  expected={checkpoint.expectedDisplayValues}
+                  settings={checkpoint.settings}
+                  experimentId={experimentId}
+                  owner={owner}
+                  compare={result?.kind === "replayed" || result?.kind === "new-run"}
+                />
               )}
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                 <button type="button" disabled={index <= 0} onClick={() => inspect(index - 1)}>

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { ExperimentView } from "../store/instanceStore.ts";
+import type { CheckpointReadoutOwner } from "./checkpointReadings.ts";
 import {
   type DraftTapeBinding,
   type DraftTapeLoad,
@@ -71,6 +72,7 @@ export type LabTapeLinkState = Readonly<{
   /** A link read without fault, said plainly rather than as an error (a worker lab's loaded form). */
   note?: string | undefined;
   walkthrough?: WalkthroughTarget | undefined;
+  readoutOwner?: CheckpointReadoutOwner | undefined;
   /** A refused historical record can be reused only through the reader's explicit choice. */
   recovery?: Readonly<{ label: string; explanation: string; run(): void }> | undefined;
   /** An incoming recorded calculation waits for an explicit, cancellable worker action. */
@@ -100,7 +102,9 @@ export type LabTapeLinkState = Readonly<{
  */
 export function useLabTapeLink<P extends object>(
   binding: LabTapeBinding,
-  session: Omit<TapeSession, "acceptedParameters"> & Readonly<{ acceptedParameters(): P }>,
+  session: Omit<TapeSession, "acceptedParameters"> &
+    CheckpointReadoutOwner["session"] &
+    Readonly<{ acceptedParameters(): P }>,
   acceptedParameters: object | null | undefined,
   enabled = true,
   onRestored?: (parameters: P, predictions?: readonly TapePredictionEvent[]) => void,
@@ -218,7 +222,10 @@ export function useLabTapeLink<P extends object>(
         : undefined,
     [binding, session, enabled],
   );
-  return { notice, shareTape, recordingTape, note, recovery, walkthrough };
+  return {
+    notice, shareTape, recordingTape, note, recovery, walkthrough,
+    readoutOwner: { binding, session },
+  };
 }
 
 /**
@@ -545,6 +552,7 @@ export function useDraftTapeLink(
   );
   return {
     notice,
+    readoutOwner: worker && { binding, session: worker.session },
     shareTape: retained ?? recordingTape,
     recordingTape,
     note,
@@ -688,6 +696,7 @@ export function LabTapeLink({
       {hydrated && link.walkthrough && (
         <WalkthroughPlayer
           key={link.walkthrough.experimentId}
+          owner={link.readoutOwner}
           target={workerWalkthrough ?? link.walkthrough}
         />
       )}
