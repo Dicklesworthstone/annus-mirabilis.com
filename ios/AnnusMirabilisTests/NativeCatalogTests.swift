@@ -432,6 +432,18 @@ struct SpotlightCatalogTests {
         #expect(same.changed.isEmpty && same.removed.isEmpty)
     }
 
+    @Test("an app update can add or repair a snapshot without changing the web release")
+    func receiptBindsPayload() throws {
+        let oldData = Data(#"{"edition":"r1","inventory":{}}"#.utf8)
+        let legacy = try JSONDecoder().decode(SpotlightReceipt.self, from: oldData)
+        #expect(legacy.matches(edition: "r1", snapshotDigest: nil))
+        #expect(!legacy.matches(edition: "r1", snapshotDigest: "new"))
+        let indexed = SpotlightReceipt(edition: "r1", snapshotDigest: "current", inventory: [:])
+        #expect(indexed.matches(edition: "r1", snapshotDigest: "current"))
+        #expect(!indexed.matches(edition: "r1", snapshotDigest: "repaired"))
+        #expect(!indexed.matches(edition: "r2", snapshotDigest: "current"))
+    }
+
     @Test("the installed Spotlight snapshot matches the edition and resolves its anchors offline")
     func bundledDestinations() throws {
         let edition = try EditionCatalog.load()

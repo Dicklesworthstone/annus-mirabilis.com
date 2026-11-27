@@ -329,29 +329,26 @@ actor NativeSearchEngine: NativeSearchQuerying {
 actor EditionSpotlight {
     static let shared = EditionSpotlight()
     enum Action: Equatable, Sendable { case refresh, remove, restore }
-    private var tail: Task<Void, Error>?
+    private var tail: Task<Int, Error>?
     private let defaults = UserDefaults.standard
     private let receiptKey = "am:app:spotlight:receipt:v1"
     private let pendingKey = "am:app:spotlight:pending:v1"
     private let suppressedKey = "am:app:spotlight:suppressed:v1"
 
-    private struct Receipt: Codable {
-        let edition: String
-        let inventory: [String: String]
-    }
-
-    func perform(_ action: Action, for catalog: EditionCatalog) async throws {
+    @discardableResult
+    func perform(_ action: Action, for catalog: EditionCatalog) async throws -> Int {
         let previous = tail
         let next = Task(priority: .utility) {
             _ = await previous?.result
-            try await self.apply(action, catalog: catalog)
+            return try await self.apply(action, catalog: catalog)
         }
         tail = next
-        try await next.value
+        return try await next.value
     }
 
-    private func apply(_ action: Action, catalog: EditionCatalog) async throws {
+    private func apply(_ action: Action, catalog: EditionCatalog) async throws -> Int {
         let edition = catalog.releaseID ?? catalog.editionDigest
+        let snapshotDigest = SpotlightSnapshot.file(in: catalog)?.sha256
         let index = CSSearchableIndex.default()
         if action == .remove {
             // Persist the intent first. If the system rejects deletion, the next launch retries.
@@ -363,9 +360,13 @@ actor EditionSpotlight {
         }
         let suppressed = defaults.string(forKey: suppressedKey) == edition
         let pending = defaults.bool(forKey: pendingKey)
-        let receipt = defaults.data(forKey: receiptKey).flatMap { try? JSONDecoder().decode(Receipt.self, from: $0) }
-        if suppressed && !pending { return }
-        if !suppressed && action == .refresh && !pending && receipt?.edition == edition { return }
+        let receipt = defaults.data(forKey: receiptKey).flatMap { try? JSONDecoder().decode(SpotlightReceipt.self, from: $0) }
+        if suppressed && !pending { return 0 }
+        if action == .refresh && !pending, let receipt,
+            receipt.matches(edition: edition, snapshotDigest: snapshotDigest)
+        {
+            return receipt.inventory.count
+        }
         let entries = try suppressed ? [] : SpotlightSnapshot.entries(in: catalog)
         // Interrupted batches may already have inserted identifiers absent from the previous receipt.
         // Rebuild from empty after interruption, or if the receipt cannot be read.
@@ -391,9 +392,10 @@ actor EditionSpotlight {
             }
             try await index.indexSearchableItems(items)
         }
-        let newReceipt = Receipt(edition: edition, inventory: changes.inventory)
+        let newReceipt = SpotlightReceipt(edition: edition, snapshotDigest: snapshotDigest, inventory: changes.inventory)
         defaults.set(try JSONEncoder().encode(newReceipt), forKey: receiptKey)
         defaults.removeObject(forKey: pendingKey)
         if !suppressed { defaults.removeObject(forKey: suppressedKey) }
+        return changes.inventory.count
     }
 }

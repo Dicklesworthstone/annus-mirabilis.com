@@ -62,10 +62,14 @@ struct ReaderDataView: View {
         Task {
             defer { updatingSpotlight = false }
             do {
-                try await EditionSpotlight.shared.perform(action, for: session.catalog)
-                spotlightMessage = action == .remove
-                    ? "Removed until you add it again or install a new edition."
-                    : "Spotlight has received the passages available in this edition."
+                let count = try await EditionSpotlight.shared.perform(action, for: session.catalog)
+                if action == .remove {
+                    spotlightMessage = "Removed until you add it again or install a new edition."
+                } else if count == 0 {
+                    spotlightMessage = "This edition includes no passages for Spotlight."
+                } else {
+                    spotlightMessage = "Spotlight has received \(count) entries from this edition."
+                }
             } catch {
                 spotlightMessage = "Spotlight could not finish this change. Try again."
             }

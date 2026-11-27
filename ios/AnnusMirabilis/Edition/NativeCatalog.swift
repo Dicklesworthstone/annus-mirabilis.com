@@ -330,12 +330,17 @@ struct SpotlightSnapshot: Decodable, Sendable {
 
     enum Failure: Error { case invalid }
 
+    static func file(in catalog: EditionCatalog) -> EditionManifest.File? {
+        guard let url = EditionCatalog.url(route: "/native/spotlight.json"),
+            case .file(let file) = catalog.resolve(url)
+        else { return nil }
+        return file
+    }
+
     /// An older edition without this feature has an empty index. Corruption in an edition
     /// that includes the feature must instead leave the operation retryable.
     static func entries(in catalog: EditionCatalog) throws -> [Entry] {
-        guard let url = EditionCatalog.url(route: "/native/spotlight.json"),
-            case .file(let file) = catalog.resolve(url)
-        else { return [] }
+        guard let file = file(in: catalog) else { return [] }
         guard file.size > 0, file.size <= 4 * 1024 * 1024 else { throw Failure.invalid }
         let bytes = try Data(contentsOf: catalog.fileURL(for: file), options: .mappedIfSafe)
         guard bytes.count == file.size, BridgeScript.sha256Hex(bytes) == file.sha256 else { throw Failure.invalid }
@@ -349,6 +354,18 @@ struct SpotlightSnapshot: Decodable, Sendable {
             else { throw Failure.invalid }
         }
         return snapshot.entries
+    }
+}
+
+/// App updates can package a repaired index for the same web release. The receipt describes
+/// the exact payload, while the reader's choice to remove a release remains keyed to the edition.
+struct SpotlightReceipt: Codable {
+    let edition: String
+    let snapshotDigest: String?
+    let inventory: [String: String]
+
+    func matches(edition: String, snapshotDigest: String?) -> Bool {
+        self.edition == edition && self.snapshotDigest == snapshotDigest
     }
 }
 
