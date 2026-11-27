@@ -4,6 +4,7 @@ import type { NoteManifest } from "../notebook.ts";
 import { DiscoveryNotebookProvider, useDiscoveryNotebook, useNotebookView } from "./context.tsx";
 import { NOTE_PAPER_TITLES, noteStageHref } from "./manifest.ts";
 import { DiscoveryNotebookControls } from "./NotebookControls.tsx";
+import { RecordedAlternative } from "./RecordedAlternative.tsx";
 
 type RevisitStageLink = Readonly<{ paper: NoteManifest["paper"]; stageId: string; href: string }>;
 
@@ -78,6 +79,11 @@ function GuideNotes({
                 <p className="discovery-note-text">
                   <strong>Prediction {index + 1}:</strong> {attempt.prediction}
                 </p>
+                <RecordedAlternative
+                  manifest={manifest}
+                  stageId={entry.stageId}
+                  alternativeId={attempt.alternativeId}
+                />
                 <p className="discovery-note-text">
                   <strong>Observation:</strong> {attempt.observation || "None recorded yet."}
                 </p>

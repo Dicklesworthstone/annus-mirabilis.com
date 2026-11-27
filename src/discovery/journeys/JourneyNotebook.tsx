@@ -7,13 +7,13 @@ import { REAL_JOURNEYS } from "./realJourneys.ts";
 
 /**
  * Server-component bridge. The authored records stay here; the client receives only the
- * current guide revision and public step identities needed to reopen its private notes.
+ * current guide revision, stage identities and the questions and branch labels for its notes.
  */
 export const JOURNEY_NOTE_MANIFESTS: readonly NoteManifest[] = Object.freeze(
   DISCOVERY_PAPERS.flatMap((paper) => {
     const journey = REAL_JOURNEYS.find((item) => item.paper === paper);
     return journey && journey.stages.length > 0
-      ? [journeyNoteManifest(paper, journey.revision, journey.stages)]
+      ? [journeyNoteManifest(paper, journey.revision, journey.stages, journey.forks)]
       : [];
   }),
 );

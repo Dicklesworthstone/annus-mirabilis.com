@@ -24,10 +24,24 @@ import { stageNoteManifest } from "./manifest.ts";
 import { DiscoveryNotebookControls } from "./NotebookControls.tsx";
 import { DiscoveryStageNotes } from "./StageNotes.tsx";
 
-const manifest = stageNoteManifest("mass-energy", "1", [
-  { id: "step-one", title: "One emission" },
-  { id: "step-two", title: "Compare the frames" },
-]);
+const manifest = stageNoteManifest(
+  "mass-energy",
+  "1",
+  [
+    { id: "step-one", title: "One emission" },
+    { id: "step-two", title: "Compare the frames" },
+  ],
+  [
+    {
+      afterStageId: "step-one",
+      question: "What carries the inertia?",
+      branches: [
+        { id: "arg-branch-field-mass", label: "Only the field's energy has inertia" },
+        { id: "arg-branch-energy-as-such", label: "Energy of every kind has inertia" },
+      ],
+    },
+  ],
+);
 const key = DISCOVERY_NOTE_KEYS[manifest.paper];
 function savedFile(prediction: string) {
   return encodeNotebook(
@@ -159,6 +173,49 @@ describe("a reader's notes across the authored discovery steps", () => {
     );
     expect(prediction().value).toBe("");
     expect(stored()).toEqual(doc);
+  });
+
+  test("each prediction keeps its proposal through reload, export and a notebook visit", async () => {
+    await mount();
+    const select = container.querySelector<HTMLSelectElement>(
+      '[data-discovery-stage-notes="step-one"] select',
+    );
+    if (!select) throw new Error("The step with a fork must name its proposals");
+    expect(select.querySelector("optgroup")?.label).toBe("What carries the inertia?");
+    expect(container.querySelector('[data-discovery-stage-notes="step-two"] select')).toBeNull();
+    async function selectProposal(id: string) {
+      await act(async () => {
+        if (!select) throw new Error("Missing proposal selector");
+        select.value = id;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+    }
+    await selectProposal("arg-branch-field-mass");
+    expect(window.localStorage.getItem(key)).toBeNull();
+    await record("I expect this effect for field energy.");
+    expect(select.value).toBe("");
+    await selectProposal("arg-branch-energy-as-such");
+    await record("I now expect the effect for any form of energy.");
+    expect(stored().entries[0]?.attempts.map((attempt) => attempt.alternativeId)).toEqual([
+      "arg-branch-field-mass",
+      "arg-branch-energy-as-such",
+    ]);
+
+    await act(async () => root.render(null));
+    await mount();
+    function proposalLinks() {
+      return [...container.querySelectorAll<HTMLAnchorElement>('a[href*="#arg-branch-"]')].map(
+        (anchor) => [anchor.getAttribute("href"), anchor.textContent],
+      );
+    }
+    const expectedLinks = [
+      ["/discover/mass-energy/#arg-branch-field-mass", "Only the field's energy has inertia"],
+      ["/discover/mass-energy/#arg-branch-energy-as-such", "Energy of every kind has inertia"],
+    ];
+    expect(proposalLinks()).toEqual(expectedLinks);
+    await act(async () => root.render(<KeptStageNotes manifests={[manifest]} />));
+    expect(proposalLinks()).toEqual(expectedLinks);
+    expect(notebookHtml(stored(), manifest)).toContain("Energy of every kind has inertia");
   });
 
   test("a checked import requires explicit replacement and resets drafts only after confirmation", async () => {

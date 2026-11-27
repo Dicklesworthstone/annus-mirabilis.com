@@ -5,6 +5,7 @@ import { type DiscoveryNotebook, decodeNotebook, NOTE_FILE_LIMIT } from "../note
 import { useDiscoveryNotebook, useNotebookView } from "./context.tsx";
 import { notebookHtml } from "./files.ts";
 import { NOTE_PAPER_TITLES } from "./manifest.ts";
+import { RecordedAlternative } from "./RecordedAlternative.tsx";
 
 export function DiscoveryNotebookControls() {
   const notebook = useDiscoveryNotebook();
@@ -314,6 +315,11 @@ function NotebookControls({
                         <p className="discovery-note-text">
                           <strong>Prediction {index + 1}:</strong> {attempt.prediction}
                         </p>
+                        <RecordedAlternative
+                          manifest={manifest}
+                          stageId={entry.stageId}
+                          alternativeId={attempt.alternativeId}
+                        />
                         <p className="discovery-note-text">
                           <strong>Observation:</strong> {attempt.observation || "None recorded."}
                         </p>

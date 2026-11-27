@@ -1,9 +1,10 @@
 "use client";
 
 import { useId, useState } from "react";
-import { NOTE_ATTEMPT_LIMIT, NOTE_TEXT_LIMIT, type NoteAttempt } from "../notebook.ts";
+import { NOTE_ATTEMPT_LIMIT, NOTE_TEXT_LIMIT, type NoteAttempt, type NoteManifest } from "../notebook.ts";
 import type { NotebookSession } from "../notebookSession.ts";
 import { useDiscoveryNotebook, useNotebookView } from "./context.tsx";
+import { RecordedAlternative } from "./RecordedAlternative.tsx";
 
 /** Optional private reflection; explanations remain outside this collapsed form. */
 export function DiscoveryStageNotes({ stageId, prompt }: { stageId: string; prompt: string }) {
@@ -40,7 +41,8 @@ function StageNotes({
       <StageNoteForm
         key={view.resetSequence}
         session={session}
-        stageId={stageId}
+        manifest={manifest}
+        stage={stage}
         attempts={attempts}
         disabled={!view.ready || view.blocked}
         editDraft={editDraft}
@@ -66,31 +68,65 @@ function StageNotes({
 
 function StageNoteForm({
   session,
-  stageId,
+  manifest,
+  stage,
   attempts,
   disabled,
   editDraft,
 }: {
   session: NotebookSession;
-  stageId: string;
+  manifest: NoteManifest;
+  stage: NoteManifest["stages"][number];
   attempts: readonly NoteAttempt[];
   disabled: boolean;
   editDraft(): void;
 }) {
   const instance = useId();
   const [prediction, setPrediction] = useState("");
+  const [alternativeId, setAlternativeId] = useState("");
+  const questions = [...new Set(stage.alternatives.map((alternative) => alternative.question))];
   const [notice, setNotice] = useState("");
   return (
     <>
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          if (session.capture(stageId, prediction, null)) setPrediction("");
+          if (session.capture(stage.id, prediction, alternativeId || null)) {
+            setPrediction("");
+            setAlternativeId("");
+          }
           setNotice(session.getSnapshot().message);
         }}
       >
         <fieldset disabled={disabled || attempts.length >= NOTE_ATTEMPT_LIMIT}>
           <legend>{attempts.length ? "Record another prediction" : "Your prediction"}</legend>
+          {stage.alternatives.length > 0 && (
+            <>
+              <label htmlFor={`${instance}-proposal`}>Which proposal are you considering?</label>
+              <select
+                id={`${instance}-proposal`}
+                value={alternativeId}
+                onChange={(event) => {
+                  editDraft();
+                  setAlternativeId(event.currentTarget.value);
+                  setNotice("");
+                }}
+              >
+                <option value="">Leave the proposal open</option>
+                {questions.map((question) => (
+                  <optgroup key={question ?? ""} label={question ?? "Proposals"}>
+                    {stage.alternatives
+                      .filter((alternative) => alternative.question === question)
+                      .map((alternative) => (
+                        <option key={alternative.id} value={alternative.id}>
+                          {alternative.title}
+                        </option>
+                      ))}
+                  </optgroup>
+                ))}
+              </select>
+            </>
+          )}
           <label htmlFor={`${instance}-prediction`}>What do you expect, and why?</label>
           <textarea
             id={`${instance}-prediction`}
@@ -120,7 +156,8 @@ function StageNoteForm({
           key={`${index}-${attempt.prediction}`}
           attempt={attempt}
           index={index}
-          stageId={stageId}
+          stageId={stage.id}
+          manifest={manifest}
           session={session}
           disabled={disabled}
           editDraft={editDraft}
@@ -138,6 +175,7 @@ function RecordedAttempt({
   attempt,
   index,
   stageId,
+  manifest,
   session,
   disabled,
   editDraft,
@@ -146,6 +184,7 @@ function RecordedAttempt({
   attempt: NoteAttempt;
   index: number;
   stageId: string;
+  manifest: NoteManifest;
   session: NotebookSession;
   disabled: boolean;
   editDraft(): void;
@@ -157,6 +196,11 @@ function RecordedAttempt({
     <section className="discovery-note-attempt" aria-label={`Recorded prediction ${index + 1}`}>
       <h3>Recorded prediction {index + 1}</h3>
       <p className="discovery-note-text">{attempt.prediction}</p>
+      <RecordedAlternative
+        manifest={manifest}
+        stageId={stageId}
+        alternativeId={attempt.alternativeId}
+      />
       <form
         onSubmit={(event) => {
           event.preventDefault();

@@ -3,6 +3,7 @@ import type { DiscoveryJourney, DiscoveryPaper } from "../content/schemas/discov
 export const NOTE_TEXT_LIMIT = 1200;
 export const NOTE_ATTEMPT_LIMIT = 8;
 export const NOTE_FILE_LIMIT = 128_000;
+export type NoteAlternative = Readonly<{ id: string; title: string; question?: string }>;
 export type NoteManifest = Readonly<{
   paper: DiscoveryPaper;
   revision: string;
@@ -11,7 +12,7 @@ export type NoteManifest = Readonly<{
   stages: readonly Readonly<{
     id: string;
     title: string;
-    alternatives: readonly Readonly<{ id: string; title: string }>[];
+    alternatives: readonly NoteAlternative[];
   }>[];
 }>;
 export type NoteAttempt = Readonly<{

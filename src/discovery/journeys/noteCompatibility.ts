@@ -30,8 +30,9 @@ export function journeyNoteManifest(
   paper: DiscoveryPaper,
   revision: string | number,
   stages: Journey["stages"],
+  forks: Journey["forks"] = [],
 ): NoteManifest {
-  const manifest = stageNoteManifest(paper, revision, stages);
+  const manifest = stageNoteManifest(paper, revision, stages, forks);
   const declared = COMPATIBLE_STAGES.find(
     (entry) => entry.paper === paper && entry.current === manifest.revision,
   );

@@ -37,8 +37,20 @@ describe("private stage notes on the published discovery routes", () => {
       expect(manifest.stages.map((stage) => stage.id)).toEqual(
         expected[manifest.paper as keyof typeof expected],
       );
-      expect(manifest.stages).toEqual(
-        journey.stages.map(({ id, title }) => ({ id, title, alternatives: [] })),
+      for (const stage of manifest.stages) {
+        const forks = journey.forks.filter((fork) => fork.afterStageId === stage.id);
+        expect(stage.alternatives).toEqual(
+          forks.flatMap((fork) =>
+            fork.branches.map((branch) => ({
+              id: branch.id,
+              title: branch.label,
+              question: fork.question,
+            })),
+          ),
+        );
+      }
+      expect(manifest.stages.flatMap((stage) => stage.alternatives).length).toBe(
+        journey.forks.flatMap((fork) => fork.branches).length,
       );
       const hasCompatibleRevision =
         manifest.paper === "mass-energy" || manifest.paper === "special-relativity";

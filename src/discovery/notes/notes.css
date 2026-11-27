@@ -21,6 +21,12 @@
   margin-block: 0.5rem 0.75rem;
 }
 
+.discovery-stage-notes select {
+  max-width: 100%;
+  font: inherit;
+  margin-block: 0.5rem 0.75rem;
+}
+
 .discovery-stage-notes fieldset,
 .discovery-notebook-controls fieldset {
   min-width: 0;
