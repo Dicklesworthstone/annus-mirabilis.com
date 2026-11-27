@@ -10,6 +10,7 @@ import {
   type PlaybackAction,
   type RecordingPlayback,
   recordingScale,
+  recordingTimeAfter,
 } from "../../experiments/playback/recordingClock.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { formatPlaybackRate } from "../../visuals/kit/scale.ts";
@@ -17,6 +18,7 @@ import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { array, display, identity } from "./presentation.ts";
 import { TracerPaths } from "./TracerPlots.tsx";
+import { TRACER_PLAYBACK_RATES, TracerRateComparison } from "./TracerRateComparison.tsx";
 import "./tracerPlayback.css";
 
 type NaturalRate = Extract<RealRate, { natural: true }>;
@@ -57,10 +59,9 @@ function RecordingPlayer({
   const times = array(snapshot, "traceTimes");
   const duration = times.at(times.length - 1);
   const p = snapshot.parameters as Bm01Parameters;
-  const [clocks] = useState(() => [
-    createRecordingClock(duration),
-    createRecordingClock(duration, 25),
-  ]);
+  const [clocks] = useState(() =>
+    TRACER_PLAYBACK_RATES.map((rate) => createRecordingClock(duration, rate)),
+  );
   const [views, setViews] = useState(() => clocks.map((clock) => clock.getSnapshot()));
   const [comparison, setComparison] = useState(false);
   const [ready, setReady] = useState(false);
@@ -139,7 +140,7 @@ function RecordingPlayer({
     frame.current = window.requestAnimationFrame(advance);
   }
 
-  function seek(seconds: number) {
+  function seek(seconds: number, basis: "recording" | "elapsed" = "recording") {
     if (!Number.isFinite(seconds) || seconds < 0 || seconds > duration) {
       setTimeError(
         `Enter a playback time from 0 to ${display(duration)} seconds. No playback change was applied. ${KEPT_RESULT}`,
@@ -148,15 +149,38 @@ function RecordingPlayer({
       return;
     }
     setTimeError("");
-    pause();
-    change({ operation: "seek", seconds });
+    cancelFrame();
+    const now = window.performance.now();
+    const players = comparison ? clocks : clocks.slice(0, 1);
+    const paused = players.map((clock) => {
+      const rate = clock.getSnapshot().playbackMultiplier;
+      const position = basis === "elapsed" ? recordingTimeAfter(seconds, rate, duration) : seconds;
+      return clock.change(
+        { commandClass: "presentation-change", operation: "seek", seconds: position },
+        now,
+      );
+    });
+    sync();
     setTimeDraft(String(seconds));
-    setNotice(`Paused at ${display(seconds)} seconds in the same accepted recording.`);
+    if (basis === "elapsed") {
+      const readings = paused.map(
+        (view) => `${display(view.position)} s at ${view.playbackMultiplier}×`,
+      );
+      setNotice(
+        `After ${display(seconds)} s of playback from the start, the recording times are ${readings.join(" and ")}. Both views are paused.`,
+      );
+    } else {
+      setNotice(`Paused at ${display(seconds)} seconds in the same accepted recording.`);
+    }
+  }
+
+  function draftSeconds() {
+    return timeDraft.trim() === "" ? Number.NaN : Number(timeDraft);
   }
 
   function seekTyped(event: FormEvent) {
     event.preventDefault();
-    seek(timeDraft.trim() === "" ? Number.NaN : Number(timeDraft));
+    seek(draftSeconds());
   }
 
   function compare(enabled: boolean) {
@@ -168,7 +192,7 @@ function RecordingPlayer({
         {
           commandClass: "presentation-change",
           operation: "rate",
-          multiplier: index === 0 ? 1 : 25,
+          multiplier: TRACER_PLAYBACK_RATES[index === 0 ? 0 : 1],
         },
         now,
       );
@@ -179,7 +203,7 @@ function RecordingPlayer({
     sync();
     setNotice(
       enabled
-        ? "Both views use the same recorded positions. Press Play to compare their timing."
+        ? "Both views use the same recording. Play them together or enter elapsed seconds to compare their timing while paused."
         : "Playback is paused at the start of the same accepted recording.",
     );
   }
@@ -253,6 +277,14 @@ function RecordingPlayer({
               Show complete traces
             </button>
           </div>
+          <label className="tracer-playback-compare">
+            <input
+              type="checkbox"
+              checked={comparison}
+              onChange={(event) => compare(event.target.checked)}
+            />
+            Compare both rates side by side
+          </label>
           <div className="input-grid">
             <div className="input-field">
               <label htmlFor={`${id}-rate`}>Playback speed</label>
@@ -264,7 +296,7 @@ function RecordingPlayer({
                   change({ operation: "rate", multiplier: Number(event.target.value) })
                 }
               >
-                {[1, 25].map((rate) => (
+                {TRACER_PLAYBACK_RATES.map((rate) => (
                   <option key={rate} value={rate}>
                     {formatPlaybackRate(rate)}
                   </option>
@@ -272,7 +304,9 @@ function RecordingPlayer({
               </select>
             </div>
             <div className="input-field">
-              <label htmlFor={`${id}-time`}>Go to time (seconds)</label>
+              <label htmlFor={`${id}-time`}>
+                {comparison ? "Seconds from the start" : "Go to time (seconds)"}
+              </label>
               <input
                 id={`${id}-time`}
                 type="number"
@@ -296,8 +330,17 @@ function RecordingPlayer({
                 </p>
               )}
               <button type="submit" className="secondary">
-                Go to time
+                {comparison ? "Show the same recording time" : "Go to time"}
               </button>
+              {comparison && (
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => seek(draftSeconds(), "elapsed")}
+                >
+                  Compare at elapsed playback time
+                </button>
+              )}
             </div>
           </div>
           <label htmlFor={`${id}-scrub`}>Display time: {display(first.position)} s</label>
@@ -311,14 +354,6 @@ function RecordingPlayer({
             value={first.position}
             onChange={(event) => seek(Number(event.target.value))}
           />
-          <label className="tracer-playback-compare">
-            <input
-              type="checkbox"
-              checked={comparison}
-              onChange={(event) => compare(event.target.checked)}
-            />
-            Compare both rates side by side
-          </label>
           {motionPaused && (
             <p className="fine">
               Animation is paused by your reading or reduced-motion preference. Use the time field
@@ -335,6 +370,7 @@ function RecordingPlayer({
           The complete accepted traces are shown. JavaScript enables playback and stepping through
           the recorded positions.
         </p>
+        <TracerRateComparison snapshot={snapshot} />
       </noscript>
     </div>
   );

@@ -173,14 +173,18 @@ describe("Reduced Motion Detection and Listeners (am-a11y-baseline-1cg5)", () =>
 
   it("retains legacy media-query support without depending on the modern API", () => {
     const listeners = new Set<(event: MediaQueryListEvent) => void>();
-    window.matchMedia = (query) =>
-      ({
-        matches: false,
-        media: query,
-        addListener: (handler: (event: MediaQueryListEvent) => void) => listeners.add(handler),
-        removeListener: (handler: (event: MediaQueryListEvent) => void) =>
-          listeners.delete(handler),
-      }) as MediaQueryList;
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    Object.defineProperties(query, {
+      addEventListener: { value: undefined },
+      removeEventListener: { value: undefined },
+      addListener: {
+        value: (handler: (event: MediaQueryListEvent) => void) => listeners.add(handler),
+      },
+      removeListener: {
+        value: (handler: (event: MediaQueryListEvent) => void) => listeners.delete(handler),
+      },
+    });
+    window.matchMedia = () => query;
     const values: boolean[] = [];
     const unsubscribe = onReducedMotionChange((reduced) => values.push(reduced));
     expect(listeners.size).toBe(1);

@@ -31,6 +31,16 @@ function requireFinite(value: number, minimum: number, maximum = Number.MAX_VALU
     );
 }
 
+/** Model time shown after an interval of playback, held at the last recorded position. */
+export function recordingTimeAfter(
+  elapsedSeconds: number,
+  playbackMultiplier: number,
+  duration: number,
+  startPosition = 0,
+): number {
+  return Math.min(duration, startPosition + elapsedSeconds * playbackMultiplier);
+}
+
 /**
  * A host-fed clock over an ALREADY accepted recording (am-inst-real-rate-mode-gtez).
  * It has no kernel, worker, random source or scientific store. Every command is a presentation
@@ -61,9 +71,11 @@ export function createRecordingClock(duration: number, multiplier = 1) {
     if (!state.playing || previousTime === null) return state;
     // Ignore a backwards clock sample without moving the time origin backwards as well.
     const now = Math.max(hostMilliseconds, previousTime);
-    const position = Math.min(
+    const position = recordingTimeAfter(
+      (now - anchorTime) / 1000,
+      state.playbackMultiplier,
       duration,
-      anchorPosition + ((now - anchorTime) / 1000) * state.playbackMultiplier,
+      anchorPosition,
     );
     previousTime = now;
     return publish({ ...state, position, playing: position < duration });

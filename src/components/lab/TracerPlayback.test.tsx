@@ -33,7 +33,15 @@ test("the no-JavaScript case has complete traces, and eligibility comes from the
     <TracerPlayback snapshot={snapshot} zoom={1} manifest={manifest} />,
   );
   expect(html).toContain('data-recorded-time="1"');
-  expect(html).toContain("The complete accepted traces are shown.");
+  const noScript = html.match(/<noscript>([\s\S]*?)<\/noscript>/)?.[1];
+  expect(noScript).toContain("The complete accepted traces are shown.");
+  expect(noScript).toContain(
+    "<summary>Compare normal and fast playback without animation</summary>",
+  );
+  expect(noScript).toContain('<th scope="col">1× playback</th>');
+  expect(noScript).toContain('<th scope="col">25× playback</th>');
+  // After 0.02 wall seconds the normal view reaches 0.02 recording seconds and 25× reaches 0.5.
+  expect(noScript).toMatch(/<th scope="row">0\.02 s<\/th><td>0\.02 s[^<]*<\/td><td>0\.5 s/);
   expect(html).toContain('hidden="" class="tracer-playback-controls"');
   expect(html).toContain("Read the displayed positions as a table");
   const ineligible = renderToStaticMarkup(
@@ -175,6 +183,58 @@ describe("real tracer playback controls", () => {
     expect(plot(1).dataset.playbackTime).toBe("1");
     expect(Number(plot(0).dataset.playbackTime)).toBeCloseTo(0.06, 12);
     expect(workersCreated).toBe(0);
+  });
+
+  test("compares elapsed playback without animation, then returns to equal recording time", async () => {
+    const accepted = session.getSnapshot();
+    await act(async () => {
+      document.documentElement.dataset.readingOnly = "on";
+    });
+    await setInput('input[type="checkbox"]', true);
+    expect(button("Play recording").disabled).toBe(true);
+    await setInput('input[type="number"]', "0.02");
+    await press("Compare at elapsed playback time");
+    expect(plot(0).dataset.recordedTime).toBe("0.02");
+    expect(plot(1).dataset.recordedTime).toBe("0.5");
+    expect(container.querySelector("form p[role=status]")?.textContent).toContain(
+      "0.02 s at 1× and 0.5 s at 25×",
+    );
+    await setInput('input[type="number"]', "0.1");
+    await press("Compare at elapsed playback time");
+    expect(plot(0).dataset.playbackTime).toBe("0.1");
+    expect(plot(1).dataset.playbackTime).toBe("1");
+    await press("Show the same recording time");
+    expect(plot(0).dataset.recordedTime).toBe("0.1");
+    expect(plot(1).dataset.recordedTime).toBe("0.1");
+    expect(frames.size).toBe(0);
+    expect(session.getSnapshot()).toBe(accepted);
+    expect(workersCreated).toBe(0);
+  });
+
+  test("a refused elapsed time preserves both active clocks; a valid elapsed time stops them", async () => {
+    await setInput('input[type="checkbox"]', true);
+    await press("Play recording");
+    await advance(10);
+    for (const draft of ["", "-0.01", "1.01", "1e400"]) {
+      await setInput('input[type="number"]', draft);
+      await press("Compare at elapsed playback time");
+      expect(container.querySelector(".notice.error")?.textContent).toContain(
+        "No playback change was applied",
+      );
+      expect(plot(0).dataset.playbackTime).toBe("0.01");
+      expect(plot(1).dataset.playbackTime).toBe("0.25");
+      expect(frames.size).toBe(1);
+    }
+    await advance(10);
+    expect(plot(0).dataset.playbackTime).toBe("0.02");
+    expect(plot(1).dataset.playbackTime).toBe("0.5");
+    await setInput('input[type="number"]', "0.04");
+    await press("Compare at elapsed playback time");
+    expect(container.querySelector(".notice.error")).toBeNull();
+    expect(frames.size).toBe(0);
+    await advance(1000);
+    expect(plot(0).dataset.recordedTime).toBe("0.04");
+    expect(plot(1).dataset.recordedTime).toBe("1");
   });
 
   test("typed time, keyboard range and next-recorded-position controls inspect the same samples", async () => {
