@@ -76,7 +76,9 @@ async function readIndex(): Promise<readonly Entry[]> {
   for (const descriptor of manifest.shards) {
     const name = descriptor.path.slice("/search/".length);
     const text = await readCurrentSearchShard(name);
-    if (text === null) continue;
+    if (text === null) {
+      throw new Error(`Search index manifest references an unavailable shard: ${descriptor.path}`);
+    }
     const parsed = parseSearchShard(JSON.parse(text), descriptor.documents);
     for (const doc of parsed.documents) {
       out.push({
@@ -94,6 +96,16 @@ async function readIndex(): Promise<readonly Entry[]> {
         paper: doc.paper,
       });
     }
+  }
+  if (out.length !== manifest.totalDocuments) {
+    throw new Error(`Search index contains ${out.length} documents; manifest declares ${manifest.totalDocuments}.`);
+  }
+  const ids = new Set<string>();
+  for (const entry of out) {
+    if (ids.has(entry.id)) {
+      throw new Error(`Search index repeats document id: ${entry.id}`);
+    }
+    ids.add(entry.id);
   }
   // Stable, readable order within a type. The shards are content-addressed, so their own order is
   // a hashing artefact and would reshuffle a reader's page for no reason on an unrelated edit.
