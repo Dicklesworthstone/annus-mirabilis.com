@@ -269,44 +269,67 @@ export function installBridge(
   // the site's prefix) is mirrored into the app's store, so it survives if WebKit
   // ever clears the page's storage. When WebKit comes up empty and the app's
   // store has a snapshot, the snapshot is put back and the page loads once more.
-  const siteKeys = (): string[] => {
-    const keys: string[] = [];
+  // A marker outside the site's namespace survives an interrupted restoration without
+  // becoming part of the exported reader data. A new page must not mirror a partial restore.
+  const restoringKey = "am-app:restoring-snapshot";
+  const siteData = (): Record<string, string> | null => {
+    const data: Record<string, string> = {};
     try {
       for (let index = 0; index < localStorage.length; index++) {
         const key = localStorage.key(index);
         if (key !== null && key.indexOf(storagePrefix) === 0) {
-          keys.push(key);
+          const value = localStorage.getItem(key);
+          if (value !== null) data[key] = value;
         }
       }
+      return data;
     } catch {
-      /* Storage blocked: nothing to mirror. */
+      return null;
     }
-    return keys;
   };
+  let needsRestore = true;
+  try {
+    // At document start, before the page has a chance to write new defaults into an evicted store.
+    needsRestore = localStorage.getItem(restoringKey) !== null || Object.keys(siteData() ?? {}).length === 0;
+  } catch {
+    /* An unreadable store is never authoritative. */
+  }
+  let restoring = false;
+  const removedDuringRestore = new Set<string>();
   let mirrored: string | null = null;
+  let writing = false;
+  let flushAfterWrite = false;
   let pending: ReturnType<typeof setTimeout> | undefined;
   const mirror = () => {
     if (pending !== undefined) {
       clearTimeout(pending);
       pending = undefined;
     }
-    const data: Record<string, string> = {};
-    try {
-      for (const key of siteKeys()) {
-        const value = localStorage.getItem(key);
-        if (value !== null) {
-          data[key] = value;
-        }
-      }
-    } catch {
+    const data = siteData();
+    if (data === null) return;
+    if (needsRestore) {
+      void restore();
+      return;
+    }
+    if (writing) {
+      flushAfterWrite = true;
       return;
     }
     const text = JSON.stringify(data);
-    if (text === mirrored || text.length > maxSnapshotLength) {
-      return;
+    if (text === mirrored || text.length > maxSnapshotLength) return;
+    writing = true;
+    void request("storage.write", { ...snapshotRecord, value: text }).then(
+      (reply) => finishWrite((reply as { status?: string } | null)?.status === "ok"),
+      () => finishWrite(false),
+    );
+    function finishWrite(saved: boolean) {
+      mirrored = saved ? text : null;
+      writing = false;
+      if (flushAfterWrite) {
+        flushAfterWrite = false;
+        mirror();
+      }
     }
-    mirrored = text;
-    post("storage.write", { ...snapshotRecord, value: text });
   };
   const scheduleMirror = () => {
     if (pending !== undefined) {
@@ -315,9 +338,11 @@ export function installBridge(
     pending = setTimeout(mirror, 300);
   };
   let setItem: ((key: string, value: string) => void) | undefined;
+  let removeItem: ((key: string) => void) | undefined;
   try {
     const proto = Storage.prototype;
     setItem = proto.setItem;
+    removeItem = proto.removeItem;
     for (const name of ["setItem", "removeItem", "clear"] as const) {
       const original = proto[name] as (...args: unknown[]) => unknown;
       Object.defineProperty(proto, name, {
@@ -327,6 +352,14 @@ export function installBridge(
           const result = original.apply(this, args);
           try {
             if (this === localStorage) {
+              if (needsRestore && name === "clear") {
+                // Explicit erasure wins over a late native reply, including one already in flight.
+                needsRestore = false;
+                removedDuringRestore.clear();
+              } else if (needsRestore && typeof args[0] === "string" && args[0].startsWith(storagePrefix)) {
+                setItem?.call(localStorage, restoringKey, "1");
+                if (name === "removeItem") removedDuringRestore.add(args[0]);
+              }
               scheduleMirror();
             }
           } catch {
@@ -345,59 +378,52 @@ export function installBridge(
       mirror();
     }
   });
-  const restore = () => {
-    void request("storage.read", { ...snapshotRecord }).then(
-      (reply) => {
-        const result = reply as { status?: string; value?: unknown } | undefined;
-        if (result?.status !== "ok" || typeof result.value !== "string" || setItem === undefined) {
-          return;
-        }
-        let data: Record<string, unknown>;
-        try {
-          data = JSON.parse(result.value) as Record<string, unknown>;
-        } catch {
-          return;
-        }
-        let restored = 0;
-        for (const key of Object.keys(data)) {
-          const value = data[key];
-          if (
-            key.indexOf(storagePrefix) === 0 &&
-            typeof value === "string" &&
-            localStorage.getItem(key) === null
-          ) {
+  const restore = async () => {
+    if (restoring || setItem === undefined || removeItem === undefined) return;
+    restoring = true;
+    try {
+      const reply = await request("storage.read", { ...snapshotRecord });
+      if (!needsRestore) return;
+      const result = reply as { status?: string; value?: unknown } | undefined;
+      let restored = 0;
+      if (result?.status === "missing") {
+        mirrored = "{}";
+      } else if (result?.status === "ok" && typeof result.value === "string") {
+        const data: unknown = JSON.parse(result.value);
+        if (data === null || typeof data !== "object" || Array.isArray(data)) return;
+        const entries = Object.entries(data).filter(([key]) => key.startsWith(storagePrefix));
+        if (entries.some(([, value]) => typeof value !== "string")) return;
+        for (const [key, value] of entries) {
+          if (!removedDuringRestore.has(key) && localStorage.getItem(key) === null) {
+            if (restored === 0) setItem.call(localStorage, restoringKey, "1");
             setItem.call(localStorage, key, value);
             restored++;
           }
         }
         mirrored = result.value;
-        if (restored === 0) {
-          return;
-        }
-        try {
-          if (sessionStorage.getItem("am-app:restored") !== null) {
-            return;
-          }
-          sessionStorage.setItem("am-app:restored", "1");
-        } catch {
-          return;
-        }
+      } else {
+        return;
+      }
+      removeItem.call(localStorage, restoringKey);
+      needsRestore = false;
+      removedDuringRestore.clear();
+      mirror();
+      if (restored > 0 && sessionStorage.getItem("am-app:restored") === null) {
+        sessionStorage.setItem("am-app:restored", "1");
         location.reload();
-      },
-      () => {
-        /* No store, no restore; the page reads as it is. */
-      },
-    );
+      }
+    } catch {
+      /* Failures while reading or restoring leave the native copy intact. A later flush retries. */
+    } finally {
+      restoring = false;
+    }
   };
   const ready = () => {
     reportRoute();
     reportTheme();
     applyTypeSize();
-    if (siteKeys().length === 0) {
-      restore();
-    } else {
-      scheduleMirror();
-    }
+    if (needsRestore) mirror();
+    else scheduleMirror();
   };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", ready, { once: true });

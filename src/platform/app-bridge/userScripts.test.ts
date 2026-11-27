@@ -161,7 +161,9 @@ function sandbox(options: {
             }
             const copy = JSON.parse(JSON.stringify(message)) as Message;
             posted.push(copy);
-            return Promise.resolve(options.replies?.[copy.type]);
+            return Promise.resolve(
+              options.replies?.[copy.type] ?? (copy.type === "storage.write" ? { status: "ok" } : undefined),
+            );
           },
         },
       },
@@ -437,12 +439,14 @@ describe("the reader's data mirrored into the app", () => {
       .of("storage.write")
       .map((message) => JSON.parse(String(message.body.value)) as Record<string, string>);
 
-  it("mirrors the site's keys, and only those, after a write settles", () => {
+  it("mirrors the site's keys, and only those, after a write settles", async () => {
     const page = sandbox({ inApp: true, stored: { "am:notebook:v1": "[1]", "other-site": "x" } });
     page.run();
     page.tick();
+    await page.settle();
     page.localStorage.setItem("am:predictions:v1:bm-01", "{}");
     page.tick();
+    await page.settle();
     assert.deepEqual(snapshots(page), [
       { "am:notebook:v1": "[1]" },
       { "am:notebook:v1": "[1]", "am:predictions:v1:bm-01": "{}" },
@@ -452,16 +456,20 @@ describe("the reader's data mirrored into the app", () => {
     }
   });
 
-  it("mirrors a removal and a clear, and sends nothing when nothing changed", () => {
+  it("mirrors a removal and a clear, and sends nothing when nothing changed", async () => {
     const page = sandbox({ inApp: true, stored: { "am:notebook:v1": "[1]", "am:tours:v1": "x" } });
     page.run();
     page.tick();
+    await page.settle();
     page.localStorage.setItem("am:notebook:v1", "[1]");
     page.tick();
+    await page.settle();
     page.localStorage.removeItem("am:tours:v1");
     page.tick();
+    await page.settle();
     page.localStorage.clear();
     page.tick();
+    await page.settle();
     assert.deepEqual(snapshots(page), [
       { "am:notebook:v1": "[1]", "am:tours:v1": "x" },
       { "am:notebook:v1": "[1]" },
@@ -475,6 +483,93 @@ describe("the reader's data mirrored into the app", () => {
     page.localStorage.setItem("am:notebook:v1", "[2]");
     page.fire("window", "pagehide");
     assert.deepEqual(snapshots(page).at(-1), { "am:notebook:v1": "[2]" });
+  });
+
+  it("protects a native notebook while an empty page is awaiting restoration", async () => {
+    const page = sandbox({
+      inApp: true,
+      replies: {
+        "storage.read": { status: "ok", value: JSON.stringify({ "am:notebook:v1": "saved" }) },
+      },
+    });
+    page.run();
+    page.fire("window", "pagehide");
+    assert.deepEqual(snapshots(page), []);
+    await page.settle();
+    assert.equal(page.localStorage.getItem("am:notebook:v1"), "saved");
+    assert.deepEqual(snapshots(page), []);
+  });
+
+  it("cannot replace the backup with a partial snapshot when enumeration fails", () => {
+    const page = sandbox({ inApp: true, stored: { "am:notes": "[1]", "am:settings": "{}" } });
+    page.run();
+    page.localStorage.key = (index) => {
+      if (index === 0) return "am:notes";
+      throw new Error("WebKit storage is unavailable");
+    };
+    page.tick();
+    page.fire("window", "pagehide");
+    assert.deepEqual(snapshots(page), []);
+  });
+
+  it("retries a refused native write on the next flush without another edit", async () => {
+    const replies = { "storage.write": { status: "quota" } };
+    const page = sandbox({ inApp: true, stored: { "am:notes": "kept" }, replies });
+    page.run();
+    page.tick();
+    await page.settle();
+    replies["storage.write"] = { status: "ok" };
+    page.fire("window", "pagehide");
+    await page.settle();
+    page.fire("window", "pagehide");
+    assert.deepEqual(snapshots(page), [{ "am:notes": "kept" }, { "am:notes": "kept" }]);
+  });
+
+  it("flushes the latest page when the preceding snapshot is still being acknowledged", async () => {
+    let acknowledge: ((reply: { status: string }) => void) | undefined;
+    const reply = new Promise<{ status: string }>((resolve) => { acknowledge = resolve; });
+    const replies: Record<string, unknown> = { "storage.write": reply };
+    const page = sandbox({ inApp: true, stored: { "am:notes": "first" }, replies });
+    page.run();
+    page.tick();
+    page.localStorage.setItem("am:notes", "last");
+    page.fire("window", "pagehide");
+    assert.deepEqual(snapshots(page), [{ "am:notes": "first" }]);
+    replies["storage.write"] = { status: "ok" };
+    acknowledge?.({ status: "ok" });
+    await page.settle();
+    assert.deepEqual(snapshots(page), [{ "am:notes": "first" }, { "am:notes": "last" }]);
+  });
+
+  it("keeps edits made during recovery and never resurrects an explicit clear", async () => {
+    const replies = { "storage.read": { status: "ok", value: '{"am:notes":"saved","am:theme":"old"}' } };
+    const edited = sandbox({ inApp: true, readyState: "loading", replies });
+    edited.run();
+    edited.localStorage.setItem("am:theme", "new");
+    edited.fire("document", "DOMContentLoaded");
+    await edited.settle();
+    assert.deepEqual(snapshots(edited), [{ "am:theme": "new", "am:notes": "saved" }]);
+    const cleared = sandbox({ inApp: true, replies });
+    cleared.run();
+    cleared.localStorage.clear();
+    cleared.tick();
+    await cleared.settle();
+    assert.equal(cleared.localStorage.length, 0);
+    assert.deepEqual(snapshots(cleared), [{}]);
+  });
+
+  it("finishes a previously interrupted restore before any partial WebKit data can be mirrored", async () => {
+    const page = sandbox({
+      inApp: true,
+      stored: { "am-app:restoring-snapshot": "1", "am:notes": "first" },
+      replies: { "storage.read": { status: "ok", value: '{"am:notes":"first","am:journey":"second"}' } },
+    });
+    page.run();
+    page.fire("window", "pagehide");
+    await page.settle();
+    assert.equal(page.localStorage.getItem("am:journey"), "second");
+    assert.equal(page.localStorage.getItem("am-app:restoring-snapshot"), null);
+    assert.deepEqual(snapshots(page), []);
   });
 
   it("does not mirror a snapshot too large for one message", () => {
