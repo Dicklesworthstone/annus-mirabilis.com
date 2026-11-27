@@ -89,6 +89,7 @@ import { journeyStageDocuments } from "../src/search/journeyStageDocuments.ts";
 import { linkedGroupDocuments } from "../src/search/linkedGroupDocuments.ts";
 import { timelineDocuments } from "../src/search/timelineDocuments.ts";
 import { buildNativeSearchScript } from "./app/native-search.ts";
+import { spotlightSnapshot } from "./app/spotlight.ts";
 
 /**
  * Everything the index holds, as the build publishes it. Compiled, digest-checked projections for
@@ -509,6 +510,10 @@ export async function buildSearchIndex(
   // The app executes this same query owner in JavaScriptCore over these exact shards.
   // Next copies the generated script as a static asset, so the existing edition file table pins it.
   buildNativeSearchScript(root);
+  await writeFile(
+    resolve(root, "public/native/spotlight.json"),
+    JSON.stringify(spotlightSnapshot(documents, buildDigest)),
+  );
   // Publish only after every shard and the native query script exist. Older shards remain outside public/ and cannot
   // be exported or served unless this manifest enumerates them. No cleanup deletes files.
   await writeFile(resolve(directory, "index-manifest.json"), bundle.manifestText);

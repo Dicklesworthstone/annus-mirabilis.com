@@ -125,3 +125,4 @@ public/equation-explanations/
 
 # Generated JavaScriptCore query asset, built with the shared web search index.
 /public/native/search-query.js
+/public/native/spotlight.json
