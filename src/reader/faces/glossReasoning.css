@@ -6,8 +6,7 @@
    Print deliberately retains reasoning emphasis while hiding interactive controls. */
 @media screen {
   .gloss-face:not(:has([data-toggle-reasoning]:checked)) .reasoning-words-details,
-  .gloss-face:not(:has([data-toggle-reasoning]:checked)) .cue-reasoning-marked,
-  .gloss-face:not(:has([data-toggle-reasoning]:checked)) [data-reasoning-action] {
+  .gloss-face:not(:has([data-toggle-reasoning]:checked)) .cue-reasoning-marked {
     display: none;
   }
   .gloss-face:not(:has([data-toggle-reasoning]:checked)) .cue-reasoning-fallback {

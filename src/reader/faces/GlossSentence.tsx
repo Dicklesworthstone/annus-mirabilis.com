@@ -2,9 +2,9 @@ import { isModalityClass } from "../../content/schemas/glossConventions.pure.ts"
 import type { Inline } from "../../content/schemas/inlines.ts";
 import type { GlossUnit } from "../../content/schemas/source.ts";
 import { GlossAtoms, GlossPair } from "./GlossPair.tsx";
-import { type GlossAtom, glossStream, type SentenceAtom } from "./glossStream.ts";
+import { glossStream, type SentenceAtom } from "./glossStream.ts";
 import { renderInlines } from "./inlines.tsx";
-import { speakMath } from "./mathSpeech.ts";
+import { speakInlines } from "./mathSpeech.ts";
 
 export interface GlossSentenceProps {
   readonly sentenceId: string;
@@ -103,7 +103,7 @@ export function extractReasoningWords(
 }
 
 /**
- * Renders an aligned gloss sentence with word pairs, screen reader actions, and reasoning-words list.
+ * Renders an aligned gloss sentence with word pairs, a native continuous-reading disclosure and reasoning notes.
  */
 export function GlossSentence({
   sentenceId,
@@ -120,7 +120,6 @@ export function GlossSentence({
 }: GlossSentenceProps) {
   const domId = elementId === null ? undefined : (elementId ?? `${idPrefix}${sentenceId}`);
   const germanId = `${idPrefix}sentence-german-${sentenceId}`;
-  const wordsId = `${idPrefix}sentence-header-${sentenceId}`;
   // No gloss unit yet: the German as printed, and one quiet line linking the same sentence on the
   // parallel face. What the gloss does not cover is named once, at the top of the face (GlossFace.tsx
   // unglossedSections); a boxed notice under every such sentence said it 87 times on Brownian motion.
@@ -172,20 +171,14 @@ export function GlossSentence({
   const printed =
     stream.words.length === glossUnit.tokens.length &&
     stream.words.every((w, i) => w === glossUnit.tokens[i]?.german);
-  const fullGerman = printed
-    ? stream.clusters
-        .map((c) => {
-          // The authored form for this occurrence, where the record carries one, else the
-          // reading generated from the formula's MathML. Same precedence as speakInlines.
-          const said = (a: GlossAtom) =>
-            a.kind === "math" ? (a.node.spoken ?? speakMath(a.node.latex)) : a.text;
-          return c.kind === "word"
-            ? `${c.leading.map(said).join("")}${glossUnit.tokens[c.tokenIndex]?.german ?? ""}${c.trailing.map(said).join("")}`
-            : c.atoms.map(said).join("");
-        })
-        .join(" ")
-    : glossUnit.tokens.map((t) => t.german).join(" ");
-  const fullGlosses = glossUnit.tokens.map((t) => t.english || t.german).join(" ");
+  // The notebook keeps the source sentence with spoken mathematics, independently of
+  // how its interlinear tokens were split.
+  const excerpt = germanInlines ? speakInlines(germanInlines) : germanText;
+  const wordGlosses = glossUnit.tokens.flatMap((token, index) => {
+    const phrase = glossUnit.multiwordUnits?.find((unit) => unit.tokenIndices.includes(index));
+    if (phrase) return phrase.tokenIndices[0] === index ? [phrase.english] : [];
+    return token.english ? [token.english] : [];
+  });
 
   return (
     <section
@@ -193,66 +186,34 @@ export function GlossSentence({
       id={domId}
       data-sentence-id={sentenceId}
       data-source-sentence="true"
-      // As above: a fragment target, not a scroll region. This sentence already carries
-      // real tab stops in its actions nav, so tabIndex={0} added a redundant stop in
-      // front of each one of them, the whole length of the reading face.
       tabIndex={-1}
-      aria-labelledby={wordsId}
+      aria-labelledby={germanId}
     >
-      {/* Semantic actions for non-visual and assistive reading */}
-      <nav className="sentence-actions" aria-label={`Sentence actions for ${sentenceId}`}>
-        <ul className="sentence-actions-list">
-          <li>
-            <button
-              type="button"
-              className="sentence-action-btn"
-              data-action="read-german"
-              aria-label={`Read the German sentence: ${fullGerman}`}
-            >
-              Read the German sentence
-            </button>
-          </li>
-          <li>
-            <button
-              type="button"
-              className="sentence-action-btn"
-              data-action="read-glosses"
-              aria-label={`Read the word glosses: ${fullGlosses}`}
-            >
-              Read the word glosses
-            </button>
-          </li>
+      <details className="sentence-readings">
+        <summary>Read the sentence and its glosses together</summary>
+        <dl>
+          <dt>German sentence</dt>
+          <dd lang="de" id={germanId} data-gloss-excerpt={excerpt}>
+            {germanInlines ? renderInlines(germanInlines) : germanText}
+          </dd>
+          {wordGlosses.length > 0 && (
+            <>
+              <dt>Word and phrase glosses</dt>
+              <dd lang="en">{wordGlosses.join(" · ")}</dd>
+            </>
+          )}
           {englishTranslation && (
-            <li>
-              <button
-                type="button"
-                className="sentence-action-btn"
-                data-action="read-translation"
-                aria-label={`Read the aligned English translation: ${englishTranslation}`}
-              >
-                Read the aligned English translation
-              </button>
-            </li>
+            <>
+              <dt>Aligned English translation</dt>
+              <dd lang="en" data-aligned-english>{englishTranslation}</dd>
+            </>
           )}
-          {showReasoningWords && (
-            <li data-reasoning-action>
-              <button
-                type="button"
-                className="sentence-action-btn"
-                data-action="read-reasoning"
-                aria-label={`Read the reasoning words: ${reasoningWords.map((r) => `${r.german} (${r.english})`).join(", ")}`}
-              >
-                Read the reasoning words
-              </button>
-            </li>
-          )}
-        </ul>
-      </nav>
+        </dl>
+      </details>
 
       {/* Interlinear word pairs layout */}
       <div
         className="gloss-pairs-container"
-        id={wordsId}
         data-pairs-container="true"
         data-gloss-stream={printed ? "printed" : "word-only"}
       >

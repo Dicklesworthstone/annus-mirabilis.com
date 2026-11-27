@@ -69,6 +69,9 @@ describe("published split reading markup", () => {
       expect(firstSentence).toBeDefined();
       expect(ids.has(`${SPLIT_GLOSS_PREFIX}${firstSentence?.id}`)).toBe(true);
       expect(html).toContain('data-split-language="gloss"');
+      expect(html.match(/<noscript>[\s\S]*?<\/noscript>/g)?.some(
+        (fallback) => fallback.includes(`href="/papers/${paperId}/${first.id}/view/gloss/"`),
+      )).toBe(true);
       expect(html).toContain('data-split-gloss-tools="true" hidden=""');
       for (const a of args) {
         expect(ids.has(`pane-b--${a.id}`)).toBe(true);

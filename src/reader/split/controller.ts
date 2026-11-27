@@ -274,12 +274,6 @@ export function attachSplitReader(root: HTMLElement, scope: SplitLocation): () =
       revealHash(true);
       return;
     }
-    const readingAction = target?.closest<HTMLElement>('[data-action^="read-"]');
-    if (selection.source === "gloss" && readingAction && sourcePane.contains(readingAction)) {
-      notice = readingAction.getAttribute("aria-label")?.replace(/^Read the /, "") ?? "";
-      render();
-      return;
-    }
     // Sentence-alignment controls can reveal the other language even from a single-language face.
     if (
       sourcePane.contains(target) &&

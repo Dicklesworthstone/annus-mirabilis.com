@@ -1,6 +1,6 @@
 /**
  * What a screen reader hears for the gloss face's aligned English keeps every word and every
- * quantity (dispatch 152): each formula is spoken (mathSpeech.ts), where the button's label used to
+ * quantity (dispatch 152): each formula is spoken (mathSpeech.ts), where the original action used to
  * keep text inlines alone. Run on mass-energy's compiled edition, on the rendered markup.
  */
 import { describe, expect, test } from "bun:test";
@@ -43,12 +43,11 @@ describe("the aligned English a screen reader hears keeps every quantity", () =>
   const document = renderGloss(gloss);
   const heard = (sentence: string) =>
     document
-      .querySelector(`section[data-sentence-id="${sentence}"] [data-action="read-translation"]`)
-      ?.getAttribute("aria-label") ?? "";
+      .querySelector(`section[data-sentence-id="${sentence}"] details [data-aligned-english][lang="en"]`)
+      ?.textContent ?? "";
 
   test("s0-p6-s1: E_0, and the coordinates, are spoken", () => {
     const label = heard("s0-p6-s1");
-    expect(label.startsWith("Read the aligned English translation: ")).toBe(true);
     expect(label).toContain("E sub 0");
     expect(label).toContain("open paren x, y, z close paren");
     // No word is glued to its neighbour or split from its punctuation.
@@ -71,7 +70,7 @@ describe("the aligned English a screen reader hears keeps every quantity", () =>
       if (sentence === undefined || unit === undefined) continue;
       if (!unit.inlines.some((inline) => inline.kind === "math")) continue;
       const label = heard(sentence);
-      // A sentence with no gloss unit shows the coverage notice and has no button to hear.
+      // A sentence with no gloss unit shows the coverage notice and has no local translation disclosure.
       if (label === "") continue;
       checked += 1;
       if (!label.includes(speakInlines(unit.inlines))) missing.push(`${sentence} -> ${unit.id}`);

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
 import { DEFAULT_MODALITY_CLASSES } from "../../content/schemas/glossConventions.pure.ts";
 import {
@@ -108,29 +109,29 @@ describe("GlossFace component rendering and interactions", () => {
     expect(html).toContain('data-parallel-fallback="true"');
   });
 
-  test("sentence actions: reasoning source is static and visibility follows the native toggle", () => {
-    // Toggle OFF
-    const htmlOff = renderToStaticMarkup(
-      <GlossFace {...defaultProps} initialReasoningWords={false} />,
-    );
-    expect(htmlOff).toContain('data-action="read-german"');
-    expect(htmlOff).toContain('data-action="read-glosses"');
-    expect(htmlOff).toContain('data-action="read-translation"');
-    // The source layer is rendered once on the server. Native :checked CSS,
-    // rather than client-side removal/recreation, controls its visibility.
-    expect(htmlOff).toContain('data-action="read-reasoning"');
-    expect(htmlOff).toContain('data-reasoning-action="true"');
-    expect(htmlOff).toContain('data-reasoning-words="off"');
-    expect(htmlOff).not.toContain('checked=""');
-
-    // Toggle ON
-    const htmlOn = renderToStaticMarkup(
-      <GlossFace {...defaultProps} initialReasoningWords={true} />,
-    );
-    expect(htmlOn).toContain('data-action="read-german"');
-    expect(htmlOn).toContain('data-action="read-glosses"');
-    expect(htmlOn).toContain('data-action="read-translation"');
-    expect(htmlOn).toContain('data-action="read-reasoning"');
+  test("the full sentence and aligned translation are readable through one native disclosure", () => {
+    const { document } = new Window();
+    for (const initialReasoningWords of [false, true]) {
+      document.body.innerHTML = renderToStaticMarkup(
+        <GlossFace {...defaultProps} initialReasoningWords={initialReasoningWords} />,
+      );
+      const sentence = document.querySelector('[data-sentence-id="me-p1-s2"]');
+      const reading = sentence?.querySelector("details.sentence-readings");
+      expect(reading?.querySelector("summary")?.textContent).toContain("sentence");
+      const german = reading?.querySelector('dd[lang="de"]');
+      expect(german?.textContent).toContain("Es sei");
+      expect(german?.getAttribute("data-gloss-excerpt")).toContain("Es sei");
+      expect(reading?.querySelector('dd[lang="en"]')?.textContent).toContain("Let there be");
+      expect(reading?.querySelector('[data-aligned-english][lang="en"]')?.textContent).toBe(
+        "Let there be a system of plane light waves, whose energy is referred to the coordinate system (x, y, z).",
+      );
+      expect(sentence?.querySelector('[data-action^="read-"]')).toBeNull();
+      expect(sentence?.querySelector('[data-pairs-container] .gloss-german[lang="de"]')).toBeTruthy();
+      expect(sentence?.querySelector('[data-pairs-container] .gloss-english[lang="en"]')).toBeTruthy();
+      expect(sentence?.querySelector(".reasoning-word-item")).toBeTruthy();
+      expect(document.querySelector("[data-reasoning-words]")?.getAttribute("data-reasoning-words"))
+        .toBe(initialReasoningWords ? "on" : "off");
+    }
   });
 
   test("in-place reasoning words list: renders real static <ol> in token order when toggle is on", () => {

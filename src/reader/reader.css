@@ -1167,34 +1167,24 @@ html:is(
   border-bottom: 1px solid var(--line);
 }
 
-.sentence-actions {
+.sentence-readings {
   margin-bottom: 0.75rem;
 }
 
-.sentence-actions-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sentence-action-btn {
-  font-size: var(--type-micro);
-  padding: 0.25rem 0.6rem;
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  cursor: pointer;
+.sentence-readings summary {
   color: var(--muted);
-  transition: all 120ms ease;
+  cursor: pointer;
+  font-size: var(--type-fine);
 }
 
-.sentence-action-btn:hover,
-.sentence-action-btn:focus {
-  color: var(--text);
-  border-color: var(--accent, #d97706);
+.sentence-readings dt {
+  margin-top: 0.65rem;
+  font-weight: 600;
+}
+
+.sentence-readings dd {
+  margin-inline-start: 0;
+  overflow-wrap: anywhere;
 }
 
 .gloss-pairs-container {
@@ -1308,7 +1298,6 @@ html:is(
 }
 
 @media print {
-  .sentence-actions,
   .gloss-face-controls,
   .reasoning-words-details,
   .gloss-entry-link-slot {

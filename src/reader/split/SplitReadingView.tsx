@@ -142,7 +142,12 @@ export async function SplitReadingView({
         <noscript>
           <p className="fine">
             The bilingual source and explanation are both available below. Section links and
-            explanation disclosures work without JavaScript.
+            explanation disclosures work without JavaScript.{" "}
+            {availability.gloss === "available" && (
+              <a href={faceLinkHref(paper.id, "gloss", selected.id)}>
+                Read the interlinear gloss for this section.
+              </a>
+            )}
           </p>
         </noscript>
         <nav className="split-pane-tabs" data-split-tabs aria-label="Split reading faces">

@@ -65,15 +65,12 @@ export function sourceNotebookPassage(
     : english
       ? "English translation"
       : "German source";
-  // The gloss renderer already supplies its continuous German sentence for the reading action.
-  // Reading the interlinear container's text would interleave German, glosses and grammar notes.
-  const spokenGerman = passage
-    .querySelector('[data-action="read-german"]')
-    ?.getAttribute("aria-label");
+  // A gloss pairs each word with its translation. Save only the continuous source,
+  // preserving the authored spoken readings of any mathematics.
+  const german = gloss ? passage.querySelector<HTMLElement>("[data-gloss-excerpt]") : null;
   const excerpt = boundedExcerpt(
-    gloss && spokenGerman?.startsWith("Read the German sentence: ")
-      ? spokenGerman.slice("Read the German sentence: ".length)
-      : textExcerpt(passage.querySelector<HTMLElement>(".sentence-german-unadorned") ?? passage),
+    german?.dataset.glossExcerpt ??
+      textExcerpt(passage.querySelector<HTMLElement>(".sentence-german-unadorned") ?? passage),
   );
   if (!excerpt) return null;
   const sourceId = passage.dataset.sourceParagraph ?? passage.dataset.sentenceId ?? anchor.replace(/^en-/u, "");

@@ -38,7 +38,7 @@ function comparison(width = 1280, search = "", hash = "") {
     <div data-split-columns>
       <section id="split-source-pane" data-split-role="source"><h2 id="split-source-heading" data-split-source-label>German and English</h2><a data-split-source-face-link href="/papers/special-relativity/s1/view/parallel/">Open source</a>
         <div data-split-gloss-tools hidden>Show reasoning words</div>
-        <div id="split-row-s1-p1" data-split-source-row="s1-p1"><p data-split-language="german"><span id="s1-p1">Deutsch</span><span id="s1-p1-s1">Die Kraft.</span></p><p data-split-language="english"><span id="en-s1-p1-s1">English</span><a data-action="show-aligned-source" href="#s1-p1">Show source</a></p><div data-split-language="gloss" hidden><span id="split-gloss--s1-p1-s1">Die / the Kraft / force</span><button data-action="read-german" aria-label="Read the German sentence: Die Kraft.">Read German</button></div><a data-split-go="companion" href="#pane-b--argument">Explanation of this paragraph</a></div>
+        <div id="split-row-s1-p1" data-split-source-row="s1-p1"><p data-split-language="german"><span id="s1-p1">Deutsch</span><span id="s1-p1-s1">Die Kraft.</span></p><p data-split-language="english"><span id="en-s1-p1-s1">English</span><a data-action="show-aligned-source" href="#s1-p1">Show source</a></p><div data-split-language="gloss" hidden><span id="split-gloss--s1-p1-s1">Die / the Kraft / force</span><details><summary>Read the sentence and its glosses together</summary><p lang="de">Die Kraft.</p></details></div><a data-split-go="companion" href="#pane-b--argument">Explanation of this paragraph</a></div>
       </section>
       <section id="split-companion-pane" data-split-role="companion"><h2 id="split-companion-heading" data-split-companion-label>Explanation</h2><a data-split-companion-face-link href="/papers/special-relativity/s1/">Open explanation</a><a href="/papers/special-relativity/s1/view/facsimile/#s1-p1" data-split-scan="s1-p1">Printed passage</a><div data-split-explanation><article id="pane-b--argument"><span id="argument"></span><p>Actual explanation content.</p><a href="#split-row-s1-p1" data-split-go="source">Read the source</a><details><summary>Steps</summary><p id="inside-step">An explained step</p></details></article></div><div data-split-results hidden><article id="result-energy">Actual result</article><a href="#pane-b--argument" data-split-go="explanation">Read this explanation</a></div></section>
     </div>`;
@@ -119,8 +119,9 @@ describe("real split reader controller", () => {
     expect(q<HTMLAnchorElement>(root, "[data-split-section-link]").search).toContain(
       "panes=gloss%2Creading",
     );
-    click(root, '[data-action="read-german"]');
-    expect(q(root, "[data-split-notice]").textContent).toBe("German sentence: Die Kraft.");
+    expect(q(root, '[data-split-language="gloss"] details [lang="de"]').textContent).toBe(
+      "Die Kraft.",
+    );
     change(root, "[data-split-source-choice]", "parallel");
     expect(q(root, "[data-split-language=gloss]").hidden).toBe(true);
     expect(q(root, "[data-split-language=german]").hidden).toBe(false);
@@ -172,7 +173,7 @@ describe("real split reader controller", () => {
     const root = comparison(320, "?panes=english,results", "#inside-step");
     expect(q(root, "[data-split-explanation]").hidden).toBe(false);
     expect(q(root, "[data-split-role=companion]").hidden).toBe(false);
-    expect(q<HTMLDetailsElement>(root, "details").open).toBe(true);
+    expect(q(root, "#inside-step").closest("details")?.open).toBe(true);
   });
 
   test("the Results URL produced by controls survives reload and Back, including pane hashes", () => {

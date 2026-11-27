@@ -49,7 +49,6 @@ test("native checked state controls reasoning visibility, not a hydration-only a
   for (const selector of [
     ".reasoning-words-details",
     ".cue-reasoning-marked",
-    "[data-reasoning-action]",
     ".cue-reasoning-fallback",
   ])
     assert.ok(css.includes(selector));
