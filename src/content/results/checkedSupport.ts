@@ -61,6 +61,7 @@ import { photoelectricChain } from "../../equations/derivations/lightQuantaPhoto
 import { verifyPhotoelectric } from "../../equations/derivations/lightQuantaPhotoelectricProof.ts";
 import { buildMassEnergyElimination } from "../../equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../../equations/derivations/massEnergyLowSpeed.ts";
+import { checkMassEnergyPulses } from "../../equations/derivations/massEnergyPulses.ts";
 import {
   srChargeCurrentAssumptions,
   srChargeCurrentChains,
@@ -744,6 +745,46 @@ export function checkedSupportFor(
       "result-support-conclusion-mismatch",
       `${card.id}: a mass-energy proof cannot establish this paper's result.`,
     );
+
+  if (declaration.proofId === "me-opposite-pulses") {
+    const balance = conclusion.id === "eq-model-me-moving-ledger";
+    if (!balance && conclusion.id !== "eq-model-me-symmetric-sum")
+      throw new ResultCardsError(
+        "result-support-pulse-conclusion-missing",
+        `${card.id}: the opposite-pulse calculation does not establish ${conclusion.id}.`,
+      );
+    checkMassEnergyPulses(equations, balance ? "balances" : "pulse-sum");
+    return {
+      kind: "checked-proof",
+      proofId: declaration.proofId,
+      title: "Trace each pulse from the rest frame to the moving frame",
+      href: "/lab/me-01/#two-ledgers-argument",
+      conclusion: { equationId: conclusion.id, title: conclusion.title },
+      scope: declaration.scope,
+      assumptions: [
+        {
+          id: "light-energy-law",
+          label: "The light-energy transformation from relativity §8",
+          explanation:
+            "The moving observer assigns each pulse an energy that depends on its direction in the emitting body's rest frame.",
+        },
+        {
+          id: "symmetric-emission",
+          label: "Equal energies and opposite directions in the rest frame",
+          explanation:
+            "Each pulse starts with half the emitted energy. Reversing the direction reverses the sign of its projection along the observer's motion.",
+        },
+        ...(balance
+          ? [{
+              id: "conservation",
+              label: "Energy conservation in each frame",
+              explanation:
+                "In each observer’s account the loss of body energy equals the energy carried away by the two pulses.",
+            }]
+          : []),
+      ],
+    };
+  }
 
   if (declaration.proofId === "me-ledger-elimination") {
     const proof = buildMassEnergyElimination(equations);

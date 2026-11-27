@@ -14,6 +14,7 @@ export const RESULT_PROOF_IDS = [
   "lq-photoelectric-energy",
   "lq-fluorescence-energy",
   "lq-ionization-energy-count",
+  "me-opposite-pulses",
   "me-ledger-elimination",
   "me-low-speed-coefficient",
   "sr-moving-clock",

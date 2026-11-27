@@ -48,8 +48,11 @@ export default function TwoLedgersPage() {
         <p className="eyebrow">Open the derivation</p>
         <h2>The imported light-energy transformation</h2>
         <p>
-          Einstein imports a result proven in &sect;8 of his third 1905 paper (Special Relativity).
-          When light of energy <var>l</var> is emitted in the stationary system at an angle{" "}
+          Einstein imports the energy transformation from{" "}
+          <a href="/papers/special-relativity/view/results/#result-sr-light-complex-energy">
+            the light complex in &sect;8 of the relativity paper
+          </a>
+          . When light of energy <var>l</var> is emitted in the stationary system at an angle{" "}
           <var>&phi;</var> to the direction of relative motion, an observer moving past at speed{" "}
           <var>v</var> measures its energy <var>l*</var> as:
         </p>
