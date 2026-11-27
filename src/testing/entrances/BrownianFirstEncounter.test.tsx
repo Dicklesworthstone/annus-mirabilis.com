@@ -1,7 +1,8 @@
 import { afterAll, afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { act } from "react";
-import { createRoot } from "react-dom/client";
+import type { createRoot as createReactRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
+import brownianEntrance from "../../../content/arguments/brownian-motion/entrance-brownian-motion.json";
 import { validateEntranceRecord } from "../../content/entrances/entranceRecord.ts";
 import { loadPaper } from "../../content/server";
 import { BrownianFirstEncounter } from "../../reader/entrances/BrownianFirstEncounter.tsx";
@@ -25,6 +26,7 @@ const BEAD_ID = "am-bm-first-encounter-fjvh";
 describe("Brownian First Encounter Interactive UI Component (am-bm-first-encounter-fjvh)", () => {
   const logger = new TestLogger("brownian-first-encounter", newRunIdentity());
   let container: HTMLElement;
+  let createRoot: typeof createReactRoot;
 
   afterAll(async () => {
     await logger.flush();
@@ -32,6 +34,7 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
 
   beforeEach(async () => {
     await installDom();
+    ({ createRoot } = await import("react-dom/client"));
     container = createContainer();
   });
 
@@ -128,6 +131,26 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
       durationMs: performance.now() - start,
       comparisonKind: "formatted",
     });
+  });
+
+  it("serves each authored obstacle and its clarification before JavaScript", () => {
+    const entrance = validateEntranceRecord(brownianEntrance);
+    const helpEntries = [
+      ...(entrance.helpEntries ?? []),
+      { obstacle: "A second question", clarification: "A second explanation." },
+    ];
+    container.innerHTML = renderToString(
+      <BrownianFirstEncounter record={{ ...entrance, helpEntries }} />,
+    );
+    const disclosures = [...container.querySelectorAll("details[data-entrance-help]")];
+    expect(disclosures.map((details) => ({
+      obstacle: details.querySelector("summary")?.textContent,
+      clarification: details.querySelector("p")?.textContent,
+    }))).toEqual(helpEntries.map(({ obstacle, clarification }) => ({ obstacle, clarification })));
+
+    const pathHelp = disclosures.find((details) => details.textContent?.includes("path length"));
+    expect(pathHelp?.textContent).toContain("2 + 1 = 3 units");
+    expect(pathHelp?.textContent).toContain("0.5 units per second");
   });
 
   it("updates totals when user interacts with sliders via keyboard and restores with restore button", async () => {
@@ -256,6 +279,56 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     });
   });
 
+  it("keeps typed drafts editable and gives the table and keyboard the same endpoints", async () => {
+    const root = createRoot(container);
+    await act(async () => { root.render(<BrownianFirstEncounter record={record} />); });
+    const switchView = async (label: string) => {
+      const button = [...container.querySelectorAll("button")].find((b) => b.textContent === label);
+      if (!button) throw new Error(`Missing view control: ${label}`);
+      await act(async () => button.click());
+    };
+    await switchView("Table and typed values");
+    const input = container.querySelector<HTMLInputElement>('input[aria-label="Particle 1 displacement value"]');
+    if (!input) throw new Error("Missing particle input");
+    const edit = async (text: string) => {
+      await act(async () => {
+        const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+        if (!setter) throw new Error("Missing input value setter");
+        setter.call(input, text);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    };
+    const meanSquare = () => container.querySelector('[data-testid="totals-mean-square"]')?.textContent;
+    for (const text of ["", "-", "2.5", "11", "1e400"]) {
+      await edit(text);
+      expect(input.value).toBe(text);
+      expect(input.getAttribute("aria-invalid")).toBe("true");
+      expect(meanSquare()).toContain("5.00");
+    }
+    await edit("-10");
+    expect(input.hasAttribute("aria-invalid")).toBe(false);
+    expect(meanSquare()).toContain("27.75");
+    await edit("1e1");
+    expect(input.closest("tr")?.textContent).toContain("10 steps right");
+    expect(meanSquare()).toContain("27.75");
+    await switchView("Number line");
+    const slider = container.querySelector<HTMLElement>('[role="slider"]');
+    if (!slider) throw new Error("Missing particle on the number line");
+    expect(slider.getAttribute("aria-valuemin")).toBe("-10");
+    expect(slider.getAttribute("aria-valuemax")).toBe("10");
+    expect(slider.getAttribute("aria-valuenow")).toBe("10");
+    expect(slider.style.left).toBe("100%");
+    for (const [key, value] of [["Home", "-10"], ["ArrowLeft", "-10"], ["ArrowUp", "-9"], ["End", "10"]] as const) {
+      await act(async () => {
+        slider.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+      });
+      expect(slider.getAttribute("aria-valuenow")).toBe(value);
+    }
+    await switchView("Table and typed values");
+    expect(container.querySelector<HTMLInputElement>("input")?.value).toBe("10");
+    await act(async () => root.unmount());
+  });
+
   it("triggers navigation callbacks and preserves custom entries returned via initialEntries", async () => {
     const start = performance.now();
     let navigatedFoundation: string | null = null;
@@ -370,29 +443,39 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     ) as HTMLElement;
     expect(slider1).not.toBeNull();
 
-    const PointerEvt = typeof PointerEvent !== "undefined" ? PointerEvent : MouseEvent;
+    const track = slider1.parentElement;
+    if (!track) throw new Error("The marker must sit on the measured track.");
+    track.getBoundingClientRect = () => new DOMRect(20, 0, 200, 40);
+    const captured = new Set<number>();
+    slider1.setPointerCapture = (id) => { captured.add(id); };
+    slider1.hasPointerCapture = (id) => captured.has(id);
+    slider1.releasePointerCapture = (id) => { captured.delete(id); };
+    async function pointer(type: string, clientX: number, pointerId = 7) {
+      const event = new MouseEvent(type, { clientX, bubbles: true, button: 0 });
+      Object.assign(event, { pointerId, isPrimary: true });
+      await act(async () => { slider1.dispatchEvent(event); });
+    }
 
-    // In fallback layout (width 320, left 0): clientX = 140 -> fraction = 140/320 = 0.4375 -> pos = 0.4375*16 - 8 = -1
-    await act(async () => {
-      slider1.dispatchEvent(new PointerEvt("pointerdown", { clientX: 140, bubbles: true }));
-    });
-
-    // Entries are now [-1, -1, 1, 3]: identical totals to keyboard test after two right moves
+    await pointer("pointerdown", 110);
+    // −1, −1, +1, +3 matches the keyboard test after two moves to the right.
     expect(sumEl?.textContent).toContain("+2");
     expect(absEl?.textContent).toContain("1.50");
     expect(sqEl?.textContent).toContain("3.00");
-
-    // Drag further via window pointermove to clientX = 160 (pos = 0)
-    await act(async () => {
-      window.dispatchEvent(new PointerEvt("pointermove", { clientX: 160, bubbles: true }));
-    });
-    // With entries [0, -1, 1, 3]: sum = +3
+    await pointer("pointermove", 220, 8);
+    expect(slider1.getAttribute("aria-valuenow")).toBe("-1");
+    await pointer("pointermove", 120);
     expect(sumEl?.textContent).toContain("+3");
-
-    // Release pointer
-    await act(async () => {
-      window.dispatchEvent(new PointerEvt("pointerup", { bubbles: true }));
-    });
+    await pointer("pointerup", 220);
+    expect(slider1.getAttribute("aria-valuenow")).toBe("10");
+    expect(slider1.style.left).toBe("100%");
+    expect(captured.size).toBe(0);
+    await pointer("pointerdown", 20);
+    expect(slider1.getAttribute("aria-valuenow")).toBe("-10");
+    expect(slider1.style.left).toBe("0%");
+    await pointer("pointercancel", 20);
+    await pointer("pointermove", 220);
+    expect(captured.size).toBe(0);
+    expect(slider1.getAttribute("aria-valuenow")).toBe("-10");
 
     // Restore to authored example
     const restoreBtn = Array.from(container.querySelectorAll("button")).find((b) =>

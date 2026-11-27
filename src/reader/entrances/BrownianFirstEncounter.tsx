@@ -11,6 +11,9 @@ import {
   formatSignedDisplacement,
 } from "./signedDisplacements.ts";
 
+const LIMIT = 10;
+const TICKS = Array.from({ length: LIMIT + 1 }, (_, index) => 2 * index - LIMIT);
+const percentAt = (position: number) => (100 * (position + LIMIT)) / (2 * LIMIT);
 const PARTICLE_KEYS = ["particle-1", "particle-2", "particle-3", "particle-4"] as const;
 
 /** The lesson link opens beside the text (ReaderController) and comes back here, as on the other papers. */
@@ -24,13 +27,66 @@ export interface BrownianFirstEncounterProps {
   readonly onNavigateInstrument?: ((instrumentId: string) => void) | undefined;
 }
 
+function displacementFromText(text: string): number | null {
+  const decimal = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i;
+  const number = decimal.test(text.trim()) ? Number(text) : Number.NaN;
+  return Number.isInteger(number) && Math.abs(number) <= LIMIT ? number : null;
+}
+
+function DisplacementField({
+  index,
+  value,
+  onValue,
+}: {
+  index: number;
+  value: number;
+  onValue(index: number, displacement: number): void;
+}) {
+  const hintId = useId();
+  const [draft, setDraft] = useState<string | null>(null);
+  const text = draft ?? String(value);
+  const invalid = draft !== null && displacementFromText(draft) === null;
+
+  return (
+    <>
+      <input
+        type="text"
+        inputMode="text"
+        spellCheck={false}
+        aria-label={`Particle ${index + 1} displacement value`}
+        aria-invalid={invalid || undefined}
+        aria-describedby={invalid ? hintId : undefined}
+        value={text}
+        onChange={(event) => {
+          const next = event.currentTarget.value;
+          setDraft(next);
+          const number = displacementFromText(next);
+          if (number !== null) onValue(index, number);
+        }}
+        onBlur={() => setDraft(null)}
+        style={{ width: "4.5rem", textAlign: "center", minHeight: "32px", padding: "0.2rem" }}
+      />
+      {invalid && (
+        <span className="fine" id={hintId}>
+          Enter a whole number from −{LIMIT} to +{LIMIT}. The calculations still use {value}.
+        </span>
+      )}
+    </>
+  );
+}
+
 export function BrownianFirstEncounter({
   record,
   initialEntries = AUTHORED_BROWNIAN_DISPLACEMENTS,
   onNavigateFoundation,
   onNavigateInstrument,
 }: BrownianFirstEncounterProps) {
-  const [entries, setEntries] = useState<readonly number[]>(initialEntries);
+  const initialInRange =
+    initialEntries.length === PARTICLE_KEYS.length &&
+    initialEntries.every((value) => Number.isInteger(value) && Math.abs(value) <= LIMIT);
+  const [entries, setEntries] = useState<readonly number[]>(
+    initialInRange ? initialEntries : AUTHORED_BROWNIAN_DISPLACEMENTS,
+  );
   const [activeTab, setActiveTab] = useState<"visual" | "table">("visual");
   const [liveAnnouncement, setLiveAnnouncement] = useState<string>("");
 
@@ -52,7 +108,7 @@ export function BrownianFirstEncounter({
     entries[3] === 6;
 
   const updateEntry = useCallback((index: number, nextVal: number) => {
-    const clamped = Math.max(-10, Math.min(10, Math.round(nextVal)));
+    const clamped = Math.max(-LIMIT, Math.min(LIMIT, Math.round(nextVal)));
     setEntries((prev) => {
       const next = [...prev];
       next[index] = clamped;
@@ -64,35 +120,17 @@ export function BrownianFirstEncounter({
     });
   }, []);
 
-  const handlePointerDown = useCallback(
-    (idx: number, e: React.PointerEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      const track = trackRef.current;
-      const updateFromClientX = (clientX: number) => {
-        const rect = track?.getBoundingClientRect();
-        const width = rect && rect.width > 0 ? rect.width : 320;
-        const left = rect && rect.width > 0 ? rect.left : 0;
-        const fraction = Math.max(0, Math.min(1, (clientX - left) / width));
-        const nextPos = Math.round(fraction * 16 - 8);
-        updateEntry(idx, nextPos);
-      };
+  function positionFromPointer(index: number, clientX: number) {
+    const rect = trackRef.current?.getBoundingClientRect();
+    if (!rect || rect.width <= 0) return;
+    updateEntry(index, ((clientX - rect.left) / rect.width) * 2 * LIMIT - LIMIT);
+  }
 
-      updateFromClientX(e.clientX);
-
-      const onPointerMove = (ev: PointerEvent) => {
-        updateFromClientX(ev.clientX);
-      };
-
-      const onPointerUp = () => {
-        window.removeEventListener("pointermove", onPointerMove);
-        window.removeEventListener("pointerup", onPointerUp);
-      };
-
-      window.addEventListener("pointermove", onPointerMove);
-      window.addEventListener("pointerup", onPointerUp);
-    },
-    [updateEntry],
-  );
+  function releaseMarker(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  }
 
   const resetToAuthored = useCallback(() => {
     setEntries(AUTHORED_BROWNIAN_DISPLACEMENTS);
@@ -134,6 +172,13 @@ export function BrownianFirstEncounter({
             "Imagine placing a microscopic particle in a drop of water and marking where it is after a few moments. Pushed at random by invisible water molecules, it is just as likely to move left as right. In the symmetric arithmetic example below, signed displacements cancel even though all four endpoints differ from the starting point."}
         </p>
       </header>
+
+      {!initialInRange && (
+        <p className="notice">
+          This number line needs four whole-number endpoints between −{LIMIT} and +{LIMIT}.
+          The authored example was used as the starting point.
+        </p>
+      )}
 
       {/* Screen Reader Live Region */}
       <div
@@ -253,8 +298,8 @@ export function BrownianFirstEncounter({
                   background: "var(--line)",
                 }}
               />
-              {[-8, -6, -4, -2, 0, 2, 4, 6, 8].map((val) => {
-                const leftPercent = ((val + 8) / 16) * 100;
+              {TICKS.map((val) => {
+                const leftPercent = percentAt(val);
                 const origin = val === 0;
                 return (
                   <div key={`tick-${val}`} aria-hidden="true">
@@ -299,7 +344,7 @@ export function BrownianFirstEncounter({
               {particleItems.map((item) => {
                 const pos = item.position;
                 const idx = item.index;
-                const leftPercent = Math.max(0, Math.min(100, ((pos + 8) / 16) * 100));
+                const leftPercent = percentAt(pos);
                 const particleStyles = [
                   {
                     background: "var(--panel)",
@@ -336,22 +381,40 @@ export function BrownianFirstEncounter({
                     role="slider"
                     aria-label={`Particle ${idx + 1} displacement: ${formatSignedDisplacement(pos)} units`}
                     aria-valuenow={pos}
-                    aria-valuemin={-8}
-                    aria-valuemax={8}
-                    onPointerDown={(e) => handlePointerDown(idx, e)}
+                    aria-valuemin={-LIMIT}
+                    aria-valuemax={LIMIT}
+                    onPointerDown={(e) => {
+                      if (e.button !== 0 || e.isPrimary === false) return;
+                      e.preventDefault();
+                      e.currentTarget.focus();
+                      e.currentTarget.setPointerCapture?.(e.pointerId);
+                      positionFromPointer(idx, e.clientX);
+                    }}
+                    onPointerMove={(e) => {
+                      if (e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+                        positionFromPointer(idx, e.clientX);
+                      }
+                    }}
+                    onPointerUp={(e) => {
+                      if (e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+                        positionFromPointer(idx, e.clientX);
+                        releaseMarker(e);
+                      }
+                    }}
+                    onPointerCancel={releaseMarker}
                     onKeyDown={(e) => {
-                      if (e.key === "ArrowLeft") {
+                      if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
                         e.preventDefault();
                         updateEntry(idx, pos - 1);
-                      } else if (e.key === "ArrowRight") {
+                      } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
                         e.preventDefault();
                         updateEntry(idx, pos + 1);
                       } else if (e.key === "Home") {
                         e.preventDefault();
-                        updateEntry(idx, -8);
+                        updateEntry(idx, -LIMIT);
                       } else if (e.key === "End") {
                         e.preventDefault();
-                        updateEntry(idx, 8);
+                        updateEntry(idx, LIMIT);
                       }
                     }}
                     style={{
@@ -408,6 +471,7 @@ export function BrownianFirstEncounter({
           aria-label="Particle displacements and squares table"
         >
           <table>
+            <caption>Particle endpoints in whole units from −{LIMIT} to +{LIMIT}</caption>
             <thead>
               <tr>
                 <th scope="col">Particle</th>
@@ -445,21 +509,7 @@ export function BrownianFirstEncounter({
                         >
                           −
                         </button>
-                        <input
-                          type="number"
-                          aria-label={`Particle ${i + 1} displacement value`}
-                          value={val}
-                          onChange={(e) => {
-                            const n = parseInt(e.target.value, 10);
-                            if (!Number.isNaN(n)) updateEntry(i, n);
-                          }}
-                          style={{
-                            width: "4.5rem",
-                            textAlign: "center",
-                            minHeight: "32px",
-                            padding: "0.2rem",
-                          }}
-                        />
+                        <DisplacementField index={i} value={val} onValue={updateEntry} />
                         <button
                           type="button"
                           aria-label={`Increase Particle ${i + 1} displacement`}
@@ -732,6 +782,13 @@ export function BrownianFirstEncounter({
           Why do the cross terms vanish? Open the exact missing step
         </a>
       </p>
+
+      {record?.helpEntries?.map(({ obstacle, clarification }) => (
+        <details key={obstacle} className="notice" data-entrance-help>
+          <summary>{obstacle}</summary>
+          <p>{clarification}</p>
+        </details>
+      ))}
 
       {/* Step 10 · The Bridge */}
       <footer
