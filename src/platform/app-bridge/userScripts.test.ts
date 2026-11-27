@@ -558,6 +558,43 @@ describe("the reader's data mirrored into the app", () => {
     assert.deepEqual(snapshots(cleared), [{}]);
   });
 
+  it("retains a clear across relaunch if the native erasure has not been acknowledged", async () => {
+    const before = sandbox({
+      inApp: true, stored: { "am:notes": "saved" }, replies: { "storage.write": { status: "quota" } },
+    });
+    before.run();
+    before.localStorage.clear();
+    before.fire("window", "pagehide");
+    await before.settle();
+    const after = sandbox({
+      inApp: true, stored: Object.fromEntries(before.localStorage.data),
+      replies: { "storage.read": { status: "ok", value: '{"am:notes":"saved"}' } },
+    });
+    after.run();
+    after.tick();
+    await after.settle();
+    assert.equal(after.localStorage.length, 0);
+    assert.deepEqual(snapshots(after), [{}]);
+    assert.deepEqual(after.of("storage.read"), []);
+  });
+
+  it("preserves a single removal across relaunch without losing the other pending records", async () => {
+    const before = sandbox({ inApp: true, replies: { "storage.read": { status: "unavailable" } } });
+    before.run();
+    before.localStorage.removeItem("am:notes");
+    await before.settle();
+    const after = sandbox({
+      inApp: true, stored: Object.fromEntries(before.localStorage.data),
+      replies: { "storage.read": { status: "ok", value: '{"am:notes":"old","am:journey":"keep"}' } },
+    });
+    after.run();
+    await after.settle();
+    assert.equal(after.localStorage.getItem("am:notes"), null);
+    assert.equal(after.localStorage.getItem("am:journey"), "keep");
+    assert.equal(after.localStorage.getItem("am-app:restoring-snapshot"), null);
+    assert.deepEqual(snapshots(after), [{ "am:journey": "keep" }]);
+  });
+
   it("finishes a previously interrupted restore before any partial WebKit data can be mirrored", async () => {
     const page = sandbox({
       inApp: true,

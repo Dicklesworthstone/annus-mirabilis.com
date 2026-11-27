@@ -287,15 +287,24 @@ export function installBridge(
       return null;
     }
   };
+  const removedDuringRestore = new Set<string>();
   let needsRestore = true;
   try {
     // At document start, before the page has a chance to write new defaults into an evicted store.
-    needsRestore = localStorage.getItem(restoringKey) !== null || Object.keys(siteData() ?? {}).length === 0;
+    const marker = localStorage.getItem(restoringKey);
+    needsRestore = marker !== "commit" && (marker !== null || Object.keys(siteData() ?? {}).length === 0);
+    if (marker?.startsWith("[")) {
+      const removed: unknown = JSON.parse(marker);
+      if (Array.isArray(removed)) {
+        for (const key of removed) {
+          if (typeof key === "string" && key.startsWith(storagePrefix)) removedDuringRestore.add(key);
+        }
+      }
+    }
   } catch {
     /* An unreadable store is never authoritative. */
   }
   let restoring = false;
-  const removedDuringRestore = new Set<string>();
   let mirrored: string | null = null;
   let writing = false;
   let flushAfterWrite = false;
@@ -324,6 +333,15 @@ export function installBridge(
     );
     function finishWrite(saved: boolean) {
       mirrored = saved ? text : null;
+      if (saved) {
+        try {
+          if (localStorage.getItem(restoringKey) === "commit" && JSON.stringify(siteData()) === text) {
+            removeItem?.call(localStorage, restoringKey);
+          }
+        } catch {
+          /* Retaining the marker only retries the same snapshot on the next page. */
+        }
+      }
       writing = false;
       if (flushAfterWrite) {
         flushAfterWrite = false;
@@ -339,6 +357,9 @@ export function installBridge(
   };
   let setItem: ((key: string, value: string) => void) | undefined;
   let removeItem: ((key: string) => void) | undefined;
+  const markRecovery = () => setItem?.call(localStorage, restoringKey,
+    removedDuringRestore.size ? JSON.stringify([...removedDuringRestore]) : "1",
+  );
   try {
     const proto = Storage.prototype;
     setItem = proto.setItem;
@@ -352,13 +373,20 @@ export function installBridge(
           const result = original.apply(this, args);
           try {
             if (this === localStorage) {
-              if (needsRestore && name === "clear") {
-                // Explicit erasure wins over a late native reply, including one already in flight.
+              if (name === "clear") {
+                // An intentionally emptied store must not be mistaken for eviction on relaunch
+                // while the native erasure is still unacknowledged.
                 needsRestore = false;
                 removedDuringRestore.clear();
-              } else if (needsRestore && typeof args[0] === "string" && args[0].startsWith(storagePrefix)) {
-                setItem?.call(localStorage, restoringKey, "1");
-                if (name === "removeItem") removedDuringRestore.add(args[0]);
+                mirrored = null;
+                setItem?.call(localStorage, restoringKey, "commit");
+              } else if (typeof args[0] === "string" && args[0].startsWith(storagePrefix)) {
+                if (needsRestore) {
+                  if (name === "removeItem") removedDuringRestore.add(args[0]);
+                  markRecovery();
+                } else if (name === "removeItem" && mirrored !== JSON.stringify(siteData())) {
+                  setItem?.call(localStorage, restoringKey, "commit");
+                }
               }
               scheduleMirror();
             }
@@ -395,7 +423,7 @@ export function installBridge(
         if (entries.some(([, value]) => typeof value !== "string")) return;
         for (const [key, value] of entries) {
           if (!removedDuringRestore.has(key) && localStorage.getItem(key) === null) {
-            if (restored === 0) setItem.call(localStorage, restoringKey, "1");
+            if (restored === 0) markRecovery();
             setItem.call(localStorage, key, value);
             restored++;
           }
@@ -404,7 +432,10 @@ export function installBridge(
       } else {
         return;
       }
-      removeItem.call(localStorage, restoringKey);
+      const current = siteData();
+      if (current === null) return;
+      if (JSON.stringify(current) === mirrored) removeItem.call(localStorage, restoringKey);
+      else setItem.call(localStorage, restoringKey, "commit");
       needsRestore = false;
       removedDuringRestore.clear();
       mirror();
