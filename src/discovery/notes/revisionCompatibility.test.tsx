@@ -9,9 +9,11 @@ import {
   uninstallDom,
 } from "../../testing/reactDom.ts";
 import { journeyNoteManifest } from "../journeys/noteCompatibility.ts";
+import { FORK_FIELD_MASS, FORK_POINCARE } from "../massEnergy/journeyIV.ts";
 import { MASS_ENERGY_STAGES } from "../massEnergy/stages.ts";
 import { decodeNotebook, emptyNotebook, encodeNotebook, recordPrediction } from "../notebook.ts";
 import { createNotebookSession, type NotebookStoragePort } from "../notebookSession.ts";
+import { FORK_SOURCE_SPEED, FORK_UNDETECTED_ETHER } from "../relativity/journeyIII.ts";
 import { SPECIAL_RELATIVITY_STAGES } from "../relativity/stages.ts";
 import { DiscoveryNotebookProvider } from "./context.tsx";
 import { notebookHtml } from "./files.ts";
@@ -19,8 +21,12 @@ import { stageNoteManifest } from "./manifest.ts";
 import { DiscoveryNotebookControls } from "./NotebookControls.tsx";
 
 const published = [
-  { paper: "mass-energy", stages: MASS_ENERGY_STAGES },
-  { paper: "special-relativity", stages: SPECIAL_RELATIVITY_STAGES },
+  { paper: "mass-energy", stages: MASS_ENERGY_STAGES, forks: [FORK_FIELD_MASS, FORK_POINCARE] },
+  {
+    paper: "special-relativity",
+    stages: SPECIAL_RELATIVITY_STAGES,
+    forks: [FORK_SOURCE_SPEED, FORK_UNDETECTED_ETHER],
+  },
 ] as const;
 
 function memory(raw: string) {
@@ -38,9 +44,9 @@ function memory(raw: string) {
 }
 
 describe("keeping stage notes through verified move-only guide revisions", () => {
-  for (const { paper, stages } of published) {
+  for (const { paper, stages, forks } of published) {
     const prior = stageNoteManifest(paper, 4, stages);
-    const current = journeyNoteManifest(paper, 5, stages);
+    const current = journeyNoteManifest(paper, 5, stages, forks);
     const first = stages[0];
     if (!first) throw new Error("The published guide must have a first stage.");
     const old = recordPrediction(
@@ -104,10 +110,28 @@ describe("keeping stage notes through verified move-only guide revisions", () =>
           ...stages.slice(1),
         ],
       ]) {
-        const altered = journeyNoteManifest(paper, 5, changed);
+        const altered = journeyNoteManifest(paper, 5, changed, forks);
         expect(altered.compatibleRevisions).toBeUndefined();
         expect(() => decodeNotebook(raw, altered)).toThrow("different guide revision");
       }
+    });
+
+    test(`${paper}: a reused branch id cannot change the meaning of a previous prediction`, () => {
+      const fork = forks[0];
+      const branch = fork.branches[0];
+      if (!branch) throw new Error("The published fork must offer a proposal");
+      const saved = recordPrediction(old, current, fork.afterStageId, "My prediction", branch.id);
+      expect(decodeNotebook(JSON.stringify(saved), current)).toEqual(saved);
+      const changed = forks.map((fork) => ({
+        ...fork,
+        branches: fork.branches.map((branch) => ({
+          ...branch,
+          hypothesis: `${branch.hypothesis} A different physical hypothesis.`,
+        })),
+      }));
+      const altered = journeyNoteManifest(paper, 5, stages, changed);
+      expect(altered.compatibleRevisions).toBeUndefined();
+      expect(() => decodeNotebook(JSON.stringify(saved), altered)).toThrow("different guide revision");
     });
 
     test(`${paper}: compatibility never means any earlier or later revision`, () => {
@@ -122,7 +146,7 @@ describe("keeping stage notes through verified move-only guide revisions", () =>
         expect(storage.raw()).toBe(other);
         expect(storage.writes).toHaveLength(0);
       }
-      const futureGuide = journeyNoteManifest(paper, 6, stages);
+      const futureGuide = journeyNoteManifest(paper, 6, stages, forks);
       expect(futureGuide.compatibleRevisions).toBeUndefined();
       expect(() => decodeNotebook(raw, futureGuide)).toThrow("different guide revision");
       expect(() =>
@@ -164,7 +188,7 @@ describe("original revision identity in the live notes controls", () => {
 
   test("an existing mass-energy notebook remains usable and is identified as originating in revision4", async () => {
     const oldManifest = stageNoteManifest("mass-energy", 4, MASS_ENERGY_STAGES);
-    const current = journeyNoteManifest("mass-energy", 5, MASS_ENERGY_STAGES);
+    const current = journeyNoteManifest("mass-energy", 5, MASS_ENERGY_STAGES, published[0].forks);
     const raw = encodeNotebook(
       recordPrediction(
         emptyNotebook(oldManifest),
