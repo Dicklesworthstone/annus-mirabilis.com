@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 import { useEffect, useId, useState } from "react";
+import { EntranceSourcePassage } from "./EntranceSourcePassage.tsx";
 import type { EntranceRecord } from "../../content/entrances/entranceRecord.ts";
 import {
   CLOCK_INITIAL,
@@ -290,6 +291,7 @@ export function ClockFirstEncounter({ record }: { record: EntranceRecord }) {
             Continue to the section 1 clock-setting argument →
           </a>
         </p>
+        <EntranceSourcePassage paper="special-relativity" />
       </section>
     </section>
   );

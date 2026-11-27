@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { EntranceSourcePassage } from "./EntranceSourcePassage.tsx";
 import type { EntranceRecord } from "../../content/entrances/entranceRecord.ts";
 import {
   partName,
@@ -287,6 +288,7 @@ export function LightQuantaFirstEncounter({ record }: { record: EntranceRecord }
           </a>
         </p>
         <p className="fine">Both links lead to our explanation of those sections.</p>
+        <EntranceSourcePassage paper="light-quanta" />
       </section>
     </section>
   );

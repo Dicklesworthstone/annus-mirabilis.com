@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useReducer, useState } from "react";
+import { EntranceSourcePassage } from "./EntranceSourcePassage.tsx";
 import type { EntranceRecord } from "../../content/entrances/entranceRecord.ts";
 import type { EntranceScalar, MassEnergyEntranceScenario } from "./massEnergyExample.ts";
 import { MASS_ENERGY_ENTRANCE_INITIAL, reduceMassEnergyEntrance } from "./massEnergyState.ts";
@@ -447,6 +448,7 @@ export function MassEnergyFirstEncounter({
             Follow the complete explanatory argument →
           </a>
         </p>
+        <EntranceSourcePassage paper="mass-energy" />
       </section>
     </section>
   );

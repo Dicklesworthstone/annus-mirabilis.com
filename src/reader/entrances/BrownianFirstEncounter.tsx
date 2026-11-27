@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useId, useRef, useState } from "react";
+import { EntranceSourcePassage } from "./EntranceSourcePassage.tsx";
 import type { EntranceRecord } from "../../content/entrances/entranceRecord.ts";
 import {
   AUTHORED_BROWNIAN_DISPLACEMENTS,
@@ -812,7 +813,7 @@ export function BrownianFirstEncounter({
                   </span>
                   <p className="fine" style={{ marginBottom: "0.75rem" }}>
                     Test thousands of particles in the tracer-ensemble laboratory or jump straight
-                    to Einstein’s §5 displacement passage.
+                    to the explanation of the §5 displacement calculation.
                   </p>
                 </div>
                 <div className="button-group">
@@ -830,13 +831,14 @@ export function BrownianFirstEncounter({
                     Open the tracer-ensemble laboratory
                   </a>
                   <a href="/papers/brownian-motion/s5/#s5" className="button secondary">
-                    Go to the §5 passage
+                    Read the §5 explanation
                   </a>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        <EntranceSourcePassage paper="brownian-motion" />
       </footer>
 
       {/* Complete No-JavaScript Fallback */}
@@ -891,7 +893,7 @@ export function BrownianFirstEncounter({
               Open the tracer-ensemble laboratory
             </a>
             <a href="/papers/brownian-motion/s5/#s5" className="button secondary">
-              Go to the §5 displacement passage
+              Read the §5 explanation
             </a>
           </div>
         </div>
