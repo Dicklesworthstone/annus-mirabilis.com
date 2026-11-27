@@ -29,6 +29,12 @@ const WIRED = [
     binding: "LQ05_TAPE",
     tapes: ["lq-05-journey-stage-e", "the-locked-positions"],
   },
+  {
+    lab: "me-03",
+    module: "me03/tape.ts",
+    binding: "ME03_TAPE",
+    tapes: ["the-1906-box", "where-the-energy-went"],
+  },
   { lab: "lq-06", module: "lq06/tape.ts", binding: "LQ06_TAPE", tapes: ["the-move"] },
   {
     lab: "lq-07",
@@ -41,10 +47,9 @@ const WIRED = [
 
 /**
  * Laboratories that carry a walkthrough record and must NOT show a button, because pressing it could
- * not work: bm-01 is form-only, so it has no live session to replay into, and me-03's records do not
- * convert, so no resolver can hand them over.
+ * not work: bm-01 is form-only, so this synchronous control does not apply.
  */
-const NOT_WIRED = ["bm-01", "me-03"] as const;
+const NOT_WIRED = ["bm-01"] as const;
 
 async function bindingOf(entry: (typeof WIRED)[number]): Promise<LabTapeBinding> {
   const mod = (await import(`../../experiments/${entry.module}`)) as Record<string, unknown>;

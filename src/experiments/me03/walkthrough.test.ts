@@ -268,7 +268,7 @@ describe("ME-03: where the energy went", () => {
       createElement(WalkthroughControl, { binding: ME03_TAPE, session }),
     );
     expect(markup).toContain('data-walkthrough="where-the-energy-went"');
-    expect(markup).not.toContain('data-walkthrough="the-1906-box"');
+    expect(markup).toContain('data-walkthrough="the-1906-box"');
     const played = playWalkthrough(ME03_TAPE, session, record.tapeId);
     assert.ok(played.kind === "played", "The default published resolver must play this tape.");
     expect(played.steps).toBe(3);
@@ -282,6 +282,29 @@ describe("ME-03: where the energy went", () => {
       steps: played.steps,
       isNewRun: played.isNewRun,
     });
+  });
+
+  test("the box walkthrough restores both premises and their accepted outputs", () => {
+    const box = catalogue.walkthroughs.find((entry) => entry.tapeId === "the-1906-box");
+    assert.ok(box);
+    expect(box.checkpoints.map((stop) => stop.actionIndex)).toEqual([1, 2]);
+    const session = createMe03Session("me03-box-walkthrough");
+    for (const index of [0, 1, 0]) {
+      const stop = box.checkpoints[index];
+      assert.ok(stop?.tape);
+      expect(restoreTape(ME03_TAPE, session, stop.tape)).toEqual({ kind: "restored" });
+      expect(session.acceptedParameters().mode).toBe("box-1906");
+      expect(session.acceptedParameters().assignLightMass).toBe(index === 1);
+      const displacement = numericOutput(session, "boxDisplacement", "m");
+      expect(displacement).toBeLessThan(0);
+      expect(numericOutput(session, "centerOfMassShift", "m")).toBe(index === 1 ? 0 : displacement);
+    }
+    const played = playWalkthrough(ME03_TAPE, session, box.tapeId);
+    assert.ok(played.kind === "played");
+    expect(played.isNewRun).toBe(false);
+    expect(played.steps).toBe(2);
+    expect(session.acceptedParameters().assignLightMass).toBe(true);
+    expect(numericOutput(session, "centerOfMassShift", "m")).toBe(0);
   });
 
   test("new ME-03 shares retain the source identity through restore and draft loading", () => {

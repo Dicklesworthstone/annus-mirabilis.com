@@ -1,52 +1,83 @@
 tapeVersion: 2
 tapeId: the-1906-box
 experimentId: me-03
-mode: "me-03:box-1906"
+mode: "me-03:default"
 title: the 1906 box
-description: Teaching tape demonstrating that assigning mass m = E/c^2 to the light pulse preserves center-of-mass immobility in the 1906 box thought experiment.
+description: "A 1 J light pulse crosses a 1 m box. Compare the same recoil twice, first counting only the box and then including the inertia carried by the pulse. This is the 1906 extension to the 1905 paper."
 isTeachingSequence: true
 modelIdentity:
   modelId: me-03-box-1906-v1
   modelVersion: "1"
-  artifactDigest: "host:sha256:d96c3d929696b3f0df4fb142771808ed05c3bf3601048b020c91a1646b033373"
+  artifactDigest: "host:sha256:698f247d16e6f1699d2682b2e2a5d62fb259f8e976f38d9a836d8be1906a1966"
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
 allocationId: deterministic
 initialConditions:
+  mode: box-1906
   initialEmitterMass: 1.0
   boxMass: 1
   boxLength: 1
   pulseEnergy: 1
-  assignLightMass: 1
+  assignLightMass: "true"
   magnification: 1e17
 events:
   - kind: control
     actionIndex: 1
     commandClass: setup-change
-    commandId: set-energy-half
-    parameterId: pulseEnergy
-    value: 0.5
+    commandId: withhold-light-inertia
+    parameterId: assignLightMass
+    value: "false"
+    previousValue: "true"
   - kind: control
     actionIndex: 2
     commandClass: setup-change
-    commandId: restore-energy-unit
-    parameterId: pulseEnergy
-    value: 1.0
+    commandId: include-light-inertia
+    parameterId: assignLightMass
+    value: "true"
+    previousValue: "false"
 checkpoints:
-  - actionIndex: 2
+  - actionIndex: 1
     stepIndex: 0
-    simulatedTime: 3.33564095198152e-9
-    digest: "host:3668e9a4b10f4dda"
+    simulatedTime: 0
+    digest: "host:3fd7d8f2e053145b"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
     seed: "0"
     streamPositions: []
-    label: "Exact zero center-of-mass shift"
-    teachingNote: Assigning mass m = E/c^2 to the pulse preserves exact rational zero center-of-mass shift.
+    label: "Count only the recoiling box"
+    teachingNote: "The pulse travels to the right and the box recoils to the left. If the transported energy carries no inertia, the model leaves the center of mass displaced even though no external force acted."
     expectedDisplayValues:
+      - label: box displacement
+        outputId: boxDisplacement
+        value: -1.1126500560536185e-17
+        unit: "m"
+        constantSetId: modern-si-2019
       - label: center of mass shift
+        outputId: centerOfMassShift
+        value: -1.1126500560536185e-17
+        unit: "m"
+        constantSetId: modern-si-2019
+  - actionIndex: 2
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:ec8a22b9408e28d7"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Include the pulse's inertia"
+    teachingNote: "The box recoils by the same distance. Assigning inertia E/c² to the energy transferred across the box balances that displacement exactly in the small-recoil model."
+    expectedDisplayValues:
+      - label: box displacement
+        outputId: boxDisplacement
+        value: -1.1126500560536185e-17
+        unit: "m"
+        constantSetId: modern-si-2019
+      - label: center of mass shift
+        outputId: centerOfMassShift
         value: 0
         unit: "m"
         constantSetId: modern-si-2019

@@ -416,35 +416,28 @@ describe("a recorded number agrees with the parameters in force where it was rec
     ).toBe(true);
   });
 
-  test("the 1906 box: the centre of mass stays put only because the light carries mass", () => {
+  test("the 1906 box compares the same recoil under both inertia assignments", () => {
     const t = tape("the-1906-box");
-    const step = t.steps.find((s) => s.expected.some((e) => e.label === "center of mass shift"));
-    expect(step).toBeDefined();
-    if (!step) return;
-    const at = inForce(t, step.actionIndex);
-    // The box's own settings, read from the tape rather than written here.
-    const box = {
-      M: at.boxMass as number,
-      ell: at.boxLength as number,
-      E: at.pulseEnergy as number,
-      assignLightMass: at.assignLightMass === 1,
-    };
-    expect(box.assignLightMass).toBe(true);
-    const withMass = evaluatePhotonBox(box) as never as Record<
-      string,
-      { status?: string; value?: number } | undefined
-    >;
-    const recorded = step.expected.find((e) => e.label === "center of mass shift");
-    expect(withMass.centerOfMassShift?.value).toBe(recorded?.value);
-    // THE NEGATIVE CONTROL IS THE TEACHING POINT. Deny the light its mass and the same box moves
-    // the same distance while the centre of mass no longer stays put, which is the contradiction
-    // the 1906 argument exists to resolve. Without this, "0" is a number no computation defends.
-    const withoutMass = evaluatePhotonBox({ ...box, assignLightMass: false }) as never as Record<
-      string,
-      { status?: string; value?: number } | undefined
-    >;
-    expect(withoutMass.centerOfMassShift?.value).not.toBe(0);
-    expect(withoutMass.centerOfMassShift?.value).toBe(withMass.boxDisplacement?.value);
+    const recorded = t.steps.filter((step) => step.expected.length > 0);
+    expect(recorded.map((step) => step.actionIndex)).toEqual([1, 2]);
+    for (const step of recorded) {
+      const at = inForce(t, step.actionIndex);
+      expect(at.mode).toBe("box-1906");
+      expect(at.assignLightMass).toBe(step.actionIndex === 1 ? "false" : "true");
+      const result = evaluatePhotonBox({
+        M: num(t, "boxMass"),
+        ell: num(t, "boxLength"),
+        E: num(t, "pulseEnergy"),
+        assignLightMass: at.assignLightMass === "true",
+      });
+      expect(result.status).toBe("value");
+      expect(result.displacement).toBeLessThan(0);
+      expect(result.comShift).toBe(step.actionIndex === 1 ? result.displacement : 0);
+      expect(step.expected.map(({ label, value, unit }) => ({ label, value, unit }))).toEqual([
+        { label: "box displacement", value: result.displacement, unit: "m" },
+        { label: "center of mass shift", value: result.comShift, unit: "m" },
+      ]);
+    }
   });
 
   test("camera bias: ideal observations recover D, exposure lowers the expectation and noise raises it", () => {

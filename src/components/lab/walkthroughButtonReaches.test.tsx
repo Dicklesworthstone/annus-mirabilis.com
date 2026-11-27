@@ -14,17 +14,7 @@
  * surfaces as a refusal code instead of a silent nothing. A refusing button is a worse outcome than
  * no button, which is why the component declines what it cannot play.
  *
- * NON-VACUITY IS ON THE CORPUS, so no laboratory is required to have a walkthrough. Six of the
- * seven offer one; ME-03 offers NONE, for two reasons that are both correct and neither of which a
- * count per laboratory could express:
- *
- *   `the-1906-box` is recorded in mode `me-03:box-1906` and this binding is `me-03:default`;
- *   `where-the-energy-went` has one event at action 1 and a checkpoint at action 3, and its own
- *   description names three boundary cases, so two events were never authored.
- *
- * Asserting "me-03 has no button" would be asserting a debt, and it would go red on the day
- * somebody finishes the record -- the opposite of what should happen. The floor below goes red if
- * the buttons disappear, and ME-03's button appears on its own when its record is complete.
+ * The floor covers the corpus. Each individual button must play through its own binding.
  */
 
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
