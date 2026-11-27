@@ -51,7 +51,10 @@ struct EditionManifest: Decodable, Sendable {
     }
 
     let schemaVersion: String
+    struct Release: Decodable, Sendable { let releaseId: String }
+
     let editionDigest: String
+    var release: Release?
     let files: [File]
     var userScripts: [UserScript]?
     /// The site's registry of the reader's data; absent from exports made before it was recorded.
@@ -77,6 +80,7 @@ struct EditionCatalog: Sendable {
     /// The folder in the app bundle that holds the edition's files.
     let root: URL
     let editionDigest: String
+    let releaseID: String?
     /// The bridge script's manifest entry, when the export recorded one.
     let bridgeScript: EditionManifest.UserScript?
     let readerData: ReaderDataManifest?
@@ -99,6 +103,7 @@ struct EditionCatalog: Sendable {
         }
         self.root = root
         self.editionDigest = manifest.editionDigest
+        self.releaseID = manifest.release?.releaseId
         self.files = Dictionary(manifest.files.map { ($0.path, $0) }, uniquingKeysWith: { first, _ in first })
         self.bridgeScript = manifest.userScripts?.first { $0.id == "bridge" }
         self.readerData = manifest.readerData

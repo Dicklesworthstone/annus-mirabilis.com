@@ -312,3 +312,63 @@ protocol NativeSearchQuerying: Sendable {
     func load() async throws -> NativeSearchMetadata
     func search(_ query: String, paper: String, type: String) async throws -> [NativeSearchHit]
 }
+
+// MARK: - Public edition entries for system search
+
+struct SpotlightSnapshot: Decodable, Sendable {
+    struct Entry: Codable, Equatable, Sendable {
+        let identifier: String
+        let domain: String
+        let title: String
+        let snippet: String
+        let keywords: [String]
+    }
+
+    let schemaVersion: Int
+    let buildDigest: String
+    let entries: [Entry]
+
+    enum Failure: Error { case invalid }
+
+    /// An older edition without this feature has an empty index. Corruption in an edition
+    /// that includes the feature must instead leave the operation retryable.
+    static func entries(in catalog: EditionCatalog) throws -> [Entry] {
+        guard let url = EditionCatalog.url(route: "/native/spotlight.json"),
+            case .file(let file) = catalog.resolve(url)
+        else { return [] }
+        guard file.size > 0, file.size <= 4 * 1024 * 1024 else { throw Failure.invalid }
+        let bytes = try Data(contentsOf: catalog.fileURL(for: file), options: .mappedIfSafe)
+        guard bytes.count == file.size, BridgeScript.sha256Hex(bytes) == file.sha256 else { throw Failure.invalid }
+        let snapshot = try JSONDecoder().decode(Self.self, from: bytes)
+        guard snapshot.schemaVersion == 1, snapshot.buildDigest == catalog.nativeSearch?.buildDigest,
+            Set(snapshot.entries.map(\.identifier)).count == snapshot.entries.count
+        else { throw Failure.invalid }
+        for entry in snapshot.entries {
+            guard let url = URL(string: entry.identifier),
+                case .openInEdition = EditionLinkPolicy.siteLink(url, catalog: catalog)
+            else { throw Failure.invalid }
+        }
+        return snapshot.entries
+    }
+}
+
+struct SpotlightChanges {
+    let removed: [String]
+    let changed: [SpotlightSnapshot.Entry]
+    let inventory: [String: String]
+
+    init(previous: [String: String], entries: [SpotlightSnapshot.Entry]) throws {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        var inventory: [String: String] = [:]
+        var changed: [SpotlightSnapshot.Entry] = []
+        for entry in entries {
+            let digest = BridgeScript.sha256Hex(try encoder.encode(entry))
+            inventory[entry.identifier] = digest
+            if previous[entry.identifier] != digest { changed.append(entry) }
+        }
+        self.inventory = inventory
+        self.changed = changed
+        self.removed = previous.keys.filter { inventory[$0] == nil }.sorted()
+    }
+}

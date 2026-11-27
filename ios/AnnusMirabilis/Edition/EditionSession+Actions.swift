@@ -1,3 +1,5 @@
+@preconcurrency import CoreSpotlight
+import UniformTypeIdentifiers
 import JavaScriptCore
 import UIKit
 
@@ -317,5 +319,81 @@ actor NativeSearchEngine: NativeSearchQuerying {
             let text = String(data: data, encoding: .utf8)
         else { throw NativeSearchError.damagedFile(path) }
         return text
+    }
+}
+
+// MARK: - System search
+
+/// A single writer across all iPad windows. Each request joins the previous operation, including
+/// its outstanding Core Spotlight writes, before it touches either the index or its receipt.
+actor EditionSpotlight {
+    static let shared = EditionSpotlight()
+    enum Action: Equatable, Sendable { case refresh, remove, restore }
+    private var tail: Task<Void, Error>?
+    private let defaults = UserDefaults.standard
+    private let receiptKey = "am:app:spotlight:receipt:v1"
+    private let pendingKey = "am:app:spotlight:pending:v1"
+    private let suppressedKey = "am:app:spotlight:suppressed:v1"
+
+    private struct Receipt: Codable {
+        let edition: String
+        let inventory: [String: String]
+    }
+
+    func perform(_ action: Action, for catalog: EditionCatalog) async throws {
+        let previous = tail
+        let next = Task(priority: .utility) {
+            _ = await previous?.result
+            try await self.apply(action, catalog: catalog)
+        }
+        tail = next
+        try await next.value
+    }
+
+    private func apply(_ action: Action, catalog: EditionCatalog) async throws {
+        let edition = catalog.releaseID ?? catalog.editionDigest
+        let index = CSSearchableIndex.default()
+        if action == .remove {
+            // Persist the intent first. If the system rejects deletion, the next launch retries.
+            defaults.set(true, forKey: pendingKey)
+            defaults.set(edition, forKey: suppressedKey)
+        } else if action == .restore {
+            defaults.set(true, forKey: pendingKey)
+            defaults.removeObject(forKey: suppressedKey)
+        }
+        let suppressed = defaults.string(forKey: suppressedKey) == edition
+        let pending = defaults.bool(forKey: pendingKey)
+        let receipt = defaults.data(forKey: receiptKey).flatMap { try? JSONDecoder().decode(Receipt.self, from: $0) }
+        if suppressed && !pending { return }
+        if !suppressed && action == .refresh && !pending && receipt?.edition == edition { return }
+        let entries = try suppressed ? [] : SpotlightSnapshot.entries(in: catalog)
+        // Interrupted batches may already have inserted identifiers absent from the previous receipt.
+        // Rebuild from empty after interruption, or if the receipt cannot be read.
+        let reset = pending || receipt == nil || suppressed || action == .restore
+        let changes = try SpotlightChanges(previous: reset ? [:] : receipt?.inventory ?? [:], entries: entries)
+        defaults.set(true, forKey: pendingKey)
+        if reset {
+            try await index.deleteAllSearchableItems()
+        } else if !changes.removed.isEmpty {
+            try await index.deleteSearchableItems(withIdentifiers: changes.removed)
+        }
+        for start in stride(from: 0, to: changes.changed.count, by: 100) {
+            let end = min(start + 100, changes.changed.count)
+            let items = changes.changed[start..<end].map { entry in
+                let attributes = CSSearchableItemAttributeSet(contentType: .text)
+                attributes.title = entry.title
+                attributes.contentDescription = entry.snippet
+                attributes.keywords = entry.keywords
+                let item = CSSearchableItem(
+                    uniqueIdentifier: entry.identifier, domainIdentifier: entry.domain, attributeSet: attributes)
+                item.expirationDate = .distantFuture
+                return item
+            }
+            try await index.indexSearchableItems(items)
+        }
+        let newReceipt = Receipt(edition: edition, inventory: changes.inventory)
+        defaults.set(try JSONEncoder().encode(newReceipt), forKey: receiptKey)
+        defaults.removeObject(forKey: pendingKey)
+        if !suppressed { defaults.removeObject(forKey: suppressedKey) }
     }
 }

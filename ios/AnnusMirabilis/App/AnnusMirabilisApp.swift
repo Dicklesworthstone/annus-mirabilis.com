@@ -1,3 +1,4 @@
+import CoreSpotlight
 import SwiftUI
 
 @main
@@ -154,6 +155,10 @@ struct RootView: View {
             guard session == nil, !unavailable else { return }
             session = EditionStore.makeSession(shellState: shellState)
             unavailable = session == nil
+            if let session, session.savesSceneState {
+                let catalog = session.catalog
+                Task(priority: .utility) { try? await EditionSpotlight.shared.perform(.refresh, for: catalog) }
+            }
             if let session, let link = pendingSiteLink {
                 pendingSiteLink = nil
                 session.openSiteLink(link)
@@ -163,6 +168,13 @@ struct RootView: View {
         // send them is not granted yet (it needs the Apple team id); the handling is ready for it.
         .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
             if let url = activity.webpageURL { receive(url) }
+        }
+        .onContinueUserActivity(CSSearchableItemActionType) { activity in
+            if let identifier = activity.userInfo?[CSSearchableItemActivityIdentifier] as? String,
+                let url = URL(string: identifier)
+            {
+                receive(url)
+            }
         }
         .onOpenURL { url in receive(url) }
     }

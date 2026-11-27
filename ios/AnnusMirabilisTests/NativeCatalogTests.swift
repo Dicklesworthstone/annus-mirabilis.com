@@ -409,3 +409,41 @@ struct NativeSearchFixture {
             scopeLabel: "Test fixture", score: 1, snippet: id, aliasLabel: nil, href: href)
     }
 }
+
+@Suite("Public edition Spotlight entries")
+struct SpotlightCatalogTests {
+    @Test("first index, unchanged items, revised snippets, deleted anchors and new entries")
+    func plan() throws {
+        func entry(_ anchor: String, _ text: String) -> SpotlightSnapshot.Entry {
+            .init(identifier: "https://annus-mirabilis.com/papers/brownian-motion/#\(anchor)",
+                domain: "brownian-motion", title: anchor, snippet: text, keywords: [anchor])
+        }
+        let kept = entry("s3", "unchanged")
+        let revised = entry("s4", "new snippet")
+        let removed = entry("s5", "removed")
+        let added = entry("s6", "added")
+        let first = try SpotlightChanges(previous: [:], entries: [kept, entry("s4", "old snippet"), removed])
+        #expect(first.changed.count == 3)
+        #expect(first.removed.isEmpty)
+        let second = try SpotlightChanges(previous: first.inventory, entries: [kept, revised, added])
+        #expect(second.changed == [revised, added])
+        #expect(second.removed == [removed.identifier])
+        let same = try SpotlightChanges(previous: second.inventory, entries: [added, kept, revised])
+        #expect(same.changed.isEmpty && same.removed.isEmpty)
+    }
+
+    @Test("the installed Spotlight snapshot matches the edition and resolves its anchors offline")
+    func bundledDestinations() throws {
+        let edition = try EditionCatalog.load()
+        let entries = try SpotlightSnapshot.entries(in: edition)
+        #expect(!entries.isEmpty)
+        for entry in entries {
+            let url = try #require(URL(string: entry.identifier))
+            guard case .openInEdition(let local) = EditionLinkPolicy.siteLink(url, catalog: edition) else {
+                Issue.record("Missing bundled destination for \(entry.identifier)")
+                continue
+            }
+            #expect(url.fragment == local.fragment && url.query == local.query)
+        }
+    }
+}

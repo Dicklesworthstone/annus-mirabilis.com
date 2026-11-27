@@ -9,6 +9,9 @@ struct ReaderDataView: View {
     @State private var loaded: ReaderData.LoadResult?
     @State private var confirmingPositionsClear = false
 
+    @State private var updatingSpotlight = false
+    @State private var spotlightMessage: String?
+
     private static let footnote = """
         The app keeps its own copy of what the edition saves, so it survives if the web view's \
         storage is cleared. It leaves this device only when you export it.
@@ -19,6 +22,7 @@ struct ReaderDataView: View {
             List {
                 content
                 readingPositions
+                if session.savesSceneState { spotlight }
             }
             .onEditionPaper()
             .accessibilityIdentifier("reader-data-list")
@@ -38,6 +42,33 @@ struct ReaderDataView: View {
             Button("Forget reading places", role: .destructive) { session.clearReadingPositions() }
         } message: {
             Text("This clears the app's saved passage addresses. Your notes, searches, settings and downloads stay here.")
+        }
+    }
+
+    private var spotlight: some View {
+        Section("Spotlight") {
+            Text("System search can show published passages from this edition. It never receives your reading history or notes.")
+                .font(.footnote).foregroundStyle(Color("MutedInk"))
+            Button("Remove edition from Spotlight") { updateSpotlight(.remove) }
+            Button("Add edition to Spotlight") { updateSpotlight(.restore) }
+            if let spotlightMessage { Text(spotlightMessage).font(.footnote) }
+        }
+        .disabled(updatingSpotlight)
+        .editionPaperRow()
+    }
+
+    private func updateSpotlight(_ action: EditionSpotlight.Action) {
+        updatingSpotlight = true
+        Task {
+            defer { updatingSpotlight = false }
+            do {
+                try await EditionSpotlight.shared.perform(action, for: session.catalog)
+                spotlightMessage = action == .remove
+                    ? "Removed until you add it again or install a new edition."
+                    : "Spotlight has received the passages available in this edition."
+            } catch {
+                spotlightMessage = "Spotlight could not finish this change. Try again."
+            }
         }
     }
 
