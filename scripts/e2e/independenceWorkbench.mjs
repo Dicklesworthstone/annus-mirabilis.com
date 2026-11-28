@@ -208,3 +208,42 @@ test("the no-JavaScript page retains the worked statistics and probability table
     },
     { javaScriptEnabled: false },
   ));
+
+test("one accepted count record tests every possible grouping without changing the observations", async () =>
+  visit(async (page) => {
+    await page.getByText("Could some of the points be moving in groups?", { exact: true }).click();
+    const grouped = page.locator("#grouped-positions");
+    assert.match(await grouped.locator("[data-group-matches]").innerText(), /5 of 5/);
+    await page.getByText("Test a count record against both models", { exact: true }).click();
+    await page.getByRole("button", { name: "Illustration: points moving in pairs" }).click();
+    assert.match(
+      await grouped.locator("[data-group-evidence]").innerText(),
+      /3 of 5.*16-placement illustration/,
+    );
+    const rows = grouped
+      .getByRole("region", { name: "Predictions for every grouping" })
+      .locator("tbody tr");
+    const pairs = rows.filter({ has: page.getByRole("rowheader", { name: "2 + 2", exact: true }) });
+    assert.equal(await pairs.getByRole("cell").last().innerText(), "0");
+    await grouped.getByRole("combobox").selectOption({ label: "3 + 1" });
+    assert.match(await grouped.getByRole("table").last().innerText(), /2\s+0\s+8/);
+    await page.getByRole("spinbutton", { name: "Number of labeled points" }).fill("6");
+    assert.match(await grouped.locator("[data-group-evidence]").innerText(), /3 of 5/);
+    await page.getByRole("button", { name: "Apply model settings" }).click();
+    assert.equal(await grouped.locator("[data-group-evidence]").count(), 0);
+    assert.equal(await rows.count(), 11);
+  }));
+
+test("group probabilities and worked predictions can be inspected without JavaScript", async () =>
+  visit(
+    async (page) => {
+      await page
+        .getByText("Could some of the points be moving in groups?", { exact: true })
+        .click();
+      const grouped = page.locator("#grouped-positions");
+      assert.equal(await grouped.getByRole("table").first().locator("tbody tr").count(), 5);
+      assert.equal(await grouped.getByRole("table").last().locator("tbody tr").count(), 5);
+      assert.match(await grouped.innerText(), /exponent on the volume fraction is therefore 2/);
+    },
+    { javaScriptEnabled: false },
+  ));

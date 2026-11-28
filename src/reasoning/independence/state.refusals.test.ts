@@ -52,7 +52,7 @@ describe("independence workbench input refusals", () => {
     expect(parseOccupancyHistogram("1, 4, 6, 4, 1", 4)).toEqual([1, 4, 6, 4, 1]);
   });
 
-  test("illustrative-record-unknown: only the two constructed records exist", () => {
+  test("illustrative-record-unknown: only named constructed records are accepted", () => {
     const error = refusalFrom(() =>
       illustrativeOccupancyRecord("random" as unknown as "mixed" | "all-or-none"),
     );

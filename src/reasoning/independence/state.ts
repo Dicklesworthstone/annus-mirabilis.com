@@ -1,3 +1,4 @@
+export { compareGroupedOccupancy } from "../../physics/reference/groupedOccupancy.ts";
 import {
   compareOccupancyEvidence,
   compareOccupancyModels,
@@ -117,15 +118,21 @@ export function clearOccupancyRecord(current: OccupancyState): OccupancyState {
 }
 
 /** Constructed frequencies, NOT random samples or transcriptions of an experiment. */
-export function illustrativeOccupancyRecord(kind: "mixed" | "all-or-none"): OccupancyState {
-  if (kind !== "mixed" && kind !== "all-or-none")
+export function illustrativeOccupancyRecord(
+  kind: "mixed" | "all-or-none" | "paired",
+): OccupancyState {
+  if (kind !== "mixed" && kind !== "all-or-none" && kind !== "paired")
     throw new OccupancyInputError("illustrative-record-unknown", "Unknown illustrative record.");
   const state = createOccupancyState(DEFAULT_OCCUPANCY_SETTINGS, [
     "mean-count",
     "all-inside",
     "count-variance",
   ]);
-  const counts = kind === "mixed" ? [1, 4, 6, 4, 1] : [8, 0, 0, 0, 8];
+  const counts = {
+    mixed: [1, 4, 6, 4, 1],
+    "all-or-none": [8, 0, 0, 0, 8],
+    paired: [4, 0, 8, 0, 4],
+  }[kind];
   return Object.freeze({
     ...state,
     evidence: compareOccupancyEvidence(state.comparison.settings, counts),

@@ -20,6 +20,7 @@ import {
   type OccupancyState,
   selectOccupancyChecks,
 } from "./state.ts";
+import { GroupedOccupancy } from "./GroupedOccupancy.tsx";
 import "./independence.css";
 
 function numberText(value: number): string {
@@ -105,7 +106,7 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
       setError(e instanceof Error ? e.message : "Check the frequencies.");
     }
   }
-  function illustrate(kind: "mixed" | "all-or-none") {
+  function illustrate(kind: "mixed" | "all-or-none" | "paired") {
     const next = illustrativeOccupancyRecord(kind);
     accept(next);
     setHistogram(next.evidence?.counts.join(", ") ?? "");
@@ -382,8 +383,9 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
         </p>
         <p>
           No file is uploaded and nothing is stored automatically. Analyzing asserts exact counting,
-          known n and f, and identical independently repeated trials. Counting errors, finite
-          cluster geometry and partially correlated models are not included.
+          known n and f, and identical independently repeated trials. The grouped comparison below
+          uses the same accepted frequencies. Every calculation assumes accurate counts and
+          point-like groups.
         </p>
         <form noValidate onSubmit={analyze}>
           <label htmlFor={`${id}-record`}>
@@ -420,6 +422,9 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
           </button>
           <button type="button" disabled={!ready} onClick={() => illustrate("all-or-none")}>
             Illustration: all-or-none counts
+          </button>
+          <button type="button" disabled={!ready} onClick={() => illustrate("paired")}>
+            Illustration: points moving in pairs
           </button>
         </div>
         {evidence && (
@@ -476,6 +481,7 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
           </section>
         )}
       </details>
+      <GroupedOccupancy state={state} ready={ready} />
       <label htmlFor={`${id}-prediction`}>
         Your explanation: why is the mean insufficient? (Optional, this tab only.)
       </label>

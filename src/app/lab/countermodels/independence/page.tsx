@@ -33,7 +33,8 @@ export default function IndependencePage() {
         <p className="lead">
           Seeing half the points inside on average does not tell you whether they were placed
           independently. Keep the point count and region fixed, and compare points placed one by one
-          with points locked to a single shared position.
+          with points that move together. Then test which other groupings could produce a count
+          record.
         </p>
       </header>
       <IndependenceWorkbench example={createOccupancyState()} />
@@ -61,9 +62,9 @@ export default function IndependencePage() {
       <section className="reading">
         <h2>Which premise earns the exponent?</h2>
         <p>
-          These are two explicit ideal candidates, not every possible form of correlation. The
-          comparison calculates predictions and can analyze a count record you enter. It does not
-          produce historical observations.
+          Start with independent points and one locked group. The grouped comparison then considers
+          every way of dividing the same points into independently placed groups. You can compare
+          those predictions with a count record you enter.
         </p>
         <p>
           The light-quanta paper’s §5 counts independently placed points. The chance that every one
@@ -82,9 +83,10 @@ export default function IndependencePage() {
           distinguish the candidates in a degenerate case.
         </p>
         <p>
-          Rejecting perfect locking does not establish every independence assumption. Finite-size
-          clusters, partial correlations, measurement errors and time dependence need other models.
-          Real measurements must specify those conditions and their uncertainty.
+          Rejecting perfect locking does not establish every independence assumption. Groups have
+          coincident members and are mutually independent. Finite-size clusters, dependence between
+          groups, measurement errors and time dependence need other models. Real measurements must
+          specify those conditions and their uncertainty.
         </p>
         <nav className="actions" aria-label="Continue the independence argument">
           <a href="/lab/lq-05/">Count independent configurations</a>

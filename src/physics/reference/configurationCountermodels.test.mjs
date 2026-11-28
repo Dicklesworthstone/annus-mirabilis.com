@@ -43,7 +43,11 @@ test("moved public owners retain numeric and rational input behavior", () => {
     binomialInside(4, 0.5).terms.map((t) => t.exactProbability.numerator),
     [1n, 4n, 6n, 4n, 1n],
   );
-  assert.equal(binomialInside(1, 0.3333331).terms[1].probability, 333333 / 1000000);
+  assert.deepEqual(binomialInside(1, 0.3333331).terms[1].exactProbability, {
+    numerator: 3333331n,
+    denominator: 10000000n,
+  });
+  assert.equal(binomialInside(1, 0.3333331).terms[1].probability, 0.3333331);
   assert.equal(binomialInside(1, 0.3333331).f, 0.3333331);
   assert.equal(binomialInside(4, { p: 3n, q: 4n }).terms[4].exactProbability.numerator, 81n);
   assert.equal(lockedPositionsProbability(4, 0.5).value, 0.5);
