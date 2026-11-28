@@ -481,7 +481,7 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
           </section>
         )}
       </details>
-      <GroupedOccupancy state={state} ready={ready} />
+      <GroupedOccupancy state={state} ready={ready} anchorId="grouped-positions" />
       <label htmlFor={`${id}-prediction`}>
         Your explanation: why is the mean insufficient? (Optional, this tab only.)
       </label>

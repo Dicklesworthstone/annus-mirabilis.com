@@ -16,10 +16,7 @@ import {
   type Lq05View,
 } from "../../../experiments/lq05/definition.ts";
 import { decodeLq05Settings } from "../../../experiments/lq05/permalink.ts";
-import {
-  createLq05Session,
-  type PreparedLq05Example,
-} from "../../../experiments/lq05/session.ts";
+import { createLq05Session, type PreparedLq05Example } from "../../../experiments/lq05/session.ts";
 import { LQ05_TAPE } from "../../../experiments/lq05/tape.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
@@ -37,6 +34,7 @@ import { withScripts } from "../subscripts.tsx";
 import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
 import { LQ05LiveWeave } from "./LQ05LiveWeave.tsx";
+import { OccupancySample } from "./OccupancySample.tsx";
 import "./independentConfigurationsLab.css";
 
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
@@ -452,6 +450,15 @@ export function IndependentConfigurationsLab({
         )}
       </section>
 
+      {(executionKind === "static-example" || executionKind === "host-accepted") && (
+        <div {...gate.response}>
+          <OccupancySample
+            view={view}
+            source={executionKind === "host-accepted" ? "accepted-sample" : "worked-sample"}
+          />
+        </div>
+      )}
+
       {/* Outputs Table */}
       <section
         {...gate.response}
@@ -545,7 +552,9 @@ export function IndependentConfigurationsLab({
                   {p.locked ? (
                     "One collective coordinate; the independent-particle exponent is absent."
                   ) : (
-                    <>Matches Wien-regime radiation entropy S − S₀ = (E / hν) k<sub>B</sub> ln(V/V₀)</>
+                    <>
+                      Matches Wien-regime radiation entropy S − S₀ = (E / hν) k<sub>B</sub> ln(V/V₀)
+                    </>
                   )}
                 </td>
               </tr>

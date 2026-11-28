@@ -1,8 +1,11 @@
 export { compareGroupedOccupancy } from "../../physics/reference/groupedOccupancy.ts";
+
 import {
   compareOccupancyEvidence,
   compareOccupancyModels,
   distinguishOccupancy,
+  MAX_OCCUPANCY_POINTS,
+  MAX_OCCUPANCY_TRIALS,
   OCCUPANCY_CHECKS,
   type OccupancyCheck,
   type OccupancyComparison,
@@ -42,12 +45,13 @@ export const CHECK_LABELS: Readonly<Record<OccupancyCheck, string>> = Object.fre
   "all-inside": "Probability that all points are inside",
   "count-variance": "Variance of the number inside",
 });
+export type SampledOccupancySource = "accepted-sample" | "worked-sample";
 export type OccupancyState = Readonly<{
   comparison: OccupancyComparison;
   checks: readonly OccupancyCheck[];
   distinction: ReturnType<typeof distinguishOccupancy>;
   evidence: OccupancyEvidence | null;
-  evidenceSource: "reader-entered" | "illustrative" | null;
+  evidenceSource: "reader-entered" | "illustrative" | SampledOccupancySource | null;
 }>;
 
 export function createOccupancyState(
@@ -111,6 +115,26 @@ export function analyzeOccupancyRecord(current: OccupancyState, text: string): O
     parseOccupancyHistogram(text, current.comparison.settings.n),
   );
   return Object.freeze({ ...current, evidence, evidenceSource: "reader-entered" });
+}
+
+/** Fit the lab's actual K=0…n counts, retaining its exact fraction and trial count. */
+export function sampledOccupancyState(
+  sample: Readonly<{ n: number; f: number; trials: number; occupancyCounts: readonly number[] }>,
+  source: SampledOccupancySource,
+): OccupancyState | null {
+  const quarters = sample.f * 4;
+  if (
+    sample.n > MAX_OCCUPANCY_POINTS ||
+    sample.trials > MAX_OCCUPANCY_TRIALS ||
+    !Number.isInteger(quarters) ||
+    quarters < 0 ||
+    quarters > 4
+  )
+    return null;
+  const state = createOccupancyState({ n: sample.n, quarters }, ["all-inside", "count-variance"]);
+  const evidence = compareOccupancyEvidence(state.comparison.settings, sample.occupancyCounts);
+  if (evidence.trials !== sample.trials) return null;
+  return Object.freeze({ ...state, evidence, evidenceSource: source });
 }
 
 export function clearOccupancyRecord(current: OccupancyState): OccupancyState {

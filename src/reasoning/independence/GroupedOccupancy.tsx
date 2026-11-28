@@ -11,9 +11,27 @@ function digits(number: number) {
   return Number(number.toPrecision(8)).toString();
 }
 
-export function GroupedOccupancy({ state, ready }: { state: OccupancyState; ready: boolean }) {
+export function GroupedOccupancy({
+  state,
+  ready,
+  anchorId,
+}: {
+  state: OccupancyState;
+  ready: boolean;
+  anchorId?: string;
+}) {
   const id = useId();
   const { comparison, checks, evidence } = state;
+  const sampled =
+    state.evidenceSource === "accepted-sample" || state.evidenceSource === "worked-sample";
+  const recordName =
+    state.evidenceSource === "worked-sample"
+      ? "worked-example sample"
+      : state.evidenceSource === "accepted-sample"
+        ? "accepted simulation record"
+        : state.evidenceSource === "illustrative"
+          ? "illustration"
+          : "accepted record";
   const candidates = useMemo(
     () => compareGroupedOccupancy(comparison.settings, checks, evidence?.counts),
     [comparison.settings, checks, evidence],
@@ -29,7 +47,7 @@ export function GroupedOccupancy({ state, ready }: { state: OccupancyState; read
   const possible = candidates.filter((item) => item.relativeLogLikelihood !== null).length;
 
   return (
-    <details className="occupancy-grouped" id="grouped-positions">
+    <details className="occupancy-grouped" id={anchorId}>
       <summary>Could some of the points be moving in groups?</summary>
       <p>
         Suppose each group stays together at one position, and each group chooses its position
@@ -39,14 +57,17 @@ export function GroupedOccupancy({ state, ready }: { state: OccupancyState; read
       <p data-group-matches>
         {matches} of {candidates.length} possible groupings give the same predictions as separate
         points for{" "}
-        {checks.length ? "the measurements you selected above" : "the empty set of measurements"}.
-        {checks.length === 0 && " Select a measurement above to narrow the comparison."}
+        {sampled
+          ? "the all-inside probability and count variance"
+          : checks.length
+            ? "the measurements you selected above"
+            : "the empty set of measurements"}
+        .{checks.length === 0 && " Select a measurement above to narrow the comparison."}
       </p>
       {evidence && (
         <p data-group-evidence>
-          {possible} of {candidates.length} groupings can produce the accepted {evidence.trials}
-          -placement
-          {state.evidenceSource === "illustrative" ? " illustration." : " record."}
+          {possible} of {candidates.length} groupings can produce the {evidence.trials}-placement{" "}
+          {recordName}.
           {possible > 0
             ? " A relative log likelihood of zero marks the best fit among these candidates. Negative values give the log likelihood relative to that fit. Several groupings can still be possible."
             : " Every grouping assigns zero probability to at least one observed count. Check the assumptions about the volume, grouping and counting."}
@@ -69,7 +90,7 @@ export function GroupedOccupancy({ state, ready }: { state: OccupancyState; read
               <th scope="col">All inside</th>
               <th scope="col">Count variance</th>
               <th scope="col">Matches independent points on selected measurements?</th>
-              {evidence && <th scope="col">Relative log likelihood of accepted record</th>}
+              {evidence && <th scope="col">Relative log likelihood of {recordName}</th>}
             </tr>
           </thead>
           <tbody>
@@ -108,7 +129,9 @@ export function GroupedOccupancy({ state, ready }: { state: OccupancyState; read
           <tr>
             <th scope="col">Points inside</th>
             <th scope="col">Probability</th>
-            {evidence && <th scope="col">Accepted occurrences</th>}
+            {evidence && (
+              <th scope="col">{sampled ? "Simulated occurrences" : "Accepted occurrences"}</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -130,7 +153,8 @@ export function GroupedOccupancy({ state, ready }: { state: OccupancyState; read
       </p>
       {checks.length > 0 && (
         <p className="fine">
-          Selected measurements: {checks.map((check) => CHECK_LABELS[check]).join("; ")}.
+          {sampled ? "Measurements compared" : "Selected measurements"}:{" "}
+          {checks.map((check) => CHECK_LABELS[check]).join("; ")}.
         </p>
       )}
     </details>
