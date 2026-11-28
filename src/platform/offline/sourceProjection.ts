@@ -54,6 +54,7 @@ export function selectOfflineSources(
   edition: BilingualEdition | null,
   section: string,
   profile: OfflineProfile,
+  citedBlocks: readonly string[] = [],
 ): OfflineSourceSelection | null {
   if (!["scaffold", "preview", "launch"].includes(profile))
     throw new OfflineSourceError(
@@ -118,6 +119,7 @@ export function selectOfflineSources(
       selectedBlocks.add(container.id);
     }
   }
+  for (const anchor of citedBlocks) includeReference(anchor, "source");
   let previous = -1;
   while (previous !== selectedBlocks.size + selectedUnits.size) {
     previous = selectedBlocks.size + selectedUnits.size;

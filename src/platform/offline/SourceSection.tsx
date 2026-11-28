@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 import { Fragment } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import type { ResultCardRecord } from "../../content/results/resultCards.ts";
+import type { BilingualEdition } from "../../reader/faces/bilingualLoader.ts";
+import { excerptTranslator } from "../../reader/faces/results/translatedExcerpts.ts";
+import type { OfflineResultCard } from "./resultCards.ts";
 import { resolveLayerRights } from "../../content/exports/rights.ts";
 import type { SourceBlock as SourceRecord } from "../../content/schemas/source.ts";
 import { withoutClaimedDisplays } from "../../reader/faces/displayClaims.ts";
@@ -62,8 +66,7 @@ export function renderOfflineSources(
       <h2>Read the source beside the explanation</h2>
       <p>
         The available German source{units.length > 0 ? " and English translation" : ""} for this
-        section {units.length > 0 ? "are" : "is"} carried below, including the footnotes. Passage links work within this file. Links to scans and other
-        sections open the website and need a connection.
+        section {units.length > 0 ? "are" : "is"} carried below, including footnotes and passages from elsewhere in the paper cited by a result. Passage links work within this file. Links marked online need a connection.
       </p>
       <nav aria-label="Texts in this file">
         <a href={"#explanation-" + section}>Return to the explanation</a>{" · "}
@@ -135,21 +138,38 @@ export function renderOfflineSources(
   });
 }
 
+/** Resolve citation runs once per paper using the same alignment as its online result cards. */
+export function alignChapterResults(cards: readonly ResultCardRecord[], edition: BilingualEdition | null): readonly OfflineResultCard[] {
+  if (!edition) return cards;
+  const translate = excerptTranslator(edition);
+  return cards.map((card) => ({
+    ...card,
+    printed: card.printed.map((excerpt) => {
+      const translation = translate(excerpt);
+      if (!translation) return excerpt;
+      return { ...excerpt, english: {
+        scope: translation.scope,
+        // A discontinuous quotation has a separate starting point for each run.
+        starts: translation.runs.flatMap((run) => run[0] ? [run[0].id] : []),
+      } };
+    }),
+  }));
+}
+
 export async function loadOfflineSectionSources(
   root: string,
-  paper: string,
+  edition: BilingualEdition | null,
   section: string,
   profile: OfflineProfile,
+  cards: readonly OfflineResultCard[],
 ): Promise<OfflineSourceAttachment | null> {
-  if (profile !== "scaffold") return null;
-  const [{ loadBilingualEdition }, { loadSourceAliases }] = await Promise.all([
-    import("../../reader/faces/bilingualLoader.ts"),
-    import("../../reader/anchors/sourceAliases.ts"),
-  ]);
-  const edition = await loadBilingualEdition(paper, root);
-  const selection = selectOfflineSources(edition, section, profile);
+  if (profile !== "scaffold" || !edition) return null;
+  const { loadSourceAliases } = await import("../../reader/anchors/sourceAliases.ts");
+  const citedBlocks = cards.filter((card) => card.section === section && card.paper === edition.paper.slug)
+    .flatMap((card) => card.printed.map((excerpt) => excerpt.anchor));
+  const selection = selectOfflineSources(edition, section, profile, citedBlocks);
   if (!selection) return null;
   const ids = new Set(selection.blocks.flatMap(offlineSourceIds));
-  const aliases = loadSourceAliases(root, paper, ids);
+  const aliases = loadSourceAliases(root, edition.paper.slug, ids);
   return renderOfflineSources(selection, aliases);
 }

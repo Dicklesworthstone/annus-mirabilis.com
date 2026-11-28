@@ -1,7 +1,6 @@
 import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
 import { citationTitleClose } from "../../content/citationTitle.ts";
-import type { ResultCardRecord } from "../../content/results/resultCards.ts";
 import { hasInlineMath, splitInlineMath } from "../../content/inlineMath.ts";
 import type {
   Argument,
@@ -16,7 +15,7 @@ import {
   type InstrumentWorkedCaseIndex,
 } from "../../experiments/workedCases/types.ts";
 import { type OfflineFigureAsset, renderOfflineAsset } from "./assets.ts";
-import { renderChapterResults } from "./resultCards.ts";
+import { type OfflineResultCard, renderChapterResults } from "./resultCards.ts";
 import { OFFLINE_DETAIL_SOURCE } from "./detail.inline.ts";
 import type { OfflineSourceAttachment, OfflineSourceCoverage } from "./SourceSection.tsx";
 import {
@@ -61,7 +60,7 @@ export type OfflineChapterInput = Readonly<{
   equations: readonly OfflineEquation[];
   examples: readonly OfflineWorkedExample[];
   /** The paper's validated result records, in editorial order. */
-  results?: readonly ResultCardRecord[];
+  results?: readonly OfflineResultCard[];
   /** The laboratory’s actual default tables and prose, including non-scalar results. */
   workedCases?: InstrumentWorkedCaseIndex | undefined;
   identity: OfflineIdentity;

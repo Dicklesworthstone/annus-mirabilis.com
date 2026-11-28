@@ -20,7 +20,8 @@ import {
   type OfflineWorkedExample,
   packageOfflineChapter,
 } from "../src/platform/offline/chapter.ts";
-import { loadOfflineSectionSources } from "../src/platform/offline/SourceSection.tsx";
+import { loadBilingualEdition } from "../src/reader/faces/bilingualLoader.ts";
+import { alignChapterResults, loadOfflineSectionSources } from "../src/platform/offline/SourceSection.tsx";
 import {
   type OfflineManifest,
   offlineProfile,
@@ -173,6 +174,8 @@ export async function buildOfflineChapters(
       const results = loadResultCards(root, payload.paper.id);
       if (results?.problems.length)
         throw new Error(`Unresolved offline results for ${payload.paper.id}: ${results.problems.join("\n")}`);
+      const edition = await loadBilingualEdition(payload.paper.id, root);
+      const alignedResults = alignChapterResults(results?.cards ?? [], edition);
       const equations = payload.equations.map((equation) => ({
         id: equation.id,
         argument: equation.argument,
@@ -187,9 +190,10 @@ export async function buildOfflineChapters(
       for (const section of payload.paper.sections) {
         const sources = await loadOfflineSectionSources(
           root,
-          payload.paper.id,
+          edition,
           section.id,
           profile,
+          alignedResults,
         );
         files.push(
           packageOfflineChapter(
@@ -202,7 +206,7 @@ export async function buildOfflineChapters(
               equations,
               examples,
               workedCases,
-              results: results?.cards ?? [],
+              results: alignedResults,
               assets,
               budget: budgets.default,
               ...(sources ? { sources } : {}),
