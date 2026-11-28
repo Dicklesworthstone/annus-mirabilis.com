@@ -3,6 +3,7 @@ import { parseAnchor } from "../../content/anchors.ts";
 import { AliasHashRewrite } from "../faces/AliasHashRewrite.tsx";
 import {
   type FacsimileDocument,
+  type FacsimilePage,
   facsimilePageAnchor,
   facsimilePdfHref,
   facsimilePlate,
@@ -10,8 +11,21 @@ import {
   resolveFacsimileTarget,
 } from "./document.ts";
 import { FacsimileEnhancer } from "./FacsimileEnhancer.tsx";
+import { editionReadingHref } from "./pageHref.ts";
 import { sourceUnitLabel } from "./sourceUnitLabel.ts";
 import "./facsimileReader.css";
+
+function EditionLinks({ paper, page }: { paper: string; page: FacsimilePage }) {
+  const reading = page.reading;
+  if (!reading) return null;
+  return (
+    <p className="facsimile-reader-recovery" data-edition-links={page.pdfPage}>
+      Read the passage on printed page {page.printedPage}{" "}
+      <a href={editionReadingHref(paper, "german", reading.german)}>in German<span className="visually-hidden">, printed page {page.printedPage}</span></a>
+      {reading.english && <> or <a href={editionReadingHref(paper, "english", reading.english)}>in English<span className="visually-hidden">, printed page {page.printedPage}</span></a></>}.
+    </p>
+  );
+}
 
 /** No PDF.js, worker, WASM, canvas, or external resource is needed for this source face.
  * A native same-origin PDF frame is optional; all source-page links are server-rendered.
@@ -50,7 +64,14 @@ export function FacsimilePanel({
   const sections = [...new Set(document.units.map((unit) => unit.section))].filter(
     (value): value is string => value !== null && !sourceIds.has(value),
   );
-  const extraAnchors = [...new Set([...aliases, ...sections])];
+  const extraByPage = new Map<number, string[]>();
+  for (const anchor of new Set([...aliases, ...sections])) {
+    const page = resolveFacsimileTarget(document, anchor);
+    if (page === null) continue;
+    const list = extraByPage.get(page) ?? [];
+    list.push(anchor);
+    extraByPage.set(page, list);
+  }
   // Inventory aliases can be build-record ids. Only reader addresses are canonicalised, and
   // only on the standalone face: an inline panel deliberately prefixes all of its DOM ids.
   const sourceAliases = Object.fromEntries(
@@ -214,6 +235,13 @@ export function FacsimilePanel({
         Initial selection: printed page {initial.printedPage}, PDF page {initial.pdfPage} of{" "}
         {document.pages.length}.
       </p>
+      <div data-facsimile-current-reading>
+        {document.pages.filter((page) => page.reading).map((page) => (
+          <div key={page.pdfPage} hidden={page.pdfPage !== initial.pdfPage} data-reading-page={page.pdfPage}>
+            <EditionLinks paper={document.paperId} page={page} />
+          </div>
+        ))}
+      </div>
       <p className="facsimile-reader-recovery">
         <a data-facsimile-direct href={facsimilePdfHref(document, initial.pdfPage)}>
           Open printed page {initial.printedPage} in the original PDF
@@ -317,9 +345,7 @@ export function FacsimilePanel({
             id={anchorId(facsimilePageAnchor(page))}
             className="facsimile-reader-page"
           >
-            {extraAnchors
-              .filter((anchor) => resolveFacsimileTarget(document, anchor) === page.pdfPage)
-              .map((anchor) => (
+            {(extraByPage.get(page.pdfPage) ?? []).map((anchor) => (
                 <span
                   key={anchor}
                   id={anchorId(anchor)}
@@ -341,6 +367,7 @@ export function FacsimilePanel({
                 Open original printed page {page.printedPage}
               </a>
             </p>
+            <EditionLinks paper={document.paperId} page={page} />
             <ul className="facsimile-reader-units">
               {document.units
                 .filter((unit) => unit.pdfPages[0] === page.pdfPage)

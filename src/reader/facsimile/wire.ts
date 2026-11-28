@@ -89,7 +89,26 @@ export function decodeFacsimileAvailability(raw: unknown, paperId: string): Facs
       page.pdfPage === index + 1 && positiveInteger(page.printedPage),
       "Invalid source page map.",
     );
-    return Object.freeze({ pdfPage: index + 1, printedPage: page.printedPage });
+    const reading = page.reading === undefined ? null : record(page.reading);
+    if (reading) {
+      requireData(
+        identifier(reading.german) &&
+          (reading.english === undefined || identifier(reading.english)),
+        "Invalid edition reading address.",
+      );
+    }
+    return Object.freeze({
+      pdfPage: index + 1,
+      printedPage: page.printedPage,
+      ...(reading
+        ? {
+            reading: {
+              german: reading.german as string,
+              english: reading.english as string | undefined,
+            },
+          }
+        : {}),
+    });
   });
   const first = pages[0];
   requireData(

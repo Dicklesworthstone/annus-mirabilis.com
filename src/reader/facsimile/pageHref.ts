@@ -19,3 +19,11 @@ export function facsimilePageId(printedPage: number): string {
 export function facsimilePageHref(paper: string, printedPage: number): string {
   return `/papers/${paper}/view/facsimile/#${facsimilePageId(printedPage)}`;
 }
+
+export function editionReadingHref(
+  paper: string,
+  face: "german" | "english",
+  target: string,
+): string {
+  return `/papers/${paper}/view/${face}/#${encodeURIComponent(target)}`;
+}

@@ -7,7 +7,9 @@ import { readFile, realpath, stat } from "node:fs/promises";
 import { join, sep } from "node:path";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import { loadSourceAliases } from "../anchors/sourceAliases.ts";
+import { loadBilingualEdition } from "../faces/bilingualLoader.ts";
 import { FacsimileDataError, projectFacsimileDocument } from "./document.ts";
+import { withEditionPages } from "./editionPages.ts";
 
 import type { FacsimileAvailability } from "./wire.ts";
 
@@ -182,6 +184,14 @@ export async function loadFacsimileDocument(
         ),
       ),
     });
+    // The reading editions are an optional companion. An unavailable edition cannot withdraw
+    // an independently pinned scan or substitute an unverified reading address.
+    try {
+      const edition = await loadBilingualEdition(paperId, rootDirectory);
+      if (edition) document = withEditionPages(document, edition);
+    } catch {
+      // Keep the validated inventory page map.
+    }
     const pdfDirectory = join(rootDirectory, "public/papers/pdfs");
     await verifyFacsimilePdf(join(pdfDirectory, `${key}.pdf`), document.sha256, pdfDirectory);
     // A phone browser has no dependable inline PDF viewer, so where generate-page-plates.ts has

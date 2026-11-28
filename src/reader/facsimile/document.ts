@@ -3,7 +3,12 @@ import { facsimilePageId } from "./pageHref.ts";
 /** Source-page navigation is projected from pinned records and the source inventory.
  * It never infers a transcription, translation, or editorial review from a PDF pin.
  */
-export type FacsimilePage = Readonly<{ pdfPage: number; printedPage: number }>;
+export type FacsimilePage = Readonly<{
+  pdfPage: number;
+  printedPage: number;
+  /** The source passage at the journal-page opening and its aligned English unit, when available. */
+  reading?: Readonly<{ german: string; english?: string | undefined }>;
+}>;
 export type FacsimileUnit = Readonly<{
   id: string;
   aliases: readonly string[];

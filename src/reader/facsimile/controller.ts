@@ -78,6 +78,8 @@ export function mountFacsimileReader(
     const showingPlate =
       plateImage !== null && window!.getComputedStyle(plateImage).display !== "none";
     status!.textContent = `Selected printed page ${page.printedPage} (PDF page ${page.pdfPage} of ${document.pages.length}).${showingPlate ? "" : " The embedded display depends on your browser's PDF support."}`;
+    for (const reading of root.querySelectorAll<HTMLElement>("[data-reading-page]"))
+      reading.hidden = Number(reading.dataset.readingPage) !== page.pdfPage;
     for (const link of root.querySelectorAll<HTMLAnchorElement>("[data-facsimile-page-link]")) {
       if (link.dataset.facsimilePageLink === String(page.pdfPage))
         link.setAttribute("aria-current", "page");
