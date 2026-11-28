@@ -56,7 +56,7 @@ export async function SplitReadingView({
   const source = edition ? splitSourceSection(edition, selected.id) : null;
   const [projections, allCards] = await Promise.all([
     loadPassageProjections(paper.id, { edition, payload }),
-    resultCardsFor(paper.id),
+    resultCardsFor(paper.id, process.cwd(), edition),
   ]);
   const cards = (allCards ?? []).filter((card) => card.sectionAnchors.includes(selected.id));
   const equations = paperEquations(paper.id);

@@ -12,12 +12,22 @@
  * build-time join can resolve them. Otherwise it names the preset to choose manually. Neither a
  * settings link nor a walkthrough page is presented as replaying an accepted trial.
  */
+import { renderToString } from "katex";
+import { Fragment } from "react";
 import { isExperimentLaunchHref } from "../../../discovery/capstone/experimentLaunch.ts";
+import { printedDisplay } from "../../../equations/printed/printedDisplays.ts";
 import type { CompiledEquation } from "../../../equations/viewTypes.ts";
 import { ColouredFormula } from "../../ColouredFormula.tsx";
 import { InlineMathText } from "../../InlineMathText.tsx";
+import { renderInlines } from "../inlines.tsx";
+import { ENGLISH_ANCHOR_PREFIX } from "../ParallelFace.tsx";
 import { renderSourceMarkup, sourceDisplayEquation } from "../sourceMarkup.tsx";
-import type { PrintedLayerEntry, Qualification, ResultCard as ResultCardData } from "./types.ts";
+import type {
+  ExcerptTranslation,
+  PrintedLayerEntry,
+  Qualification,
+  ResultCard as ResultCardData,
+} from "./types.ts";
 
 const QUALIFICATION_LABEL: Readonly<Record<Qualification["kind"], string>> = {
   premise: "Premise",
@@ -93,6 +103,85 @@ export function sourceLinkName(p: PrintedLayerEntry): string {
   } of the German source, ${place(fragment)}`;
 }
 
+/** The English edition's displays can fall between two parts of a single translated sentence. */
+function TranslatedExcerpt({
+  translation,
+  paper,
+  namespace,
+}: {
+  translation: ExcerptTranslation;
+  paper: string;
+  namespace: string;
+}) {
+  const { firstUnit, runs } = translation;
+  const address = place(firstUnit);
+  const face = `/papers/${paper}/view`;
+  return (
+    <div data-translation-scope={translation.scope}>
+      {translation.scope === "paragraph" && (
+        <p className="fine">English context from this paragraph</p>
+      )}
+      <blockquote lang="en">
+        {runs.map((run, i) => (
+          <p key={run[0]?.id}>
+            {i > 0 && (
+              <>
+                <span aria-hidden="true">[…] </span>
+                <span className="visually-hidden">Passage omitted. </span>
+              </>
+            )}
+            {run.map((unit) => {
+              const math = unit.inlines.length === 1 ? unit.inlines[0] : undefined;
+              const display = math?.kind === "math" && math.equationId ? math : undefined;
+              // The quotation needs the printed formula. Its full apparatus is on the linked page.
+              const html =
+                display &&
+                (printedDisplay(display.equationId, display.latex)?.html ??
+                  renderToString(display.latex, {
+                    displayMode: true,
+                    output: "htmlAndMathml",
+                    throwOnError: false,
+                    trust: false,
+                  }));
+              const prefix = `${namespace}-${unit.id}-`;
+              return (
+                <Fragment key={unit.id}>
+                  <span data-excerpt-unit={unit.id} lang={unit.lang}>
+                    {html ? (
+                      <span
+                        className="inline-display"
+                        {...{ dangerouslySetInnerHTML: { __html: html } }}
+                      />
+                    ) : (
+                      renderInlines(
+                        unit.inlines,
+                        {
+                          terms: { paper, holder: unit.id },
+                          idPrefix: prefix,
+                          displayIdPrefix: prefix,
+                          footnoteTarget: () => undefined,
+                        },
+                        prefix,
+                      )
+                    )}
+                  </span>{" "}
+                </Fragment>
+              );
+            })}
+          </p>
+        ))}
+      </blockquote>
+      <p className="fine">
+        <a href={`${face}/english/#${encodeURIComponent(firstUnit)}`}>English edition, {address}</a>
+        {" · "}
+        <a href={`${face}/parallel/#${ENGLISH_ANCHOR_PREFIX}${encodeURIComponent(firstUnit)}`}>
+          German and English side by side, {address}
+        </a>
+      </p>
+    </div>
+  );
+}
+
 /** "ME-01" for me-01: the name a laboratory page carries. */
 const labName = (id: string) => id.toUpperCase();
 
@@ -144,6 +233,7 @@ export function ResultCard({
   /** The paper's compiled equations by id, for the modern layer. */
   equations?: ReadonlyMap<string, CompiledEquation> | undefined;
 }) {
+  const translated = card.printed?.filter((entry) => entry.translation !== undefined) ?? [];
   const modern = card.printedEquationIds.flatMap((id) => {
     const e = equations?.get(id);
     return e ? [e] : [];
@@ -196,20 +286,20 @@ export function ResultCard({
         <section className="result-printed" aria-label="As printed" data-result-layer="printed">
           <h4>As printed</h4>
           <blockquote lang="de">
-            {card.printed.map((p) =>
+            {card.printed.map((p, i) =>
               p.kind === "display" ? (
-                <div key={p.anchor} data-printed-anchor={p.anchor}>
+                <div key={`${p.germanHref}-${p.text}`} data-printed-anchor={p.anchor}>
                   {sourceDisplayEquation(
                     p.text,
                     undefined,
                     undefined,
-                    `${card.resultId}-${p.anchor}`,
+                    `${card.resultId}-${p.anchor}-${i}`,
                     { paper: card.paper, near: p.anchor },
                   )}
                 </div>
               ) : (
-                <p key={p.anchor} data-printed-anchor={p.anchor}>
-                  {renderSourceMarkup(p.text, `${card.resultId}-${p.anchor}`, [], [], {
+                <p key={`${p.germanHref}-${p.text}`} data-printed-anchor={p.anchor}>
+                  {renderSourceMarkup(p.text, `${card.resultId}-${p.anchor}-${i}`, [], [], {
                     paper: card.paper,
                     near: p.anchor,
                   })}
@@ -219,12 +309,28 @@ export function ResultCard({
           </blockquote>
           <p className="fine">
             {card.printed.map((p, i) => (
-              <span key={p.anchor}>
+              <span key={`${p.germanHref}-${p.text}`}>
                 {i > 0 ? " · " : ""}
                 <a href={p.germanHref}>{sourceLinkName(p)}</a>
               </span>
             ))}
           </p>
+          {translated.length > 0 && (
+            <details className="result-translation">
+              <summary>Read the English translation</summary>
+              {translated.map(
+                (entry, i) =>
+                  entry.translation && (
+                    <TranslatedExcerpt
+                      key={`${entry.germanHref}-${entry.text}`}
+                      translation={entry.translation}
+                      paper={card.paper}
+                      namespace={`${card.resultId}-english-${i}`}
+                    />
+                  ),
+              )}
+            </details>
+          )}
         </section>
       ) : null}
 

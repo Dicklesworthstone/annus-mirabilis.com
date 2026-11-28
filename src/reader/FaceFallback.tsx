@@ -95,7 +95,7 @@ export async function FaceFallback(
   // A paper's result cards (content/results), on the results face and its section pages.
   const resultCards =
     face === "results"
-      ? ((await resultCardsFor(paperId)) ?? []).filter(
+      ? ((await resultCardsFor(paperId, process.cwd(), edition)) ?? []).filter(
           (c) => !section || c.sectionAnchors.includes(section),
         )
       : [];

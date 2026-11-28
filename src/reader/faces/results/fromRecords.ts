@@ -20,7 +20,9 @@ import {
 import type { EquationRecord } from "../../../equations/record.ts";
 import probeLinks from "../../../generated/result-probe-links.json";
 import { loadPaperMargins } from "../../marginRecords.ts";
+import { type BilingualEdition, loadBilingualEdition } from "../bilingualLoader.ts";
 import { projectLimitation, projectPrintedCheck, projectReception } from "./resultsProjection.ts";
+import { excerptTranslator } from "./translatedExcerpts.ts";
 import type { PrintedCheck, ResultCard } from "./types.ts";
 
 /**
@@ -60,6 +62,7 @@ export function toCard(
   equations: readonly EquationRecord[] = [],
   /** Admitted historical or modern measurements, loaded once for the results page. */
   datasets: readonly HistoricalDataset[] = [],
+  translate?: ReturnType<typeof excerptTranslator>,
 ): ResultCard {
   const printedCheck = record.printedCheck ? projectedCheck(root, record.printedCheck) : null;
   const support = checkedSupportFor(record, equations);
@@ -72,6 +75,7 @@ export function toCard(
       anchor: p.anchor,
       kind: p.kind,
       text: p.text,
+      ...(translate ? { translation: translate(p) } : {}),
       page: p.page,
       ...(p.lastPage !== undefined ? { lastPage: p.lastPage } : {}),
       // A quotation of one sentence lands on that sentence, which every German face anchors since
@@ -153,6 +157,7 @@ export function toCard(
 export async function resultCardsFor(
   paperId: string,
   root: string = process.cwd(),
+  edition?: BilingualEdition | null,
 ): Promise<readonly ResultCard[] | null> {
   const loaded = loadResultCards(root, paperId);
   if (!loaded) return null;
@@ -169,7 +174,9 @@ export async function resultCardsFor(
   );
   const connections = loadConnections(root);
   const datasets = loadReceptionDatasets(root);
+  const source = edition === undefined ? await loadBilingualEdition(paperId, root) : edition;
+  const translate = source ? excerptTranslator(source) : undefined;
   return loaded.cards.map((record) =>
-    toCard(root, record, passages, claims, connections, payload.equations, datasets),
+    toCard(root, record, passages, claims, connections, payload.equations, datasets, translate),
   );
 }

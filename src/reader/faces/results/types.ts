@@ -13,6 +13,7 @@
  */
 
 import type { CheckedResultSupport } from "../../../content/results/supportDeclarations.ts";
+import type { TranslationUnit } from "../../../content/schemas/source.ts";
 import type { ExperimentLaunch } from "../../../discovery/capstone/experimentLaunch.ts";
 
 export type SourceRef = Readonly<{
@@ -36,6 +37,14 @@ export type ProbeRef =
     }>
   | Readonly<{ kind: "tape"; tapeId: string; question: string }>;
 
+/** Edition fragments in reading order. Each run ends where an unquoted sentence intervenes. */
+export type ExcerptTranslation = Readonly<{
+  scope: "quotation" | "paragraph";
+  runs: readonly (readonly Pick<TranslationUnit, "id" | "inlines" | "lang">[])[];
+  /** First unit on the English face, also the address of the English column on the parallel face. */
+  firstUnit: string;
+}>;
+
 /** Einstein's text for a result, read from the German face at its anchor, never retyped. */
 export type PrintedLayerEntry = Readonly<{
   anchor: string;
@@ -48,6 +57,7 @@ export type PrintedLayerEntry = Readonly<{
   lastPage?: number | undefined;
   /** The anchor on the German face, where the text stands in its paragraph. */
   germanHref: string;
+  translation?: ExcerptTranslation | undefined;
 }>;
 
 /** A statement on the card that is not the result itself, labelled for what it is. */

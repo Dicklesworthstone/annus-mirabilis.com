@@ -52,6 +52,8 @@ export type PrintedExcerpt = Readonly<{
    * display, and where a quoted sentence is not one sentence on the face.
    */
   sentenceIds?: readonly string[] | undefined;
+  /** All published sentences covered by the quotation, including one ledger sentence split over several. */
+  publishedSentenceIds?: readonly string[] | undefined;
   /** Ledger markup exactly as the face holds it: LaTeX for a display, marked text for sentences. */
   text: string;
   /** The page the excerpt starts on. */
@@ -247,16 +249,21 @@ function publishedRun(
   sentences: readonly Readonly<{ id: string; words: string }>[],
 ): readonly Readonly<{ id: string }>[] | undefined {
   if (words === "") return undefined;
+  let match: readonly Readonly<{ id: string }>[] | undefined;
   for (let i = 0; i < sentences.length; i++) {
     if (sentences[i]?.words === "") continue;
     let joined = "";
     for (let j = i; j < sentences.length; j++) {
       joined += sentences[j]?.words ?? "";
-      if (joined === words) return sentences.slice(i, j + 1);
+      if (joined === words) {
+        if (match) return undefined;
+        match = sentences.slice(i, j + 1);
+        break;
+      }
       if (!words.startsWith(joined)) break;
     }
   }
-  return undefined;
+  return match;
 }
 
 function resolvePrinted(
@@ -325,6 +332,7 @@ function resolvePrinted(
     kind: "sentences",
     ordinals,
     ...(sentenceIds.length === picked.length ? { sentenceIds } : {}),
+    ...(runs.every((run) => run !== undefined) ? { publishedSentenceIds: runIds } : {}),
     text: picked.map((s) => s?.text ?? "").join(" "),
     page: first,
     ...(last !== undefined && first !== undefined && last > first ? { lastPage: last } : {}),
