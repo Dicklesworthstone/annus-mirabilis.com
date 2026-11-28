@@ -19,6 +19,10 @@ import {
   isCameraTrajectoryAnalysis,
 } from "../../experiments/bm07/trajectoryCamera.ts";
 import {
+  type AcceptedMeasuredAnalysis,
+  isMomentAnalysis,
+} from "../../experiments/bm07/trajectoryComparison.ts";
+import {
   parseTrajectoryCsv,
   TRAJECTORY_LIMITS,
   trajectorySiCsv,
@@ -34,6 +38,7 @@ import type { MomentAnalysis } from "../../experiments/bm07/trajectoryMoments.ts
 import { CameraMomentInference } from "./CameraMomentInference.tsx";
 import { CameraTrajectoryResult } from "./CameraTrajectoryResult.tsx";
 import { LabMargin } from "./LabMargin.tsx";
+import { MeasuredTrajectoryComparison } from "./MeasuredTrajectoryComparison.tsx";
 import { Sci } from "./Sci.tsx";
 import { withScripts } from "./subscripts.tsx";
 import { TrajectoryInspection } from "./TrajectoryInspection.tsx";
@@ -45,25 +50,14 @@ const estimatorNames = {
 };
 const display = (value: number): ReactNode =>
   value === 0 ? "0" : <Sci value={value} digits={5} />;
-type Accepted = Readonly<{
-  analysis: TrajectoryAnalysis | MomentAnalysis;
-  source: string;
-  run: number;
-}>;
 type AnalysisModel = "ideal-increments" | "camera-disjoint-pairs" | "camera-lag-one";
-function isMomentAnalysis(
-  analysis: TrajectoryAnalysis | MomentAnalysis,
-): analysis is MomentAnalysis {
-  return "model" in analysis && analysis.model === "camera-lag-one";
-}
-
 /** Measurements never enter a synthetic-recovery snapshot or a shared URL. */
 export function MeasuredTrajectoryLab() {
   const id = useId();
   const [csv, setCsv] = useState("");
   const [source, setSource] = useState("Pasted CSV");
   const [draft, setDraft] = useState<TrajectoryDraft>(EMPTY_TRAJECTORY_DRAFT);
-  const [accepted, setAccepted] = useState<Accepted | null>(null);
+  const [accepted, setAccepted] = useState<AcceptedMeasuredAnalysis | null>(null);
   const [analysisModel, setAnalysisModel] = useState<AnalysisModel>("ideal-increments");
   const [cameraModelDeclared, setCameraModelDeclared] = useState(false);
   const [ready, setReady] = useState(false);
@@ -802,6 +796,7 @@ export function MeasuredTrajectoryLab() {
               )}
             </>
           )}
+          <MeasuredTrajectoryComparison current={accepted} />
           <TrajectoryInspection key={accepted.run} trajectory={record.trajectory} />
           <div className="actions">
             <button type="button" onClick={() => download("json")}>

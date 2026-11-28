@@ -307,6 +307,97 @@ describe("camera observations through the molecular-number comparison", () => {
     expect((await exported()).kind).toBe("unavailable");
   });
 
+  test("a pinned run compares fitted values on the same SI positions, rejects changed data and clears both results", async () => {
+    const button = (text: string) => {
+      const found = [...document.querySelectorAll("button")].find(
+        (node) => node.textContent === text,
+      );
+      assert.ok(found);
+      return found;
+    };
+    await setValue("textarea", csv);
+    await cameraSettings();
+    await submit();
+    await act(async () => button("Pin this accepted analysis").click());
+    await setValue('select[id$="-model"]', "ideal-increments");
+    await check("independent");
+    await setValue('[name="localizationNanometres"]', "0");
+    await setValue('[name="exposureMilliseconds"]', "0");
+    await submit();
+    const match = element('[data-measured-comparison="comparable"]');
+    expect(match.textContent).toContain("Current minus pinned");
+    const table = [...document.querySelectorAll("table")].find((t) =>
+      t.caption?.textContent?.includes("same measured positions"),
+    );
+    expect(table?.textContent).toContain("3 disjoint frame pairs");
+    expect(table?.textContent).toContain("5 adjacent displacements");
+    expect(table?.textContent).toContain("Diffusion confidence set");
+    // Different source units may describe exactly the same calibrated times.
+    await setValue('select[id$="-timeUnit"]', "ms");
+    await setValue(
+      "textarea",
+      csv.replace(/A,(\d+),/g, (_match, t: string) => `A,${Number(t) * 1000},`),
+    );
+    await submit();
+    expect(document.querySelector('[data-measured-comparison="comparable"]')).not.toBeNull();
+    // Same filename, dimensions, sample counts and times, different recorded coordinate.
+    await setValue(
+      "textarea",
+      csv
+        .replace(/A,(\d+),/g, (_match, t: string) => `A,${Number(t) * 1000},`)
+        .replace(",999", ",998"),
+    );
+    await submit();
+    expect(element('[data-measured-comparison="different-record"]').textContent).toContain(
+      "calibrated position",
+    );
+    expect(document.querySelector('[data-measured-comparison="comparable"]')).toBeNull();
+    await act(async () => button("Clear imported data").click());
+    expect(document.querySelector("[data-measured-comparison]")).toBeNull();
+    await setValue("textarea", csv);
+    await cameraSettings();
+    await submit();
+    expect(button("Pin this accepted analysis").disabled).toBe(false);
+    expect(document.body.textContent).not.toContain("Release pinned analysis");
+  });
+
+  test("a per-track, per-axis covariance result stays distinct from a pooled estimate on the same file", async () => {
+    const observations =
+      "track,time,x,y\nA,0,0,0\nB,0,0,0\nA,1,1,-1\nB,1,3,-1\nA,2,4,-1\nB,2,8,-1\nA,3,6,-4\nB,3,9,-4\nA,4,8,-6\nB,4,11,-6";
+    await setValue("textarea", observations);
+    await setValue('select[id$="-timeUnit"]', "s");
+    await setValue('select[id$="-positionUnit"]', "um");
+    await setValue('select[id$="-model"]', "camera-lag-one");
+    await setValue('select[id$="-moment-axis"]', "y");
+    await check("camera-model");
+    await setValue('[name="momentDriftUmPerS"]', "-1");
+    await setValue('[name="exposureMilliseconds"]', "300");
+    await setValue('select[id$="-censored"]', "no");
+    await submit();
+    const pin = [...document.querySelectorAll("button")].find(
+      (n) => n.textContent === "Pin this accepted analysis",
+    );
+    assert.ok(pin);
+    await act(async () => pin.click());
+    await setValue('select[id$="-model"]', "ideal-increments");
+    await check("independent");
+    await check("pooled");
+    await setValue('[name="localizationNanometres"]', "0");
+    await setValue('[name="exposureMilliseconds"]', "0");
+    await submit();
+    expect(element('[data-measured-comparison="different-scope"]').textContent).toContain(
+      "different tracks or coordinate axes",
+    );
+    await setValue('select[id$="-track"]', "B");
+    const table = [...document.querySelectorAll("table")].find((t) =>
+      t.caption?.textContent?.includes("same measured positions"),
+    );
+    expect(table?.textContent).toContain("B · y");
+    expect(table?.textContent).toContain("A, B · x, y");
+    expect(table?.textContent).toContain("point estimates only");
+    expect(document.querySelector('[data-measured-comparison="comparable"]')).toBeNull();
+  });
+
   test("zero-reaching and empty camera sets keep all observations without a finite molecular interval", async () => {
     await setValue("textarea", csv);
     await cameraSettings();
