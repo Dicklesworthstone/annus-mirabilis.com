@@ -5,10 +5,10 @@
 
 import { executionOutcomeRegistry } from "../../../experiments/results/outcomes.ts";
 import { createPhiloxStream } from "../philox.ts";
+import { configurationFraction } from "./configurationCounts.ts";
 import { packLogRepresentation } from "./representability.ts";
 import type { EnumerationOutcome, Rational, SeededPointSamplingResult } from "./types.ts";
-
-import { configurationFraction } from "./configurationCounts.ts";
+import { MAX_CONFIGURATION_SAMPLE_POINTS } from "./types.ts";
 
 export {
   binomialInside,
@@ -162,6 +162,10 @@ export type SeededSamplingInput = Readonly<{
   allocationId?: string | undefined;
 }>;
 
+export class ConfigurationSampleError extends RangeError {
+  readonly code = "configuration-sample-point-count";
+}
+
 /** Shared draw loop; each dependence model declares its placement count and stream domain. */
 function samplePlacements(
   input: SeededSamplingInput,
@@ -170,11 +174,14 @@ function samplePlacements(
   defaultAllocationId: string,
 ): SeededPointSamplingResult {
   const { n, f, trials } = input;
+  if (!Number.isInteger(n) || n < 1 || n > MAX_CONFIGURATION_SAMPLE_POINTS)
+    throw new ConfigurationSampleError(`Use 1 to ${MAX_CONFIGURATION_SAMPLE_POINTS} points for a sampled count record.`);
   const streamKernelId = input.streamKernelId ?? 0x19050005;
   const allocationId = input.allocationId ?? defaultAllocationId;
   const seed = typeof input.seed === "bigint" ? input.seed.toString() : input.seed;
 
-  let successCount = 0;
+  const occupancyCounts = Array<number>(n + 1).fill(0);
+  const pointsPerPlacement = n / drawsPerTrial;
 
   for (let t = 0; t < trials; t++) {
     const stream = createPhiloxStream({
@@ -183,22 +190,20 @@ function samplePlacements(
       tile: (t | tileMask) >>> 0,
     });
 
-    let allInside = true;
+    let inside = 0;
     for (let p = 0; p < drawsPerTrial; p++) {
       const u = stream.nextF64();
-      if (u >= f) {
-        allInside = false;
-      }
+      if (u < f) inside += pointsPerPlacement;
     }
-    if (allInside) {
-      successCount++;
-    }
+    occupancyCounts[inside] = (occupancyCounts[inside] ?? 0) + 1;
   }
 
+  const successCount = occupancyCounts[n] ?? 0;
   return {
     n,
     f,
     trials,
+    occupancyCounts: Object.freeze(occupancyCounts),
     successCount,
     sampleFraction: successCount / trials,
     drawCountBefore: 0,

@@ -1,11 +1,12 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { MAX_CONFIGURATION_SAMPLE_POINTS } from "../../physics/reference/radiation/types.ts";
 import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import type { Lq05Parameters, Lq05View } from "./definition.ts";
 
 const VALID_VIEWS = new Set<Lq05View>(["enumeration", "sampling", "logarithmic"]);
 /** The upper ends of the manifest's model domains (content/experiments/lq-05.yaml). */
-export const LQ05_MAX_POINTS = 60;
+export const LQ05_MAX_POINTS = MAX_CONFIGURATION_SAMPLE_POINTS;
 export const LQ05_MAX_TRIALS = 1_000_000;
 
 function validateLq05Fields(input: unknown): Computation<Lq05Parameters> {

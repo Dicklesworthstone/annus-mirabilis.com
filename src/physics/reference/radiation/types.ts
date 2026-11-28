@@ -156,7 +156,11 @@ export type EnumerationOutcome =
       outcome: ExecutionOutcome;
     }>;
 
+export const MAX_CONFIGURATION_SAMPLE_POINTS = 60;
+
 export type SeededPointSamplingResult = Readonly<{
+  /** Bin K counts trials with exactly K points inside, from the same seeded placements. */
+  occupancyCounts: readonly number[];
   n: number;
   f: number;
   trials: number;
