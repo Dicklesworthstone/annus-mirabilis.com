@@ -16,6 +16,11 @@ export type TrajectoryDraft = Readonly<{
   temperatureKelvin: string;
   viscosityMillipascalSeconds: string;
   radiusMicrometres: string;
+  radiusIntervalDeclared: boolean;
+  radiusLowerUm: string;
+  radiusUpperUm: string;
+  radiusCoveragePercent: string;
+  radiusSource: string;
 }>;
 export const EMPTY_TRAJECTORY_DRAFT: TrajectoryDraft = Object.freeze({
   timeUnit: "",
@@ -32,6 +37,11 @@ export const EMPTY_TRAJECTORY_DRAFT: TrajectoryDraft = Object.freeze({
   temperatureKelvin: "",
   viscosityMillipascalSeconds: "",
   radiusMicrometres: "",
+  radiusIntervalDeclared: false,
+  radiusLowerUm: "",
+  radiusUpperUm: "",
+  radiusCoveragePercent: "",
+  radiusSource: "",
 });
 
 function numeric(text: string, label: string, scale: number, allowZero = false): number {
@@ -51,6 +61,20 @@ function numeric(text: string, label: string, scale: number, allowZero = false):
     throw new Error(`${label} is outside the supported numeric range.`);
   }
   return value;
+}
+
+function radiusCalibration(draft: TrajectoryDraft) {
+  const lower = numeric(draft.radiusLowerUm, "Lower radius bound", 1e-6);
+  const upper = numeric(draft.radiusUpperUm, "Upper radius bound", 1e-6);
+  const a = numeric(draft.radiusMicrometres, "Independent radius", 1e-6);
+  if (lower > a || upper < a)
+    throw new Error("The radius bounds must contain the measured particle radius.");
+  const percent = numeric(draft.radiusCoveragePercent, "Radius interval coverage", 1);
+  if (percent > 100) throw new Error("Radius coverage must be positive and at most 100%.");
+  const source = draft.radiusSource.trim();
+  if (!source || source.length > 512)
+    throw new Error("Identify the independent radius measurement in 1–512 characters.");
+  return Object.freeze({ lower, upper, coverage: percent / 100, source });
 }
 
 export function readTrajectoryDraft(draft: TrajectoryDraft): Readonly<{
@@ -112,6 +136,7 @@ export function readTrajectoryDraft(draft: TrajectoryDraft): Readonly<{
             T: numeric(draft.temperatureKelvin, "Temperature", 1),
             eta: numeric(draft.viscosityMillipascalSeconds, "Dynamic viscosity", 1e-3),
             a: numeric(draft.radiusMicrometres, "Independent radius", 1e-6),
+            ...(draft.radiusIntervalDeclared ? { calibration: radiusCalibration(draft) } : {}),
           })
         : null,
     }),

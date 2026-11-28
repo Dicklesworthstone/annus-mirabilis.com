@@ -178,6 +178,85 @@ describe("camera observations through the molecular-number comparison", () => {
     expect(second.assumptions.independentRadius.a).toBe(1e-6);
   });
 
+  for (const model of ["ideal-increments", "camera-disjoint-pairs"] as const) {
+    test(`${model} combines an independent radius measurement with the same accepted record`, async () => {
+      await setValue("textarea", csv);
+      if (model === "camera-disjoint-pairs") await cameraSettings();
+      else {
+        await setValue('select[id$="-timeUnit"]', "s");
+        await setValue('select[id$="-positionUnit"]', "um");
+        await check("independent");
+        await setValue('[name="localizationNanometres"]', "0");
+        await setValue('[name="exposureMilliseconds"]', "0");
+        await setValue('select[id$="-censored"]', "no");
+      }
+      await check("radius");
+      await physicalInputs();
+      await check("radius-interval");
+      await setValue('[name="radiusLowerUm"]', "0.4");
+      await setValue('[name="radiusUpperUm"]', "0.6");
+      await setValue('[name="radiusCoveragePercent"]', "97.5");
+      await setValue('[name="radiusSource"]', "Independent bead calibration C17");
+      await submit();
+      const combined = element('[data-radius-comparison="combined"]');
+      expect(combined.textContent).toContain("Independent bead calibration C17");
+      expect(combined.textContent).toContain("95% joint coverage");
+      const first = await exported();
+      const analysis = first.result ?? first;
+      expect(analysis.radiusComparison.diffusionInterval.coverage).toBeCloseTo(0.975, 12);
+      expect(analysis.radiusComparison.diffusionInterval.q).toBe(
+        model === "camera-disjoint-pairs" ? 2 : 4,
+      );
+      expect(analysis.radiusComparison.lower).toBeLessThan(analysis.molecular.interval.lower);
+      expect(analysis.radiusComparison.upper).toBeGreaterThan(analysis.molecular.interval.upper);
+      // Direct Stokes–Einstein endpoint inversion, independently of the UI.
+      const C = (8.31446261815324 * 293.15) / (6 * Math.PI * 0.001);
+      const ratio =
+        analysis.radiusComparison.lower /
+        (C / (0.6e-6 * analysis.radiusComparison.diffusionInterval.upper));
+      expect(ratio).toBeCloseTo(1, 10);
+      expect(first.assumptions.independentRadius.calibration.source).toBe(
+        "Independent bead calibration C17",
+      );
+
+      await setValue('[name="radiusCoveragePercent"]', "95");
+      expect(await exported()).toEqual(first);
+      await submit();
+      expect(element('[data-radius-comparison="unavailable"]').textContent).toContain(
+        "stronger coverage",
+      );
+      const next = await exported();
+      expect((next.result ?? next).molecular).toEqual(analysis.molecular);
+      expect(next.trajectory).toEqual(first.trajectory);
+
+      await setValue('[name="radiusLowerUm"]', "0.7");
+      await submit();
+      expect(element('[role="alert"]').textContent).toContain("must contain the measured");
+      expect(await exported()).toEqual(next);
+    });
+  }
+
+  test("wider allocated camera set can reach zero while the fixed-radius result remains finite", async () => {
+    await setValue("textarea", csv);
+    await cameraSettings();
+    await setValue('[name="localizationNanometres"]', "700");
+    await check("radius");
+    await physicalInputs();
+    await check("radius-interval");
+    await setValue('[name="radiusLowerUm"]', "0.4");
+    await setValue('[name="radiusUpperUm"]', "0.6");
+    await setValue('[name="radiusCoveragePercent"]', "97.5");
+    await setValue('[name="radiusSource"]', "Independent radius measurement");
+    await submit();
+    expect(element('[data-radius-comparison="unavailable"]').textContent).toContain(
+      "no finite upper endpoint",
+    );
+    const result = await exported();
+    expect(result.camera.interval.lower).toBeGreaterThan(0);
+    expect(result.molecular.interval.upper).toBeGreaterThan(0);
+    expect(result.radiusComparison.upper).toBeUndefined();
+  });
+
   test("zero-reaching and empty camera sets keep all observations without a finite molecular interval", async () => {
     await setValue("textarea", csv);
     await cameraSettings();

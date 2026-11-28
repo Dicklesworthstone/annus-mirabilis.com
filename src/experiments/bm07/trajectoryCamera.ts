@@ -3,8 +3,10 @@
  * This module admits declarations, selects disjoint pairs within tracks,
  * and preserves the same accepted observations in the display and export.
  */
+
 import type { ConstantSet } from "../../physics/reference/constants.ts";
 import type * as Observation from "../../physics/reference/inference/observation.ts";
+import type { Assessment, StatisticalInterval } from "../../physics/reference/inference.ts";
 import type {
   TrajectoryAnalysis,
   TrajectoryAssumptions,
@@ -12,12 +14,13 @@ import type {
 } from "./trajectoryAnalysis.ts";
 import type { ImportedTrajectory } from "./trajectoryCsv.ts";
 import { selectTrajectoryFramePairs, type TrajectoryPairReport } from "./trajectoryPairs.ts";
+import { freezeTrajectoryRadius, radiusComparison } from "./trajectoryRadius.ts";
 
 export type CameraTrajectoryReference = Pick<
   typeof Observation,
   "disjointPairsKnownNoiseInterval"
 > &
-  Pick<TrajectoryReference, "invertToMolecularNumber">;
+  Pick<TrajectoryReference, "invertToMolecularNumber" | "allocateJointInputCoverage">;
 type CameraExecutionOutcome = Extract<
   ReturnType<CameraTrajectoryReference["disjointPairsKnownNoiseInterval"]>,
   { kind: "outcome" }
@@ -44,9 +47,14 @@ function molecularComparison(
   assumptions: TrajectoryAssumptions,
   reference: CameraTrajectoryReference,
   modernConstants: () => ConstantSet,
-): Pick<CameraTrajectoryAnalysis, "molecular" | "molecularMessage" | "ownerOutcome"> {
+  diffusionAt: (alpha: number) => Assessment<StatisticalInterval>,
+): Pick<
+  CameraTrajectoryAnalysis,
+  "molecular" | "molecularMessage" | "ownerOutcome" | "radiusComparison"
+> {
   const unavailable = (molecularMessage: string) => ({
     molecular: null,
+    radiusComparison: null,
     molecularMessage,
     ownerOutcome: null,
   });
@@ -66,6 +74,7 @@ function molecularComparison(
     return unavailable(
       "Diffusion alone does not separate particle radius from molecular number. Declare an independently measured radius, temperature and viscosity for a modern-SI consistency comparison.",
     );
+  const constants = modernConstants();
   const inverted = reference.invertToMolecularNumber(
     {
       ...assumptions.independentRadius,
@@ -74,7 +83,7 @@ function molecularComparison(
       interval: camera.interval,
       synthetic: false,
     },
-    modernConstants(),
+    constants,
   );
   if (inverted.kind === "outcome")
     return {
@@ -91,6 +100,14 @@ function molecularComparison(
     );
   return {
     molecular: inverted.data,
+    radiusComparison: radiusComparison(
+      assumptions.independentRadius,
+      assumptions.coverage,
+      camera.estimate,
+      diffusionAt,
+      reference,
+      constants,
+    ),
     ownerOutcome: null,
     molecularMessage:
       "Modern SI defines the Avogadro constant. This is a consistency comparison, equivalently an estimate of Boltzmann's constant; it is not an independent count of molecules. The inverse interval comes from the noise-corrected disjoint-pair confidence set, with its endpoints exchanged. Radius, temperature, viscosity, localization noise, exposure, timing and spatial calibration are held exact.",
@@ -106,9 +123,7 @@ export function analyzeCameraTrajectory(
 ): CameraTrajectoryAnalysis {
   const assumptions = Object.freeze({
     ...input,
-    independentRadius: input.independentRadius
-      ? Object.freeze({ ...input.independentRadius })
-      : null,
+    independentRadius: freezeTrajectoryRadius(input.independentRadius),
   });
   const base = {
     trajectory,
@@ -120,6 +135,7 @@ export function analyzeCameraTrajectory(
     // These are not independent-increment estimates. Keep the camera owner's result separate.
     estimate: null,
     molecular: null,
+    radiusComparison: null,
     ownerOutcome: null,
     molecularMessage:
       "A molecular-number comparison requires an admitted positive camera-corrected estimate and a strictly positive diffusion interval.",
@@ -182,16 +198,18 @@ export function analyzeCameraTrajectory(
       "Uniform exposure must not exceed the admitted frame spacing. Overlapping exposures need another observation model.",
       selected.report,
     );
-  const evaluated = reference.disjointPairsKnownNoiseInterval({
+  const cameraInput = {
     positions: selected.positions,
     dt: trajectory.dt,
     exposure,
     d: trajectory.dimension,
-    alpha: 1 - assumptions.coverage,
     noise: { kind: "exact", sigma2 },
     equalSpacing: true,
     independentNoise: true,
-  });
+  } as const;
+  const cameraAt = (alpha: number) =>
+    reference.disjointPairsKnownNoiseInterval({ ...cameraInput, alpha });
+  const evaluated = cameraAt(1 - assumptions.coverage);
   if (evaluated.kind === "outcome")
     return unavailable(
       "The camera reference owner reported an execution outcome instead of an estimate. No interval is supplied; the accepted JSON retains the owner's diagnostic.",
@@ -219,7 +237,18 @@ export function analyzeCameraTrajectory(
     interval: camera.interval,
     pairing: selected.report,
     camera,
-    ...molecularComparison(camera, assumptions, reference, modernConstants),
+    ...molecularComparison(camera, assumptions, reference, modernConstants, (alpha) => {
+      const adjusted = cameraAt(alpha);
+      if (adjusted.kind !== "accepted") return adjusted;
+      if (!adjusted.data.interval || adjusted.data.empty)
+        return {
+          kind: "no-value",
+          status: "not-applicable",
+          reason:
+            "The physical camera confidence set is empty at the coverage needed for the combined interval.",
+        };
+      return { kind: "accepted", data: adjusted.data.interval };
+    }),
     message: `${explanation} The localization noise scale, exposure, timing and spatial calibration are held exact. Their uncertainty, confinement, non-Gaussian errors and model mismatch are not included.`,
   });
 }

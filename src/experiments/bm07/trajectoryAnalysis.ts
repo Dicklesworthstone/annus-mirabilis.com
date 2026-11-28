@@ -5,14 +5,19 @@
 import type { ConstantSet } from "../../physics/reference/constants.ts";
 import type * as Inference from "../../physics/reference/inference.ts";
 import type { ImportedTrajectory } from "./trajectoryCsv.ts";
+import {
+  freezeTrajectoryRadius,
+  type RadiusComparison,
+  type RadiusReference,
+  radiusComparison,
+  type TrajectoryRadius,
+} from "./trajectoryRadius.ts";
 
 export type TrajectoryReference = Pick<
   typeof Inference,
-  | "independentModelAdmission"
-  | "estimateIncrements"
-  | "estimatorInterval"
-  | "invertToMolecularNumber"
->;
+  "independentModelAdmission" | "estimateIncrements" | "estimatorInterval"
+> &
+  RadiusReference;
 export type TrajectoryAssumptions = Readonly<{
   estimator: Inference.EstimatorId;
   coverage: number;
@@ -22,7 +27,7 @@ export type TrajectoryAssumptions = Readonly<{
   localizationStd: number | null;
   exposureTime: number | null;
   censored: boolean | null;
-  independentRadius: Readonly<{ T: number; eta: number; a: number }> | null;
+  independentRadius: TrajectoryRadius | null;
 }>;
 export type MolecularComparison = Extract<
   ReturnType<TrajectoryReference["invertToMolecularNumber"]>,
@@ -35,6 +40,7 @@ export type TrajectoryAnalysis = Readonly<{
   estimate: Inference.Estimate | null;
   interval: Inference.StatisticalInterval | null;
   molecular: MolecularComparison | null;
+  radiusComparison: RadiusComparison | null;
   message: string;
   molecularMessage: string;
   calculation: "reference-host";
@@ -53,12 +59,11 @@ export function analyzeTrajectory(
 ): TrajectoryAnalysis {
   const assumptions = Object.freeze({
     ...input,
-    independentRadius: input.independentRadius
-      ? Object.freeze({ ...input.independentRadius })
-      : null,
+    independentRadius: freezeTrajectoryRadius(input.independentRadius),
   });
   const base = {
     trajectory,
+    radiusComparison: null,
     assumptions,
     calculation: "reference-host" as const,
     sourceKind: "user-supplied-not-independently-verified" as const,
@@ -155,6 +160,7 @@ export function analyzeTrajectory(
       molecularMessage:
         "Diffusion alone does not separate particle radius from molecular number. Declare an independently measured radius, temperature and viscosity for a modern-SI consistency comparison.",
     });
+  const constants = modernConstants();
   const inverted = reference.invertToMolecularNumber(
     {
       ...assumptions.independentRadius,
@@ -163,7 +169,7 @@ export function analyzeTrajectory(
       interval,
       synthetic: false,
     },
-    modernConstants(),
+    constants,
   );
   if (inverted.kind !== "accepted")
     return Object.freeze({
@@ -195,6 +201,14 @@ export function analyzeTrajectory(
     estimate,
     interval,
     molecular: inverted.data,
+    radiusComparison: radiusComparison(
+      assumptions.independentRadius,
+      assumptions.coverage,
+      estimate.dHat,
+      (alpha) => reference.estimatorInterval(estimate, alpha),
+      reference,
+      constants,
+    ),
     message,
     molecularMessage:
       "Modern SI defines the Avogadro constant. This is a consistency comparison, equivalently an estimate of Boltzmann's constant; it is not an independent count of molecules. The interval holds radius, temperature, viscosity and calibration exact.",
@@ -229,6 +243,7 @@ export function trajectoryAnalysisJson(analysis: TrajectoryAnalysis): string {
             : null,
           interval: analysis.interval,
           molecular: analysis.molecular,
+          radiusComparison: analysis.radiusComparison,
           message: analysis.message,
           molecularMessage: analysis.molecularMessage,
         },

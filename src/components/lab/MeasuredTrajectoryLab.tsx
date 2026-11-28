@@ -212,6 +212,9 @@ export function MeasuredTrajectoryLab() {
       | "temperatureKelvin"
       | "viscosityMillipascalSeconds"
       | "radiusMicrometres"
+      | "radiusLowerUm"
+      | "radiusUpperUm"
+      | "radiusCoveragePercent"
     >,
     label: string,
   ) => (
@@ -464,13 +467,48 @@ export function MeasuredTrajectoryLab() {
               {numberField("temperatureKelvin", "Temperature (K)")}
               {numberField("viscosityMillipascalSeconds", "Dynamic viscosity (mPa s)")}
               {numberField("radiusMicrometres", "Independent particle radius (μm)")}
+              <label className="check" htmlFor={`${id}-radius-interval`}>
+                <input
+                  id={`${id}-radius-interval`}
+                  type="checkbox"
+                  checked={draft.radiusIntervalDeclared}
+                  onChange={(event) => edit("radiusIntervalDeclared", event.target.checked)}
+                />
+                Include a confidence interval from my independent radius measurement
+              </label>
+              {draft.radiusIntervalDeclared && (
+                <>
+                  {numberField("radiusLowerUm", "Lower radius bound (μm)")}
+                  {numberField("radiusUpperUm", "Upper radius bound (μm)")}
+                  {numberField("radiusCoveragePercent", "Coverage of the radius measurement (%)")}
+                  <div className="input-field">
+                    <label htmlFor={`${id}-radiusSource`}>
+                      Source of radius bounds and stated coverage
+                    </label>
+                    <input
+                      id={`${id}-radiusSource`}
+                      name="radiusSource"
+                      type="text"
+                      maxLength={512}
+                      value={draft.radiusSource}
+                      onChange={(event) => edit("radiusSource", event.target.value)}
+                    />
+                  </div>
+                  <p className="fine">
+                    Use the coverage your calibration actually supplies. For example, a 97.5% radius
+                    interval leaves room for a 97.5% diffusion interval to give at least 95% joint
+                    coverage. Temperature, viscosity, timing and spatial scale remain fixed.
+                  </p>
+                </>
+              )}
             </div>
           )}
           <p className="fine">
             Diffusion alone cannot determine molecular number independently of particle radius. With
             modern SI constants, the optional inverse result is a consistency check, not an
             independent count of molecules. It uses the dilute-sphere Stokes–Einstein model and
-            holds all declared physical inputs and calibration exact.
+            first holds radius and other calibration inputs fixed. A supplied radius interval adds a
+            separate comparison that includes radius uncertainty.
           </p>
           {analysisModel === "camera-disjoint-pairs" && (
             <p className="fine">
@@ -615,6 +653,46 @@ export function MeasuredTrajectoryLab() {
                 </tr>
               </tbody>
             </table>
+          )}
+          {a.radiusComparison && (
+            <section
+              aria-labelledby={`${id}-combined-radius`}
+              data-radius-comparison={a.radiusComparison.kind}
+            >
+              <h4 id={`${id}-combined-radius`}>Including uncertainty in the particle radius</h4>
+              {a.assumptions.independentRadius?.calibration && (
+                <p>
+                  Independent radius measurement:{" "}
+                  {a.assumptions.independentRadius.calibration.source}. Bounds [
+                  {display(a.assumptions.independentRadius.calibration.lower * 1e6)},{" "}
+                  {display(a.assumptions.independentRadius.calibration.upper * 1e6)}] μm at{" "}
+                  {Number((100 * a.assumptions.independentRadius.calibration.coverage).toFixed(5))}%
+                  declared coverage.
+                </p>
+              )}
+              {a.radiusComparison.kind === "combined" ? (
+                <>
+                  <p>
+                    Combined molecular-number interval: [{display(a.radiusComparison.lower)},{" "}
+                    {display(a.radiusComparison.upper)}] mol⁻¹, with at least{" "}
+                    {Number((100 * a.radiusComparison.coverageLowerBound).toFixed(5))}% joint
+                    coverage.
+                  </p>
+                  <p>
+                    The same displacements give a{" "}
+                    {Number((100 * a.radiusComparison.diffusionInterval.coverage).toFixed(5))}%
+                    diffusion interval from {display(a.radiusComparison.diffusionInterval.lower)} to{" "}
+                    {display(a.radiusComparison.diffusionInterval.upper)} m²/s. The largest radius
+                    and fastest diffusion give the lower molecular number. The smallest radius and
+                    slowest diffusion give the upper. Adding the two possible error rates bounds the
+                    chance that either interval misses. This assumes the declared observation model
+                    and radius coverage.
+                  </p>
+                </>
+              ) : (
+                <p>{a.radiusComparison.reason}</p>
+              )}
+            </section>
           )}
           <TrajectoryInspection key={accepted.run} trajectory={a.trajectory} />
           <div className="actions">

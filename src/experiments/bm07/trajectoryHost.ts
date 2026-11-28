@@ -1,5 +1,6 @@
 import { getConstantSet } from "../../physics/reference/constants.ts";
 import { disjointPairsKnownNoiseInterval } from "../../physics/reference/inference/observation.ts";
+import { allocateJointInputCoverage } from "../../physics/reference/inference/physicalUncertainty.ts";
 import {
   estimateIncrements,
   estimatorInterval,
@@ -11,6 +12,7 @@ import { analyzeCameraTrajectory } from "./trajectoryCamera.ts";
 import type { ImportedTrajectory } from "./trajectoryCsv.ts";
 
 const reference = {
+  allocateJointInputCoverage,
   independentModelAdmission,
   estimateIncrements,
   estimatorInterval,
@@ -34,7 +36,7 @@ export function analyzeImportedCameraTrajectory(
     trajectory,
     assumptions,
     cameraModelDeclared,
-    { disjointPairsKnownNoiseInterval, invertToMolecularNumber },
+    { disjointPairsKnownNoiseInterval, invertToMolecularNumber, allocateJointInputCoverage },
     () => getConstantSet("modern-si-2019"),
   );
 }
