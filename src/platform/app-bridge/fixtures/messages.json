@@ -37,6 +37,42 @@
       "verdict": "ok"
     },
     {
+      "name": "storage.beginSnapshot",
+      "message": {
+        "v": 1,
+        "type": "storage.beginSnapshot",
+        "body": {
+          "bytes": 1048576
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "name": "storage.appendSnapshot",
+      "message": {
+        "v": 1,
+        "type": "storage.appendSnapshot",
+        "body": {
+          "transfer": "receipt",
+          "offset": 0,
+          "data": "YWJj"
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "name": "storage.readSnapshotPart",
+      "message": {
+        "v": 1,
+        "type": "storage.readSnapshotPart",
+        "body": {
+          "transfer": "receipt",
+          "offset": 0
+        }
+      },
+      "verdict": "ok"
+    },
+    {
       "name": "storage.list",
       "message": {
         "v": 1,

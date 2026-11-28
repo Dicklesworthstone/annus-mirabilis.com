@@ -6,7 +6,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { runInNewContext } from "node:vm";
-import { NATIVE_EVENT_NAMES, validateEditionMessage } from "./schemas.ts";
+import { emptyNotebook, parseNotebookDocument } from "../../reader/notebook/schema.ts";
+import { MAX_MESSAGE_BYTES, NATIVE_EVENT_NAMES, validateEditionMessage } from "./schemas.ts";
 import {
   SETTINGS_SNAPSHOT_PLACEHOLDER,
   SETTINGS_SNAPSHOT_TEMPLATE,
@@ -16,7 +17,7 @@ import {
 import {
   BRIDGE_CAPABILITIES,
   BRIDGE_USER_SCRIPT_SOURCE,
-  MAX_SNAPSHOT_LENGTH,
+  SNAPSHOT_PART_BYTES,
   SITE_STORAGE_PREFIX,
   SITE_THEME_FOLLOW_SYSTEM,
   SITE_THEME_IDS,
@@ -58,6 +59,7 @@ function sandbox(options: {
   stored?: Record<string, string>;
   session?: Record<string, string>;
   replies?: Record<string, unknown>;
+  respond?: (message: Message) => unknown;
   /** <html>'s data-type-scale at document start; null means <html> exists without it. */
   typeScale?: string | null;
   /** The JSON the app fills into the settings snapshot, which then runs before the bridge. */
@@ -162,7 +164,7 @@ function sandbox(options: {
             const copy = JSON.parse(JSON.stringify(message)) as Message;
             posted.push(copy);
             return Promise.resolve(
-              options.replies?.[copy.type] ?? (copy.type === "storage.write" ? { status: "ok" } : undefined),
+              options.respond?.(copy) ?? options.replies?.[copy.type] ?? (copy.type === "storage.write" ? { status: "ok" } : undefined),
             );
           },
         },
@@ -180,6 +182,10 @@ function sandbox(options: {
     CustomEvent,
     MutationObserver,
     decodeURIComponent,
+    btoa,
+    atob,
+    TextEncoder,
+    TextDecoder,
     setTimeout: (callback: () => void) => timers.push(callback),
     clearTimeout: () => {},
   };
@@ -609,14 +615,73 @@ describe("the reader's data mirrored into the app", () => {
     assert.deepEqual(snapshots(page), []);
   });
 
-  it("does not mirror a snapshot too large for one message", () => {
-    const page = sandbox({
-      inApp: true,
-      stored: { "am:notebook:v1": "x".repeat(MAX_SNAPSHOT_LENGTH) },
-    });
-    page.run();
-    page.tick();
-    assert.deepEqual(page.of("storage.write"), []);
+  it("backs up and recovers a valid multilingual notebook larger than one bridge message", async () => {
+    const notebook = JSON.stringify(parseNotebookDocument({
+      ...emptyNotebook(),
+      entries: Array.from({ length: 100 }, (_, i) => ({
+        id: `n-${i}`, kind: "note", title: "Observation", text: '光/🔬"'.repeat(400),
+        frame: { paper: "brownian-motion", anchor: "arg-bm-observable", view: "reading", detail: 1, lens: "paper", open: "" },
+        createdAt: "2026-09-17T14:00:00.000Z",
+      })),
+    }));
+    const stored = { "am:notebook:v1": notebook };
+    const snapshot = Buffer.from(JSON.stringify(stored));
+    assert.ok(snapshot.length > MAX_MESSAGE_BYTES);
+    let committed = Buffer.from('{"am:notes":"previous"}');
+    let parts: Buffer[] = [];
+    let expectedSize = 0;
+    let interrupt = true;
+    const respond = (message: Message) => {
+      assert.equal(validateEditionMessage(message).ok, true);
+      const { type, body } = message;
+      if (type === "storage.beginSnapshot") {
+        expectedSize = Number(body.bytes);
+        parts = [];
+        return { status: "ok", transfer: "upload" };
+      }
+      if (type === "storage.appendSnapshot") {
+        if (interrupt && parts.length === 1) return { status: "unavailable" };
+        assert.equal(body.transfer, "upload");
+        const received = parts.reduce((n, part) => n + part.length, 0);
+        assert.equal(body.offset, received);
+        const part = Buffer.from(String(body.data), "base64url");
+        parts.push(part);
+        if (received + part.length === expectedSize) committed = Buffer.concat(parts);
+        return { status: "ok" };
+      }
+      if (type === "storage.read") {
+        assert.equal(body.chunked, true);
+        return { status: "ok", transfer: "download", bytes: committed.length };
+      }
+      if (type === "storage.readSnapshotPart") {
+        assert.equal(body.transfer, "download");
+        const offset = Number(body.offset);
+        if (interrupt && offset > 0) return { status: "missing" };
+        return { status: "ok", value: committed.subarray(offset, offset + SNAPSHOT_PART_BYTES).toString("base64").replace(/\//g, "_") };
+      }
+    };
+    const writer = sandbox({ inApp: true, stored, respond });
+    writer.run();
+    writer.tick();
+    await writer.settle();
+    assert.equal(committed.toString(), '{"am:notes":"previous"}');
+    interrupt = false;
+    writer.fire("window", "pagehide");
+    await writer.settle();
+    assert.deepEqual(committed, snapshot);
+    assert.ok(writer.of("storage.appendSnapshot").length > 2);
+    const reader = sandbox({ inApp: true, respond });
+    interrupt = true;
+    reader.run();
+    await reader.settle();
+    assert.equal(reader.localStorage.length, 0);
+    assert.equal(reader.reloads(), 0);
+    interrupt = false;
+    reader.fire("window", "pagehide");
+    await reader.settle();
+    assert.equal(reader.localStorage.getItem("am:notebook:v1"), notebook);
+    assert.equal(reader.reloads(), 1);
+    assert.equal(reader.of("storage.beginSnapshot").length, 0);
   });
 
   it("restores a snapshot into an empty store and loads the page once more, and only once", async () => {
@@ -631,7 +696,7 @@ describe("the reader's data mirrored into the app", () => {
     await page.settle();
     assert.deepEqual(
       page.of("storage.read").map((message) => message.body),
-      [{ namespace: "localStorage", key: "snapshot" }],
+      [{ namespace: "localStorage", key: "snapshot", chunked: true }],
     );
     assert.equal(page.localStorage.getItem(SITE_THEME_KEY), "kramgasse-night");
     assert.equal(page.localStorage.getItem("am:notebook:v1"), "[1]");

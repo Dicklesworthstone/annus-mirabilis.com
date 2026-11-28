@@ -35,6 +35,19 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
         var onMessage: ((String, String, String?) -> Void)?
     #endif
 
+    // Each window has a router. Only the newest upload to this on-disk record may publish.
+    // Incomplete bytes live with the router and disappear on termination; the committed
+    // snapshot remains the same atomic file understood by older editions and native exports.
+    private static var uploadOwners: [URL: String] = [:]
+    private static let partBytes = 128 * 1024
+    private static let maxSnapshotBytes = 32 * 1024 * 1024
+    private struct Upload {
+        let id: String
+        let total: Int
+        var data = Data()
+    }
+    private var upload: Upload?
+    private var download: (id: String, data: Data)?
     private var limiter = BridgeRateLimiter()
     private let capabilities: [String]
 
@@ -131,6 +144,8 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             return share(body)
         case "storage.read", "storage.write":
             return storage(message.type, body)
+        case "storage.beginSnapshot", "storage.appendSnapshot", "storage.readSnapshotPart":
+            return snapshotPart(message.type, body)
         case "storage.list", "storage.export":
             return readerDataReply(message.type, body)
         case "settings.changed":
@@ -169,15 +184,76 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
         }
         if type == "storage.write" {
             let value = Self.string(body, "value") ?? ""
+            if namespace == readerData?.snapshot.namespace, key == readerData?.snapshot.key {
+                upload = nil
+                Self.uploadOwners.removeValue(forKey: store.fileURL(namespace: namespace, key: key))
+            }
             let written = store.write(namespace: namespace, key: key, value: value)
             if written { onStorageWrite?(namespace, key, value) }
             return ["status": written ? "ok" : "quota"]
         }
         switch store.read(namespace: namespace, key: key) {
-        case .value(let text): return ["status": "ok", "value": text]
+        case .value(let text):
+            if body["chunked"] == .bool(true), namespace == readerData?.snapshot.namespace,
+                key == readerData?.snapshot.key, text.utf8.count > 40 * 1024
+            {
+                guard text.utf8.count <= Self.maxSnapshotBytes else { return ["status": "quota"] }
+                let id = UUID().uuidString
+                download = (id, Data(text.utf8))
+                return ["status": "ok", "transfer": id, "bytes": text.utf8.count]
+            }
+            return ["status": "ok", "value": text]
         case .missing: return ["status": "missing"]
         case .corrupt: return ["status": "corrupt"]
         }
+    }
+
+    private func snapshotPart(_ type: String, _ body: [String: JSONValue]) -> [String: Any] {
+        guard let store, let record = readerData?.snapshot else { return Self.unavailable }
+        let url = store.fileURL(namespace: record.namespace, key: record.key)
+        if type == "storage.beginSnapshot" {
+            guard case .number(let size) = body["bytes"], let total = Int(exactly: size),
+                (1...Self.maxSnapshotBytes).contains(total)
+            else { return ["status": "quota"] }
+            let id = UUID().uuidString
+            upload = Upload(id: id, total: total)
+            Self.uploadOwners[url] = id
+            return ["status": "ok", "transfer": id]
+        }
+        guard let id = Self.string(body, "transfer"), case .number(let position) = body["offset"],
+            let offset = Int(exactly: position), offset >= 0
+        else { return ["status": "corrupt"] }
+        if type == "storage.readSnapshotPart" {
+            guard let download, download.id == id, offset < download.data.count,
+                offset.isMultiple(of: Self.partBytes)
+            else { return ["status": "missing"] }
+            let end = min(offset + Self.partBytes, download.data.count)
+            let part = download.data[offset..<end].base64EncodedString().replacingOccurrences(of: "/", with: "_")
+            if end == download.data.count { self.download = nil }
+            return ["status": "ok", "value": part]
+        }
+
+        guard Self.uploadOwners[url] == id, upload?.id == id, let total = upload?.total else {
+            return ["status": "missing"]
+        }
+        guard offset == upload?.data.count, let encoded = Self.string(body, "data"),
+            let part = Data(base64Encoded: encoded.replacingOccurrences(of: "_", with: "/")),
+            part.count == min(Self.partBytes, total - offset)
+        else { return ["status": "corrupt"] }
+        upload?.data.append(part)
+        guard offset + part.count == total else { return Self.okay }
+        defer {
+            upload = nil
+            Self.uploadOwners.removeValue(forKey: url)
+        }
+        guard let bytes = upload?.data, let text = String(data: bytes, encoding: .utf8),
+            (try? JSONSerialization.jsonObject(with: bytes)) is [String: String]
+        else { return ["status": "corrupt"] }
+        guard store.write(namespace: record.namespace, key: record.key, value: text) else {
+            return ["status": "quota"]
+        }
+        onStorageWrite?(record.namespace, record.key, text)
+        return Self.okay
     }
 
     /// The reader's data by the site's own namespaces (App plan §8.7). `storage.list` names the

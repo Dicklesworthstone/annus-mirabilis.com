@@ -16,6 +16,7 @@ enum BridgeProtocol {
     static var messageTypes: Set<String> {
         var types: Set<String> = [
             "hello", "storage.read", "storage.write", "storage.list", "storage.clear", "storage.export",
+            "storage.beginSnapshot", "storage.appendSnapshot", "storage.readSnapshotPart",
             "settings.changed", "route.changed", "share.request", "external.open", "facsimile.status",
             "facsimile.request", "print.request",
         ]
@@ -112,11 +113,17 @@ enum BridgeValidator {
     /// Each body's exact fields, in the same order as schemas.ts BODIES.
     private static let bodies: [String: [Field]] = [
         "hello": [],
-        "storage.read": [key("namespace"), key("key")],
+        "storage.read": [key("namespace"), key("key"), Field(name: "chunked", kind: .boolean, optional: true)],
         "storage.write": [
             key("namespace"), key("key"),
             Field(name: "value", kind: .string, maxLength: BridgeProtocol.maxMessageBytes),
         ],
+        "storage.beginSnapshot": [Field(name: "bytes", kind: .number)],
+        "storage.appendSnapshot": [
+            key("transfer"), Field(name: "offset", kind: .number),
+            Field(name: "data", kind: .string, maxLength: BridgeProtocol.maxMessageBytes),
+        ],
+        "storage.readSnapshotPart": [key("transfer"), Field(name: "offset", kind: .number)],
         "storage.list": [key("namespace")],
         "storage.clear": [key("namespace")],
         "storage.export": [key("namespace", optional: true)],

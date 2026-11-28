@@ -137,6 +137,67 @@ struct ReaderDataStoreTests {
         #expect(data.read(namespace: "localStorage", key: "snapshot") == .value(#"{"am:notebook:v1":"[1]"}"#))
     }
 
+    @Test("only the newest complete snapshot is published, and a large export reads the committed record")
+    func multipartSnapshot() throws {
+        let disk = store()
+        let record = ReaderDataManifest.Record(namespace: "localStorage", key: "snapshot")
+        let key = "am:notes"
+        let entry = ReaderDataManifest.Entry(key: key, kind: "text", label: "Notes", exportable: true)
+        let manifest = ReaderDataManifest(snapshot: record, registry: [entry])
+        let writer = BridgeRouter()
+        let other = BridgeRouter()
+        for router in [writer, other] {
+            router.store = disk
+            router.readerData = manifest
+        }
+        let original = #"{"am:notes":"original"}"#
+        #expect(disk.write(namespace: record.namespace, key: record.key, value: original))
+        let notes = String(repeating: "光/🔬", count: 40_000)
+        let raw = try JSONEncoder().encode([key: notes])
+        let count = 128 * 1024
+        func begin(_ router: BridgeRouter) throws -> String {
+            let reply = router.handle(BridgeMessage(type: "storage.beginSnapshot", body: ["bytes": .number(Double(raw.count))]))
+            return try #require(reply["transfer"] as? String)
+        }
+        func append(_ router: BridgeRouter, _ id: String, _ offset: Int) -> String? {
+            let part = raw[offset..<min(offset + count, raw.count)].base64EncodedString()
+            let reply = router.handle(BridgeMessage(type: "storage.appendSnapshot", body: [
+                "transfer": .string(id), "offset": .number(Double(offset)), "data": .string(part),
+            ]))
+            return reply["status"] as? String
+        }
+        let stale = try begin(writer)
+        #expect(append(writer, stale, 0) == "ok")
+        #expect(disk.read(namespace: record.namespace, key: record.key) == .value(original))
+        let current = try begin(other)
+        #expect(append(writer, stale, count) == "missing")
+        #expect(append(other, current, count) == "corrupt")
+        #expect(disk.read(namespace: record.namespace, key: record.key) == .value(original))
+        for offset in stride(from: 0, to: raw.count, by: count) {
+            #expect(append(other, current, offset) == "ok")
+        }
+        guard case .data(let saved) = ReaderData.load(from: disk, manifest: manifest) else {
+            Issue.record("Committed snapshot could not be opened")
+            return
+        }
+        #expect(saved.export(key: key, at: Date()).namespaces.first?.value == .text(notes))
+        let read = writer.handle(BridgeMessage(type: "storage.read", body: [
+            "namespace": .string(record.namespace), "key": .string(record.key), "chunked": .bool(true),
+        ]))
+        let receipt = try #require(read["transfer"] as? String)
+        #expect(read["bytes"] as? Int == raw.count)
+        var recovered = Data()
+        for offset in stride(from: 0, to: raw.count, by: count) {
+            let reply = writer.handle(BridgeMessage(type: "storage.readSnapshotPart", body: [
+                "transfer": .string(receipt), "offset": .number(Double(offset)),
+            ]))
+            let encoded = try #require(reply["value"] as? String)
+            let part = try #require(Data(base64Encoded: encoded.replacingOccurrences(of: "_", with: "/")))
+            recovered.append(part)
+        }
+        #expect(recovered == raw)
+    }
+
     @Test("a name that tries to leave the directory still lands inside it")
     func pathSafety() {
         let data = store()

@@ -31,7 +31,6 @@
 
 import {
   BRIDGE_VERSION,
-  MAX_MESSAGE_BYTES,
   MESSAGE_HANDLER_NAME,
   NATIVE_EVENT_NAMES,
   SITE_ORIGIN,
@@ -54,8 +53,9 @@ export const SITE_THEME_IDS: readonly string[] = ["annalen", "kramgasse-night"];
  */
 export const SITE_STORAGE_PREFIX = "am:";
 
-/** A snapshot longer than this is not mirrored: it would not fit in one bridge message. */
-export const MAX_SNAPSHOT_LENGTH = MAX_MESSAGE_BYTES - 1024;
+/** UTF-8 bytes. A base64-encoded part still fits the bridge envelope. Also used by Swift. */
+export const SNAPSHOT_PART_BYTES = 128 * 1024;
+export const MAX_SNAPSHOT_BYTES = 32 * 1024 * 1024;
 
 /**
  * The one record the mirror writes: every site key and its value, as a JSON object. The app
@@ -84,7 +84,8 @@ export function installBridge(
   themeIds: readonly string[],
   siteOrigin: string,
   storagePrefix: string,
-  maxSnapshotLength: number,
+  partBytes: number,
+  maxSnapshotBytes: number,
   snapshotRecord: { readonly namespace: string; readonly key: string },
   typeScaleKey: string,
   typeSizes: readonly number[],
@@ -309,6 +310,62 @@ export function installBridge(
   let writing = false;
   let flushAfterWrite = false;
   let pending: ReturnType<typeof setTimeout> | undefined;
+  type SnapshotReply = {
+    status?: string; reason?: string; transfer?: string; bytes?: number; value?: unknown;
+  };
+  // Parts use byte offsets so UTF-8 characters can safely span two messages. The alternate
+  // slash also bounds the wire size on systems that JSON-escape every slash in a string.
+  const encodePart = (bytes: Uint8Array): string => {
+    let binary = "";
+    for (let i = 0; i < bytes.length; i += 8192) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+    }
+    return btoa(binary).replace(/\//g, "_");
+  };
+  const partRequest = async (type: string, body: Record<string, unknown>) => {
+    let reply = await request(type, body) as SnapshotReply | undefined;
+    if (reply?.status === "rejected" && reply.reason === "rate-limited") {
+      await new Promise((resolve) => setTimeout(resolve, 1050));
+      reply = await request(type, body) as SnapshotReply | undefined;
+    }
+    return reply;
+  };
+  const saveSnapshot = async (text: string): Promise<boolean> => {
+    // Even six escaped bytes per UTF-16 code unit plus the envelope fit one message.
+    if (text.length <= 40 * 1024) {
+      const reply = await request("storage.write", { ...snapshotRecord, value: text }) as SnapshotReply | undefined;
+      return reply?.status === "ok";
+    }
+    const bytes = new TextEncoder().encode(text);
+    if (bytes.length > maxSnapshotBytes) return false;
+    const start = await partRequest("storage.beginSnapshot", { bytes: bytes.length });
+    if (start?.status !== "ok" || typeof start.transfer !== "string") return false;
+    for (let offset = 0; offset < bytes.length; offset += partBytes) {
+      const reply = await partRequest("storage.appendSnapshot", {
+        transfer: start.transfer, offset, data: encodePart(bytes.subarray(offset, offset + partBytes)),
+      });
+      if (reply?.status !== "ok") return false;
+    }
+    return true;
+  };
+  const readSnapshot = async (): Promise<string | null | undefined> => {
+    const result = await request("storage.read", { ...snapshotRecord, chunked: true }) as SnapshotReply | undefined;
+    if (result?.status === "missing") return null;
+    if (result?.status !== "ok") return undefined;
+    if (typeof result.value === "string") return result.value;
+    const { bytes, transfer } = result;
+    if (typeof transfer !== "string" || typeof bytes !== "number" || !Number.isSafeInteger(bytes)
+      || bytes <= 0 || bytes > maxSnapshotBytes) return undefined;
+    const buffer = new Uint8Array(bytes);
+    for (let offset = 0; offset < bytes && needsRestore; offset += partBytes) {
+      const part = await partRequest("storage.readSnapshotPart", { transfer, offset });
+      if (part?.status !== "ok" || typeof part.value !== "string") return undefined;
+      const binary = atob(part.value.replace(/_/g, "/"));
+      if (binary.length !== Math.min(bytes - offset, partBytes)) return undefined;
+      for (let i = 0; i < binary.length; i++) buffer[offset + i] = binary.charCodeAt(i);
+    }
+    return needsRestore ? new TextDecoder("utf-8", { fatal: true }).decode(buffer) : undefined;
+  };
   const mirror = () => {
     if (pending !== undefined) {
       clearTimeout(pending);
@@ -325,12 +382,9 @@ export function installBridge(
       return;
     }
     const text = JSON.stringify(data);
-    if (text === mirrored || text.length > maxSnapshotLength) return;
+    if (text === mirrored) return;
     writing = true;
-    void request("storage.write", { ...snapshotRecord, value: text }).then(
-      (reply) => finishWrite((reply as { status?: string } | null)?.status === "ok"),
-      () => finishWrite(false),
-    );
+    void saveSnapshot(text).then(finishWrite, () => finishWrite(false));
     function finishWrite(saved: boolean) {
       mirrored = saved ? text : null;
       if (saved) {
@@ -410,14 +464,13 @@ export function installBridge(
     if (restoring || setItem === undefined || removeItem === undefined) return;
     restoring = true;
     try {
-      const reply = await request("storage.read", { ...snapshotRecord });
+      const snapshot = await readSnapshot();
       if (!needsRestore) return;
-      const result = reply as { status?: string; value?: unknown } | undefined;
       let restored = 0;
-      if (result?.status === "missing") {
+      if (snapshot === null) {
         mirrored = "{}";
-      } else if (result?.status === "ok" && typeof result.value === "string") {
-        const data: unknown = JSON.parse(result.value);
+      } else if (typeof snapshot === "string") {
+        const data: unknown = JSON.parse(snapshot);
         if (data === null || typeof data !== "object" || Array.isArray(data)) return;
         const entries = Object.entries(data).filter(([key]) => key.startsWith(storagePrefix));
         if (entries.some(([, value]) => typeof value !== "string")) return;
@@ -428,7 +481,7 @@ export function installBridge(
             restored++;
           }
         }
-        mirrored = result.value;
+        mirrored = snapshot;
       } else {
         return;
       }
@@ -495,7 +548,8 @@ export const BRIDGE_USER_SCRIPT_SOURCE = `(${installBridge.toString()})(${[
   SITE_THEME_IDS,
   SITE_ORIGIN,
   SITE_STORAGE_PREFIX,
-  MAX_SNAPSHOT_LENGTH,
+  SNAPSHOT_PART_BYTES,
+  MAX_SNAPSHOT_BYTES,
   SNAPSHOT_RECORD,
   SITE_TYPE_SCALE_KEY,
   SITE_TYPE_SIZES,

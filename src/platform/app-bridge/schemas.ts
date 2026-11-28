@@ -35,6 +35,9 @@ export const EDITION_MESSAGE_TYPES = [
   "hello",
   "storage.read",
   "storage.write",
+  "storage.beginSnapshot",
+  "storage.appendSnapshot",
+  "storage.readSnapshotPart",
   "storage.list",
   "storage.clear",
   "storage.export",
@@ -98,12 +101,17 @@ const KEY = { kind: "string", maxLength: 256 } as const satisfies FieldSpec;
 /** Each body's exact fields. A field not listed is refused, so the schema is closed. */
 const BODIES: Readonly<Record<EditionMessageType, Readonly<Record<string, FieldSpec>>>> = {
   hello: {},
-  "storage.read": { namespace: KEY, key: KEY },
+  "storage.read": { namespace: KEY, key: KEY, chunked: { kind: "boolean", optional: true } },
   "storage.write": {
     namespace: KEY,
     key: KEY,
     value: { kind: "string", maxLength: MAX_MESSAGE_BYTES },
   },
+  "storage.beginSnapshot": { bytes: { kind: "number" } },
+  "storage.appendSnapshot": {
+    transfer: KEY, offset: { kind: "number" }, data: { kind: "string", maxLength: MAX_MESSAGE_BYTES },
+  },
+  "storage.readSnapshotPart": { transfer: KEY, offset: { kind: "number" } },
   "storage.list": { namespace: KEY },
   "storage.clear": { namespace: KEY },
   "storage.export": { namespace: { ...KEY, optional: true } },
