@@ -35,6 +35,21 @@ export type ImportedTrajectory = Readonly<{
   timingIssue: string | null;
 }>;
 
+/** Shared equal-spacing admission for the complete recording or one selected track. */
+export function trajectorySpacingIssue(
+  previous: number,
+  next: number,
+  firstDt: number,
+): string | null {
+  const dt = next - previous;
+  const resolution = 8 * Number.EPSILON * Math.max(Math.abs(next), Math.abs(previous));
+  if (resolution > dt * 1e-7)
+    return "Timestamps are not sufficiently resolved. Use elapsed times relative to the recording start, not a large absolute epoch.";
+  if (!withinTolerance(dt, firstDt, { relative: 1e-7, relativeTo: "larger" }).ok)
+    return "The sampling interval differs within or between tracks. This equal-spacing inference model cannot analyze it; no samples were resampled or discarded.";
+  return null;
+}
+
 export class TrajectoryImportError extends Error {
   readonly row: number | null;
   constructor(message: string, row: number | null = null) {
@@ -264,17 +279,8 @@ export function parseTrajectoryCsv(text: string, units: TrajectoryUnits): Import
           "Times must strictly increase within each track; timestamps are never sorted or deduplicated.",
           row,
         );
-      // A large absolute epoch can make nominally equal intervals unresolvable.
-      // Refuse an exact-interval interpretation rather than widening tolerance.
-      const resolution = 8 * Number.EPSILON * Math.max(Math.abs(time), Math.abs(last.time));
-      if (resolution > dt * 1e-7)
-        timingIssue ??=
-          "Timestamps are not sufficiently resolved. Use elapsed times relative to the recording start, not a large absolute epoch.";
       firstDt ??= dt;
-      if (!withinTolerance(dt, firstDt, { relative: 1e-7, relativeTo: "larger" }).ok) {
-        timingIssue ??=
-          "The sampling interval differs within or between tracks. This equal-spacing inference model cannot analyze it; no samples were resampled or discarded.";
-      }
+      timingIssue ??= trajectorySpacingIssue(last.time, time, firstDt);
       for (let c = 0; c < dimension; c++) {
         const currentCoord = coordinates[c];
         const lastCoord = last.coordinates[c];

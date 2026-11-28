@@ -1,5 +1,6 @@
 import type { TrajectoryAssumptions } from "./trajectoryAnalysis.ts";
 import type { TrajectoryUnits } from "./trajectoryCsv.ts";
+import type { MomentRequest } from "./trajectoryMoments.ts";
 
 export type TrajectoryDraft = Readonly<{
   timeUnit: "" | TrajectoryUnits["time"];
@@ -12,6 +13,8 @@ export type TrajectoryDraft = Readonly<{
   localizationNanometres: string;
   exposureMilliseconds: string;
   censored: "unknown" | "yes" | "no";
+  momentAxis: MomentRequest["axis"];
+  momentDriftUmPerS: string;
   radiusIndependent: boolean;
   temperatureKelvin: string;
   viscosityMillipascalSeconds: string;
@@ -33,6 +36,8 @@ export const EMPTY_TRAJECTORY_DRAFT: TrajectoryDraft = Object.freeze({
   localizationNanometres: "",
   exposureMilliseconds: "",
   censored: "unknown",
+  momentAxis: "x",
+  momentDriftUmPerS: "",
   radiusIndependent: false,
   temperatureKelvin: "",
   viscosityMillipascalSeconds: "",
@@ -77,10 +82,7 @@ function radiusCalibration(draft: TrajectoryDraft) {
   return Object.freeze({ lower, upper, coverage: percent / 100, source });
 }
 
-export function readTrajectoryDraft(draft: TrajectoryDraft): Readonly<{
-  units: TrajectoryUnits;
-  assumptions: TrajectoryAssumptions;
-}> {
+export function readTrajectoryUnits(draft: TrajectoryDraft): TrajectoryUnits {
   if (
     !["s", "ms"].includes(draft.timeUnit) ||
     !["m", "um", "nm", "px"].includes(draft.positionUnit)
@@ -89,6 +91,22 @@ export function readTrajectoryDraft(draft: TrajectoryDraft): Readonly<{
       "Choose both time and position units; they are never inferred from magnitudes.",
     );
   }
+  return Object.freeze({
+    time: draft.timeUnit as TrajectoryUnits["time"],
+    position: draft.positionUnit as TrajectoryUnits["position"],
+    ...(draft.positionUnit === "px"
+      ? {
+          micrometresPerPixel: numeric(draft.micrometresPerPixel, "Pixel calibration", 1),
+        }
+      : {}),
+  });
+}
+
+export function readTrajectoryDraft(draft: TrajectoryDraft): Readonly<{
+  units: TrajectoryUnits;
+  assumptions: TrajectoryAssumptions;
+}> {
+  const units = readTrajectoryUnits(draft);
   if (
     ![
       "independent-increment-known-zero-drift",
@@ -106,15 +124,6 @@ export function readTrajectoryDraft(draft: TrajectoryDraft): Readonly<{
   // 99.9 / 100 rounds just above 0.999 in binary64. Validate in the declared
   // unit, then clamp that final rounding error at the documented boundary.
   const coverage = Math.min(0.999, percent / 100);
-  const units: TrajectoryUnits = Object.freeze({
-    time: draft.timeUnit as TrajectoryUnits["time"],
-    position: draft.positionUnit as TrajectoryUnits["position"],
-    ...(draft.positionUnit === "px"
-      ? {
-          micrometresPerPixel: numeric(draft.micrometresPerPixel, "Pixel calibration", 1),
-        }
-      : {}),
-  });
   return Object.freeze({
     units,
     assumptions: Object.freeze({
@@ -140,5 +149,21 @@ export function readTrajectoryDraft(draft: TrajectoryDraft): Readonly<{
           })
         : null,
     }),
+  });
+}
+
+export function readMomentRequest(draft: TrajectoryDraft, modelDeclared: boolean): MomentRequest {
+  const drift = draft.momentDriftUmPerS.trim();
+  if (!/^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?$/.test(drift))
+    throw new Error(
+      "Enter the independently known drift along the chosen axis, including zero when known.",
+    );
+  const speed = numeric(drift.replace(/^[-+]/, ""), "Known drift", 1e-6, true);
+  return Object.freeze({
+    axis: draft.momentAxis,
+    knownDriftMPerS: drift.startsWith("-") ? -speed : speed,
+    exposureSeconds: numeric(draft.exposureMilliseconds, "Uniform exposure time", 1e-3, true),
+    selection: draft.censored,
+    modelDeclared,
   });
 }

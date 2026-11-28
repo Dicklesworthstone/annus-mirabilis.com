@@ -25,9 +25,13 @@ import {
 } from "../../experiments/bm07/trajectoryCsv.ts";
 import {
   EMPTY_TRAJECTORY_DRAFT,
+  readMomentRequest,
   readTrajectoryDraft,
+  readTrajectoryUnits,
   type TrajectoryDraft,
 } from "../../experiments/bm07/trajectoryDraft.ts";
+import type { MomentAnalysis } from "../../experiments/bm07/trajectoryMoments.ts";
+import { CameraMomentInference } from "./CameraMomentInference.tsx";
 import { CameraTrajectoryResult } from "./CameraTrajectoryResult.tsx";
 import { LabMargin } from "./LabMargin.tsx";
 import { Sci } from "./Sci.tsx";
@@ -41,8 +45,17 @@ const estimatorNames = {
 };
 const display = (value: number): ReactNode =>
   value === 0 ? "0" : <Sci value={value} digits={5} />;
-type Accepted = Readonly<{ analysis: TrajectoryAnalysis; source: string; run: number }>;
-type AnalysisModel = "ideal-increments" | "camera-disjoint-pairs";
+type Accepted = Readonly<{
+  analysis: TrajectoryAnalysis | MomentAnalysis;
+  source: string;
+  run: number;
+}>;
+type AnalysisModel = "ideal-increments" | "camera-disjoint-pairs" | "camera-lag-one";
+function isMomentAnalysis(
+  analysis: TrajectoryAnalysis | MomentAnalysis,
+): analysis is MomentAnalysis {
+  return "model" in analysis && analysis.model === "camera-lag-one";
+}
 
 /** Measurements never enter a synthetic-recovery snapshot or a shared URL. */
 export function MeasuredTrajectoryLab() {
@@ -124,19 +137,27 @@ export function MeasuredTrajectoryLab() {
     setError("");
     setNotice("");
     try {
-      const request = readTrajectoryDraft(draft);
-      const trajectory = parseTrajectoryCsv(csv, request.units);
+      const trajectory = parseTrajectoryCsv(csv, readTrajectoryUnits(draft));
       // The numerical reference owner is not loaded until an explicit request.
       const host = await import("../../experiments/bm07/trajectoryHost.ts");
       if (token !== epoch.current) return;
-      const analysis =
-        analysisModel === "camera-disjoint-pairs"
-          ? host.analyzeImportedCameraTrajectory(
-              trajectory,
-              request.assumptions,
-              cameraModelDeclared,
-            )
-          : host.analyzeImportedTrajectory(trajectory, request.assumptions);
+      let analysis: TrajectoryAnalysis | MomentAnalysis;
+      if (analysisModel === "camera-lag-one") {
+        analysis = host.analyzeTrajectoryMoments(
+          trajectory,
+          readMomentRequest(draft, cameraModelDeclared),
+        );
+      } else {
+        const request = readTrajectoryDraft(draft);
+        analysis =
+          analysisModel === "camera-disjoint-pairs"
+            ? host.analyzeImportedCameraTrajectory(
+                trajectory,
+                request.assumptions,
+                cameraModelDeclared,
+              )
+            : host.analyzeImportedTrajectory(trajectory, request.assumptions);
+      }
       setAccepted({ analysis, source, run: ++run.current });
       setDirty(false);
       setNotice(
@@ -173,6 +194,26 @@ export function MeasuredTrajectoryLab() {
     try {
       let text: string;
       if (kind === "csv") text = trajectorySiCsv(accepted.analysis.trajectory);
+      else if (isMomentAnalysis(accepted.analysis))
+        text =
+          JSON.stringify(
+            {
+              schema: "annus-mirabilis-camera-moments/v1",
+              source: accepted.source,
+              ...accepted.analysis,
+              units: {
+                positions: "m",
+                time: "s",
+                drift: "m/s",
+                variance: "m^2",
+                covariance: "m^2",
+                D: "m^2/s",
+                sigma2: "m^2",
+              },
+            },
+            null,
+            2,
+          ) + "\n";
       else if (isCameraTrajectoryAnalysis(accepted.analysis))
         text = cameraTrajectoryAnalysisJson(accepted.analysis);
       else text = trajectoryAnalysisJson(accepted.analysis);
@@ -206,6 +247,7 @@ export function MeasuredTrajectoryLab() {
     key: keyof Pick<
       TrajectoryDraft,
       | "micrometresPerPixel"
+      | "momentDriftUmPerS"
       | "coveragePercent"
       | "localizationNanometres"
       | "exposureMilliseconds"
@@ -230,7 +272,8 @@ export function MeasuredTrajectoryLab() {
       />
     </div>
   );
-  const a = accepted?.analysis;
+  const record = accepted?.analysis;
+  const a = record && !isMomentAnalysis(record) ? record : null;
   return (
     <section
       className="laboratory measured-trajectory-lab"
@@ -348,6 +391,9 @@ export function MeasuredTrajectoryLab() {
               <option value="ideal-increments">
                 Ideal independent increments · no camera effects
               </option>
+              <option value="camera-lag-one">
+                Camera lag-one covariance · estimate unknown tracking noise
+              </option>
               <option value="camera-disjoint-pairs">
                 Camera-aware disjoint frame pairs · known noise
               </option>
@@ -374,21 +420,29 @@ export function MeasuredTrajectoryLab() {
                   setCameraModelDeclared(event.target.checked);
                 }}
               />
-              I am assuming isotropic Brownian motion with constant drift, independent particles,
-              and independent Gaussian localization errors with one common exactly known noise
-              scale. Exposure is uniform and does not overlap the next frame.
+              {analysisModel === "camera-lag-one" ? (
+                "I assume Brownian motion, independent position errors of constant variance, uniform exposure within each frame, and a drift along this axis known independently for every selected track."
+              ) : (
+                <>
+                  I am assuming isotropic Brownian motion with constant drift, independent
+                  particles, and independent Gaussian localization errors with one common exactly
+                  known noise scale. Exposure is uniform and does not overlap the next frame.
+                </>
+              )}
             </label>
           )}
-          <label className="check" htmlFor={`${id}-pooled`}>
-            <input
-              id={`${id}-pooled`}
-              type="checkbox"
-              checked={draft.commonDriftAndDiffusion}
-              onChange={(event) => edit("commonDriftAndDiffusion", event.target.checked)}
-            />
-            For multiple tracks, I am assuming the same drift and diffusion coefficient for all
-            particles.
-          </label>
+          {analysisModel !== "camera-lag-one" && (
+            <label className="check" htmlFor={`${id}-pooled`}>
+              <input
+                id={`${id}-pooled`}
+                type="checkbox"
+                checked={draft.commonDriftAndDiffusion}
+                onChange={(event) => edit("commonDriftAndDiffusion", event.target.checked)}
+              />
+              For multiple tracks, I am assuming the same drift and diffusion coefficient for all
+              particles.
+            </label>
+          )}
           <p className="fine">
             These are declarations, not findings from the CSV. Different-sized particles,
             confinement, correlated motion or tracking errors can invalidate them. Leave unknown
@@ -398,13 +452,43 @@ export function MeasuredTrajectoryLab() {
           <p className="fine">
             {analysisModel === "camera-disjoint-pairs"
               ? "The camera model includes the declared localization noise and uniform exposure. It uses disjoint frame pairs within each track and fits a common drift. Noise scale, exposure, timing and calibration are held exact; their uncertainty is not included. Unknown noise, selection/censoring, irregular sampling and three-coordinate data are not admitted."
-              : "The ideal model does not admit nonzero noise or exposure. Select the camera model for an explicitly known Gaussian noise scale and uniform exposure; it never treats adjacent noisy displacements as independent."}
+              : analysisModel === "camera-lag-one"
+                ? "The lag-one calculation compares adjacent displacements within each track. The position errors share one variance along the chosen coordinate, independent of the underlying motion. Drift, exposure, spatial scale and timing are held fixed."
+                : "The ideal model does not admit nonzero noise or exposure. Select the camera model for an explicitly known Gaussian noise scale and uniform exposure; it never treats adjacent noisy displacements as independent."}
           </p>
           <div className="input-grid">
-            {numberField(
-              "localizationNanometres",
-              "Position-localization standard deviation (nm; blank = unknown)",
+            {analysisModel === "camera-lag-one" && (
+              <>
+                <div className="input-field">
+                  <label htmlFor={`${id}-moment-axis`}>Coordinate for the moment estimates</label>
+                  <select
+                    id={`${id}-moment-axis`}
+                    value={draft.momentAxis}
+                    onChange={(event) =>
+                      edit("momentAxis", event.target.value as TrajectoryDraft["momentAxis"])
+                    }
+                  >
+                    <option value="x">x</option>
+                    <option value="y">y</option>
+                    <option value="z">z</option>
+                  </select>
+                </div>
+                {numberField(
+                  "momentDriftUmPerS",
+                  "Independently known drift along this coordinate (μm/s)",
+                )}
+                <p className="fine">
+                  At least four equally spaced positions are needed per track. Enter zero drift only
+                  if established independently. Neighboring displacements can separate tracking
+                  error from diffusion without a known noise scale.
+                </p>
+              </>
             )}
+            {analysisModel !== "camera-lag-one" &&
+              numberField(
+                "localizationNanometres",
+                "Position-localization standard deviation (nm; blank = unknown)",
+              )}
             {numberField("exposureMilliseconds", "Camera exposure (ms; blank = unknown)")}
             <div className="input-field">
               <label htmlFor={`${id}-censored`}>
@@ -447,77 +531,81 @@ export function MeasuredTrajectoryLab() {
                 every imported position remains in the observation export.
               </p>
             )}
-            {numberField("coveragePercent", "Conditional interval coverage (50–99.9%)")}
+            {analysisModel !== "camera-lag-one" &&
+              numberField("coveragePercent", "Conditional interval coverage (50–99.9%)")}
           </div>
         </fieldset>
-        <fieldset disabled={!ready}>
-          <legend>3 · Optional modern-SI consistency comparison</legend>
-          <label className="check" htmlFor={`${id}-radius`}>
-            <input
-              id={`${id}-radius`}
-              type="checkbox"
-              checked={draft.radiusIndependent}
-              onChange={(event) => edit("radiusIndependent", event.target.checked)}
-            />
-            I have an independently measured particle radius, not one inferred from these
-            displacements.
-          </label>
-          {draft.radiusIndependent && (
-            <div className="input-grid">
-              {numberField("temperatureKelvin", "Temperature (K)")}
-              {numberField("viscosityMillipascalSeconds", "Dynamic viscosity (mPa s)")}
-              {numberField("radiusMicrometres", "Independent particle radius (μm)")}
-              <label className="check" htmlFor={`${id}-radius-interval`}>
-                <input
-                  id={`${id}-radius-interval`}
-                  type="checkbox"
-                  checked={draft.radiusIntervalDeclared}
-                  onChange={(event) => edit("radiusIntervalDeclared", event.target.checked)}
-                />
-                Include a confidence interval from my independent radius measurement
-              </label>
-              {draft.radiusIntervalDeclared && (
-                <>
-                  {numberField("radiusLowerUm", "Lower radius bound (μm)")}
-                  {numberField("radiusUpperUm", "Upper radius bound (μm)")}
-                  {numberField("radiusCoveragePercent", "Coverage of the radius measurement (%)")}
-                  <div className="input-field">
-                    <label htmlFor={`${id}-radiusSource`}>
-                      Source of radius bounds and stated coverage
-                    </label>
-                    <input
-                      id={`${id}-radiusSource`}
-                      name="radiusSource"
-                      type="text"
-                      maxLength={512}
-                      value={draft.radiusSource}
-                      onChange={(event) => edit("radiusSource", event.target.value)}
-                    />
-                  </div>
-                  <p className="fine">
-                    Use the coverage your calibration actually supplies. For example, a 97.5% radius
-                    interval leaves room for a 97.5% diffusion interval to give at least 95% joint
-                    coverage. Temperature, viscosity, timing and spatial scale remain fixed.
-                  </p>
-                </>
-              )}
-            </div>
-          )}
-          <p className="fine">
-            Diffusion alone cannot determine molecular number independently of particle radius. With
-            modern SI constants, the optional inverse result is a consistency check, not an
-            independent count of molecules. It uses the dilute-sphere Stokes–Einstein model and
-            first holds radius and other calibration inputs fixed. A supplied radius interval adds a
-            separate comparison that includes radius uncertainty.
-          </p>
-          {analysisModel === "camera-disjoint-pairs" && (
+        {analysisModel !== "camera-lag-one" && (
+          <fieldset disabled={!ready}>
+            <legend>3 · Optional modern-SI consistency comparison</legend>
+            <label className="check" htmlFor={`${id}-radius`}>
+              <input
+                id={`${id}-radius`}
+                type="checkbox"
+                checked={draft.radiusIndependent}
+                onChange={(event) => edit("radiusIndependent", event.target.checked)}
+              />
+              I have an independently measured particle radius, not one inferred from these
+              displacements.
+            </label>
+            {draft.radiusIndependent && (
+              <div className="input-grid">
+                {numberField("temperatureKelvin", "Temperature (K)")}
+                {numberField("viscosityMillipascalSeconds", "Dynamic viscosity (mPa s)")}
+                {numberField("radiusMicrometres", "Independent particle radius (μm)")}
+                <label className="check" htmlFor={`${id}-radius-interval`}>
+                  <input
+                    id={`${id}-radius-interval`}
+                    type="checkbox"
+                    checked={draft.radiusIntervalDeclared}
+                    onChange={(event) => edit("radiusIntervalDeclared", event.target.checked)}
+                  />
+                  Include a confidence interval from my independent radius measurement
+                </label>
+                {draft.radiusIntervalDeclared && (
+                  <>
+                    {numberField("radiusLowerUm", "Lower radius bound (μm)")}
+                    {numberField("radiusUpperUm", "Upper radius bound (μm)")}
+                    {numberField("radiusCoveragePercent", "Coverage of the radius measurement (%)")}
+                    <div className="input-field">
+                      <label htmlFor={`${id}-radiusSource`}>
+                        Source of radius bounds and stated coverage
+                      </label>
+                      <input
+                        id={`${id}-radiusSource`}
+                        name="radiusSource"
+                        type="text"
+                        maxLength={512}
+                        value={draft.radiusSource}
+                        onChange={(event) => edit("radiusSource", event.target.value)}
+                      />
+                    </div>
+                    <p className="fine">
+                      Use the coverage your calibration actually supplies. For example, a 97.5%
+                      radius interval leaves room for a 97.5% diffusion interval to give at least
+                      95% joint coverage. Temperature, viscosity, timing and spatial scale remain
+                      fixed.
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
             <p className="fine">
-              The comparison uses the noise-corrected diffusion estimate and disjoint-pair interval.
-              An empty confidence set or one reaching zero cannot yield a finite molecular-number
-              interval. Localization noise and exposure are held exact too.
+              Diffusion alone cannot determine molecular number independently of particle radius.
+              With modern SI constants, the optional inverse result is a consistency check, not an
+              independent count of molecules. It uses the dilute-sphere Stokes–Einstein model and
+              first holds radius and other calibration inputs fixed. A supplied radius interval adds
+              a separate comparison that includes radius uncertainty.
             </p>
-          )}
-        </fieldset>
+            {analysisModel === "camera-disjoint-pairs" && (
+              <p className="fine">
+                The comparison uses the noise-corrected diffusion estimate and disjoint-pair
+                interval. An empty confidence set or one reaching zero cannot yield a finite
+                molecular-number interval. Localization noise and exposure are held exact too.
+              </p>
+            )}
+          </fieldset>
+        )}
         <div className="actions">
           <button type="submit" disabled={!ready || pending}>
             {pending ? "Reading or calculating…" : "Apply observations and assumptions"}
@@ -541,160 +629,180 @@ export function MeasuredTrajectoryLab() {
           {error}
         </p>
       )}
-      {a && accepted && (
+      {record && accepted && (
         <section
           aria-labelledby={`${id}-result`}
           data-accepted-run={accepted.run}
-          data-result-status={a.kind}
+          data-result-status={record.kind}
           data-semantic-kind="user-supplied-not-independently-verified"
         >
           <h3 id={`${id}-result`}>Accepted result {accepted.run}</h3>
           <p>
-            Source: {accepted.source}. {a.trajectory.points.length} positions in{" "}
-            {a.trajectory.trackCount} track(s), {a.trajectory.incrementCount} adjacent displacements
-            in the observation ledger, {a.trajectory.dimension} coordinate(s). Sampling interval:{" "}
-            {a.trajectory.dt === null ? (
+            Source: {accepted.source}. {record.trajectory.points.length} positions in{" "}
+            {record.trajectory.trackCount} track(s), {record.trajectory.incrementCount} adjacent
+            displacements in the observation ledger, {record.trajectory.dimension} coordinate(s).
+            Sampling interval across the recording:{" "}
+            {record.trajectory.dt === null ? (
               "not admitted as equally spaced"
             ) : (
-              <>{display(a.trajectory.dt)} s</>
+              <>{display(record.trajectory.dt)} s</>
             )}
             .
           </p>
-          <p>
-            Accepted estimator:{" "}
-            {isCameraTrajectoryAnalysis(a)
-              ? "Disjoint frame pairs · fitted common drift"
-              : estimatorNames[a.assumptions.estimator]}
-            . Requested coverage: {(a.assumptions.coverage * 100).toFixed(1)}%. Input units:{" "}
-            {a.trajectory.units.time}, {a.trajectory.units.position}
-            {a.trajectory.units.position === "px"
-              ? `; ${a.trajectory.units.micrometresPerPixel} μm per pixel`
-              : ""}
-            .
-          </p>
-          <p className="notice">{a.message}</p>
-          {isCameraTrajectoryAnalysis(a) && <CameraTrajectoryResult analysis={a} />}
-          {a.estimate && (
-            <table className="inference-summary">
-              <caption>Accepted diffusion analysis · host reference calculation · SI units</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Quantity</th>
-                  <th scope="col">Result</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">Diffusion estimate</th>
-                  <td>{display(a.estimate.dHat)} m²/s</td>
-                </tr>
-                <tr>
-                  <th scope="row">Unbiased diffusion estimate used for the interval</th>
-                  <td>{display(a.estimate.unbiasedDHat)} m²/s</td>
-                </tr>
-                <tr>
-                  <th scope="row">Degrees of freedom</th>
-                  <td>{a.estimate.q}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Sample mean velocity by coordinate</th>
-                  <td>{Array.from(a.estimate.drift, display).join(", ")} m/s</td>
-                </tr>
-                <tr>
-                  <th scope="row">Conditional diffusion interval</th>
-                  <td>
-                    {a.interval ? (
-                      <>
-                        [{display(a.interval.lower)}, {display(a.interval.upper)}] m²/s
-                      </>
-                    ) : (
-                      "Not available; no interval is implied."
-                    )}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          )}
-          <p>{a.molecularMessage}</p>
-          {a.molecular && (
-            <table className="inference-summary" data-semantic-kind="consistency-check">
-              <caption>
-                Modern-SI consistency check · inputs held exact · not an independent molecular count
-              </caption>
-              <tbody>
-                <tr>
-                  <th scope="row">Inverse molecular-number estimate</th>
-                  <td>{display(a.molecular.estimate)} mol⁻¹</td>
-                </tr>
-                <tr>
-                  <th scope="row">Conditional inverse interval</th>
-                  <td>
-                    [{display(a.molecular.interval.lower)}, {display(a.molecular.interval.upper)}]
-                    mol⁻¹
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">Ratio to the defined Avogadro constant</th>
-                  <td>
-                    {a.molecular.consistencyRatio === null
-                      ? "Not available"
-                      : display(a.molecular.consistencyRatio)}
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">Estimated Boltzmann constant</th>
-                  <td>
-                    {a.molecular.estimatedBoltzmannConstant === null ? (
-                      "Not available"
-                    ) : (
-                      <>{display(a.molecular.estimatedBoltzmannConstant)} J/K</>
-                    )}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          )}
-          {a.radiusComparison && (
-            <section
-              aria-labelledby={`${id}-combined-radius`}
-              data-radius-comparison={a.radiusComparison.kind}
-            >
-              <h4 id={`${id}-combined-radius`}>Including uncertainty in the particle radius</h4>
-              {a.assumptions.independentRadius?.calibration && (
-                <p>
-                  Independent radius measurement:{" "}
-                  {a.assumptions.independentRadius.calibration.source}. Bounds [
-                  {display(a.assumptions.independentRadius.calibration.lower * 1e6)},{" "}
-                  {display(a.assumptions.independentRadius.calibration.upper * 1e6)}] μm at{" "}
-                  {Number((100 * a.assumptions.independentRadius.calibration.coverage).toFixed(5))}%
-                  declared coverage.
-                </p>
+          {isMomentAnalysis(record) && <CameraMomentInference analysis={record} />}
+          {a && (
+            <>
+              <p>
+                Accepted estimator:{" "}
+                {isCameraTrajectoryAnalysis(a)
+                  ? "Disjoint frame pairs · fitted common drift"
+                  : estimatorNames[a.assumptions.estimator]}
+                . Requested coverage: {(a.assumptions.coverage * 100).toFixed(1)}%. Input units:{" "}
+                {a.trajectory.units.time}, {a.trajectory.units.position}
+                {a.trajectory.units.position === "px"
+                  ? `; ${a.trajectory.units.micrometresPerPixel} μm per pixel`
+                  : ""}
+                .
+              </p>
+              <p className="notice">{a.message}</p>
+              {isCameraTrajectoryAnalysis(a) && <CameraTrajectoryResult analysis={a} />}
+              {a.estimate && (
+                <table className="inference-summary">
+                  <caption>
+                    Accepted diffusion analysis · host reference calculation · SI units
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Result</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">Diffusion estimate</th>
+                      <td>{display(a.estimate.dHat)} m²/s</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Unbiased diffusion estimate used for the interval</th>
+                      <td>{display(a.estimate.unbiasedDHat)} m²/s</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Degrees of freedom</th>
+                      <td>{a.estimate.q}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Sample mean velocity by coordinate</th>
+                      <td>
+                        {Array.from(a.estimate.drift, (velocity, axis) => (
+                          <span key={["x", "y", "z"][axis]}>
+                            {axis > 0 ? ", " : ""}
+                            {display(velocity)}
+                          </span>
+                        ))}{" "}
+                        m/s
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Conditional diffusion interval</th>
+                      <td>
+                        {a.interval ? (
+                          <>
+                            [{display(a.interval.lower)}, {display(a.interval.upper)}] m²/s
+                          </>
+                        ) : (
+                          "Not available; no interval is implied."
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               )}
-              {a.radiusComparison.kind === "combined" ? (
-                <>
-                  <p>
-                    Combined molecular-number interval: [{display(a.radiusComparison.lower)},{" "}
-                    {display(a.radiusComparison.upper)}] mol⁻¹, with at least{" "}
-                    {Number((100 * a.radiusComparison.coverageLowerBound).toFixed(5))}% joint
-                    coverage.
-                  </p>
-                  <p>
-                    The same displacements give a{" "}
-                    {Number((100 * a.radiusComparison.diffusionInterval.coverage).toFixed(5))}%
-                    diffusion interval from {display(a.radiusComparison.diffusionInterval.lower)} to{" "}
-                    {display(a.radiusComparison.diffusionInterval.upper)} m²/s. The largest radius
-                    and fastest diffusion give the lower molecular number. The smallest radius and
-                    slowest diffusion give the upper. Adding the two possible error rates bounds the
-                    chance that either interval misses. This assumes the declared observation model
-                    and radius coverage.
-                  </p>
-                </>
-              ) : (
-                <p>{a.radiusComparison.reason}</p>
+              <p>{a.molecularMessage}</p>
+              {a.molecular && (
+                <table className="inference-summary" data-semantic-kind="consistency-check">
+                  <caption>
+                    Modern-SI consistency check · inputs held exact · not an independent molecular
+                    count
+                  </caption>
+                  <tbody>
+                    <tr>
+                      <th scope="row">Inverse molecular-number estimate</th>
+                      <td>{display(a.molecular.estimate)} mol⁻¹</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Conditional inverse interval</th>
+                      <td>
+                        [{display(a.molecular.interval.lower)},{" "}
+                        {display(a.molecular.interval.upper)}] mol⁻¹
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Ratio to the defined Avogadro constant</th>
+                      <td>
+                        {a.molecular.consistencyRatio === null
+                          ? "Not available"
+                          : display(a.molecular.consistencyRatio)}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Estimated Boltzmann constant</th>
+                      <td>
+                        {a.molecular.estimatedBoltzmannConstant === null ? (
+                          "Not available"
+                        ) : (
+                          <>{display(a.molecular.estimatedBoltzmannConstant)} J/K</>
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               )}
-            </section>
+              {a.radiusComparison && (
+                <section
+                  aria-labelledby={`${id}-combined-radius`}
+                  data-radius-comparison={a.radiusComparison.kind}
+                >
+                  <h4 id={`${id}-combined-radius`}>Including uncertainty in the particle radius</h4>
+                  {a.assumptions.independentRadius?.calibration && (
+                    <p>
+                      Independent radius measurement:{" "}
+                      {a.assumptions.independentRadius.calibration.source}. Bounds [
+                      {display(a.assumptions.independentRadius.calibration.lower * 1e6)},{" "}
+                      {display(a.assumptions.independentRadius.calibration.upper * 1e6)}] μm at{" "}
+                      {Number(
+                        (100 * a.assumptions.independentRadius.calibration.coverage).toFixed(5),
+                      )}
+                      % declared coverage.
+                    </p>
+                  )}
+                  {a.radiusComparison.kind === "combined" ? (
+                    <>
+                      <p>
+                        Combined molecular-number interval: [{display(a.radiusComparison.lower)},{" "}
+                        {display(a.radiusComparison.upper)}] mol⁻¹, with at least{" "}
+                        {Number((100 * a.radiusComparison.coverageLowerBound).toFixed(5))}% joint
+                        coverage.
+                      </p>
+                      <p>
+                        The same displacements give a{" "}
+                        {Number((100 * a.radiusComparison.diffusionInterval.coverage).toFixed(5))}%
+                        diffusion interval from{" "}
+                        {display(a.radiusComparison.diffusionInterval.lower)} to{" "}
+                        {display(a.radiusComparison.diffusionInterval.upper)} m²/s. The largest
+                        radius and fastest diffusion give the lower molecular number. The smallest
+                        radius and slowest diffusion give the upper. Adding the two possible error
+                        rates bounds the chance that either interval misses. This assumes the
+                        declared observation model and radius coverage.
+                      </p>
+                    </>
+                  ) : (
+                    <p>{a.radiusComparison.reason}</p>
+                  )}
+                </section>
+              )}
+            </>
           )}
-          <TrajectoryInspection key={accepted.run} trajectory={a.trajectory} />
+          <TrajectoryInspection key={accepted.run} trajectory={record.trajectory} />
           <div className="actions">
             <button type="button" onClick={() => download("json")}>
               Download accepted analysis and observations (JSON)

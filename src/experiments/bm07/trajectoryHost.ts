@@ -40,3 +40,5 @@ export function analyzeImportedCameraTrajectory(
     () => getConstantSet("modern-si-2019"),
   );
 }
+
+export { analyzeTrajectoryMoments } from "./trajectoryMoments.ts";

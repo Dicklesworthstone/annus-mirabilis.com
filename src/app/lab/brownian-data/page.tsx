@@ -40,11 +40,16 @@ export default function BrownianDataPage() {
           <pre>{"track,time,x,y\nA,0,0,0\nA,1,0.4,-0.2\nA,2,0.1,0.3"}</pre>
         </figure>
         <p>
-          Choose ideal independent increments or camera-aware disjoint frame pairs. The camera
-          method includes an explicitly known Gaussian localization noise scale and uniform
-          exposure, rather than silently ignoring them. Pairs stay within the same track; unmatched
-          final frames remain in the observations and are listed in the result and export. Unknown
-          noise, selection bias and unsupported observation models still receive no interval.
+          Use ideal independent increments when camera effects can be treated as zero. With a known
+          Gaussian localization noise scale and uniform exposure, disjoint frame pairs support a
+          camera-corrected diffusion interval. Pairs stay within each track. The export identifies
+          unmatched final frames and retains their positions.
+        </p>
+        <p>
+          If tracking noise is unknown and drift is independently known, choose lag-one covariance.
+          Four or more equally spaced positions on a track let you compare one displacement with the
+          next. Together their spread and covariance give separate point estimates of diffusion and
+          tracking noise. The form and export keep each track and its limits visible.
         </p>
       </section>
       <section className="reading" aria-labelledby="trajectory-limits">

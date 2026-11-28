@@ -198,6 +198,9 @@ describe("camera observations through the molecular-number comparison", () => {
       await setValue('[name="radiusCoveragePercent"]', "97.5");
       await setValue('[name="radiusSource"]', "Independent bead calibration C17");
       await submit();
+      if (model === "ideal-increments") {
+        expect(document.body.textContent).not.toContain("[object Object]");
+      }
       const combined = element('[data-radius-comparison="combined"]');
       expect(combined.textContent).toContain("Independent bead calibration C17");
       expect(combined.textContent).toContain("95% joint coverage");
@@ -255,6 +258,53 @@ describe("camera observations through the molecular-number comparison", () => {
     expect(result.camera.interval.lower).toBeGreaterThan(0);
     expect(result.molecular.interval.upper).toBeGreaterThan(0);
     expect(result.radiusComparison.upper).toBeUndefined();
+  });
+
+  test("unknown camera noise is inferred from neighboring displacements without joining tracks or inventing intervals", async () => {
+    // On A the declared drift shifts the y increments [-1,0,-3,-2] to [0,1,-2,-1] μm.
+    const source =
+      "track,time,x,y\nA,0,9,0\nB,0,2,50\nA,1,8,-1\nB,2,3,51\nA,2,7,-1\nA,3,6,-4\nA,4,5,-6";
+    await setValue("textarea", source);
+    await setValue('select[id$="-timeUnit"]', "s");
+    await setValue('select[id$="-positionUnit"]', "um");
+    await setValue('select[id$="-model"]', "camera-lag-one");
+    await setValue('select[id$="-moment-axis"]', "y");
+    await check("camera-model");
+    await setValue('[name="momentDriftUmPerS"]', "-1");
+    await setValue('[name="exposureMilliseconds"]', "300");
+    await setValue('select[id$="-censored"]', "no");
+    expect(document.querySelector('[name="localizationNanometres"]')).toBeNull();
+    expect(document.querySelector('[name="coveragePercent"]')).toBeNull();
+    await submit();
+    const panel = element('[data-analysis-model="camera-lag-one"]');
+    expect(panel.textContent).toContain("supplies no confidence interval");
+    expect(panel.textContent).toContain("four positions from this track");
+    const first = await exported();
+    expect(first.source).toBe("Pasted CSV");
+    expect(first.assumptions.knownDriftMPerS).toBe(-1e-6);
+    expect(first.interval).toBeNull();
+    expect(first.trajectory.dt).toBeNull(); // unequal spacings across tracks are valid here
+    expect(first.tracks[0].sourceRows).toEqual([2, 4, 6, 7, 8]);
+    expect(first.tracks[1].sourceRows).toEqual([3, 5]);
+    expect(first.tracks[0].increments).toBe(4);
+    expect(first.tracks[0].neighboringPairs).toBe(3);
+    expect(first.tracks[0].variance * 1e12).toBeCloseTo(1.5, 8);
+    expect(first.tracks[0].covariance * 1e12).toBeCloseTo(0, 8);
+    expect(first.tracks[0].D * 1e12).toBeCloseTo(0.75, 8);
+    expect(first.tracks[0].sigma2 * 1e12).toBeCloseTo(0.075, 8);
+    expect(first.tracks[0].spreadAlone.maximumNoiseVariance * 1e12).toBeCloseTo(0.75, 8);
+    await setValue('[name="momentDriftUmPerS"]', "0");
+    expect(await exported()).toEqual(first);
+    await submit();
+    expect(element('[data-analysis-model="camera-lag-one"]').textContent).toContain(
+      "A fitted value is negative",
+    );
+    const second = await exported();
+    expect(second.tracks[0].sigma2).toBeLessThan(0);
+    expect(second.trajectory).toEqual(first.trajectory);
+    await setValue('select[id$="-censored"]', "unknown");
+    await submit();
+    expect((await exported()).kind).toBe("unavailable");
   });
 
   test("zero-reaching and empty camera sets keep all observations without a finite molecular interval", async () => {
