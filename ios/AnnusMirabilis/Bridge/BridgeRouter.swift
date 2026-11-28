@@ -39,7 +39,7 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     // Incomplete bytes live with the router and disappear on termination; the committed
     // snapshot remains the same atomic file understood by older editions and native exports.
     private static var uploadOwners: [URL: String] = [:]
-    private static var lastClear: [URL: UUID] = [:]
+    private static var snapshotRevision: [URL: UUID] = [:]
     private static let partBytes = 128 * 1024
     private static let maxSnapshotBytes = 32 * 1024 * 1024
     private struct Upload {
@@ -48,7 +48,7 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
         var data = Data()
     }
     private var upload: Upload?
-    private var download: (id: String, data: Data, lastClear: UUID?)?
+    private var download: (id: String, data: Data, snapshotRevision: UUID?)?
     private var limiter = BridgeRateLimiter()
     private let capabilities: [String]
 
@@ -192,7 +192,12 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
                 Self.uploadOwners.removeValue(forKey: store.fileURL(namespace: namespace, key: key))
             }
             let written = store.write(namespace: namespace, key: key, value: value)
-            if written { onStorageWrite?(namespace, key, value) }
+            if written {
+                if namespace == readerData?.snapshot.namespace, key == readerData?.snapshot.key {
+                    Self.snapshotRevision[store.fileURL(namespace: namespace, key: key)] = UUID()
+                }
+                onStorageWrite?(namespace, key, value)
+            }
             return ["status": written ? "ok" : "quota"]
         }
         switch store.read(namespace: namespace, key: key) {
@@ -202,7 +207,7 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             {
                 guard text.utf8.count <= Self.maxSnapshotBytes else { return ["status": "quota"] }
                 let id = UUID().uuidString
-                download = (id, Data(text.utf8), Self.lastClear[store.fileURL(namespace: namespace, key: key)])
+                download = (id, Data(text.utf8), Self.snapshotRevision[store.fileURL(namespace: namespace, key: key)])
                 return ["status": "ok", "transfer": id, "bytes": text.utf8.count]
             }
             return ["status": "ok", "value": text]
@@ -223,7 +228,7 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             upload = nil
             download = nil
             Self.uploadOwners.removeValue(forKey: url)
-            Self.lastClear[url] = UUID()
+            Self.snapshotRevision[url] = UUID()
         }
         switch store.read(namespace: record.namespace, key: record.key) {
         case .missing: return Self.okay
@@ -257,8 +262,8 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             let offset = Int(exactly: position), offset >= 0
         else { return ["status": "corrupt"] }
         if type == "storage.readSnapshotPart" {
-            guard let download, download.id == id, download.lastClear == Self.lastClear[url], offset < download.data.count,
-                offset.isMultiple(of: Self.partBytes)
+            guard let download, download.id == id, download.snapshotRevision == Self.snapshotRevision[url],
+                offset < download.data.count, offset.isMultiple(of: Self.partBytes)
             else { return ["status": "missing"] }
             let end = min(offset + Self.partBytes, download.data.count)
             let part = download.data[offset..<end].base64EncodedString().replacingOccurrences(of: "/", with: "_")
@@ -285,6 +290,7 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
         guard store.write(namespace: record.namespace, key: record.key, value: text) else {
             return ["status": "quota"]
         }
+        Self.snapshotRevision[url] = UUID()
         onStorageWrite?(record.namespace, record.key, text)
         return Self.okay
     }

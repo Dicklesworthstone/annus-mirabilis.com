@@ -353,7 +353,7 @@ export function installBridge(
     }
     return true;
   };
-  const readSnapshot = async (): Promise<string | null | undefined> => {
+  const readSnapshot = async (retrySuperseded = true): Promise<string | null | undefined> => {
     const result = await request("storage.read", { ...snapshotRecord, chunked: true }) as SnapshotReply | undefined;
     if (result?.status === "missing") return null;
     if (result?.status !== "ok") return undefined;
@@ -364,6 +364,9 @@ export function installBridge(
     const buffer = new Uint8Array(bytes);
     for (let offset = 0; offset < bytes && needsRestore; offset += partBytes) {
       const part = await partRequest("storage.readSnapshotPart", { transfer, offset });
+      // A newer committed snapshot invalidates the old receipt. Reopen it once without
+      // applying any bytes from the abandoned snapshot to Web Storage.
+      if (part?.status === "missing" && retrySuperseded && needsRestore) return readSnapshot(false);
       if (part?.status !== "ok" || typeof part.value !== "string") return undefined;
       const binary = atob(part.value.replace(/_/g, "/"));
       if (binary.length !== Math.min(bytes - offset, partBytes)) return undefined;
@@ -419,6 +422,24 @@ export function installBridge(
   const markRecovery = () => setItem?.call(localStorage, restoringKey,
     removedDuringRestore.size ? JSON.stringify([...removedDuringRestore]) : "1",
   );
+  const storageChanged = (key: string | null, removed: boolean) => {
+    if (key === null) {
+      // An intentionally emptied store must not be mistaken for eviction on relaunch
+      // while the native erasure is still unacknowledged.
+      needsRestore = false;
+      removedDuringRestore.clear();
+      mirrored = null;
+      setItem?.call(localStorage, restoringKey, "commit");
+    } else if (key.startsWith(storagePrefix)) {
+      if (needsRestore) {
+        if (removed) removedDuringRestore.add(key);
+        markRecovery();
+      } else if (removed && mirrored !== JSON.stringify(siteData())) {
+        setItem?.call(localStorage, restoringKey, "commit");
+      }
+    }
+    scheduleMirror();
+  };
   try {
     const proto = Storage.prototype;
     setItem = proto.setItem;
@@ -432,22 +453,8 @@ export function installBridge(
           const result = original.apply(this, args);
           try {
             if (this === localStorage) {
-              if (name === "clear") {
-                // An intentionally emptied store must not be mistaken for eviction on relaunch
-                // while the native erasure is still unacknowledged.
-                needsRestore = false;
-                removedDuringRestore.clear();
-                mirrored = null;
-                setItem?.call(localStorage, restoringKey, "commit");
-              } else if (typeof args[0] === "string" && args[0].startsWith(storagePrefix)) {
-                if (needsRestore) {
-                  if (name === "removeItem") removedDuringRestore.add(args[0]);
-                  markRecovery();
-                } else if (name === "removeItem" && mirrored !== JSON.stringify(siteData())) {
-                  setItem?.call(localStorage, restoringKey, "commit");
-                }
-              }
-              scheduleMirror();
+              if (name === "clear") storageChanged(null, true);
+              else if (typeof args[0] === "string") storageChanged(args[0], name === "removeItem");
             }
           } catch {
             /* Storage blocked. */
@@ -459,6 +466,16 @@ export function installBridge(
   } catch {
     setItem = undefined;
   }
+  // Same-origin windows share Web Storage, but their mutations bypass this page's prototype.
+  // Apply their removals to a pending native restore before it can put the old values back.
+  window.addEventListener("storage", (event) => {
+    try {
+      if (event.storageArea !== localStorage || (event.key !== null && !event.key.startsWith(storagePrefix))) return;
+      storageChanged(event.key, event.newValue === null);
+    } catch {
+      /* A blocked store will retry recovery on the next readable page. */
+    }
+  });
   // The native confirmation sheet waits for both copies. Going through the wrapped
   // removeItem records a tombstone even if WebKit is midway through a restore.
   const clearSavedNamespace = async (key: string): Promise<boolean> => {

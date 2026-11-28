@@ -196,6 +196,19 @@ struct ReaderDataStoreTests {
             recovered.append(part)
         }
         #expect(recovered == raw)
+
+        let started = writer.handle(BridgeMessage(type: "storage.read", body: [
+            "namespace": .string(record.namespace), "key": .string(record.key), "chunked": .bool(true),
+        ]))
+        let outdated = try #require(started["transfer"] as? String)
+        let replaced = other.handle(BridgeMessage(type: "storage.write", body: [
+            "namespace": .string(record.namespace), "key": .string(record.key), "value": .string("{}"),
+        ]))
+        #expect(replaced["status"] as? String == "ok")
+        let stalePart = writer.handle(BridgeMessage(type: "storage.readSnapshotPart", body: [
+            "transfer": .string(outdated), "offset": .number(0),
+        ]))
+        #expect(stalePart["status"] as? String == "missing")
     }
 
     @Test("clearing removes only one registered clearable key and preserves damaged originals")

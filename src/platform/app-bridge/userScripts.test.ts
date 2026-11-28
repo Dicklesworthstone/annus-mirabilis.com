@@ -204,10 +204,10 @@ function sandbox(options: {
     for (const observer of observers) observer();
   };
   const typeScale = () => attributes.get("data-type-scale") ?? null;
-  const fire = (target: "window" | "document", type: string) => {
+  const fire = (target: "window" | "document", type: string, fields: Record<string, unknown> = {}) => {
     for (const listener of (target === "window" ? windowListeners : documentListeners).get(type) ??
       []) {
-      listener({ type });
+      listener({ type, ...fields });
     }
   };
   const setTheme = (value: string, stored?: string) => {
@@ -657,6 +657,24 @@ describe("the reader's data mirrored into the app", () => {
     assert.equal(page.localStorage.getItem("am:notebook:v1"), null);
     assert.equal(page.localStorage.getItem("am:tours:v1"), "keep");
     assert.deepEqual(snapshots(page), [{ "am:tours:v1": "keep" }]);
+  });
+
+  it("respects other windows' removals and full clears during a pending recovery", async () => {
+    for (const erased of ["am:notes", null]) {
+      let finishRead!: (reply: unknown) => void;
+      const page = sandbox({ inApp: true, replies: {
+        "storage.read": new Promise((resolve) => { finishRead = resolve; }),
+      } });
+      page.run();
+      page.fire("window", "storage", { storageArea: page.localStorage, key: erased, newValue: null });
+      finishRead({ status: "ok", value: JSON.stringify({ "am:notes": "old", "am:tours": "keep" }) });
+      await page.settle();
+      page.tick();
+      await page.settle();
+      assert.equal(page.localStorage.getItem("am:notes"), null);
+      assert.equal(page.localStorage.getItem("am:tours"), erased === null ? null : "keep");
+      assert.deepEqual(snapshots(page).at(-1), erased === null ? {} : { "am:tours": "keep" });
+    }
   });
 
   it("backs up and recovers a valid multilingual notebook larger than one bridge message", async () => {
