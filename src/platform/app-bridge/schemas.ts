@@ -64,6 +64,7 @@ export const NATIVE_EVENT_NAMES = [
   "lifecycle.thermalState",
   "lifecycle.visibility",
   "facsimile.updated",
+  "storage.clear",
 ] as const;
 
 export type NativeEventName = (typeof NATIVE_EVENT_NAMES)[number];
@@ -113,7 +114,7 @@ const BODIES: Readonly<Record<EditionMessageType, Readonly<Record<string, FieldS
   },
   "storage.readSnapshotPart": { transfer: KEY, offset: { kind: "number" } },
   "storage.list": { namespace: KEY },
-  "storage.clear": { namespace: KEY },
+  "storage.clear": { namespace: KEY, checkOnly: { kind: "boolean", optional: true } },
   "storage.export": { namespace: { ...KEY, optional: true } },
   "settings.changed": {
     theme: { kind: "string", optional: true, maxLength: 64 },

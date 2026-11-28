@@ -615,6 +615,50 @@ describe("the reader's data mirrored into the app", () => {
     assert.deepEqual(snapshots(page), []);
   });
 
+  it("confirms a native removal only after the registry, WebKit and the native store agree", async () => {
+    const key = "am:notebook:v1";
+    let blocked = true;
+    let saved = true;
+    const page = sandbox({
+      inApp: true, stored: { [key]: "notes", "am:tours:v1": "keep" },
+      respond: ({ type, body }) => {
+        if (type !== "storage.clear") return;
+        if (body.namespace !== key || blocked) return { status: "unavailable" };
+        if (body.checkOnly === true) return { status: "ok" };
+        return { status: saved ? "ok" : "quota" };
+      },
+    });
+    page.run();
+    const app = page.window.__AM_APP__ as { dispatch(name: string, payload: unknown): boolean | Promise<boolean> };
+    assert.equal(await app.dispatch("storage.clear", { key }), false);
+    assert.equal(page.localStorage.getItem(key), "notes");
+    blocked = false;
+    saved = false;
+    assert.equal(await app.dispatch("storage.clear", { key }), false);
+    assert.equal(page.localStorage.getItem(key), null);
+    saved = true;
+    assert.equal(await app.dispatch("storage.clear", { key }), true);
+    assert.equal(page.localStorage.getItem("am:tours:v1"), "keep");
+    assert.equal(await app.dispatch("storage.clear", { key: "other" }), false);
+  });
+
+  it("a clear requested during restoration cannot resurrect the erased namespace", async () => {
+    let finishRead!: (reply: unknown) => void;
+    const native = { "am:notebook:v1": "erase", "am:tours:v1": "keep" };
+    const page = sandbox({ inApp: true, replies: {
+      "storage.read": new Promise((resolve) => { finishRead = resolve; }),
+      "storage.clear": { status: "ok" },
+    } });
+    page.run();
+    const app = page.window.__AM_APP__ as { dispatch(name: string, payload: unknown): Promise<boolean> };
+    assert.equal(await app.dispatch("storage.clear", { key: "am:notebook:v1" }), true);
+    finishRead({ status: "ok", value: JSON.stringify(native) });
+    await page.settle();
+    assert.equal(page.localStorage.getItem("am:notebook:v1"), null);
+    assert.equal(page.localStorage.getItem("am:tours:v1"), "keep");
+    assert.deepEqual(snapshots(page), [{ "am:tours:v1": "keep" }]);
+  });
+
   it("backs up and recovers a valid multilingual notebook larger than one bridge message", async () => {
     const notebook = JSON.stringify(parseNotebookDocument({
       ...emptyNotebook(),

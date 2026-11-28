@@ -198,6 +198,40 @@ struct ReaderDataStoreTests {
         #expect(recovered == raw)
     }
 
+    @Test("clearing removes only one registered clearable key and preserves damaged originals")
+    func clearExactKey() throws {
+        let router = BridgeRouter()
+        let disk = store()
+        let record = ReaderDataManifest.Record(namespace: "localStorage", key: "snapshot")
+        let first = ReaderDataManifest.Entry(key: "am:n", kind: "setting", label: "Notes", exportable: true, clearable: true)
+        let other = ReaderDataManifest.Entry(key: "am:n-extra", kind: "setting", label: "Other", exportable: true, clearable: false)
+        router.store = disk
+        router.readerData = ReaderDataManifest(snapshot: record, registry: [first, other])
+        let original = #"{"am:n":"remove","am:n-extra":"keep","am:old":"recover"}"#
+        #expect(disk.write(namespace: record.namespace, key: record.key, value: original))
+        func clear(_ key: String, checkOnly: Bool = false) -> String? {
+            router.handle(BridgeMessage(type: "storage.clear", body: [
+                "namespace": .string(key), "checkOnly": .bool(checkOnly),
+            ]))["status"] as? String
+        }
+        #expect(clear("am:") == "unavailable")
+        #expect(clear(other.key) == "unavailable")
+        #expect(clear(first.key, checkOnly: true) == "ok")
+        #expect(disk.read(namespace: record.namespace, key: record.key) == .value(original))
+        #expect(clear(first.key) == "ok")
+        guard case .value(let text) = disk.read(namespace: record.namespace, key: record.key) else {
+            Issue.record("The remaining namespaces disappeared")
+            return
+        }
+        #expect(ReaderData.snapshotValues(text) == ["am:n-extra": "keep", "am:old": "recover"])
+        #expect(clear(first.key) == "ok")
+        let damaged = #"{"am:n":"saved","am:n-extra":123}"#
+        #expect(disk.write(namespace: record.namespace, key: record.key, value: damaged))
+        #expect(clear(first.key, checkOnly: true) == "corrupt")
+        #expect(clear(first.key) == "corrupt")
+        #expect(disk.read(namespace: record.namespace, key: record.key) == .value(damaged))
+    }
+
     @Test("a name that tries to leave the directory still lands inside it")
     func pathSafety() {
         let data = store()

@@ -8,6 +8,35 @@ final class ReaderDataUITests: XCTestCase {
     }
 
     @MainActor
+    func testRemovalRequiresConfirmationAndSurvivesOpeningTheDataSheetAgain() throws {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-AMUITest", "-AMStateSuite", "uitest-\(UUID().uuidString)", "-AMOpenRoute", "/papers/brownian-motion/",
+        ]
+        app.launch(for: self)
+        app.chooseDarkTheme()
+        app.waitForMirror(of: "am:settings:v1:theme")
+        func openData() {
+            app.buttons["page-actions"].tap()
+            app.buttons["Your data on this device"].tap()
+        }
+        openData()
+        app.buttons["Remove Reading theme"].tap()
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.buttons["Export Reading theme"].exists)
+        app.buttons["Remove Reading theme"].tap()
+        let confirm = app.buttons["Remove from this device"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+        confirm.tap()
+        let outcome = app.staticTexts["reader-data-removal-result"]
+        XCTAssertTrue(outcome.waitForExistence(timeout: 10))
+        XCTAssertEqual(outcome.label, "Removed Reading theme.")
+        app.buttons["Done"].tap()
+        openData()
+        XCTAssertFalse(app.buttons["Export Reading theme"].exists)
+    }
+
+    @MainActor
     func testTheReadersChoiceIsListedAndExported() throws {
         let app = XCUIApplication()
         app.launchArguments = [

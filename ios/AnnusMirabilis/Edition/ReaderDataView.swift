@@ -8,6 +8,10 @@ struct ReaderDataView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var loaded: ReaderData.LoadResult?
     @State private var confirmingPositionsClear = false
+    @State private var selectedForRemoval: ReaderDataManifest.Entry?
+    @State private var confirmingRemoval = false
+    @State private var removing = false
+    @State private var removalMessage: String?
 
     @State private var updatingSpotlight = false
     @State private var spotlightMessage: String?
@@ -20,9 +24,28 @@ struct ReaderDataView: View {
     var body: some View {
         NavigationStack {
             List {
+                if let removalMessage { Text(removalMessage).accessibilityIdentifier("reader-data-removal-result") }
                 content
                 readingPositions
                 if session.savesSceneState { spotlight }
+            }
+            .confirmationDialog(
+                "Remove saved data?", isPresented: $confirmingRemoval, titleVisibility: .visible,
+                presenting: selectedForRemoval
+            ) { entry in
+                Button("Remove from this device", role: .destructive) {
+                    removing = true
+                    Task {
+                        let cleared = await session.dispatchToPage("storage.clear", ["key": entry.key])
+                        loaded = session.loadReaderData()
+                        removalMessage = cleared ? "Removed \(entry.label)."
+                            : "Could not confirm removal of \(entry.label) from both saved copies. Try again."
+                        removing = false
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { entry in
+                Text("This removes \(entry.label) from the edition and its recovery copy on this device. You can export a copy first.")
             }
             .onEditionPaper()
             .accessibilityIdentifier("reader-data-list")
@@ -134,6 +157,17 @@ struct ReaderDataView: View {
                 .foregroundStyle(Color("MutedInk"))
             }
             Spacer()
+            if entry.clearable == true {
+                Button(role: .destructive) {
+                    selectedForRemoval = entry
+                    confirmingRemoval = true
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .buttonStyle(.borderless)
+                .disabled(removing)
+                .accessibilityLabel("Remove \(entry.label)")
+            }
             if entry.exportable {
                 Button {
                     session.share(data.export(key: entry.key, at: Date()))

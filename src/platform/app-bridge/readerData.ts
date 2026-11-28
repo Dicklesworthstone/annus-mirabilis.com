@@ -14,6 +14,7 @@ export interface ReaderDataEntry {
   readonly kind: StorageKind;
   readonly label: string;
   readonly exportable: boolean;
+  readonly clearable: boolean;
 }
 
 export interface ReaderDataManifest {
@@ -30,6 +31,7 @@ export function readerDataManifest(registry: KeyRegistry = storageKeyRegistry): 
       kind: entry.kind,
       label: entry.label,
       exportable: entry.exportable,
+      clearable: entry.clearable,
     })),
   };
 }

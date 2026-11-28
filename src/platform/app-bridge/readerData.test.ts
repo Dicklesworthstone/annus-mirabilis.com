@@ -28,8 +28,8 @@ describe("the reader-data manifest", () => {
     const registered = storageKeyRegistry.all();
     assert.ok(projected.length > 0, "an empty registry would make every export empty");
     assert.deepEqual(
-      projected.map((entry) => [entry.key, entry.kind, entry.label, entry.exportable]),
-      registered.map((entry) => [entry.key, entry.kind, entry.label, entry.exportable]),
+      projected.map((entry) => [entry.key, entry.kind, entry.label, entry.exportable, entry.clearable]),
+      registered.map((entry) => [entry.key, entry.kind, entry.label, entry.exportable, entry.clearable]),
     );
   });
 });

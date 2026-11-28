@@ -39,6 +39,7 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     // Incomplete bytes live with the router and disappear on termination; the committed
     // snapshot remains the same atomic file understood by older editions and native exports.
     private static var uploadOwners: [URL: String] = [:]
+    private static var lastClear: [URL: UUID] = [:]
     private static let partBytes = 128 * 1024
     private static let maxSnapshotBytes = 32 * 1024 * 1024
     private struct Upload {
@@ -47,7 +48,7 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
         var data = Data()
     }
     private var upload: Upload?
-    private var download: (id: String, data: Data)?
+    private var download: (id: String, data: Data, lastClear: UUID?)?
     private var limiter = BridgeRateLimiter()
     private let capabilities: [String]
 
@@ -144,6 +145,8 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             return share(body)
         case "storage.read", "storage.write":
             return storage(message.type, body)
+        case "storage.clear":
+            return clearNamespace(body)
         case "storage.beginSnapshot", "storage.appendSnapshot", "storage.readSnapshotPart":
             return snapshotPart(message.type, body)
         case "storage.list", "storage.export":
@@ -199,12 +202,42 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             {
                 guard text.utf8.count <= Self.maxSnapshotBytes else { return ["status": "quota"] }
                 let id = UUID().uuidString
-                download = (id, Data(text.utf8))
+                download = (id, Data(text.utf8), Self.lastClear[store.fileURL(namespace: namespace, key: key)])
                 return ["status": "ok", "transfer": id, "bytes": text.utf8.count]
             }
             return ["status": "ok", "value": text]
         case .missing: return ["status": "missing"]
         case .corrupt: return ["status": "corrupt"]
+        }
+    }
+
+    /// Exact registered namespaces only. A damaged snapshot must stay intact for recovery.
+    private func clearNamespace(_ body: [String: JSONValue]) -> [String: Any] {
+        guard let store, let readerData, let key = Self.string(body, "namespace"),
+            readerData.registry.contains(where: { $0.key == key && $0.clearable == true })
+        else { return Self.unavailable }
+        let record = readerData.snapshot
+        let url = store.fileURL(namespace: record.namespace, key: record.key)
+        let checking = body["checkOnly"] == .bool(true)
+        if !checking {
+            upload = nil
+            download = nil
+            Self.uploadOwners.removeValue(forKey: url)
+            Self.lastClear[url] = UUID()
+        }
+        switch store.read(namespace: record.namespace, key: record.key) {
+        case .missing: return Self.okay
+        case .corrupt: return ["status": "corrupt"]
+        case .value(let text):
+            guard var values = ReaderData.snapshotValues(text) else { return ["status": "corrupt"] }
+            if checking { return Self.okay }
+            guard values.removeValue(forKey: key) != nil else { return Self.okay }
+            guard let bytes = try? JSONSerialization.data(withJSONObject: values, options: [.sortedKeys, .withoutEscapingSlashes]),
+                let remaining = String(data: bytes, encoding: .utf8),
+                store.write(namespace: record.namespace, key: record.key, value: remaining)
+            else { return ["status": "quota"] }
+            onStorageWrite?(record.namespace, record.key, remaining)
+            return Self.okay
         }
     }
 
@@ -224,7 +257,7 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             let offset = Int(exactly: position), offset >= 0
         else { return ["status": "corrupt"] }
         if type == "storage.readSnapshotPart" {
-            guard let download, download.id == id, offset < download.data.count,
+            guard let download, download.id == id, download.lastClear == Self.lastClear[url], offset < download.data.count,
                 offset.isMultiple(of: Self.partBytes)
             else { return ["status": "missing"] }
             let end = min(offset + Self.partBytes, download.data.count)

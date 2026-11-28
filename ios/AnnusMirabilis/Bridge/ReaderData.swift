@@ -14,6 +14,8 @@ struct ReaderDataManifest: Decodable, Sendable, Equatable {
         let kind: String
         let label: String
         let exportable: Bool
+        // Older editions advertised exportability only. Clearing needs explicit registry permission.
+        var clearable: Bool? = nil
     }
 
     let snapshot: Record
@@ -46,10 +48,7 @@ struct ReaderData: Sendable {
 
     /// The snapshot is a JSON object of the site's keys to their stored strings.
     static func snapshotValues(_ text: String) -> [String: String]? {
-        guard let object = try? JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any] else {
-            return nil
-        }
-        return object.compactMapValues { $0 as? String }
+        (try? JSONSerialization.jsonObject(with: Data(text.utf8))) as? [String: String]
     }
 
     /// The registered namespaces that hold something, in the registry's order. `prefix` narrows

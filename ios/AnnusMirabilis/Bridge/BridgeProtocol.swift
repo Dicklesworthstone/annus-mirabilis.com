@@ -125,7 +125,7 @@ enum BridgeValidator {
         ],
         "storage.readSnapshotPart": [key("transfer"), Field(name: "offset", kind: .number)],
         "storage.list": [key("namespace")],
-        "storage.clear": [key("namespace")],
+        "storage.clear": [key("namespace"), Field(name: "checkOnly", kind: .boolean, optional: true)],
         "storage.export": [key("namespace", optional: true)],
         "settings.changed": [
             Field(name: "theme", kind: .string, optional: true, maxLength: 64),

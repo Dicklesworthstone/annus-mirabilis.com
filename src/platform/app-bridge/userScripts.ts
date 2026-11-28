@@ -115,9 +115,14 @@ export function installBridge(
   };
   // Native can cover the reader before React mounts. Retain that state for late subscribers.
   let nativeVisibility: "visible" | "hidden" | null = null;
-  const dispatch = (name: string, payload: unknown): boolean => {
+  const dispatch = (name: string, payload: unknown): boolean | Promise<boolean> => {
     if (eventNames.indexOf(name) === -1) {
       return false;
+    }
+    if (name === "storage.clear") {
+      const key = payload !== null && typeof payload === "object" && "key" in payload ? payload.key : null;
+      return typeof key === "string" && key.startsWith(storagePrefix) && key.length <= 256
+        ? clearSavedNamespace(key) : false;
     }
     if (name === "lifecycle.visibility") {
       const state =
@@ -454,6 +459,26 @@ export function installBridge(
   } catch {
     setItem = undefined;
   }
+  // The native confirmation sheet waits for both copies. Going through the wrapped
+  // removeItem records a tombstone even if WebKit is midway through a restore.
+  const clearSavedNamespace = async (key: string): Promise<boolean> => {
+    if (!setItem || !removeItem) return false;
+    try {
+      const allowed = await request("storage.clear", { namespace: key, checkOnly: true }) as SnapshotReply | undefined;
+      if (allowed?.status !== "ok") return false;
+      const oldValue = localStorage.getItem(key);
+      localStorage.removeItem(key);
+      if (localStorage.getItem(key) !== null) return false;
+      const cleared = await request("storage.clear", { namespace: key }) as SnapshotReply | undefined;
+      if (cleared?.status !== "ok" || localStorage.getItem(key) !== null) return false;
+      if (oldValue !== null && typeof StorageEvent === "function") {
+        window.dispatchEvent(new StorageEvent("storage", { key, oldValue, newValue: null, storageArea: localStorage, url: location.href }));
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  };
   window.addEventListener("pagehide", mirror);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
